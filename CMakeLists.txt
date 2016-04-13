@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 2.0.0)
 
 
 set (ProjectName "YACCLAB")
@@ -6,11 +6,22 @@ set (ProjectName "YACCLAB")
 project (${ProjectName})
 
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Configs" FORCE)
+set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/build" CACHE PATH "Install prefix" FORCE)
 
 if(MSVC)
   set(CMAKE_USE_RELATIVE_PATHS ON CACHE INTERNAL "" FORCE)
 endif()
 
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
+if(COMPILER_SUPPORTS_CXX11)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+elseif(COMPILER_SUPPORTS_CXX0X)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+else()
+        message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
+endif()
 
 
 
@@ -36,12 +47,7 @@ include_directories( "." )
 #opencv
 # --------------------------------------------------
 
-set(OpenCV_STATIC OFF)
-#set(OpenCVBuildPAth "$ENV{OPENCV_DIR}")
-set (OpenCVBuildPAth  "C:/users/federico/Desktop/ConnectedComponents/opencv/build")
-FIND_PACKAGE(OpenCV REQUIRED NO_MODULE
-		PATHS ${OpenCVBuildPAth}
-		NO_DEFAULT_PATH)
+FIND_PACKAGE(OpenCV REQUIRED core imgproc)
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 	 
 
@@ -50,29 +56,20 @@ include_directories( ${OpenCV_INCLUDE_DIRS} )
 # --------------------
 
 file(GLOB SRCFILES ${SRCFILES} "*.cpp" "*.c")
-
 file(GLOB HFILES ${HFILES} "*.h" "*.hpp")
-
-#	source_group (Source FILES ${SRCFILES_t})
-#	source_group (Headers FILES ${HFILES_t})
-
 	
 set (addExe ${SRCFILES} ${HFILES})
 add_executable(${ProjectName} ${addExe})
 target_link_libraries (${ProjectName}  ${OpenCV_LIBS})
 include_directories (${CMAKE_CURRENT_BINARY_DIR})
 
+# Config file copy		
+file(COPY "config.cfg" DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+file(COPY "config.cfg" DESTINATION ${CMAKE_BINARY_DIR}/Release)
 
-
-# ---------------------------------
-# config file copy		
-	file(COPY "config.cfg" DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-	file(COPY "config.cfg" DESTINATION ${CMAKE_BINARY_DIR}/Release)
-
-# ------------------------------------
-
-
-
-# ----------------------------------------------------------------------------
-# Summary:
-# ----------------------------------------------------------------------------
+# Download and unzip dataset
+message(STATUS "Downloading dataset...")
+file(DOWNLOAD http://imagelab.ing.unimore.it/files/YACCLAB_dataset.tgz "${CMAKE_INSTALL_PREFIX}/dataset.tgz")
+message(STATUS "Downloading done. Unpacking...")
+execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${CMAKE_INSTALL_PREFIX}/dataset.tgz" WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}")
+message(STATUS "Unpacking done.")
