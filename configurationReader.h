@@ -197,7 +197,7 @@ public:
         return Convert::string_to_T<ValueType>(contents.find(key)->second);
     }
 
-    std::vector<std::string> getStringValuesOfKey(const std::string &key, std::vector<std::string> &defaultValue) const
+    std::vector<std::string> getStringValuesOfKey(const std::string &key, const std::vector<std::string> &defaultValue) const
     {
         std::vector<std::string> values;
 
