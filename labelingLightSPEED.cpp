@@ -1,4 +1,5 @@
 #include "labelingLightSPEED.h"
+#include <assert.h>
 #include <numeric>
 
 using namespace std; 
