@@ -9,6 +9,15 @@
 #include <algorithm>
 #include <vector>
 
+void exitWithError(const std::string &error)
+{
+    std::cout << error;
+    std::cin.ignore();
+    std::cin.get();
+
+    exit(EXIT_FAILURE);
+}
+
 class Convert
 {
 public:
@@ -45,15 +54,6 @@ public:
         return val;
     }
 };
-
-void exitWithError(const std::string &error)
-{
-    std::cout << error;
-    std::cin.ignore();
-    std::cin.get();
-
-    exit(EXIT_FAILURE);
-}
 
 class ConfigFile
 {
