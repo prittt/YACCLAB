@@ -67,9 +67,10 @@ include_directories (${CMAKE_CURRENT_BINARY_DIR})
 file(COPY "config.cfg" DESTINATION ${CMAKE_BINARY_DIR}/Debug)
 file(COPY "config.cfg" DESTINATION ${CMAKE_BINARY_DIR}/Release)
 
-# Download and unzip dataset
+# Download and unpack dataset
 message(STATUS "Downloading dataset...")
 file(DOWNLOAD http://imagelab.ing.unimore.it/files/YACCLAB_dataset.tgz "${CMAKE_INSTALL_PREFIX}/dataset.tgz")
 message(STATUS "Downloading done. Unpacking...")
 execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${CMAKE_INSTALL_PREFIX}/dataset.tgz" WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}")
 message(STATUS "Unpacking done.")
+file(REMOVE "${CMAKE_INSTALL_PREFIX}/dataset.tgz")
