@@ -1,2 +1,2 @@
 # YACCLAB
-Yet Another Connected-Components Labeling Benchmark
+Yet Another Connected Components Labeling Benchmark
