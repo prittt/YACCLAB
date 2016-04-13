@@ -66,8 +66,8 @@ include_directories (${CMAKE_CURRENT_BINARY_DIR})
 
 # ---------------------------------
 # config file copy		
-	file(COPY "files.txt" DESTINATION ${CMAKE_BINARY_DIR}/bin/Debug)
-	file(COPY "files.txt" DESTINATION ${CMAKE_BINARY_DIR}/bin/Release)
+	file(COPY "config.cfg" DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+	file(COPY "config.cfg" DESTINATION ${CMAKE_BINARY_DIR}/Release)
 
 # ------------------------------------
 
@@ -76,5 +76,3 @@ include_directories (${CMAKE_CURRENT_BINARY_DIR})
 # ----------------------------------------------------------------------------
 # Summary:
 # ----------------------------------------------------------------------------
-message("")
-message("End  =====================================")
