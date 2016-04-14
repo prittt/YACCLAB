@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.0.0)
+cmake_minimum_required(VERSION 2.4.0)
 
 
 set (ProjectName "YACCLAB")
@@ -47,7 +47,7 @@ include_directories( "." )
 #opencv
 # --------------------------------------------------
 
-FIND_PACKAGE(OpenCV REQUIRED core imgproc)
+FIND_PACKAGE(OpenCV REQUIRED core imgcodecs imgproc)
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 	 
 
@@ -68,9 +68,9 @@ file(COPY "config.cfg" DESTINATION ${CMAKE_BINARY_DIR}/Debug)
 file(COPY "config.cfg" DESTINATION ${CMAKE_BINARY_DIR}/Release)
 
 # Download and unpack dataset
-message(STATUS "Downloading dataset...")
-file(DOWNLOAD http://imagelab.ing.unimore.it/files/YACCLAB_dataset.tgz "${CMAKE_INSTALL_PREFIX}/dataset.tgz")
-message(STATUS "Downloading done. Unpacking...")
-execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${CMAKE_INSTALL_PREFIX}/dataset.tgz" WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}")
-message(STATUS "Unpacking done.")
-file(REMOVE "${CMAKE_INSTALL_PREFIX}/dataset.tgz")
+#message(STATUS "Downloading dataset...")
+#file(DOWNLOAD http://imagelab.ing.unimore.it/files/YACCLAB_dataset.tgz "${CMAKE_INSTALL_PREFIX}/dataset.tgz")
+#message(STATUS "Downloading done. Unpacking...")
+#execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${CMAKE_INSTALL_PREFIX}/dataset.tgz" WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}")
+#message(STATUS "Unpacking done.")
+#file(REMOVE "${CMAKE_INSTALL_PREFIX}/dataset.tgz")
