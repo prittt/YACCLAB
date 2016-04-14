@@ -39,17 +39,6 @@ bool dirExists(const char* pathname){
 	return false; 
 }
 
-// TODO if necessary
-void syntax() {
-	cerr << "" << endl;
-	exit(EXIT_FAILURE);
-}
-void error(const string& s) {
-	cerr << s;
-	exit(EXIT_FAILURE);
-}
-// TODO if necessary
-
 // Create a bunch of pseudo random colors from labels indexes and create a
 // color representation for the labels
 void colorLabels(const Mat1i& imgLabels, Mat3b& imgOut) {
@@ -180,7 +169,7 @@ unsigned int ctoi(const char &c){
 	return ((int)c - 48);
 }
 
-string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const string& input_path, const string& input_folder, const string& input_txt, const string& gnuplot_script, string& output_path, string& colors_folder, const bool& write_n_labels = true, const bool& output_colors = true){
+string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const string& input_path, const string& input_folder, const string& input_txt, const string& gnuplot_script, const string& exe_path, string& output_path, string& colors_folder, const bool& write_n_labels = true, const bool& output_colors = true){
 
 	string output_folder = input_folder,
 		   complete_output_path = output_path + "\\" + output_folder,
@@ -198,9 +187,16 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const stri
 		   averages_os_path = output_path + "\\" + output_folder + "\\" + output_averages_results;
 
 	// For LIST OF INPUT IMAGES
-	ifstream is(is_path);
-	if (!is.is_open())
+	ifstream supp(is_path);
+	if (!supp.is_open())
 		return ("Averages_Test on '" + input_folder + "': Unable to open " + is_path);
+    // Count number of lines to display process bar
+    int fileNumber = (int)std::count(std::istreambuf_iterator<char>(supp), std::istreambuf_iterator<char>(), '\n');
+    supp.close(); 
+    //Reopen file
+    ifstream is(is_path);
+    if (!is.is_open())
+        return ("Averages_Test on '" + input_folder + "': Unable to open " + is_path);
 	// For BROAD RESULT
 	ofstream os(os_path);
 	if (!os.is_open())
@@ -224,12 +220,19 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const stri
 
 	vector<pair<double, uint16_t>> supp_averages(CCLAlgorithms.size(),  make_pair(0, 0));
 
-	PerformanceEvaluator perf;
-	while (true){
-		string filename;
-		getline(is, filename);
-		if (is.eof())
-			break;
+    // Count number of lines to display process bar
+    uint currentNumber = 0; 
+
+    PerformanceEvaluator perf;
+    string filename;
+    while (getline(is, filename)){
+		//if (is.eof())
+		//	break;
+        
+        // Display "process bar"
+        if (currentNumber*100/fileNumber != (currentNumber-1)*100/fileNumber)
+            cout << currentNumber << "/" << fileNumber << "\r";
+        currentNumber++;
 
 		Mat1b binaryImg;
 
@@ -306,7 +309,7 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const stri
     scriptos << "# Graph style"<< endl;
     scriptos << "set style data histogram" << endl;
 	scriptos << "set style histogram cluster gap 1" << endl;
-	scriptos << "set style fill solid border -1" << endl;
+	scriptos << "set style fill solid 0.25 border -1" << endl;
 	scriptos << "set boxwidth 0.9" << endl << endl;
 	
     scriptos << "# Get stats to set labels" << endl;
@@ -328,7 +331,7 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const stri
 
     scriptos << "# Plot" << endl; 
 	scriptos << "plot \\" << endl; 
-    scriptos << "\"" + output_averages_results + "\" using 2:xtic(1), \"" << output_averages_results << "\" using ($0 - xw) : ($2 + yw) : (stringcolumn(2)) with labels" << endl << endl;
+    scriptos << "'" + output_averages_results + "' using 2:xtic(1), '" << output_averages_results << "' using ($0 - xw) : ($2 + yw) : (stringcolumn(2)) with labels" << endl << endl;
 	
     scriptos << "# " << output_folder << "(BLACK AND WHITE)" << endl;
     scriptos << "set output \"" + output_graph_bw + "\"" << endl;
@@ -345,12 +348,28 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const stri
 	scriptos.close();
     // GNUPLOT SCRIPT
 
-    if( 0 != std::system(("gnuplot " + complete_output_path + "\\" + gnuplot_script).c_str()))
+    //std::system("echo %cd%");
+    //// move to the gnuplot directory 
+    //if (0 != std::system(("cd " + complete_output_path).c_str()))
+    //    return ("Averages_Test on '" + input_folder + "': Unable to move to gnuplot's script");
+    //std::system("echo %cd%");
+    //// exec gnuplot script
+    //if (0 != std::system(("gnuplot " + gnuplot_script).c_str()))
+    //    return ("Averages_Test on '" + input_folder + "': Unable to run gnuplot's script");
+    //
+    //// back to the project directory 
+    //if (0 != std::system(("cd " + exe_path).c_str())){
+    //    // TODO, exit??
+    //    return ("Averages_Test on '" + input_folder + "': FATAL ERROR, Unable back to project file");
+    //}
+
+    if (0 != std::system(("gnuplot " + complete_output_path + "\\" + gnuplot_script).c_str()))
         return ("Averages_Test on '" + input_folder + "': Unable to run gnuplot's script");
+
 	return ("Averages_Test on '" + input_folder + "': successfuly done");
 }
 
-string density_size_test(vector<pair<CCLPointer,string>>& CCLAlgorithms, const string& input_path, const string& input_folder, const string& input_txt, const string& gnuplot_script, string& output_path, string& colors_folder, const bool& write_n_labels = true, const bool& output_colors = true){
+string density_size_test(vector<pair<CCLPointer,string>>& CCLAlgorithms, const string& input_path, const string& input_folder, const string& input_txt, const string& gnuplot_script,const string& exe_path,  string& output_path, string& colors_folder, const bool& write_n_labels = true, const bool& output_colors = true){
 	
 	string output_folder = input_folder,
 		   complete_output_path = output_path + "\\" + output_folder,
@@ -372,7 +391,14 @@ string density_size_test(vector<pair<CCLPointer,string>>& CCLAlgorithms, const s
 	       size_os_path = output_path + "\\" + output_folder + "\\" + output_size_result;
 
 	// For LIST OF INPUT IMAGES
-	ifstream is(is_path);
+    ifstream supp(is_path);
+    if (!supp.is_open())
+        return ("Density_Size_Test on '" + input_folder + "': Unable to open " + is_path);
+    // Count number of lines to display process bar
+    int fileNumber = (int)std::count(std::istreambuf_iterator<char>(supp), std::istreambuf_iterator<char>(), '\n');
+    supp.close();
+    //Reopen file
+    ifstream is(is_path);
 	if(!is.is_open())
 		return ("Density_Size_Test on '" + input_folder + "': Unable to open " + is_path);
 	// For BROAD RESULT
@@ -436,11 +462,16 @@ string density_size_test(vector<pair<CCLPointer,string>>& CCLAlgorithms, const s
 	//	view "supp_density" explanation for more details;
 	//
 
-	while (true){
-		string filename;
-		getline(is, filename);
-		if (is.eof())
-			break;
+    uint currentNumber = 0;
+    string filename;
+    while (getline(is, filename)){
+		//if (is.eof())
+		//	break;
+
+        // Display "process bar"
+        if (currentNumber * 100 / fileNumber != (currentNumber - 1) * 100 / fileNumber)
+            cout << currentNumber << "/" << fileNumber << "\r";
+        currentNumber++;
 
 		Mat1b binaryImg;
 
@@ -662,7 +693,21 @@ string density_size_test(vector<pair<CCLPointer,string>>& CCLAlgorithms, const s
 	scriptos.close();
 	// GNUPLOT SCRIPT 
 
-	if(0 != std::system(("gnuplot " + complete_output_path + "\\" + gnuplot_script).c_str()))
+   // // move to the gnuplot directory 
+   // if (0 != std::system(("cd ..\\" + complete_output_path).c_str()))
+   //     return ("Density_Size_Test on '" + input_folder + "': Unable to move to gnuplot's script");
+   //
+   // // exec gnuplot script
+	//if(0 != std::system(("gnuplot " + gnuplot_script).c_str()))
+   //     return ("Density_Size_Test on '" + input_folder + "': Unable to run gnuplot's script");
+   //
+   // // back to the project directory 
+   // if (0 != std::system(("cd " + exe_path).c_str())){
+   //     // TODO, exit??
+   //     return ("Density_Size_Test on '" + input_folder + "': FATAL ERROR, Unable back to project file");
+   // }
+
+    if (0 != std::system(("gnuplot " + complete_output_path + "\\" + gnuplot_script).c_str()))
         return ("Density_Size_Test on '" + input_folder + "': Unable to run gnuplot's script");
 	return ("Density_Size_Test on '" + output_folder + "': successfuly done");
 }
@@ -673,12 +718,15 @@ int main(int argc, char **argv){
 
     // Flags to customize output format
     bool output_colors_density_size = cfg.getValueOfKey<bool>("ds_colorLabels", false),
-         output_colors_average_test = cfg.getValueOfKey<bool>("at_colorLabels", false),
-         write_n_labels = cfg.getValueOfKey<bool>("write_n_labels", true),
-         check_8connectivity = cfg.getValueOfKey<bool>("check_8connectivity", true),
-         ds_saveMiddleTests = cfg.getValueOfKey<bool>("ds_saveMiddleTests", false),
-         at_saveMiddleTests = cfg.getValueOfKey<bool>("at_saveMiddleTests", false);
-    
+        output_colors_average_test = cfg.getValueOfKey<bool>("at_colorLabels", false),
+        write_n_labels = cfg.getValueOfKey<bool>("write_n_labels", true),
+        check_8connectivity = cfg.getValueOfKey<bool>("check_8connectivity", true),
+        ds_saveMiddleTests = cfg.getValueOfKey<bool>("ds_saveMiddleTests", false),
+        at_saveMiddleTests = cfg.getValueOfKey<bool>("at_saveMiddleTests", false),
+        ds_perform = cfg.getValueOfKey<bool>("ds_perform", true),
+        at_perform = cfg.getValueOfKey<bool>("at_perform", true); 
+        
+
     // Number of tests
     uint8_t ds_testsNumber = cfg.getValueOfKey<uint8_t>("ds_testsNumber", 1), 
             at_testsNumber = cfg.getValueOfKey<uint8_t>("at_testsNumber", 1);
@@ -694,8 +742,27 @@ int main(int argc, char **argv){
     vector<string> check_list = cfg.getStringValuesOfKey("check_list", vector<string> {"test_random", "hamlet"});
 
     // Lists of dataset on which CCLA are tested: one list for every type of test
-    vector<string> input_folders_density_size_test = cfg.getStringValuesOfKey("densitySize_tests" , vector<string> { "test_random"}),
+    vector<string> input_folders_density_size_test = { "test_random" },
 				   input_folders_averages_test = cfg.getStringValuesOfKey("averages_tests" , vector<string> { "mirflickr", "tobacco800", "Sarc3D_masks", "hamlet" });
+
+    // Lists of algorithms to check and/or test
+    vector<pair<CCLPointer, string>> CCLAlgorithms;
+    vector<string> funcName = cfg.getStringValuesOfKey("CCLAlgorithmsFunc", vector<string> { "labelingGranaOPT", "Wu", "labelingGranaOPTv2", "labelingGranaOPTv3", "LSL_STD", "CCIT" });
+    vector<string> algName = cfg.getStringValuesOfKey("CCLAlgorithmsName", vector<string> { "BBDT_v1", "SAUF", "BBDT_v2", "BBDT_V3", "LSL _ STD", "CCIT" });
+
+    if (funcName.size() != algName.size())
+    {
+        cout << "'CCLAlgorithmsFunc' and 'CCLAlgorithmsName' dimension must match" << endl;
+        return 1; 
+    }
+
+    uint i = 0; 
+    for (vector<string>::iterator it = funcName.begin(); it != funcName.end(); ++it, ++i){  
+        if (CCLAlgorithmsMap.find(*it) == CCLAlgorithmsMap.end())
+            cout << "Unable to find " << *it << " algorithm, skipped" << endl;
+        else
+            CCLAlgorithms.push_back({CCLAlgorithmsMap.find(*it)->second, algName[i]});
+    }
 
 	// Check if algorithms are correct
     if (check_8connectivity){
@@ -706,20 +773,25 @@ int main(int argc, char **argv){
 
 	// Test Algorithms with different input type and different output format, and show execution result
 	// AVERAGES TEST
-	cout << endl << "AVERAGES TESTS: " << endl;
-	for (unsigned int i = 0; i < input_folders_averages_test.size(); ++i){
-		cout << "Averages_Test on '" << input_folders_averages_test[i] << "': starts" << endl;
-		cout << averages_test(CCLAlgorithms, input_path, input_folders_averages_test[i], input_txt, gnuplot_scipt, output_path, colors_folder, write_n_labels, output_colors_average_test) << endl;
-		cout << "Averages_Test on '" << input_folders_averages_test[i] << "': ends" << endl << endl;
-	}
+    if (at_perform){
+        cout << endl << "AVERAGES TESTS: " << endl;
+	    for (unsigned int i = 0; i < input_folders_averages_test.size(); ++i){
+	    	cout << "Averages_Test on '" << input_folders_averages_test[i] << "': starts" << endl;
+            cout << averages_test(CCLAlgorithms, input_path, input_folders_averages_test[i], input_txt, gnuplot_scipt, argv[0], output_path, colors_folder, write_n_labels, output_colors_average_test) << endl;
+	    	cout << "Averages_Test on '" << input_folders_averages_test[i] << "': ends" << endl << endl;
+	    }
+    }
     
 	// DENSITY_SIZE_TESTS
-	cout << endl << "DENSITY_SIZE TESTS: " << endl;
-	for (unsigned int i = 0; i < input_folders_density_size_test.size(); ++i){
-		cout << "Density_Size_Test on '" << input_folders_density_size_test[i] << "': starts" << endl;
-        cout << density_size_test(CCLAlgorithms, input_path, input_folders_density_size_test[i], input_txt, gnuplot_scipt, output_path, colors_folder, write_n_labels, output_colors_density_size) << endl;
-		cout << "Density_Size_Test on '" << input_folders_density_size_test[i] << "': ends" << endl << endl;
-	}
+    if (ds_perform){
+        cout << endl << "DENSITY_SIZE TESTS: " << endl;
+        // TODO: remove for
+        for (unsigned int i = 0; i < input_folders_density_size_test.size(); ++i){
+            cout << "Density_Size_Test on '" << input_folders_density_size_test[i] << "': starts" << endl;
+            cout << density_size_test(CCLAlgorithms, input_path, input_folders_density_size_test[i], input_txt, gnuplot_scipt, argv[0], output_path, colors_folder, write_n_labels, output_colors_density_size) << endl;
+            cout << "Density_Size_Test on '" << input_folders_density_size_test[i] << "': ends" << endl << endl;
+        }
+    }
 
 	return 0; 
 }
