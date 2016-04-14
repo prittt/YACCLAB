@@ -30,7 +30,7 @@ endif()
 # ----------------------------------------------------------------------------
 
 # Save libs and executables in the same place
-set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin" CACHE PATH "Output directory for applications" )
+set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}" CACHE PATH "Output directory for applications" )
 
 
 # ----------------------------------------------------------------------------
