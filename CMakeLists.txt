@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 2.4.0)
 
-
 set (ProjectName "YACCLAB")
 
 project (${ProjectName})
@@ -20,9 +19,8 @@ if(COMPILER_SUPPORTS_CXX11)
 elseif(COMPILER_SUPPORTS_CXX0X)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 else()
-        message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
+	message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 endif()
-
 
 
 # ----------------------------------------------------------------------------
@@ -34,7 +32,7 @@ set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}" CACHE PATH "Output directory fo
 
 
 # ----------------------------------------------------------------------------
-# Solution folders:
+# Solution folders
 # ----------------------------------------------------------------------------
 if(ENABLE_SOLUTION_FOLDERS)
   set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -43,16 +41,24 @@ endif()
 
 include_directories( "." )
 
-# ------------------------------------
-#opencv
-# --------------------------------------------------
+# --------------------
+# OpenCV 
+# --------------------
 
 FIND_PACKAGE(OpenCV REQUIRED core imgcodecs imgproc)
 include_directories( ${OpenCV_INCLUDE_DIRS} )
-	 
+
+if(MSVC)
+	if("${OpenCV_STATIC}" STREQUAL "ON")
+		message(STATUS "Setting static runtime for MSVC")
+		foreach(flag_var CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO) 
+			string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+		endforeach(flag_var)
+	endif()
+endif()
 
 # --------------------
-# Parte del progetto
+# Project
 # --------------------
 
 file(GLOB SRCFILES ${SRCFILES} "*.cpp" "*.c")
@@ -64,13 +70,14 @@ target_link_libraries (${ProjectName}  ${OpenCV_LIBS})
 include_directories (${CMAKE_CURRENT_BINARY_DIR})
 
 # Config file copy		
-file(COPY "config.cfg" DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-file(COPY "config.cfg" DESTINATION ${CMAKE_BINARY_DIR}/Release)
+file(COPY "config.cfg" DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 # Download and unpack dataset
-#message(STATUS "Downloading dataset...")
-#file(DOWNLOAD http://imagelab.ing.unimore.it/files/YACCLAB_dataset.tgz "${CMAKE_INSTALL_PREFIX}/dataset.tgz")
-#message(STATUS "Downloading done. Unpacking...")
-#execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${CMAKE_INSTALL_PREFIX}/dataset.tgz" WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}")
-#message(STATUS "Unpacking done.")
-#file(REMOVE "${CMAKE_INSTALL_PREFIX}/dataset.tgz")
+if (NOT EXISTS "${CMAKE_INSTALL_PREFIX}/dataset.tgz")
+	message(STATUS "Downloading dataset...")
+	file(DOWNLOAD http://imagelab.ing.unimore.it/files/YACCLAB_dataset.tgz "${CMAKE_INSTALL_PREFIX}/dataset.tgz")
+	message(STATUS "Downloading done. Unpacking...")
+	execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${CMAKE_INSTALL_PREFIX}/dataset.tgz" WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}" OUTPUT_QUIET)
+	message(STATUS "Unpacking done.")
+	#file(REMOVE "${CMAKE_INSTALL_PREFIX}/dataset.tgz")
+endif()
