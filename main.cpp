@@ -108,18 +108,38 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
     for (uint i = 0; i < datasets.size(); ++i){
         // For every dataset in check list
 
+        cout << "Test on " << datasets[i] << " starts" << endl; 
+
         string is_path = input_path + "\\" + datasets[i] + "\\" + input_txt;
+        
+        ifstream supp(is_path);
+        if (!supp.is_open()){
+            cout<< "Unable to open " + is_path;
+            continue; 
+        }
+        // Count number of lines to display process bar
+        int fileNumber = (int)std::count(std::istreambuf_iterator<char>(supp), std::istreambuf_iterator<char>(), '\n');
+        supp.close();
+        //Reopen file
         ifstream is(is_path);
         if (!is.is_open()){
-            cout << "Unable to open " + is_path << endl;
+            cout << "Unable to open " + is_path + ":" << endl;
             continue;
         }
+        
 
-        while (true && !stop){
-            string filename;
-            getline(is, filename);
-            if (is.eof())
-                break;
+        // Count number of lines to display process bar
+        uint currentNumber = 0;
+
+        string filename;
+        while (getline(is, filename) && !stop){
+            //if (is.eof())
+            //    break;
+
+            // Display "process bar"
+            if (currentNumber * 100 / fileNumber != (currentNumber - 1) * 100 / fileNumber)
+                cout << currentNumber << "/" << fileNumber << "\r";
+            currentNumber++;
 
             Mat1b binaryImg;
             Mat1i labeledImgCorrect, labeledImgToControl;
@@ -265,9 +285,12 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const stri
                     if (0 != std::system(("mkdir " + out_folder).c_str()))
                         return ("Averages_Test on '" + input_folder + "': Unable to find/create the output path " + out_folder);
                 
+                string algName = (*it).second; // TODO: remove more charcters? 
+                algName.erase(std::remove(algName.begin(), algName.end(), '\\'), algName.end());
+
                 normalizeLabels(labeledMat, nLabels);
 				colorLabels(labeledMat, imgColors);
-                imwrite(out_folder + "\\" + filename + "_" + (*it).second + ".png", imgColors);
+                imwrite(out_folder + "\\" + filename + "_" + algName + ".png", imgColors);
 			}
 
 			// 
@@ -526,6 +549,8 @@ string density_size_test(vector<pair<CCLPointer,string>>& CCLAlgorithms, const s
 		}// END FOR
 		os << endl;
 	}// END WHILE
+    cout << currentNumber << "/" << fileNumber << "\n";
+
 
 	// To calculate averages times
 	vector<vector<long double>> density_averages(CCLAlgorithms.size(), vector<long double>(density)), size_averages(CCLAlgorithms.size(), vector<long double>(size));
@@ -713,6 +738,12 @@ string density_size_test(vector<pair<CCLPointer,string>>& CCLAlgorithms, const s
 }
 
 int main(int argc, char **argv){
+
+   //Mat1b img = imread("input\\test_random\\000.png", 0);
+   //cout << img.size();
+   //Mat1i imgOut; 
+   //CCIT(img, imgOut);
+   //return 0; 
 
     ConfigFile cfg("config.cfg");  
 
