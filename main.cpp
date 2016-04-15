@@ -108,7 +108,7 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
     for (uint i = 0; i < datasets.size(); ++i){
         // For every dataset in check list
 
-        cout << "Test on " << datasets[i] << " starts" << endl; 
+        cout << "Test on " << datasets[i] << " starts: " << endl; 
 
         string is_path = input_path + "\\" + datasets[i] + "\\" + input_txt;
         
@@ -123,7 +123,7 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
         //Reopen file
         ifstream is(is_path);
         if (!is.is_open()){
-            cout << "Unable to open " + is_path + ":" << endl;
+            cout << "Unable to open " + is_path<< endl;
             continue;
         }
         
@@ -168,8 +168,9 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
                     }
                 }
             }
-        }
-    }
+        }// END WHILE (LIST OF IMAGES)
+        cout << currentNumber << "/" << fileNumber << "\n" << "Test on " << datasets[i] << " ends " << endl;
+    }// END FOR (LIST OF DATASETS)
 
     uint j = 0;
     for (vector<pair<CCLPointer, string>>::iterator it = CCLAlgorithms.begin(); it != CCLAlgorithms.end(); ++it, ++j){
@@ -189,7 +190,7 @@ unsigned int ctoi(const char &c){
 	return ((int)c - 48);
 }
 
-string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const string& input_path, const string& input_folder, const string& input_txt, const string& gnuplot_script, const string& exe_path, string& output_path, string& colors_folder, const bool& write_n_labels = true, const bool& output_colors = true){
+string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all_res, const unsigned int& alg_pos, const string& input_path, const string& input_folder, const string& input_txt, const string& gnuplot_script, const string& exe_path, string& output_path, string& colors_folder, const bool& write_n_labels = true, const bool& output_colors = true){
 
 	string output_folder = input_folder,
 		   complete_output_path = output_path + "\\" + output_folder,
@@ -285,27 +286,30 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const stri
                     if (0 != std::system(("mkdir " + out_folder).c_str()))
                         return ("Averages_Test on '" + input_folder + "': Unable to find/create the output path " + out_folder);
                 
-                string algName = (*it).second; // TODO: remove more charcters? 
+                // Remove gnuplot excape character from output filename
+                string algName = (*it).second;
                 algName.erase(std::remove(algName.begin(), algName.end(), '\\'), algName.end());
 
                 normalizeLabels(labeledMat, nLabels);
 				colorLabels(labeledMat, imgColors);
                 imwrite(out_folder + "\\" + filename + "_" + algName + ".png", imgColors);
 			}
-
-			// 
+ 
 			supp_averages[i].first += perf.last((*it).second);
 			supp_averages[i].second++;
 
-		}
+		}// END FOR
 		os << endl;
-	}
+	} // END WHILE
+    cout << currentNumber << "/" << fileNumber << "\r";
+
 
 	// To calculate averages times and write it on the specified file
 	// averages_os << "average_time"; 
 	for (unsigned int i = 0; i < CCLAlgorithms.size(); ++i){
 		// For all the Algorithms in the array
-		averages_os << CCLAlgorithms[i].second << "\t" << supp_averages[i].first/supp_averages[i].second << endl;
+        all_res(alg_pos, i) = supp_averages[i].first / supp_averages[i].second;
+        averages_os << CCLAlgorithms[i].second << "\t" << supp_averages[i].first/supp_averages[i].second << endl;
 	} 
 
 	// GNUPLOT SCRIPT
@@ -370,21 +374,6 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const stri
 	averages_os.close();
 	scriptos.close();
     // GNUPLOT SCRIPT
-
-    //std::system("echo %cd%");
-    //// move to the gnuplot directory 
-    //if (0 != std::system(("cd " + complete_output_path).c_str()))
-    //    return ("Averages_Test on '" + input_folder + "': Unable to move to gnuplot's script");
-    //std::system("echo %cd%");
-    //// exec gnuplot script
-    //if (0 != std::system(("gnuplot " + gnuplot_script).c_str()))
-    //    return ("Averages_Test on '" + input_folder + "': Unable to run gnuplot's script");
-    //
-    //// back to the project directory 
-    //if (0 != std::system(("cd " + exe_path).c_str())){
-    //    // TODO, exit??
-    //    return ("Averages_Test on '" + input_folder + "': FATAL ERROR, Unable back to project file");
-    //}
 
     if (0 != std::system(("gnuplot " + complete_output_path + "\\" + gnuplot_script).c_str()))
         return ("Averages_Test on '" + input_folder + "': Unable to run gnuplot's script");
@@ -542,9 +531,13 @@ string density_size_test(vector<pair<CCLPointer,string>>& CCLAlgorithms, const s
                     if (0 != std::system(("mkdir " + out_folder).c_str()))
                         return ("Density_Size_Test on '" + input_folder + "': Unable to find/create the output path " + out_folder);
 
+                // Remove gnuplot excape character from output filename
+                string algName = (*it).second;
+                algName.erase(std::remove(algName.begin(), algName.end(), '\\'), algName.end());
+
 				normalizeLabels(labeledMat, nLabels);
 				colorLabels(labeledMat, imgColors);
-                imwrite(out_folder + "\\" + filename + "_" + (*it).second + ".png", imgColors);
+                imwrite(out_folder + "\\" + filename + "_" + algName + ".png", imgColors);
 			}
 		}// END FOR
 		os << endl;
@@ -718,32 +711,65 @@ string density_size_test(vector<pair<CCLPointer,string>>& CCLAlgorithms, const s
 	scriptos.close();
 	// GNUPLOT SCRIPT 
 
-   // // move to the gnuplot directory 
-   // if (0 != std::system(("cd ..\\" + complete_output_path).c_str()))
-   //     return ("Density_Size_Test on '" + input_folder + "': Unable to move to gnuplot's script");
-   //
-   // // exec gnuplot script
-	//if(0 != std::system(("gnuplot " + gnuplot_script).c_str()))
-   //     return ("Density_Size_Test on '" + input_folder + "': Unable to run gnuplot's script");
-   //
-   // // back to the project directory 
-   // if (0 != std::system(("cd " + exe_path).c_str())){
-   //     // TODO, exit??
-   //     return ("Density_Size_Test on '" + input_folder + "': FATAL ERROR, Unable back to project file");
-   // }
-
     if (0 != std::system(("gnuplot " + complete_output_path + "\\" + gnuplot_script).c_str()))
         return ("Density_Size_Test on '" + input_folder + "': Unable to run gnuplot's script");
 	return ("Density_Size_Test on '" + output_folder + "': successfuly done");
 }
 
-int main(int argc, char **argv){
+void eraseDoubleEscape(string& str){
+    for (uint i = 0; i < str.size()-1; ++i){
+        if (str[i] == str[i + 1] && str[i] == '\\')
+            str.erase(i,1); 
+    }
+}
 
-   //Mat1b img = imread("input\\test_random\\000.png", 0);
-   //cout << img.size();
-   //Mat1i imgOut; 
-   //CCIT(img, imgOut);
-   //return 0; 
+void generateLatexTable(const string& output_path, const string& latex_file, const Mat1d& all_res, const vector<string>& algName, const vector<pair<CCLPointer, string>>& CCLAlgorithms){
+    
+    string latex_path = output_path + "\\" + latex_file; 
+    ofstream is(latex_path); 
+    if (!is.is_open()){
+        cout << "Unable to open/create " + latex_path << endl;
+        return;
+    }
+    
+    // fixed number of decimal values
+    is << fixed;
+    is << setprecision(3);
+
+    is << "\\begin{table}[tbh]" << endl << endl; 
+    is << "\t\\centering" << endl;
+    is << "\t\\caption{Average Results}" << endl;
+    is << "\t\\label{tab:table1}" << endl;
+    is << "\t\\begin{tabular}{|l|"; 
+    for (uint i = 0; i < CCLAlgorithms.size(); ++i)
+        is << "c|"; 
+    is << "}" << endl;
+    is << "\t\\hline" << endl;
+    is << "\t";
+    for (uint i = 0; i < CCLAlgorithms.size(); ++i){ 
+        string algName = CCLAlgorithms[i].second;
+        eraseDoubleEscape(algName);
+        //algName.erase(std::remove(algName.begin(), algName.end(), '\\'), algName.end());
+        is << " & " << algName; //Header
+    }
+    is << "\\\\" << endl;
+    is << "\t\\hline" << endl;
+     
+    for (uint i = 0; i < algName.size(); ++i){
+        is << "\t" << algName[i];
+        for (int j = 0; j < all_res.cols; ++j){
+            is << " & " <<all_res(i, j); //Data
+        }
+        is << "\\\\" << endl;
+    }
+    is << "\t\\hline" << endl; 
+    is << "\t\\end{tabular}" << endl << endl;
+    is << "\\end{table}" << endl;       
+
+    is.close(); 
+}
+
+int main(int argc, char **argv){
 
     ConfigFile cfg("config.cfg");  
 
@@ -762,10 +788,11 @@ int main(int argc, char **argv){
     uint8_t ds_testsNumber = cfg.getValueOfKey<uint8_t>("ds_testsNumber", 1), 
             at_testsNumber = cfg.getValueOfKey<uint8_t>("at_testsNumber", 1);
 
-	string input_txt = "files.txt",         /* Files who contains list of images's name on which CCLAlgorithms are tested */
-           gnuplot_scipt = "gpScript.txt",  /* Name of gnuplot scripts*/
+	string input_txt = "files.txt",             /* Files who contains list of images's name on which CCLAlgorithms are tested */
+           gnuplot_scipt = "gpScript.gnuplot",  /* Name of gnuplot scripts*/
            colors_folder = "colors",
            middel_folder = "middle_results",
+           latec_file = "averageResults.tex",
            output_path = cfg.getValueOfKey<string>("output_path", "output"), /* Folder on which result are stored */
            input_path = cfg.getValueOfKey<string>("input_path", "input");    /* Folder on which datasets are placed */
                
@@ -804,13 +831,15 @@ int main(int argc, char **argv){
 
 	// Test Algorithms with different input type and different output format, and show execution result
 	// AVERAGES TEST
+    Mat1d all_res(input_folders_averages_test.size(), CCLAlgorithms.size(), numeric_limits<double>::max());
     if (at_perform){
         cout << endl << "AVERAGES TESTS: " << endl;
 	    for (unsigned int i = 0; i < input_folders_averages_test.size(); ++i){
 	    	cout << "Averages_Test on '" << input_folders_averages_test[i] << "': starts" << endl;
-            cout << averages_test(CCLAlgorithms, input_path, input_folders_averages_test[i], input_txt, gnuplot_scipt, argv[0], output_path, colors_folder, write_n_labels, output_colors_average_test) << endl;
+            cout << averages_test(CCLAlgorithms, all_res, i, input_path, input_folders_averages_test[i], input_txt, gnuplot_scipt, argv[0], output_path, colors_folder, write_n_labels, output_colors_average_test) << endl;
 	    	cout << "Averages_Test on '" << input_folders_averages_test[i] << "': ends" << endl << endl;
 	    }
+        generateLatexTable(output_path, latec_file, all_res, input_folders_averages_test, CCLAlgorithms);
     }
     
 	// DENSITY_SIZE_TESTS
