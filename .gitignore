@@ -9,7 +9,7 @@ CMakeFiles
 /*.sdf
 /*.user
 /*.gitignore
-
+/CMakeLists.txt
 /CMakeCache.txt
 /config.cfg
 /cmake_install.cmake
