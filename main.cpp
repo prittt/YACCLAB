@@ -104,6 +104,7 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
 
     vector<bool> stats(CCLAlgorithms.size(), true); // true if the i-th algorithm is correct, false otherwise
     bool stop = false; // true if all algorithms are incorrect
+    bool checkPerform = false; // true if almost one check was execute 
 
     for (uint i = 0; i < datasets.size(); ++i){
         // For every dataset in check list
@@ -127,18 +128,15 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
             continue;
         }
         
-
         // Count number of lines to display process bar
         uint currentNumber = 0;
 
         string filename;
         while (getline(is, filename) && !stop){
-            //if (is.eof())
-            //    break;
 
             // Display "process bar"
             if (currentNumber * 100 / fileNumber != (currentNumber - 1) * 100 / fileNumber)
-                cout << currentNumber << "/" << fileNumber << "     \r";
+                cout << currentNumber << "/" << fileNumber << "         \r";
             currentNumber++;
 
             Mat1b binaryImg;
@@ -154,7 +152,7 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
             uint j = 0; 
             for (vector<pair<CCLPointer, string>>::iterator it = CCLAlgorithms.begin(); it != CCLAlgorithms.end(); ++it, ++j){
                 // For all the Algorithms in the array
-                
+                checkPerform = true; 
                 if (stats[j]){
                     nLabelsToControl = (*it).first(binaryImg, labeledImgToControl);
                     normalizeLabels(labeledImgToControl, nLabelsToControl);
@@ -169,15 +167,20 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
                 }
             }
         }// END WHILE (LIST OF IMAGES)
-        cout << currentNumber << "/" << fileNumber << "     \r" << "Test on " << datasets[i] << " ends " << endl;
+        cout << currentNumber << "/" << fileNumber << "         \r" << "Test on " << datasets[i] << " ends " << endl;
     }// END FOR (LIST OF DATASETS)
 
-    uint j = 0;
-    for (vector<pair<CCLPointer, string>>::iterator it = CCLAlgorithms.begin(); it != CCLAlgorithms.end(); ++it, ++j){
-        if (stats[j]){
-            cout << "\"" << (*it).second << "\" is correct!" << endl;
+    if (checkPerform){
+        uint j = 0;
+        for (vector<pair<CCLPointer, string>>::iterator it = CCLAlgorithms.begin(); it != CCLAlgorithms.end(); ++it, ++j){
+            if (stats[j])
+                cout << "\"" << (*it).second << "\" is correct!" << endl;
         }
     }
+    else{
+        cout << "Unable to perform check, skipped" << endl; 
+    }
+
 }
 
 int labelingOPENCV(const Mat1b& binaryMat, Mat1i& labeledMat){
@@ -198,7 +201,7 @@ void eraseDoubleEscape(string& str){
 }
 
 // This function take a Mat1d of results and save it on specified outputstream
-void saveAverageOutputResults(const Mat1d& results, const string& oFileName, vector<pair<CCLPointer, string>>& CCLAlgorithms, const bool& write_n_labels, const vector<pair<string, bool>>& filesNames){
+void saveAverageOutputResults(const Mat1d& results, const string& oFileName, vector<pair<CCLPointer, string>>& CCLAlgorithms, const bool& write_n_labels,const Mat1i& labels, const vector<pair<string, bool>>& filesNames){
     
     ofstream os(oFileName); 
     if (!os.is_open()){
@@ -206,17 +209,14 @@ void saveAverageOutputResults(const Mat1d& results, const string& oFileName, vec
         return; 
     }
 
-    // To set heading file format (BROAD + AVERAGES)
-    //averages_os << "#";
+    // To set heading file format
     os << "#";
-   for (vector<pair<CCLPointer, string>>::iterator it = CCLAlgorithms.begin(); it != CCLAlgorithms.end(); ++it){
-       os << "\t" << (*it).second;
-       //write_n_labels ? os << "\t" << "n_label" : os << "";
-       //averages_os << "\t" << (*it).second;
-   }
+    for (vector<pair<CCLPointer, string>>::iterator it = CCLAlgorithms.begin(); it != CCLAlgorithms.end(); ++it){
+        os << "\t" << (*it).second;
+        write_n_labels ? os << "\t" << "n_label" : os << "";
+    }
     os << endl;
-    //averages_os << endl;
-    // To set heading file format (BROAD + AVERAGES)
+    // To set heading file format
     
     for (uint files = 0; files < filesNames.size(); ++files){
         if (filesNames[files].second){
@@ -224,6 +224,7 @@ void saveAverageOutputResults(const Mat1d& results, const string& oFileName, vec
             unsigned int i = 0;
             for (vector<pair<CCLPointer, string>>::iterator it = CCLAlgorithms.begin(); it != CCLAlgorithms.end(); ++it, ++i){
                 os << results(files, i) << "\t";
+                write_n_labels ? os << labels(files,i) << "\t" : os << "";
             }
             os << endl;
         }
@@ -238,21 +239,43 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
            middleFile = "run", 
 		   output_averages_results = "averages.txt",
 		   output_graph = output_folder + ".pdf",
-           output_graph_bw = output_folder + "_bw.pdf";
+           output_graph_bw = output_folder + "_bw.pdf",
+           middleOut_Folder = complete_output_path + "\\" + middleFolder,
+           out_color_folder = output_path + "\\" + output_folder + "\\" + colors_folder;
 
+
+    // Creation of output path
 	if (!dirExists(complete_output_path.c_str()))
 		if (0 != std::system(("mkdir " + complete_output_path).c_str()))
 			return ("Averages_Test on '" + input_folder + "': Unable to find/create the output path " + complete_output_path);
 
+    if (output_colors){
+        // Creation of color output path
+        if (!dirExists(out_color_folder.c_str()))
+            if (0 != std::system(("mkdir " + out_color_folder).c_str()))
+                return ("Averages_Test on '" + input_folder + "': Unable to find/create the output path " + out_color_folder);
+    }
+
+    if (saveMiddleResults){
+        if (!dirExists(middleOut_Folder.c_str()))
+            if (0 != std::system(("mkdir " + middleOut_Folder).c_str()))
+                return ("Averages_Test on '" + input_folder + "': Unable to find/create the output path " + middleOut_Folder);
+    }
+
 	string is_path = input_path + "\\" + input_folder + "\\" + input_txt,
 		   os_path = output_path + "\\" + output_folder + "\\" + output_broad_results,
 		   averages_os_path = output_path + "\\" + output_folder + "\\" + output_averages_results;
-
+    
+    // For AVERAGES RESULT
+    ofstream averages_os(averages_os_path);
+    if (!averages_os.is_open())
+        return ("Averages_Test on '" + input_folder + "': Unable to open " + averages_os_path);
 	// For LIST OF INPUT IMAGES
 	ifstream is(is_path);
 	if (!is.is_open())
 		return ("Averages_Test on '" + input_folder + "': Unable to open " + is_path);
     
+    // To save list of filename on which CLLAlgorithms must be tested
     vector<pair<string, bool>> filesNames;  // first: filename, second: state of filename (find or not)
     string filename;
     while (getline(is, filename)){
@@ -260,85 +283,65 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
     }
     is.close();
 
+    // Number of files
     int fileNumber = filesNames.size(); 
 
-    // Count number of lines to display process bar
-    //int fileNumber = (int)std::count(std::istreambuf_iterator<char>(supp), std::istreambuf_iterator<char>(), '\n');
-    //Reopen file
-    //ifstream is(is_path);
-    //if (!is.is_open())
-    //    return ("Averages_Test on '" + input_folder + "': Unable to open " + is_path);
-	
-    // For BROAD RESULT
-	ofstream os(os_path);
-	if (!os.is_open())
-		return ("Averages_Test on '" + input_folder + "': Unable to open " + os_path);
-	// For AVERAGES RESULT
-	ofstream averages_os(averages_os_path);
-	if (!averages_os.is_open())
-		return ("Averages_Test on '" + input_folder + "': Unable to open " + averages_os_path);
-
-    // Set heading file format
-
+    // To save middle/min and averages results; 
     Mat1d min_res(fileNumber, CCLAlgorithms.size(), numeric_limits<double>::max());
     Mat1d current_res(fileNumber, CCLAlgorithms.size(), numeric_limits<double>::max());
+    Mat1i labels(fileNumber, CCLAlgorithms.size(), 0);
+    vector<pair<double, uint16_t>> supp_averages(CCLAlgorithms.size(), make_pair(0, 0));
 
-	vector<pair<double, uint16_t>> supp_averages(CCLAlgorithms.size(),  make_pair(0, 0));
-
+    // Test is execute nTest times
     for (uint test = 0; test < nTest; ++test){
 
-        // Count number of lines to display process bar
+        // Count number of lines to display "process bar"
         uint currentNumber = 0;
 
         PerformanceEvaluator perf;
+        // For every file in list
         for (uint file = 0; file < filesNames.size(); ++file){
-            //if (is.eof())
-            //	break;
+           
             string filename = filesNames[file].first;
 
             // Display "process bar"
             if (currentNumber * 100 / fileNumber != (currentNumber - 1) * 100 / fileNumber)
-                cout << "Test #" << test << ": " << currentNumber << "/" << fileNumber << "     \r";
+                cout << "Test #" << (test+1) << ": " << currentNumber << "/" << fileNumber << "         \r";
             currentNumber++;
 
             Mat1b binaryImg;
 
             if (!getBinaryImage(input_path + "\\" + input_folder + "\\" + filename, binaryImg)){
-                filesNames[file].second = false; 
+                filesNames[file].second = false;
                 cout << filename + " does not exist" << endl;
                 continue;
             }
 
-            //os << filename;
-
             unsigned int i = 0;
+            // For all the Algorithms in the array
             for (vector<pair<CCLPointer, string>>::iterator it = CCLAlgorithms.begin(); it != CCLAlgorithms.end(); ++it, ++i){
-                // For all the Algorithms in the array
 
-                // This variable need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
+                // This variables need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
                 Mat1i labeledMat;
                 unsigned nLabels;
                 Mat3b imgColors;
 
+                // Perform current algorithm on current image and save result
                 perf.start((*it).second);
                 nLabels = (*it).first(binaryImg, labeledMat);
                 perf.stop((*it).second);
 
-                //os << "\t" << perf.last((*it).second);
-                //write_n_labels ? os << "\t" << nLabels : os << "";
+                // Save number of labels (we reasonably supposed that labels's number is the same on every #test so only the first time wee save it)
+                if (test == 0)
+                    labels(file, i) = nLabels; 
 
+                // Save time results 
                 current_res(file, i) = perf.last((*it).second);
                 if (perf.last((*it).second) < min_res(file, i))
                     min_res(file, i) = perf.last((*it).second);
 
-                //supp_averages[i].first += perf.last((*it).second);
-                //supp_averages[i].second++;
-
-                if (test == 1 && output_colors){
-                    string out_folder = output_path + "\\" + output_folder + "\\" + colors_folder;
-                    if (!dirExists(out_folder.c_str()))
-                        if (0 != std::system(("mkdir " + out_folder).c_str()))
-                            return ("Averages_Test on '" + input_folder + "': Unable to find/create the output path " + out_folder);
+                if (test == 0 && output_colors){
+                    // If 'at_colorLabels' is enable only the fisrt time (test == 1) the output is saved
 
                     // Remove gnuplot excape character from output filename
                     string algName = (*it).second;
@@ -346,31 +349,26 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
 
                     normalizeLabels(labeledMat, nLabels);
                     colorLabels(labeledMat, imgColors);
-                    imwrite(out_folder + "\\" + filename + "_" + algName + ".png", imgColors);
+                    imwrite(out_color_folder + "\\" + filename + "_" + algName + ".png", imgColors);
                 }
 
             }// END ALGORITHMS FOR
-            //os << endl;
         } // END FILES FOR
-        // To display "Process Bar"
-        cout << "Test #" << test << ": " << currentNumber << "/" << fileNumber << "     \r";
 
-        // Save middle results if necessary 
-        if (saveMiddleResults){
-            string middleOut_Folder = complete_output_path + "\\" + middleFolder ;
-            string middleOut = middleOut_Folder + "\\" + middleFile + "_" + to_string(test) + ".txt";
-            
-            if (!dirExists(middleOut_Folder.c_str()))
-                if (0 != std::system(("mkdir " + middleOut_Folder).c_str()))
-                    return ("Averages_Test on '" + input_folder + "': Unable to find/create the output path " + middleOut_Folder);
-            saveAverageOutputResults(current_res, middleOut, CCLAlgorithms, write_n_labels, filesNames);
+        // To display "Process Bar"
+        cout << "Test #" << (test+1) << ": " << currentNumber << "/" << fileNumber << "         \r";
+
+        // Save middle results if necessary (falg 'at_saveMiddleTests' enable) 
+        if (saveMiddleResults){ 
+            string middleOut = middleOut_Folder + "\\" + middleFile + "_" + to_string(test) + ".txt";         
+            saveAverageOutputResults(current_res, middleOut, CCLAlgorithms, write_n_labels, labels, filesNames);
         }
     }// END TESTS FOR
 
-    saveAverageOutputResults(min_res, os_path, CCLAlgorithms, write_n_labels, filesNames); 
+    // To wirte in a file min results
+    saveAverageOutputResults(min_res, os_path, CCLAlgorithms, write_n_labels, labels, filesNames); 
+    
     // To calculate averages times and write it on the specified file
-    // averages_os << "average_time"; 
-
     for (int r = 0; r < min_res.rows; ++r){
         for (int c = 0; c < min_res.cols; ++c){
             if (min_res(r, c) != numeric_limits<double>::max()){
@@ -379,6 +377,7 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
             }
         }
     }
+
     for (unsigned int i = 0; i < CCLAlgorithms.size(); ++i){
         // For all the Algorithms in the array
         all_res(alg_pos, i) = supp_averages[i].first / supp_averages[i].second;
@@ -401,7 +400,7 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
 
     scriptos << "# " << output_folder << "(COLORS)" << endl;
     scriptos << "set output \"" + output_graph + "\"" << endl;
-    scriptos << "set title \"" + output_folder + "\" font ', 12'" << endl << endl;
+    //scriptos << "set title \"" + output_folder + "\" font ', 12'" << endl << endl;
     
     scriptos << "# pdf colors" << endl;
     scriptos << "set terminal pdf enhanced color font ',10'" << endl << endl;
