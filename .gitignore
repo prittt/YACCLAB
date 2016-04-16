@@ -8,7 +8,10 @@ CMakeFiles
 /*.suo
 /*.sdf
 /*.user
+/*.gitignore
+
 /CMakeCache.txt
+/config.cfg
 /cmake_install.cmake
 build
 input
