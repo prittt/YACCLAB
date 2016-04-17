@@ -11,14 +11,13 @@ class PerformanceEvaluator {
 
 public:
 	PerformanceEvaluator() {
-		//_tickFrequency = cv::getTickFrequency();
+		_tickFrequency = cv::getTickFrequency();
 	}
 	void start() {
-		//_counter._last = (double)cv::getTickCount();
-		_counter._last = (double)std::chrono::high_resolution_clock::now();
+		_counter._last = (double)cv::getTickCount();
 	}
 	double stop() {
-		double t = std::chrono::high_resolution_clock::now() - _counter._last;
+		double t = cv::getTickCount() - _counter._last;
 		_counter._last = t;
 		_counter._total += t;
 		return _counter._last*1000./_tickFrequency;

@@ -144,7 +144,7 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
             unsigned nLabelsCorrect, nLabelsToControl;
 
             if (!getBinaryImage(input_path + "\\" + datasets[i] + "\\" + filename, binaryImg)){
-                cout << "Unable to check on " + filename + ", file does not exist" << endl;
+                cout << "Unable to check on '" + filename + "', file does not exist" << endl;
                 continue;
             }
 
@@ -201,7 +201,7 @@ void eraseDoubleEscape(string& str){
 }
 
 // This function take a Mat1d of results and save it on specified outputstream
-void saveAverageOutputResults(const Mat1d& results, const string& oFileName, vector<pair<CCLPointer, string>>& CCLAlgorithms, const bool& write_n_labels,const Mat1i& labels, const vector<pair<string, bool>>& filesNames){
+void saveBroadOutputResults(const Mat1d& results, const string& oFileName, vector<pair<CCLPointer, string>>& CCLAlgorithms, const bool& write_n_labels,const Mat1i& labels, const vector<pair<string, bool>>& filesNames){
     
     ofstream os(oFileName); 
     if (!os.is_open()){
@@ -313,7 +313,7 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
 
             if (!getBinaryImage(input_path + "\\" + input_folder + "\\" + filename, binaryImg)){
                 if (filesNames[file].second)
-                    cout << filename + " does not exist" << endl;
+                    cout << "'" + filename + "' does not exist" << endl;
                 filesNames[file].second = false;
                 continue;
             }
@@ -362,12 +362,12 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
         // Save middle results if necessary (falg 'at_saveMiddleTests' enable) 
         if (saveMiddleResults){ 
             string middleOut = middleOut_Folder + "\\" + middleFile + "_" + to_string(test) + ".txt";         
-            saveAverageOutputResults(current_res, middleOut, CCLAlgorithms, write_n_labels, labels, filesNames);
+            saveBroadOutputResults(current_res, middleOut, CCLAlgorithms, write_n_labels, labels, filesNames);
         }
     }// END TESTS FOR
 
     // To wirte in a file min results
-    saveAverageOutputResults(min_res, os_path, CCLAlgorithms, write_n_labels, labels, filesNames); 
+    saveBroadOutputResults(min_res, os_path, CCLAlgorithms, write_n_labels, labels, filesNames);
     
     // To calculate averages times and write it on the specified file
     for (int r = 0; r < min_res.rows; ++r){
@@ -492,10 +492,6 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
 		   density_os_path = output_path + "\\" + output_folder + "\\" + output_density_result,
 	       size_os_path = output_path + "\\" + output_folder + "\\" + output_size_result;
 
-    //// For BROAD RESULT
-    //ofstream os(os_path);
-    //if (!os.is_open())
-    //    return ("Density_Size_Test on '" + input_folder + "': Unable to create " + os_path);
     // For DENSITY RESULT
     ofstream density_os(density_os_path);
     if (!density_os.is_open())
@@ -592,7 +588,7 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
 
             if (!getBinaryImage(input_path + "\\" + input_folder + "\\" + filename, binaryImg)){
                 if (filesNames[file].second)
-                    cout << filename + " does not exist" << endl;
+                    cout << "'" + filename + "' does not exist" << endl;
                 filesNames[file].second = false;
                 continue;
             }
@@ -638,12 +634,12 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
         // Save middle results if necessary (falg 'at_saveMiddleTests' enable) 
         if (saveMiddleResults){
             string middleOut = middleOut_Folder + "\\" + middleFile + "_" + to_string(test) + ".txt";
-            saveAverageOutputResults(current_res, middleOut, CCLAlgorithms, write_n_labels, labels, filesNames);
+            saveBroadOutputResults(current_res, middleOut, CCLAlgorithms, write_n_labels, labels, filesNames);
         }
 	}// END TEST FOR
 
     // To wirte in a file min results
-    saveAverageOutputResults(min_res, os_path, CCLAlgorithms, write_n_labels, labels, filesNames);
+    saveBroadOutputResults(min_res, os_path, CCLAlgorithms, write_n_labels, labels, filesNames);
     
     // To sum min results, in the correct manner, before make averages
     for (unsigned int files = 0; files < filesNames.size(); ++files){
