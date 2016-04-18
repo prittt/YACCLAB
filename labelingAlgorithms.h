@@ -15,7 +15,7 @@
 // Block-Based Connected-Component Labeling Algorithm Using Binary Decision Trees: Wan-Yu, Chung-Cheng Chiu and Jia-Horng Yang
 #include "labelingChang2015.h"
 #include "labelingOpenCv.h"
-
+#include "labelingChang2003.h"
 #include "LabelingDiStefano.h"
 
 // FUNCTION POINTER: 
@@ -46,6 +46,7 @@ std::map<std::string, CCLPointer> CCLAlgorithmsMap =
     new_algorithm(LSL_STD),
     new_algorithm(CCIT),
 	new_algorithm(labelingDiStefano),
-	new_algorithm(labelingDiStefanoOPT)
+	new_algorithm(labelingDiStefanoOPT),
+	new_algorithm(CT)
 };
 // Map of connected components algorithms: functions's name (first), pointer to algorithm (second)
