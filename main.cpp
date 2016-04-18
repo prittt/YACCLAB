@@ -118,7 +118,7 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
             cout<< "Unable to open " + is_path;
             continue; 
         }
-        // Count number of lines to display process bar
+        // Count number of lines to display progress bar
         int fileNumber = (int)std::count(std::istreambuf_iterator<char>(supp), std::istreambuf_iterator<char>(), '\n');
         supp.close();
         //Reopen file
@@ -128,13 +128,13 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
             continue;
         }
         
-        // Count number of lines to display process bar
+        // Count number of lines to display progress bar
         uint currentNumber = 0;
 
         string filename;
         while (getline(is, filename) && !stop){
 
-            // Display "process bar"
+            // Display "progress bar"
             if (currentNumber * 100 / fileNumber != (currentNumber - 1) * 100 / fileNumber)
                 cout << currentNumber << "/" << fileNumber << "         \r";
             currentNumber++;
@@ -167,7 +167,7 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
                 }
             }
         }// END WHILE (LIST OF IMAGES)
-        cout << currentNumber << "/" << fileNumber << "         \r" << "Test on " << datasets[i] << " ends " << endl;
+        cout << currentNumber << "/" << fileNumber << "\n" << "Test on " << datasets[i] << " ends " << endl;
     }// END FOR (LIST OF DATASETS)
 
     if (checkPerform){
@@ -292,10 +292,10 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
     Mat1i labels(fileNumber, CCLAlgorithms.size(), 0);
     vector<pair<double, uint16_t>> supp_averages(CCLAlgorithms.size(), make_pair(0, 0));
 
-    // Test is execute nTest times
+    // Test is executed nTest times
     for (uint test = 0; test < nTest; ++test){
 
-        // Count number of lines to display "process bar"
+        // Count number of lines to display "progress bar"
         uint currentNumber = 0;
 
         PerformanceEvaluator perf;
@@ -304,7 +304,7 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
            
             string filename = filesNames[file].first;
 
-            // Display "process bar"
+            // Display "progress bar"
             if (currentNumber * 100 / fileNumber != (currentNumber - 1) * 100 / fileNumber)
                 cout << "Test #" << (test+1) << ": " << currentNumber << "/" << fileNumber << "         \r";
             currentNumber++;
@@ -320,7 +320,7 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
 
             unsigned int i = 0;
             // For all the Algorithms in the array
-            for (vector<pair<CCLPointer, string>>::iterator it = CCLAlgorithms.begin(); it != CCLAlgorithms.end(); ++it, ++i){
+            for (auto it = CCLAlgorithms.begin(); it != CCLAlgorithms.end(); ++it, ++i){
 
                 // This variables need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
                 Mat1i labeledMat;
@@ -356,7 +356,7 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
             }// END ALGORITHMS FOR
         } // END FILES FOR
 
-        // To display "process bar"
+        // To display "progress bar"
         cout << "Test #" << (test+1) << ": " << currentNumber << "/" << fileNumber << "         \r";
 
         // Save middle results if necessary (falg 'at_saveMiddleTests' enable) 
@@ -571,7 +571,7 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
     // Test is execute nTest times
     for (uint test = 0; test < nTest; ++test){
 
-        // Count number of lines to display "process bar"
+        // Count number of lines to display "progress bar"
         uint currentNumber = 0;
 
         PerformanceEvaluator perf;
@@ -579,7 +579,7 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
         for (uint file = 0; file < filesNames.size(); ++file){
             string filename = filesNames[file].first;
 
-            // Display "process bar"
+            // Display "progress bar"
             if (currentNumber * 100 / fileNumber != (currentNumber - 1) * 100 / fileNumber)
                 cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << fileNumber << "         \r";
             currentNumber++;
@@ -628,7 +628,7 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
             }// END ALGORTIHMS FOR
         } // END FILES FOR
         
-        // To display "process bar"
+        // To display "progress bar"
         cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << fileNumber << "         \r";
 
         // Save middle results if necessary (falg 'at_saveMiddleTests' enable) 
@@ -882,9 +882,9 @@ void generateLatexTable(const string& output_path, const string& latex_file, con
     is.close(); 
 }
 
-int main(int argc, char **argv){
-
-    ConfigFile cfg("config.cfg");  
+int main(int argc, char **argv) 
+{
+	ConfigFile cfg("config.cfg");  
 
     // Flags to customize output format
     bool output_colors_density_size = cfg.getValueOfKey<bool>("ds_colorLabels", false),
