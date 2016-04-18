@@ -135,7 +135,7 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
         while (getline(is, filename) && !stop){
 
             // Display "process bar"
-            if (currentNumber * 100 / fileNumber != (currentNumber - 1) * 100 / fileNumber)
+            //if (currentNumber * 100 / fileNumber != (currentNumber - 1) * 100 / fileNumber)
                 cout << currentNumber << "/" << fileNumber << "         \r";
             currentNumber++;
 
@@ -883,6 +883,23 @@ void generateLatexTable(const string& output_path, const string& latex_file, con
 }
 
 int main(int argc, char **argv){
+
+    //Mat1i prova(4, 4); 
+    //prova <<
+    //    1, 2, 3, 4,
+    //    5, 6, 7, 8,
+    //    9, 10, 11, 12,
+    //    13, 14, 15, 16;
+    //
+    //Point2i p(1, 2); 
+    //cout << prova(p); 
+   // 
+   // Mat1b img; 
+   // getBinaryImage("input//test_random//002.png", img);
+   // Mat1i imgOut; 
+   // CT(img, imgOut); 
+    
+    //return 0; 
 
     ConfigFile cfg("config.cfg");  
 

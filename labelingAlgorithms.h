@@ -12,8 +12,8 @@
 #include "labelingGranaOPTv3.h"
 #include "labelingLightSPEED.h"
 #include "labelingLightSPEEDold.h"
-// Block-Based Connected-Component Labeling Algorithm Using Binary Decision Trees: Wan-Yu, Chung-Cheng Chiu and Jia-Horng Yang
-#include "labelingChang2015.h"
+#include "labelingChang2003.h" // A component-labeling algorithm using contour tracing technique: F.Chang and C.Chen
+#include "labelingChang2015.h" // Block-Based Connected-Component Labeling Algorithm Using Binary Decision Trees: Wan-Yu, Chung-Cheng Chiu and Jia-Horng Yang
 #include "labelingOpenCv.h"
 
 // FUNCTION POINTER: 
@@ -42,6 +42,7 @@ std::map<std::string, CCLPointer> CCLAlgorithmsMap =
     new_algorithm(labelingGranaOPTv2),
     new_algorithm(labelingGranaOPTv3),
     new_algorithm(LSL_STD),
-    new_algorithm(CCIT)
+    new_algorithm(CCIT),
+    new_algorithm(CT)
 };
 // Map of connected components algorithms: functions's name (first), pointer to algorithm (second)
