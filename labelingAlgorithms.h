@@ -12,9 +12,11 @@
 #include "labelingGranaOPTv3.h"
 #include "labelingLightSPEED.h"
 #include "labelingLightSPEEDold.h"
-#include "labelingChang2003.h" // A component-labeling algorithm using contour tracing technique: F.Chang and C.Chen
-#include "labelingChang2015.h" // Block-Based Connected-Component Labeling Algorithm Using Binary Decision Trees: Wan-Yu, Chung-Cheng Chiu and Jia-Horng Yang
+// Block-Based Connected-Component Labeling Algorithm Using Binary Decision Trees: Wan-Yu, Chung-Cheng Chiu and Jia-Horng Yang
+#include "labelingChang2015.h"
 #include "labelingOpenCv.h"
+
+#include "LabelingDiStefano.h"
 
 // FUNCTION POINTER: 
 //	Mat1b:	the 8-bit single-channel image to be labeled;
@@ -43,6 +45,7 @@ std::map<std::string, CCLPointer> CCLAlgorithmsMap =
     new_algorithm(labelingGranaOPTv3),
     new_algorithm(LSL_STD),
     new_algorithm(CCIT),
-    new_algorithm(CT)
+	new_algorithm(labelingDiStefano),
+	new_algorithm(labelingDiStefanoOPT)
 };
 // Map of connected components algorithms: functions's name (first), pointer to algorithm (second)

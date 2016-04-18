@@ -1,59 +1,55 @@
 #pragma once
 #include "opencv2/opencv.hpp"
-#include <chrono>
 
 class PerformanceEvaluator {
 	struct elapsed {
-        std::chrono::system_clock::time_point _start;
-        double _last;
-        double _total;
+		double _last;
+		double _total;
 
-        elapsed() : _last(0), _total(0) {}
+		elapsed() : _last(0),_total(0) {}
 	};
 
 public:
 	PerformanceEvaluator() {
-		//_tickFrequency = cv::getTickFrequency();
+		_tickFrequency = cv::getTickFrequency();
 	}
 	void start() {
-        _counter._start = std::chrono::high_resolution_clock::now();
+		_counter._last = (double)cv::getTickCount();
 	}
 	double stop() {
-        std::chrono::duration<double, std::milli> fp_ms = std::chrono::high_resolution_clock::now() - _counter._start;
-        double t = fp_ms.count();
+		double t = cv::getTickCount() - _counter._last;
 		_counter._last = t;
 		_counter._total += t;
-        return _counter._last;
+		return _counter._last*1000./_tickFrequency;
 	}
 	void reset() {
 		_counter._total = 0;
 	}
 	double last() {
-        return _counter._last;
+		return _counter._last*1000./_tickFrequency;
 	}
 	double total() {
-		return _counter._total;
+		return _counter._total*1000./_tickFrequency;
 	}
 
 	void start (const std::string& s) {
-        _counters[s]._start = std::chrono::high_resolution_clock::now();
+		_counters[s]._last = (double)cv::getTickCount();
 	}
 	double stop (const std::string& s) {
 		elapsed& e = _counters[s];
-        std::chrono::duration<double, std::milli> fp_ms = std::chrono::high_resolution_clock::now() - e._start;
-        double t = fp_ms.count();
+		double t = cv::getTickCount() - e._last;
 		e._last = t;
 		e._total += t;
-		return e._last;
+		return e._last*1000./_tickFrequency;
 	}
 	void reset (const std::string& s) {
 		_counters[s]._total = 0;
 	}
 	double last (const std::string& s) {
-		return _counters[s]._last;
+		return _counters[s]._last*1000./_tickFrequency;
 	}
 	double total (const std::string& s) {
-		return _counters[s]._total;
+		return _counters[s]._total*1000./_tickFrequency;
 	}
 
 private:
