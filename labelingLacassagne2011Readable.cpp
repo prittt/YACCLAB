@@ -1,11 +1,11 @@
-#include "labelingLightSPEED.h"
+#include "labelingLacassagne2011Readable.h"
 #include <assert.h>
 #include <numeric>
 
 using namespace std; 
 using namespace cv; 
 
-int LSL_STD_old(const Mat1b& img, Mat1i& labels) {
+int LSL_STD_READABLE(const Mat1b& img, Mat1i& labels) {
     int rows = img.rows, cols = img.cols;
     // Step 1
     Mat1i ER(rows, cols); // matrix of relative label (1 label/pixel)

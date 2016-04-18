@@ -135,7 +135,7 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
         while (getline(is, filename) && !stop){
 
             // Display "process bar"
-            //if (currentNumber * 100 / fileNumber != (currentNumber - 1) * 100 / fileNumber)
+            if (currentNumber * 100 / fileNumber != (currentNumber - 1) * 100 / fileNumber)
                 cout << currentNumber << "/" << fileNumber << "         \r";
             currentNumber++;
 

@@ -1,4 +1,4 @@
-#include "labelingLightSPEED.h"
+#include "labelingLacassagne2011.h"
 #include <assert.h>
 #include <numeric>
 
