@@ -19,6 +19,7 @@
 #include "labelingChang2015.h"      
 // Optimizing two-pass connected-component labeling algorithms: Wu, Kesheng and Otoo, Ekow and Suzuki, Kenji
 #include "labelingOpenCv.h"         
+#include "LabelingDiStefano.h"
 
 // FUNCTION POINTER: 
 //	Mat1b:	the 8-bit single-channel image to be labeled;
@@ -37,6 +38,8 @@ std::map<std::string, CCLPointer> CCLAlgorithmsMap =
     new_algorithm(labelingGranaOPTv3),
     new_algorithm(LSL_STD),
     new_algorithm(CCIT),
-    new_algorithm(CT)
+	new_algorithm(labelingDiStefano),
+	new_algorithm(labelingDiStefanoOPT),
+	new_algorithm(CT)
 };
 // Map of connected components algorithms: functions's name (first), pointer to algorithm (second)
