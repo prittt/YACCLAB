@@ -144,8 +144,10 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
         while (getline(is, filename) && !stop){
 
             // Display "progress bar"
-            if (currentNumber * 100 / fileNumber != (currentNumber - 1) * 100 / fileNumber)
+            if (currentNumber * 100 / fileNumber != (currentNumber - 1) * 100 / fileNumber){
                 cout << currentNumber << "/" << fileNumber << "         \r";
+                fflush(stdout); 
+            }
             currentNumber++;
 
             Mat1b binaryImg;
@@ -177,6 +179,7 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
             }
         }// END WHILE (LIST OF IMAGES)
         cout << currentNumber << "/" << fileNumber << "\n" << "Test on " << datasets[i] << " ends " << endl;
+        fflush(stdout);
     }// END FOR (LIST OF DATASETS)
 
     if (checkPerform){
@@ -309,8 +312,10 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
             string filename = filesNames[file].first;
 
             // Display "progress bar"
-            if (currentNumber * 100 / fileNumber != (currentNumber - 1) * 100 / fileNumber)
-                cout << "Test #" << (test+1) << ": " << currentNumber << "/" << fileNumber << "         \r";
+            if (currentNumber * 100 / fileNumber != (currentNumber - 1) * 100 / fileNumber){
+                cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << fileNumber << "         \r";
+                fflush(stdout);
+            }
             currentNumber++;
 
             Mat1b binaryImg;
@@ -359,9 +364,9 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
 
             }// END ALGORITHMS FOR
         } // END FILES FOR
-
         // To display "progress bar"
         cout << "Test #" << (test+1) << ": " << currentNumber << "/" << fileNumber << "         \r";
+        fflush(stdout);
 
         // Save middle results if necessary (falg 'at_saveMiddleTests' enable) 
         if (saveMiddleResults){ 
@@ -584,8 +589,10 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
             string filename = filesNames[file].first;
 
             // Display "progress bar"
-            if (currentNumber * 100 / fileNumber != (currentNumber - 1) * 100 / fileNumber)
+            if (currentNumber * 100 / fileNumber != (currentNumber - 1) * 100 / fileNumber){
                 cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << fileNumber << "         \r";
+                fflush(stdout);
+            }
             currentNumber++;
 
             Mat1b binaryImg;
@@ -630,10 +637,10 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
                     imwrite(out_color_folder + kPathSeparator + filename + "_" + algName + ".png", imgColors);
                 }
             }// END ALGORTIHMS FOR
-        } // END FILES FOR
-        
+        } // END FILES FOR 
         // To display "progress bar"
         cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << fileNumber << "         \r";
+        fflush(stdout);
 
         // Save middle results if necessary (falg 'at_saveMiddleTests' enable) 
         if (saveMiddleResults){
