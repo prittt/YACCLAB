@@ -5,7 +5,7 @@
 using namespace cv;
 using namespace std;
 
-int CCIT(const Mat1b& img, Mat1i& imgOut) {
+int CCIT_OPT(const Mat1b& img, Mat1i& imgOut) {
 
     unsigned char byF = 1;
 
@@ -28,33 +28,31 @@ int CCIT(const Mat1b& img, Mat1i& imgOut) {
 
     int lx, u, v, k;
 
-    //cout << imgOut(0, 0); 
-
-#define condition_b1 img_row[x]==byF
-#define condition_b2 x+1<w && img_row[x+1]==byF   // add control condition
-#define condition_b3 y+1<h && img_row_fol[x]==byF   // add control condition 
-#define condition_b4 x+1<w && y+1<h && img_row_fol[x+1]==byF    // add control condition
-#define condition_u1 y-1>0 && x-1>0 && img_row_prev[x-1]==byF    // add control consition
-#define condition_u2 y-1>0 && img_row_prev[x]==byF  // add control consition
-#define condition_u3 x+1<w && y-1>0 && img_row_prev[x+1]==byF   // add control consition
-#define condition_u4 x+2<w && y-1>0 && img_row_prev[x+2]==byF   // add control consition
-#define assign_S imgOut_row[x] = imgOut_row[x-2]
-#define assign_P imgOut_row[x] = imgOut_row_prev_prev[x-2]
-#define assign_Q imgOut_row[x] = imgOut_row_prev_prev[x]
-#define assign_R imgOut_row[x] = imgOut_row_prev_prev[x+2]
-#define newlabel imgOut_row[x] = m
-#define assign_lx imgOut_row[x] = lx
-#define load_lx u = aRTable[lx]
-#define load_Pu u = aRTable[imgOut_row_prev_prev[x-2]]
-#define load_Pv v = aRTable[imgOut_row_prev_prev[x-2]]
-#define load_Qu u = aRTable[imgOut_row_prev_prev[x]]
-#define load_Qv v = aRTable[imgOut_row_prev_prev[x]]
-#define load_Qk k = aRTable[imgOut_row_prev_prev[x]]
-#define load_Rv v = aRTable[imgOut_row_prev_prev[x+2]]
-#define load_Rk k = aRTable[imgOut_row_prev_prev[x+2]]
-#define newlabelprocess lx = newlabel; 	aRTable[m] = m;  aNext[m] = -1;  aTail[m] = m;	m = m + 1;
-#define reslove2(u, v); 		if (u<v) { int i = v; 	while (i>-1) {	aRTable[i] = u;	i = aNext[i];	}	aNext[aTail[u]] = v; aTail[u] = aTail[v]; 	}else if (u>v) {	int i = u; 	while (i>-1) { aRTable[i] = v; 	i = aNext[i]; }	aNext[aTail[v]] = u; aTail[v] = aTail[u]; };
-#define reslove3(u, v, k); 		if (u<v) { int i = v; 	while (i>-1) { 	aRTable[i] = u; i = aNext[i]; 	} 	aNext[aTail[u]] = v; aTail[u] = aTail[v];  k = aRTable[k]; if (u<k) { int i = k; 	while (i>-1) { 	aRTable[i] = u; i = aNext[i]; } aNext[aTail[u]] = k;  aTail[u] = aTail[k]; 	} else if (u>k) { int i = u;   while (i>-1) { aRTable[i] = k; i = aNext[i]; } aNext[aTail[k]] = u; 	aTail[k] = aTail[u]; } 	} else if (u>v) { int i = u; while (i>-1) { aRTable[i] = v;    i = aNext[i]; 	} 	aNext[aTail[v]] = u;  aTail[v] = aTail[u];	k = aRTable[k];	if (v<k) { int i = k; while (i>-1) { aRTable[i] = v;  i = aNext[i];	}   	   aNext[aTail[v]] = k; aTail[v] = aTail[k]; } else if (v>k) { int i = v;	while (i>-1) {	aRTable[i] = k; 	i = aNext[i]; } aNext[aTail[k]] = v; aTail[k] = aTail[v]; } }else { k = aRTable[k]; if (u<k) {	int i = k; while (i>-1) { aRTable[i] = u; i = aNext[i];	} aNext[aTail[u]] = k;	aTail[u] = aTail[k]; }else if (u>k) { int i = u;	while (i>-1) {	aRTable[i] = k;	i = aNext[i]; } aNext[aTail[k]] = u; aTail[k] = aTail[u]; }; };
+    #define condition_b1 img_row[x]==byF
+    #define condition_b2 x+1<w && img_row[x+1]==byF   // add control condition
+    #define condition_b3 y+1<h && img_row_fol[x]==byF   // add control condition 
+    #define condition_b4 x+1<w && y+1<h && img_row_fol[x+1]==byF    // add control condition
+    #define condition_u1 y-1>0 && x-1>0 && img_row_prev[x-1]==byF    // add control consition
+    #define condition_u2 y-1>0 && img_row_prev[x]==byF  // add control consition
+    #define condition_u3 x+1<w && y-1>0 && img_row_prev[x+1]==byF   // add control consition
+    #define condition_u4 x+2<w && y-1>0 && img_row_prev[x+2]==byF   // add control consition
+    #define assign_S imgOut_row[x] = imgOut_row[x-2]
+    #define assign_P imgOut_row[x] = imgOut_row_prev_prev[x-2]
+    #define assign_Q imgOut_row[x] = imgOut_row_prev_prev[x]
+    #define assign_R imgOut_row[x] = imgOut_row_prev_prev[x+2]
+    #define newlabel imgOut_row[x] = m
+    #define assign_lx imgOut_row[x] = lx
+    #define load_lx u = aRTable[lx]
+    #define load_Pu u = aRTable[imgOut_row_prev_prev[x-2]]
+    #define load_Pv v = aRTable[imgOut_row_prev_prev[x-2]]
+    #define load_Qu u = aRTable[imgOut_row_prev_prev[x]]
+    #define load_Qv v = aRTable[imgOut_row_prev_prev[x]]
+    #define load_Qk k = aRTable[imgOut_row_prev_prev[x]]
+    #define load_Rv v = aRTable[imgOut_row_prev_prev[x+2]]
+    #define load_Rk k = aRTable[imgOut_row_prev_prev[x+2]]
+    #define newlabelprocess lx = newlabel; 	aRTable[m] = m;  aNext[m] = -1;  aTail[m] = m;	m = m + 1;
+    #define reslove2(u, v); 		if (u<v) { int i = v; 	while (i>-1) {	aRTable[i] = u;	i = aNext[i];	}	aNext[aTail[u]] = v; aTail[u] = aTail[v]; 	}else if (u>v) {	int i = u; 	while (i>-1) { aRTable[i] = v; 	i = aNext[i]; }	aNext[aTail[v]] = u; aTail[v] = aTail[u]; };
+    #define reslove3(u, v, k); 		if (u<v) { int i = v; 	while (i>-1) { 	aRTable[i] = u; i = aNext[i]; 	} 	aNext[aTail[u]] = v; aTail[u] = aTail[v];  k = aRTable[k]; if (u<k) { int i = k; 	while (i>-1) { 	aRTable[i] = u; i = aNext[i]; } aNext[aTail[u]] = k;  aTail[u] = aTail[k]; 	} else if (u>k) { int i = u;   while (i>-1) { aRTable[i] = k; i = aNext[i]; } aNext[aTail[k]] = u; 	aTail[k] = aTail[u]; } 	} else if (u>v) { int i = u; while (i>-1) { aRTable[i] = v;    i = aNext[i]; 	} 	aNext[aTail[v]] = u;  aTail[v] = aTail[u];	k = aRTable[k];	if (v<k) { int i = k; while (i>-1) { aRTable[i] = v;  i = aNext[i];	}   	   aNext[aTail[v]] = k; aTail[v] = aTail[k]; } else if (v>k) { int i = v;	while (i>-1) {	aRTable[i] = k; 	i = aNext[i]; } aNext[aTail[k]] = v; aTail[k] = aTail[v]; } }else { k = aRTable[k]; if (u<k) {	int i = k; while (i>-1) { aRTable[i] = u; i = aNext[i];	} aNext[aTail[u]] = k;	aTail[u] = aTail[k]; }else if (u>k) { int i = u;	while (i>-1) {	aRTable[i] = k;	i = aNext[i]; } aNext[aTail[k]] = u; aTail[k] = aTail[u]; }; };
 
     bool nextprocedure2;
 

@@ -1,9 +1,9 @@
-#include "LabelingDiStefano.h"
+#include "labelingDiStefano1999.h"
 
 using namespace cv;
 using namespace std;
 
-int labelingDiStefano(const Mat1b &img, Mat1i &imgOut) {
+int DiStefano(const Mat1b &img, Mat1i &imgOut) {
 	imgOut = Mat1i(img.size());
 
 	int iNewLabel(0);
@@ -122,7 +122,7 @@ int labelingDiStefano(const Mat1b &img, Mat1i &imgOut) {
 	return iCurLabel + 1;
 }
 
-int labelingDiStefanoOPT(const Mat1b &img, Mat1i &imgOut) {
+int DiStefanoOPT(const Mat1b &img, Mat1i &imgOut) {
 	imgOut = Mat1i(img.size());
 
 	int iNewLabel(0);

@@ -40,12 +40,12 @@
 // 2011 Jason Newton <nevion@gmail.com>
 //M*/
 
-#include "labelingOpenCv.h"
+#include "labelingWu2009.h"
 #include <vector>
 
 using namespace std;
 
-namespace cclWu{
+namespace cclSAUF{
 
 		//struct NoOp{
 		//	NoOp(){
@@ -347,11 +347,11 @@ namespace cclWu{
 		};//End struct LabelingImpl
 } // End cclWu
 
-int Wu(const cv::Mat1b &img, cv::Mat1i &labels){
+int SAUF_OPT(const cv::Mat1b &img, cv::Mat1i &labels){
 
     labels = cv::Mat1i(img.size());
 
-    using cclWu::LabelingImpl;
+    using cclSAUF::LabelingImpl;
     //warn if L's depth is not sufficient?
 
     return (int)LabelingImpl<int, uchar>()(img, labels);

@@ -1,4 +1,4 @@
-#include "LabelingChang2003.h"
+#include "labelingChang2003.h"
 
 using namespace std; 
 using namespace cv;
@@ -40,7 +40,8 @@ inline Point2i Tracer(const Mat1b &img, const unsigned char byF, Mat1i &imgOut, 
 
 inline void ContourTracing (const Mat1b &img, const unsigned char byF, Mat1i &imgOut, int x, int y, int iLabel, bool bExternal) {
 	Point2i S(x,y),T,crdNextPoint,crdCurPoint;
-
+	
+    // The current point is labeled 
 	// As a first step we label the point
 	imgOut(S.y, S.x) = iLabel;
 
@@ -63,7 +64,7 @@ inline void ContourTracing (const Mat1b &img, const unsigned char byF, Mat1i &im
 	} while (!(crdCurPoint==S && crdNextPoint==T));
 }
 
-int CT(const Mat1b &img, Mat1i &imgOut) {
+int CT_OPT(const Mat1b &img, Mat1i &imgOut) {
 	unsigned char byF = 1; 
     imgOut = Mat1i(img.size(), 0);
 	
