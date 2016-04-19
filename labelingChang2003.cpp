@@ -6,7 +6,7 @@ using namespace cv;
 inline Point2i Tracer(const Mat1b &img, const unsigned char byF, Mat1i &imgOut, const Point2i &P, int iLabel, int &iPrev, bool &bIsolated) {
 	int iFirst,iNext;
 
-	// Trovo la direzione da analizzare
+	// Find the direction to be analyzed
 	iFirst = iNext = (iPrev+2)%8;
 
     Point2i crdNext;
@@ -40,8 +40,8 @@ inline Point2i Tracer(const Mat1b &img, const unsigned char byF, Mat1i &imgOut, 
 
 inline void ContourTracing (const Mat1b &img, const unsigned char byF, Mat1i &imgOut, int x, int y, int iLabel, bool bExternal) {
 	Point2i S(x,y),T,crdNextPoint,crdCurPoint;
-	// Per prima cosa etichetto il punto stesso
 
+	// As a first step we label the point
 	imgOut(S.y, S.x) = iLabel;
 
 	bool bIsolated(false);
@@ -51,7 +51,7 @@ inline void ContourTracing (const Mat1b &img, const unsigned char byF, Mat1i &im
 	else 
 		iPreviousContourPoint = 7;
 
-	// Prima chiamata a Tracer
+	// First call to Tracer
 	crdNextPoint = T = Tracer (img,byF,imgOut,S,iLabel,iPreviousContourPoint,bIsolated);
 	if (bIsolated)
 		return;
@@ -109,6 +109,5 @@ int CT(const Mat1b &img, Mat1i &imgOut) {
         }
     }
 
-	//??imgOut.SetMaxLabel (iNewLabel);
     return ++iNewLabel;
 }
