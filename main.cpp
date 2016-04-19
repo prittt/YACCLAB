@@ -943,6 +943,12 @@ int main(int argc, char **argv)
             CCLAlgorithms.push_back({CCLAlgorithmsMap.find(*it)->second, algName[i]});
     }
 
+    // Create output directory
+    if (!dirExists(output_path.c_str()))
+	if (0 != std::system(("mkdir " + output_path).c_str())) {
+		cout << "Unable to find/create the output path " + output_path;
+                return 1;
+        }
 	// Check if algorithms are correct
     if (check_8connectivity){
         cout << "CHECK ALGORITHMS ON 8-CONNECTIVITY: " << endl;
