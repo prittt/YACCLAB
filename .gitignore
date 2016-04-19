@@ -1,6 +1,3 @@
-CMakeFiles
-/Release
-/Debug
 /*.vcxproj
 /*.filters
 /*.sln
@@ -8,11 +5,12 @@ CMakeFiles
 /*.suo
 /*.sdf
 /*.user
-/*.gitignore
-/CMakeLists.txt
 /CMakeCache.txt
-/config.cfg
 /cmake_install.cmake
+/Release
+/Debug
 build
 input
 output
+CMakeFiles
+
