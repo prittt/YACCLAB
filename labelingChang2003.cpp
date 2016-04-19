@@ -42,7 +42,6 @@ inline void ContourTracing (const Mat1b &img, const unsigned char byF, Mat1i &im
 	Point2i S(x,y),T,crdNextPoint,crdCurPoint;
 	
     // The current point is labeled 
-	// As a first step we label the point
 	imgOut(S.y, S.x) = iLabel;
 
 	bool bIsolated(false);
