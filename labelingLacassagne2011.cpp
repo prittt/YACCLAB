@@ -230,8 +230,6 @@ int LSL_STD_OPT(const Mat1b& img, Mat1i& labels) {
         const uint* ER_r = ER.ptr<uint>(r); 
         for (int c = 0; c < cols; ++c) {
             //labels(r, c) = A[EA(r, c)];
-            auto a = ER_r[c];
-            auto b = ERA_r[ER_r[c]];
             labels_r[c] = A[ERA_r[ER_r[c]]]; // This is Step 3 and 5 together
 		}
 	}

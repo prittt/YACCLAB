@@ -17,7 +17,7 @@ int DiStefano(const Mat1b &img, Mat1i &imgOut) {
 		for (int x = 0; x < img.cols; x++) {
 			if (img(y, x)) {
 
-				int lp(0), lq(0), lr(0), ls(0), lx(0), lMin(INT_MAX);
+                int lp(0), lq(0), lr(0), ls(0), lx(0); // lMin(INT_MAX);
 				if (y > 0) {
 					if (x > 0)
 						lp = imgOut(y - 1, x - 1);
@@ -142,7 +142,7 @@ int DiStefanoOPT(const Mat1b &img, Mat1i &imgOut) {
 		for (int x = 0; x < img.cols; x++) {
 			if (img_row[x]) {
 
-				int lp(0), lq(0), lr(0), ls(0), lx(0), lMin(INT_MAX);
+                int lp(0), lq(0), lr(0), ls(0), lx(0); // lMin(INT_MAX);
 				if (y > 0) {
 					if (x > 0)
 						lp = imgOut_row_prev[x - 1];

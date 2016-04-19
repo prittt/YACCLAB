@@ -9,17 +9,9 @@ int CCIT_OPT(const Mat1b& img, Mat1i& imgOut) {
 
     unsigned char byF = 1;
 
-    //int *numLabels, int w, int h, int ws, int wd
-
     imgOut = Mat1i(img.size(),0);
 
     int w = imgOut.cols, h = imgOut.rows;
-    int wd, ws;
-    ws = img.step;
-    wd = imgOut.step;
-
-    int imgElemSize = img.elemSize();
-    int imgOutElemSize = imgOut.elemSize();
 
     int m = 1;
     int *aRTable = new int[w*h / 4];
