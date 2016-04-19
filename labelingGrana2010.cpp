@@ -1,4 +1,4 @@
-#include "labelingGranaOPTv3.h"
+#include "labelingGrana2010.h"
 
 using namespace cv;
 using namespace std;
@@ -69,7 +69,7 @@ uint flattenL(uint *P, uint length){
 
 
 inline static
-void firstScanOPTv3(const Mat1b &img, Mat1i& imgLabels, uint* P, uint &lunique) {
+void firstScanBBDT_OPT(const Mat1b &img, Mat1i& imgLabels, uint* P, uint &lunique) {
 	int w(img.cols), h(img.rows);
 
 	for (int r = 0; r<h; r += 2) {
@@ -1088,11 +1088,11 @@ void firstScanOPTv3(const Mat1b &img, Mat1i& imgLabels, uint* P, uint &lunique) 
 							lunique = lunique + 1;
 							continue;
 						}
-						//else {
-						//	// Action_1: No action (the block has no foreground pixels)
-						//	imgLabels_row[c] = 0;
-						//	continue;
-						//}
+						else {
+							// Action_1: No action (the block has no foreground pixels)
+							imgLabels_row[c] = 0;
+							continue;
+						}
 					}
 				}
 			}
@@ -1170,9 +1170,9 @@ void firstScanOPTv3(const Mat1b &img, Mat1i& imgLabels, uint* P, uint &lunique) 
 
 }
 
-int labelingGranaOPTv3(const cv::Mat1b &img, cv::Mat1i &imgLabels) {
+int BBDT_OPT(const cv::Mat1b &img, cv::Mat1i &imgLabels) {
 	
-	imgLabels = cv::Mat1i(img.size(),0); //memset
+    imgLabels = cv::Mat1i(img.size()); // Controlla!!! TODO
 	//A quick and dirty upper bound for the maximimum number of labels.
 	const size_t Plength = img.rows*img.cols / 4;
 	//Tree of labels
@@ -1181,7 +1181,7 @@ int labelingGranaOPTv3(const cv::Mat1b &img, cv::Mat1i &imgLabels) {
 	P[0] = 0;
 	uint lunique = 1;
 
-	firstScanOPTv3(img, imgLabels, P, lunique);
+    firstScanBBDT_OPT(img, imgLabels, P, lunique);
 
 	uint nLabel = flattenL(P, lunique);
 
@@ -1228,19 +1228,19 @@ int labelingGranaOPTv3(const cv::Mat1b &img, cv::Mat1i &imgLabels) {
 								imgLabels_row_fol[c] = 0;
 						}
 					}
-					//else {
-					//	imgLabels_row[c] = 0;
-					//	if (c + 1<imgLabels.cols) {
-					//		imgLabels_row[c + 1] = 0;
-					//		if (r + 1<imgLabels.rows) {
-					//			imgLabels_row_fol[c] = 0;
-					//			imgLabels_row_fol[c + 1] = 0;
-					//		}
-					//	}
-					//	else if (r + 1<imgLabels.rows) {
-					//		imgLabels_row_fol[c] = 0;
-					//	}
-					//}
+					else {
+						imgLabels_row[c] = 0;
+						if (c + 1<imgLabels.cols) {
+							imgLabels_row[c + 1] = 0;
+							if (r + 1<imgLabels.rows) {
+								imgLabels_row_fol[c] = 0;
+								imgLabels_row_fol[c + 1] = 0;
+							}
+						}
+						else if (r + 1<imgLabels.rows) {
+							imgLabels_row_fol[c] = 0;
+						}
+					}
 				}
 			}
 		}//END Case 1
@@ -1277,15 +1277,15 @@ int labelingGranaOPTv3(const cv::Mat1b &img, cv::Mat1i &imgLabels) {
 								imgLabels_row_fol[c + 1] = 0;
 						}
 					}
-					//else {
-					//	imgLabels_row[c] = 0;
-					//	imgLabels_row[c + 1] = 0;
-					//	if (r + 1<imgLabels.rows) {
-					//		imgLabels_row_fol[c] = 0;
-					//		imgLabels_row_fol[c + 1] = 0;
-					//	}
-					//}
-				}   
+					else {
+						imgLabels_row[c] = 0;
+						imgLabels_row[c + 1] = 0;
+						if (r + 1<imgLabels.rows) {
+							imgLabels_row_fol[c] = 0;
+							imgLabels_row_fol[c + 1] = 0;
+						}
+					}
+				}
 			}
 		}// END Case 2
 	} 
@@ -1323,14 +1323,14 @@ int labelingGranaOPTv3(const cv::Mat1b &img, cv::Mat1i &imgLabels) {
 								imgLabels_row_fol[c + 1] = 0;
 						}
 					}
-					//else{
-					//	imgLabels_row[c] = 0;
-					//	imgLabels_row_fol[c] = 0;
-					//	if (c + 1<imgLabels.cols) {
-					//		imgLabels_row[c + 1] = 0;
-					//		imgLabels_row_fol[c + 1] = 0;
-					//	}
-					//}
+					else{
+						imgLabels_row[c] = 0;
+						imgLabels_row_fol[c] = 0;
+						if (c + 1<imgLabels.cols) {
+							imgLabels_row[c + 1] = 0;
+							imgLabels_row_fol[c + 1] = 0;
+						}
+					}
 				}
 			}
 		}// END case 3
@@ -1365,12 +1365,12 @@ int labelingGranaOPTv3(const cv::Mat1b &img, cv::Mat1i &imgLabels) {
 						else
 							imgLabels_row_fol[c + 1] = 0;
 					}
-					//else {
-					//	imgLabels_row[c] = 0;
-					//	imgLabels_row[c + 1] = 0;
-					//	imgLabels_row_fol[c] = 0;
-					//	imgLabels_row_fol[c + 1] = 0;
-					//}
+					else {
+						imgLabels_row[c] = 0;
+						imgLabels_row[c + 1] = 0;
+						imgLabels_row_fol[c] = 0;
+						imgLabels_row_fol[c + 1] = 0;
+					}
 				}
 			}
 		}//END case 4

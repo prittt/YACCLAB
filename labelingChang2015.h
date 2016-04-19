@@ -24,4 +24,5 @@
 #pragma once
 #include "opencv2/opencv.hpp"
 
-int CCIT(const cv::Mat1b &img, cv::Mat1i &imgLabels);
+// Optimized version of Chang's algorithm ( block based ) 
+int CCIT_OPT(const cv::Mat1b &img, cv::Mat1i &imgLabels);

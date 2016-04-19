@@ -24,6 +24,7 @@ using namespace std;
 #include <sys/types.h>
 #include <sys/stat.h>
 
+// To check for the presence of a directory
 bool dirExists(const char* pathname){
 	struct stat info;
 	if (stat(pathname, &info) != 0){
@@ -100,6 +101,7 @@ bool compareMat(const Mat1i& mata, const Mat1i& matb){
     return cv::countNonZero(diff) == 0;
 }
 
+// To check the correctness of algorithms on datasets specified
 void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vector<string>& datasets, const string& input_path, const string& input_txt){
 
     vector<bool> stats(CCLAlgorithms.size(), true); // true if the i-th algorithm is correct, false otherwise
@@ -180,11 +182,6 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
     else{
         cout << "Unable to perform check, skipped" << endl; 
     }
-
-}
-
-int labelingOPENCV(const Mat1b& binaryMat, Mat1i& labeledMat){
-	return connectedComponents(binaryMat, labeledMat, 8, CV_32S);
 }
 
 // This function take a char as input and return the corresponding int value (not ASCII one)
@@ -834,6 +831,7 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
 	return ("Density_Size_Test on '" + output_folder + "': successfuly done");
 }
 
+// To generate latex table with averages results
 void generateLatexTable(const string& output_path, const string& latex_file, const Mat1d& all_res, const vector<string>& algName, const vector<pair<CCLPointer, string>>& CCLAlgorithms){
     
     string latex_path = output_path + "\\" + latex_file; 
@@ -884,6 +882,7 @@ void generateLatexTable(const string& output_path, const string& latex_file, con
 
 int main(int argc, char **argv) 
 {
+    // Configuration file
 	ConfigFile cfg("config.cfg");  
 
     // Flags to customize output format
@@ -894,8 +893,7 @@ int main(int argc, char **argv)
         ds_saveMiddleTests = cfg.getValueOfKey<bool>("ds_saveMiddleTests", false),
         at_saveMiddleTests = cfg.getValueOfKey<bool>("at_saveMiddleTests", false),
         ds_perform = cfg.getValueOfKey<bool>("ds_perform", true),
-        at_perform = cfg.getValueOfKey<bool>("at_perform", true); 
-        
+        at_perform = cfg.getValueOfKey<bool>("at_perform", true);    
 
     // Number of tests
     uint8_t ds_testsNumber = cfg.getValueOfKey<uint>("ds_testsNumber", 1), 
@@ -958,7 +956,6 @@ int main(int argc, char **argv)
 	// DENSITY_SIZE_TESTS
     if (ds_perform){
         cout << endl << "DENSITY_SIZE TESTS: " << endl;
-        // TODO: remove for
         for (unsigned int i = 0; i < input_folders_density_size_test.size(); ++i){
             cout << "Density_Size_Test on '" << input_folders_density_size_test[i] << "': starts" << endl;
             cout << density_size_test(CCLAlgorithms, input_path, input_folders_density_size_test[i], input_txt, gnuplot_scipt, output_path, colors_folder, ds_saveMiddleTests, ds_testsNumber, middel_folder, write_n_labels, output_colors_density_size) << endl;

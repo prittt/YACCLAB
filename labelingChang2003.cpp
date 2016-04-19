@@ -1,4 +1,4 @@
-#include "LabelingChang2003.h"
+#include "labelingChang2003.h"
 
 using namespace std; 
 using namespace cv;
@@ -6,7 +6,7 @@ using namespace cv;
 inline Point2i Tracer(const Mat1b &img, const unsigned char byF, Mat1i &imgOut, const Point2i &P, int iLabel, int &iPrev, bool &bIsolated) {
 	int iFirst,iNext;
 
-	// Trovo la direzione da analizzare
+	// Find the direction to analyze
 	iFirst = iNext = (iPrev+2)%8;
 
     Point2i crdNext;
@@ -40,8 +40,8 @@ inline Point2i Tracer(const Mat1b &img, const unsigned char byF, Mat1i &imgOut, 
 
 inline void ContourTracing (const Mat1b &img, const unsigned char byF, Mat1i &imgOut, int x, int y, int iLabel, bool bExternal) {
 	Point2i S(x,y),T,crdNextPoint,crdCurPoint;
-	// Per prima cosa etichetto il punto stesso
-
+	
+    // The current point is labeled 
 	imgOut(S.y, S.x) = iLabel;
 
 	bool bIsolated(false);
@@ -51,7 +51,7 @@ inline void ContourTracing (const Mat1b &img, const unsigned char byF, Mat1i &im
 	else 
 		iPreviousContourPoint = 7;
 
-	// Prima chiamata a Tracer
+	// First call to Tracer
 	crdNextPoint = T = Tracer (img,byF,imgOut,S,iLabel,iPreviousContourPoint,bIsolated);
 	if (bIsolated)
 		return;
@@ -63,7 +63,7 @@ inline void ContourTracing (const Mat1b &img, const unsigned char byF, Mat1i &im
 	} while (!(crdCurPoint==S && crdNextPoint==T));
 }
 
-int CT(const Mat1b &img, Mat1i &imgOut) {
+int CT_OPT(const Mat1b &img, Mat1i &imgOut) {
 	unsigned char byF = 1; 
     imgOut = Mat1i(img.size(), 0);
 	
