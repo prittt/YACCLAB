@@ -24,6 +24,13 @@ using namespace std;
 #include <sys/types.h>
 #include <sys/stat.h>
 
+const char kPathSeparator =
+#ifdef _WIN32
+                            '\\';
+#else
+                            '/';
+#endif
+
 // To check for the presence of a directory
 bool dirExists(const char* pathname){
 	struct stat info;
@@ -113,7 +120,7 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
 
         cout << "Test on " << datasets[i] << " starts: " << endl; 
 
-        string is_path = input_path + "\\" + datasets[i] + "\\" + input_txt;
+        string is_path = input_path + kPathSeparator + datasets[i] + kPathSeparator + input_txt;
         
         ifstream supp(is_path);
         if (!supp.is_open()){
@@ -145,7 +152,7 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
             Mat1i labeledImgCorrect, labeledImgToControl;
             unsigned nLabelsCorrect, nLabelsToControl;
 
-            if (!getBinaryImage(input_path + "\\" + datasets[i] + "\\" + filename, binaryImg)){
+            if (!getBinaryImage(input_path + kPathSeparator + datasets[i] + kPathSeparator + filename, binaryImg)){
                 cout << "Unable to check on '" + filename + "', file does not exist" << endl;
                 continue;
             }
@@ -160,7 +167,7 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
                     normalizeLabels(labeledImgToControl, nLabelsToControl);
                     if (nLabelsCorrect != nLabelsToControl || !compareMat(labeledImgCorrect, labeledImgToControl)){
                         stats[j] = false;
-                        cout << "\"" << (*it).second << "\" is not correct, it fails on " << input_path + "\\" + datasets[i] + "\\" + filename << endl;
+                        cout << "\"" << (*it).second << "\" is not correct, it fails on " << input_path + kPathSeparator + datasets[i] + kPathSeparator + filename << endl;
                         if (adjacent_find(stats.begin(), stats.end(), not_equal_to<int>()) == stats.end()){
                             stop = true; 
                             break;
@@ -231,14 +238,14 @@ void saveBroadOutputResults(const Mat1d& results, const string& oFileName, vecto
 string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all_res, const unsigned int& alg_pos, const string& input_path, const string& input_folder, const string& input_txt, const string& gnuplot_script, string& output_path, string& colors_folder, const bool& saveMiddleResults, const uint& nTest, const string& middleFolder, const bool& write_n_labels = true, const bool& output_colors = true){
 
 	string output_folder = input_folder,
-		   complete_output_path = output_path + "\\" + output_folder,
+		   complete_output_path = output_path + kPathSeparator + output_folder,
 		   output_broad_results = "results.txt",
            middleFile = "run", 
 		   output_averages_results = "averages.txt",
 		   output_graph = output_folder + ".pdf",
            output_graph_bw = output_folder + "_bw.pdf",
-           middleOut_Folder = complete_output_path + "\\" + middleFolder,
-           out_color_folder = output_path + "\\" + output_folder + "\\" + colors_folder;
+           middleOut_Folder = complete_output_path + kPathSeparator + middleFolder,
+           out_color_folder = output_path + kPathSeparator + output_folder + kPathSeparator + colors_folder;
 
 
     // Creation of output path
@@ -259,9 +266,9 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
                 return ("Averages_Test on '" + input_folder + "': Unable to find/create the output path " + middleOut_Folder);
     }
 
-	string is_path = input_path + "\\" + input_folder + "\\" + input_txt,
-		   os_path = output_path + "\\" + output_folder + "\\" + output_broad_results,
-		   averages_os_path = output_path + "\\" + output_folder + "\\" + output_averages_results;
+	string is_path = input_path + kPathSeparator + input_folder + kPathSeparator + input_txt,
+		   os_path = output_path + kPathSeparator + output_folder + kPathSeparator + output_broad_results,
+		   averages_os_path = output_path + kPathSeparator + output_folder + kPathSeparator + output_averages_results;
     
     // For AVERAGES RESULT
     ofstream averages_os(averages_os_path);
@@ -308,7 +315,7 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
 
             Mat1b binaryImg;
 
-            if (!getBinaryImage(input_path + "\\" + input_folder + "\\" + filename, binaryImg)){
+            if (!getBinaryImage(input_path + kPathSeparator + input_folder + kPathSeparator + filename, binaryImg)){
                 if (filesNames[file].second)
                     cout << "'" + filename + "' does not exist" << endl;
                 filesNames[file].second = false;
@@ -347,7 +354,7 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
 
                     normalizeLabels(labeledMat, nLabels);
                     colorLabels(labeledMat, imgColors);
-                    imwrite(out_color_folder + "\\" + filename + "_" + algName + ".png", imgColors);
+                    imwrite(out_color_folder + kPathSeparator + filename + "_" + algName + ".png", imgColors);
                 }
 
             }// END ALGORITHMS FOR
@@ -358,7 +365,7 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
 
         // Save middle results if necessary (falg 'at_saveMiddleTests' enable) 
         if (saveMiddleResults){ 
-            string middleOut = middleOut_Folder + "\\" + middleFile + "_" + to_string(test) + ".txt";         
+            string middleOut = middleOut_Folder + kPathSeparator + middleFile + "_" + to_string(test) + ".txt";         
             saveBroadOutputResults(current_res, middleOut, CCLAlgorithms, write_n_labels, labels, filesNames);
         }
     }// END TESTS FOR
@@ -383,7 +390,7 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
     }
 
 	// GNUPLOT SCRIPT
-	string scriptos_path = output_path + "\\" + output_folder + "\\" + gnuplot_script;
+	string scriptos_path = output_path + kPathSeparator + output_folder + kPathSeparator + gnuplot_script;
 	ofstream scriptos(scriptos_path);
 	if (!scriptos.is_open())
 		return ("Averages_Test on '" + input_folder + "': Unable to create " + scriptos_path);
@@ -445,7 +452,7 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
 	scriptos.close();
     // GNUPLOT SCRIPT
 
-    if (0 != std::system(("gnuplot " + complete_output_path + "\\" + gnuplot_script).c_str()))
+    if (0 != std::system(("gnuplot " + complete_output_path + kPathSeparator + gnuplot_script).c_str()))
         return ("Averages_Test on '" + input_folder + "': Unable to run gnuplot's script");
 
 	return ("Averages_Test on '" + input_folder + "': successfuly done");
@@ -454,7 +461,7 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
 string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const string& input_path, const string& input_folder, const string& input_txt, const string& gnuplot_script, string& output_path, string& colors_folder, const bool& saveMiddleResults, const uint& nTest, const string& middleFolder, const bool& write_n_labels = true, const bool& output_colors = true){
 	
 	string output_folder = input_folder,
-		   complete_output_path = output_path + "\\" + output_folder,
+		   complete_output_path = output_path + kPathSeparator + output_folder,
 		   output_broad_result = "results.txt",
 		   output_size_result = "size.txt",
 		   output_density_result = "density.txt",
@@ -463,8 +470,8 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
 		   output_density_graph = "density.pdf",
            output_density_graph_bw = "density_bw.pdf",
            middleFile = "run",
-           middleOut_Folder = complete_output_path + "\\" + middleFolder,
-           out_color_folder = output_path + "\\" + output_folder + "\\" + colors_folder;
+           middleOut_Folder = complete_output_path + kPathSeparator + middleFolder,
+           out_color_folder = output_path + kPathSeparator + output_folder + kPathSeparator + colors_folder;
 
     // Creation of output path
 	if (!dirExists(complete_output_path.c_str()))
@@ -484,10 +491,10 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
                 return ("Density_Size_Test on '" + input_folder + "': Unable to find/create the output path " + middleOut_Folder);
     }
 
-	string is_path = input_path + "\\" + input_folder + "\\" + input_txt,
-		   os_path = output_path + "\\" + output_folder + "\\" + output_broad_result,
-		   density_os_path = output_path + "\\" + output_folder + "\\" + output_density_result,
-	       size_os_path = output_path + "\\" + output_folder + "\\" + output_size_result;
+	string is_path = input_path + kPathSeparator + input_folder + kPathSeparator + input_txt,
+		   os_path = output_path + kPathSeparator + output_folder + kPathSeparator + output_broad_result,
+		   density_os_path = output_path + kPathSeparator + output_folder + kPathSeparator + output_density_result,
+	       size_os_path = output_path + kPathSeparator + output_folder + kPathSeparator + output_size_result;
 
     // For DENSITY RESULT
     ofstream density_os(density_os_path);
@@ -583,7 +590,7 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
 
             Mat1b binaryImg;
 
-            if (!getBinaryImage(input_path + "\\" + input_folder + "\\" + filename, binaryImg)){
+            if (!getBinaryImage(input_path + kPathSeparator + input_folder + kPathSeparator + filename, binaryImg)){
                 if (filesNames[file].second)
                     cout << "'" + filename + "' does not exist" << endl;
                 filesNames[file].second = false;
@@ -620,7 +627,7 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
 
                     normalizeLabels(labeledMat, nLabels);
                     colorLabels(labeledMat, imgColors);
-                    imwrite(out_color_folder + "\\" + filename + "_" + algName + ".png", imgColors);
+                    imwrite(out_color_folder + kPathSeparator + filename + "_" + algName + ".png", imgColors);
                 }
             }// END ALGORTIHMS FOR
         } // END FILES FOR
@@ -630,7 +637,7 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
 
         // Save middle results if necessary (falg 'at_saveMiddleTests' enable) 
         if (saveMiddleResults){
-            string middleOut = middleOut_Folder + "\\" + middleFile + "_" + to_string(test) + ".txt";
+            string middleOut = middleOut_Folder + kPathSeparator + middleFile + "_" + to_string(test) + ".txt";
             saveBroadOutputResults(current_res, middleOut, CCLAlgorithms, write_n_labels, labels, filesNames);
         }
 	}// END TEST FOR
@@ -715,7 +722,7 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
 	// To write size result
 
 	// GNUPLOT SCRIPT
-	string scriptos_path = output_path + "\\" + output_folder + "\\" + gnuplot_script;
+	string scriptos_path = output_path + kPathSeparator + output_folder + kPathSeparator + gnuplot_script;
 	ofstream scriptos(scriptos_path);
 	if (!scriptos.is_open())
 		return ("Density_Size_Test on '" + input_folder + "': Unable to create " + scriptos_path);
@@ -826,7 +833,7 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
 	scriptos.close();
 	// GNUPLOT SCRIPT 
 
-    if (0 != std::system(("gnuplot " + complete_output_path + "\\" + gnuplot_script).c_str()))
+    if (0 != std::system(("gnuplot " + complete_output_path + kPathSeparator + gnuplot_script).c_str()))
         return ("Density_Size_Test on '" + input_folder + "': Unable to run gnuplot's script");
 	return ("Density_Size_Test on '" + output_folder + "': successfuly done");
 }
@@ -834,7 +841,7 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
 // To generate latex table with averages results
 void generateLatexTable(const string& output_path, const string& latex_file, const Mat1d& all_res, const vector<string>& algName, const vector<pair<CCLPointer, string>>& CCLAlgorithms){
     
-    string latex_path = output_path + "\\" + latex_file; 
+    string latex_path = output_path + kPathSeparator + latex_file; 
     ofstream is(latex_path); 
     if (!is.is_open()){
         cout << "Unable to open/create " + latex_path << endl;
@@ -933,6 +940,12 @@ int main(int argc, char **argv)
             CCLAlgorithms.push_back({CCLAlgorithmsMap.find(*it)->second, algName[i]});
     }
 
+    // Create output directory
+    if (!dirExists(output_path.c_str()))
+	if (0 != std::system(("mkdir " + output_path).c_str())) {
+		cout << "Unable to find/create the output path " + output_path;
+                return 1;
+        }
 	// Check if algorithms are correct
     if (check_8connectivity){
         cout << "CHECK ALGORITHMS ON 8-CONNECTIVITY: " << endl;

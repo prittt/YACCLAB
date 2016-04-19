@@ -35,7 +35,7 @@ public:
     {
         std::istringstream istr(val);
         T returnVal;
-        if ((std::string)typeid(T).name() == "bool")
+        if ((std::string)typeid(T).name() == "bool" || (std::string)typeid(T).name() == "b")
         {
             if (!(istr >> std::boolalpha >> returnVal))
                 exitWithError("CFG: Not a valid " + (std::string)typeid(T).name() + " received!\n");
