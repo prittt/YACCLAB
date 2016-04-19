@@ -1,4 +1,4 @@
-#include "LabelingChang2003.h"
+#include "labelingChang2003.h"
 
 using namespace std; 
 using namespace cv;
