@@ -24,9 +24,8 @@ To check the correctness of an implementation, the output of an algorithm is com
 - <p align="justify"><b>3dpes:</b> it comes from 3DPeS (3D People Surveillance Dataset), a surveillance dataset designed mainly for people re-identification in multi camera systems with non-overlapped fields of view. 3DPeS can be also exploited to test many other tasks, such as people detection, tracking, action analysis and trajectory analysis. The background models for all cameras are provided, so a very basic technique of motion segmentation has been applied to generate the foreground binary masks, i.e.,  background subtraction and fixed thresholding. The analysis of the foreground masks to remove small connected components and for nearest neighbor matching is a common application for CCL. </p>
 
 =======
-
-###Tests
 <a name="tests"></a>
+###Tests
 
 - <p align="justify"><b>Average run-time tests:</b> execute an algorithm on every image of a dataset. The process can be repeated more times in a single test, to get the minimum execution time for each image: this allows to get more reproducible results and overlook delays produced by other running processes. It is also possible to compare the execution speed of different algorithms on the same dataset: in this case, selected algorithms (see <a href="#conf">Configuration File</a> for more details) are executed sequentially on every image of the dataset. Results are presented in three different formats: a plain text file, histogram charts, either in color or in gray-scale, and a LaTeX table, which can be directly included in research papers.</p>
 
@@ -56,9 +55,9 @@ Note for gnuplot:
 - <p align="justify">Set <a href="#conf">configuration file</a> in order to execute desired tests, open the project create at the previous point, compile and run it: the work is done. </p>
 
 =======
-
-###Configuration File
 <a name="conf"></a>
+###Configuration File
+
 A configuration file placed in the installation folder lets you to specify which kind of test should be performed, on which datasets and on which algorithms. A complete description of all configuration parameters is reported in the table below.
 
 #####Parameter name Description
