@@ -1,4 +1,4 @@
-### YACCLAB: Yet Another Connected Components Labeling Benchmark
+## YACCLAB: Yet Another Connected Components Labeling Benchmark
 
 ### Introduction
 <p align="justify"> 
@@ -17,7 +17,7 @@ To check the correctness of an implementation, the output of an algorithm is com
 
 - <p align="justify"><b>mirflickr:</b> Otsu-binarized version of the MIRflickr dataset, publicly available under a Creative Commons License. It contains 25,000 standard resolution images taken from Flickr. These images have an average resolution of 0.17 megapixels, there are few connected components (495 on average) and are generally composed of not too complex patterns, so the labeling is quite easy and fast.</p>
 
-- <p align="justify"><b>hamlet:</b> a set of 104 images scanned from a version of the Hamlet found on Project Gutenberg (URL http://www.gutenberg.org).</p>
+- <p align="justify"><b>hamlet:</b> a set of 104 images scanned from a version of the Hamlet found on Project Gutenberg (http://www.gutenberg.org).</p>
 
 - <p align="justify"><b>tobacco800:</b> a set of 1290 document images. It is a realistic database for document image analysis research as these documents were collected and scanned using a wide variety of equipment over time. Resolutions of documents in Tobacco800 vary significantly from 150 to 300 DPI and the dimensions of images range from 1200 by 1600 to 2500 by 3200 pixels. Since CCL is one of the initial preprocessing steps in most layout analysis or OCR algorithms, hamlet and tobacco800 allow to test the algorithm performance in such scenarios. </p>
 
@@ -36,21 +36,24 @@ To check the correctness of an implementation, the output of an algorithm is com
 
 ###Requirements
 
-To correctly install and run YACCLAB following packages, libraries and utility are needed: <br />
+<p align="justify">To correctly install and run YACCLAB following packages, libraries and utility are needed:</p>
 
 - CMake 2.4.0 or higher (https://cmake.org/download/),
 - OpenCV 3.0 or higher (http://opencv.org/downloads.html),
 - Gnuplot (http://www.gnuplot.info/), 
 - One of your favourite IDE/compiler: Visual Studio 2013 or higher, Xcode 5.0.1, gcc 4.7 or higher, ..
 
-Note: be sure add gnuplot to system path if you want YACCLAB automatically generates charts.  
+Note for gnuplot:
+- on Windows system: be sure add gnuplot to system path if you want YACCLAB automatically generates charts.
+- on MacOS system: 'pdf terminal' seams to be not available, 'svg' one is used.
 
 =======
 
 ###Installation
 
-- Clone the GitHub repository (HTTPS clone URL: https://github.com/prittt/YACCLAB.git) or simply download the full master branch zip file.
-- With CMake 
+- <p align="justify">Clone the GitHub repository (HTTPS clone URL: https://github.com/prittt/YACCLAB.git) or simply download the full master branch zip file and extract it (e.g YACCLAB folder).</p>
+- <p align="justify">Install software in YACCLAB/build subfolder (suggested) or wherever you want using CMake. Note that CMake should automatically find OpenCV path (if installed), download YACCLAB Dataset and create a project for the selected IDE/compiler.</p>
+- <p align="justify">Set <a href="#conf">configuration file</a> in order to execute desired tests, open the project create at the previous point, compile and run it: the work is done. </p>
 
 =======
 
@@ -98,10 +101,6 @@ A configuration file placed in the installation folder lets you to specify which
 
 ###How Add New Algorithms
 
-YACCLAB has been designed with extensibility in mind, so that new resources can be easily integrated into the project. A CCL algorithm is coded with
-a .h header file, which declares a function implementing the algorithm, and a .cpp source file which defines the function itself. The function must
-follow a standard signature: its first parameter should be a const reference to an OpenCV Mat1b matrix, containing the input image, and its second 
-parameter should be a reference to a Mat1i matrix, which shall be populated with computed labels. The function must also return an integer specifying
-the
+YACCLAB has been designed with extensibility in mind, so that new resources can be easily integrated into the project. A CCL algorithm is coded witha .h header file, which declares a function implementing the algorithm, and a .cpp source file which defines the function itself. The function must follow a standard signature: its first parameter should be a const reference to an OpenCV Mat1b matrix, containing the input image, and its second parameter should be a reference to a Mat1i matrix, which shall be populated with computed labels. The function must also return an integer specifying the
 
 =======
