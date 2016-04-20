@@ -83,8 +83,7 @@ Note: you must add gnuplot to system path if you want YACCLAN
 A configuration file placed in the installation folder lets you to specify which kind of test should be performed, on which datasets and on which
 algorithms. A complete description of all configuration parameters is reported in the table below.
 
-| Parameter name Description ||
-| --- ||
+#####Parameter name Description 
 | input path | Folder on which datasets are placed|
 | output path | Folder on which result are stored|
 
