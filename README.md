@@ -3,7 +3,7 @@
 ### Introduction
 <p align="justify"> 
 YACCLAB is an open source C++ project which runs and tests CCL algorithms on a collection of datasets described below. Beside running a CCL algorithm and testing its correctness, YACCLAB performs three more kinds of test: average run-time test, density test and size test, in which the performance of the algorithms are evaluated with images of increasing density and size (see <a href="#tests">Tests</a> section for more details).
-<br/>
+<br/><br/>
 To check the correctness of an implementation, the output of an algorithm is compared with that of the OpenCV 'cv::connectedComponents function' available from 3.0 release. Notice that 8-connectivity is always used. A colorized version of the input images can also be produced,to visually check the output and investigate possible labeling errors.
 </p>
 
@@ -26,16 +26,12 @@ To check the correctness of an implementation, the output of an algorithm is com
 =======
 ###Tests
 <a name="tests"></a>
-Average run-time tests execute an algorithm on every image of a dataset. The process can be repeated more times in a single test, to get the minimum execution time for each image: this allows to get more reproducible results and overlook delays produced by other running processes. It is also possible to compare the execution
-speed of different algorithms on the same dataset: in this case, selected algorithms are executed sequentially on every image of the dataset. Results are presented in
-three different formats: a plain text file, histogram charts, either in color or in gray-scale, and a LaTeX table, which can be directly included in research papers.
 
-Finally, density and size tests check the performance of different CCL algorithms when they are executed on images with varying foreground density and size.
-To this aim, a list of algorithms selected by the user is run sequentially on every image of the test\_random dataset. As for run-time tests, it is possible to repeat this test for more than one run. The output is presented as both plain text and charts. For a density test, the mean execution time of each algorithm is reported for densities ranging from 10\% up to 90\%, while for a size test the same is reported for resolutions ranging from $32\times 32$ up to $4096 \times 4096$. A showcase will be presented in Section~\ref{sec:results}.
+-<p align="justify"><b>Average run-time tests:</b> execute an algorithm on every image of a dataset. The process can be repeated more times in a single test, to get the minimum execution time for each image: this allows to get more reproducible results and overlook delays produced by other running processes. It is also possible to compare the execution speed of different algorithms on the same dataset: in this case, selected algorithms (see <a href="#conf">Configuration File</a> for more details) are executed sequentially on every image of the dataset. Results are presented in three different formats: a plain text file, histogram charts, either in color or in gray-scale, and a LaTeX table, which can be directly included in research papers.</p>
 
-A configuration file placed in the installation folder lets the user specify which kind of test should be performed, on which datasets and on which algorithms. 
-A complete description of all configuration parameters is reported in Table~\ref{tab:flags}.
+-<p align="justify"><b>Average density and size tests check the performance of different CCL algorithms when they are executed on images with varying foreground density and size. To this aim, a list of algorithms selected by the user is run sequentially on every image of the test_random dataset. As for run-time tests, it is possible to repeat this test for more than one run. The output is presented as both plain text and charts. For a density test, the mean execution time of each algorithm is reported for densities ranging from 10\% up to 90\%, while for a size test the same is reported for resolutions ranging from 32x32 up to 4096x4096.</p>
 
+=======
 
 ###Requirements
 
@@ -43,9 +39,10 @@ To correctly install and run YACCLAB following packages, libraries and utility a
 
 - CMake 2.4.0 or higher (https://cmake.org/download/),
 - OpenCV 3.0 or higher (http://opencv.org/downloads.html),
-- Gnuplot (http://www.gnuplot.info/). 
+- Gnuplot (http://www.gnuplot.info/), 
+- One of your favourite IDE/compiler: Visual Studio (2013 or higher), Xcode (), gcc (4.7 or higher), ..
 
-Note: you must add gnuplot to system path if you want YACCLAN  
+Note: add gnuplot to system path if you want YACCLAB automatically generates charts.  
 
 =======
 
@@ -57,9 +54,8 @@ Note: you must add gnuplot to system path if you want YACCLAN
 =======
 
 ###Configuration File
-
-A configuration file placed in the installation folder lets you to specify which kind of test should be performed, on which datasets and on which
-algorithms. A complete description of all configuration parameters is reported in the table below.
+<a name="conf"></a>
+A configuration file placed in the installation folder lets you to specify which kind of test should be performed, on which datasets and on which algorithms. A complete description of all configuration parameters is reported in the table below.
 
 #####Parameter name Description
 <table>
