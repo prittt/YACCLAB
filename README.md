@@ -1,5 +1,5 @@
 ## YACCLAB: Yet Another Connected Components Labeling Benchmark
-========================
+=======
 
 YACCLAB is an open source C++ project which runs and tests CCL algorithms on a collection of datasets described below. Beside running a CCL algorithm
 and testing its correctness, YACCLAB performs three more kinds of test: average run-time test, density test and size test, in which the performance 
@@ -83,37 +83,30 @@ Note: you must add gnuplot to system path if you want YACCLAN
 A configuration file placed in the installation folder lets you to specify which kind of test should be performed, on which datasets and on which
 algorithms. A complete description of all configuration parameters is reported in the table below.
 
-#####
-
+#####Parameter name Description
 <table>
-<tr>
-    <td>Parameter name Description</td>
-</tr>
-<tr>
-  <td>Eve</td>
-  <td>Jackson</td>
-  <td>94</td>
-</tr></table>
+<tr><td>input path</td><td>folder on which datasets are placed</td></tr>
+<tr><td>output path</td><td>folder on which result are stored</td></tr>
+<tr><td>write n labels</td><td>whether to report the number of Connected Components in output files</td></tr>
+</table>
 
-| key | Role |
-| input path | Folder on which datasets are placed|
-| output path | Folder on which result are stored|
-|write n labels | Whether to report the number of Connected Components in output files|
+#####Correctness tests
+<table>
+<tr><td>check 8connectivity</td><td>whether to perform correctness tests</td></tr>
+<tr><td>check list</td><td>list of datasets on which CCL algorithms should be checked</td></tr>
+</table>
 
-|Correctness tests||
-|--------------------------||
-|check 8connectivity | Whether to perform correctness tests|
-|check list | List of datasets on which CCL algorithms should be checked|
-|Density and size tests||
-|----------------------||
-|ds perform | Whether to perform density and size tests|
-|ds colorLabels | Whether to output a colorized version of|
-|input images||
-|------------||
-|ds testsNumber | Number of runs|
-|ds saveMiddleTests | Whether to save the output of single runs, or only a summary of the whole test|
-|Average execution time tests||
-|----------------------------||
+#####Density and size tests
+<table>
+<tr><td>ds perform</td><td>whether to perform density and size tests</td></tr>
+<tr><td>ds colorLabels</td><td>whether to output a colorized version of input images</td></tr>
+<tr><td>ds testsNumber</td><td>number of runs</td></tr>
+<tr><td>ds saveMiddleTests</td><td>whether to save the output of single runs, or only a summary of the whole test</td></tr>
+</table>
+
+
+#####Average execution time tests
+
 |at perform | Whether to perform average execution time tests|
 |at colorLabels | Whether to output a colorized version of input images|
 |at testsNumber | Number of runs|
