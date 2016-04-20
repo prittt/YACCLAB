@@ -1,10 +1,12 @@
 ## YACCLAB: Yet Another Connected Components Labeling Benchmark
 
+### Introduction
 <p align="justify"> 
-YACCLAB is an open source C++ project which runs and tests CCL algorithms on a collection of datasets described below. Beside running a CCL algorithm
-and testing its correctness, YACCLAB performs three more kinds of test: average run-time test, density test and size test, in which the performance 
-of the algorithms are evaluated with images of increasing density and size.
+YACCLAB is an open source C++ project which runs and tests CCL algorithms on a collection of datasets described below. Beside running a CCL algorithm and testing its correctness, YACCLAB performs three more kinds of test: average run-time test, density test and size test, in which the performance of the algorithms are evaluated with images of increasing density and size.
+
+To check the correctness of an implementation, the output of an algorithm is compared with that of the OpenCV 'cv::connectedComponents function' available from 3.0 release. Notice that 8-connectivity is always used. A colorized version of the input images can also be produced,to visually check the output and investigate possible labeling errors.
 </p>
+
 =======
 
 ### Datasets
@@ -38,15 +40,9 @@ and 1 (white) being foreground. Images are organized by folders and as follows:
   connected components and for nearest neighbor matching is a common application for CCL. 
   
 =======
+###Tests
 
-### Introduction
-
-To check the correctness of an implementation, the output of an algorithm is compared with that of the OpenCV cv::connectedComponents function. 
-Notice that 8-connectivity is always used. A colorized version of the input images can also be produced,to visually check the output and 
-investigate possible labeling errors.
-
-Average run-time tests execute an algorithm on every image of a dataset. The process can be repeated more times in a single test, to get the minimum execution time
-for each image: this allows to get more reproducible results and overlook delays produced by other running processes. It is also possible to compare the execution
+Average run-time tests execute an algorithm on every image of a dataset. The process can be repeated more times in a single test, to get the minimum execution time for each image: this allows to get more reproducible results and overlook delays produced by other running processes. It is also possible to compare the execution
 speed of different algorithms on the same dataset: in this case, selected algorithms are executed sequentially on every image of the dataset. Results are presented in
 three different formats: a plain text file, histogram charts, either in color or in gray-scale, and a LaTeX table, which can be directly included in research papers.
 
@@ -56,8 +52,6 @@ To this aim, a list of algorithms selected by the user is run sequentially on ev
 A configuration file placed in the installation folder lets the user specify which kind of test should be performed, on which datasets and on which algorithms. 
 A complete description of all configuration parameters is reported in Table~\ref{tab:flags}.
 
-  
-=======
 
 ###Requirements
 
