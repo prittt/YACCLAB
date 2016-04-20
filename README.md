@@ -2,7 +2,7 @@
 
 ### Introduction
 <p align="justify"> 
-YACCLAB is an open source C++ project which runs and tests CCL algorithms on a collection of datasets described below. Beside running a CCL algorithm and testing its correctness, YACCLAB performs three more kinds of test: average run-time test, density test and size test, in which the performance of the algorithms are evaluated with images of increasing density and size.
+YACCLAB is an open source C++ project which runs and tests CCL algorithms on a collection of datasets described below. Beside running a CCL algorithm and testing its correctness, YACCLAB performs three more kinds of test: average run-time test, density test and size test, in which the performance of the algorithms are evaluated with images of increasing density and size (see <a href="tests">Tests</a> section for more details).
 <br/>
 To check the correctness of an implementation, the output of an algorithm is compared with that of the OpenCV 'cv::connectedComponents function' available from 3.0 release. Notice that 8-connectivity is always used. A colorized version of the input images can also be produced,to visually check the output and investigate possible labeling errors.
 </p>
@@ -24,7 +24,7 @@ To check the correctness of an implementation, the output of an algorithm is com
 - <p align="justify"><b>3dpes:</b> it comes from 3DPeS (3D People Surveillance Dataset), a surveillance dataset designed mainly for people re-identification in multi camera systems with non-overlapped fields of view. 3DPeS can be also exploited to test many other tasks, such as people detection, tracking, action analysis and trajectory analysis. The background models for all cameras are provided, so a very basic technique of motion segmentation has been applied to generate the foreground binary masks, i.e.,  background subtraction and fixed thresholding. The analysis of the foreground masks to remove small connected components and for nearest neighbor matching is a common application for CCL. </p>
 
 =======
-###Tests
+<a name="Tests">###Tests</a>
 
 Average run-time tests execute an algorithm on every image of a dataset. The process can be repeated more times in a single test, to get the minimum execution time for each image: this allows to get more reproducible results and overlook delays produced by other running processes. It is also possible to compare the execution
 speed of different algorithms on the same dataset: in this case, selected algorithms are executed sequentially on every image of the dataset. Results are presented in
