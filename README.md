@@ -104,18 +104,20 @@ algorithms. A complete description of all configuration parameters is reported i
 <tr><td>ds saveMiddleTests</td><td>whether to save the output of single runs, or only a summary of the whole test</td></tr>
 </table>
 
-
 #####Average execution time tests
+<table>
+<tr><td>at perform</td><td>whether to perform average execution time tests</td></tr>
+<tr><td>at colorLabels</td><td>whether to output a colorized version of input images</td></tr>
+<tr><td>at testsNumber</td><td>number of runs</td></tr>
+<tr><td>at saveMiddleTests</td><td>whether to save the output of single runs, or only a summary of the whole test</td></tr>
+<tr><td>averages tests</td><td>list of algorithms on which average execution time tests should be run</td></tr>
+</table>
 
-|at perform | Whether to perform average execution time tests|
-|at colorLabels | Whether to output a colorized version of input images|
-|at testsNumber | Number of runs|
-|at saveMiddleTests | Whether to save the output of single runs, or only a summary of the whole test|
-|averages tests | List of algorithms on which average execution time tests should be run|
-|Algorithm configuration||
-|-----------------------||
-|CCLAlgorithmsFunc | List of available algorithms (function names)
-|CCLAlgorithmsName | List of available algorithms (display names for charts)
+#####Algorithm configuration
+<table>
+<tr><td>CCLAlgorithmsFunc</td><td>list of available algorithms (function names)</td></tr>
+<tr><td>CCLAlgorithmsName</td><td>list of available algorithms (display names for charts)</td></tr>
+</table>
 
 =======
 
