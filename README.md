@@ -1,10 +1,10 @@
 ## YACCLAB: Yet Another Connected Components Labeling Benchmark
-=======
 
+<p align="justify"> 
 YACCLAB is an open source C++ project which runs and tests CCL algorithms on a collection of datasets described below. Beside running a CCL algorithm
 and testing its correctness, YACCLAB performs three more kinds of test: average run-time test, density test and size test, in which the performance 
 of the algorithms are evaluated with images of increasing density and size.
-
+</p>
 =======
 
 ### Datasets
