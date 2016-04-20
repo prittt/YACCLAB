@@ -1,4 +1,5 @@
-## YACCLAB: Yet Another Connected Components Labeling Benchmark
+## YACCLAB
+Yet Another Connected Components Labeling Benchmark
 
 ### Introduction
 <p align="justify"> 
