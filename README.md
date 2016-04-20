@@ -83,12 +83,23 @@ Note: you must add gnuplot to system path if you want YACCLAN
 A configuration file placed in the installation folder lets you to specify which kind of test should be performed, on which datasets and on which
 algorithms. A complete description of all configuration parameters is reported in the table below.
 
-#####Parameter name Description 
+#####
+
+<table>
+<tr>
+    <td>Parameter name Description</td>
+</tr>
+<tr>
+  <td>Eve</td>
+  <td>Jackson</td>
+  <td>94</td>
+</tr></table>
+
+| key | Role |
 | input path | Folder on which datasets are placed|
 | output path | Folder on which result are stored|
-
-
 |write n labels | Whether to report the number of Connected Components in output files|
+
 |Correctness tests||
 |--------------------------||
 |check 8connectivity | Whether to perform correctness tests|
