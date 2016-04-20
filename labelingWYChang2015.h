@@ -25,12 +25,10 @@
 // CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 // OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// Block-Based Connected-Component Labeling Algorithm Using Binary Decision Trees
 
 #pragma once
 #include "opencv2/opencv.hpp"
 
-// Readable version of Grana's algorithm
-//int BBDT(const cv::Mat1b &img, cv::Mat1i &imgLabels);
-
-// Readable version of Grana's algorithm
-int BBDT_OPT(const cv::Mat1b &img, cv::Mat1i &imgLabels);
+// Optimized version of Wan-Yu Chang's algorithm ( block based ) 
+int CCIT_OPT(const cv::Mat1b &img, cv::Mat1i &imgLabels);
