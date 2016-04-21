@@ -44,7 +44,7 @@ To check the correctness of an implementation, the output of an algorithm is com
 
 Note for gnuplot:
 - on Windows system: be sure add gnuplot to system path if you want YACCLAB automatically generates charts.
-- on MacOS system: 'pdf terminal' seams to be not available due to old version of cairo, 'postscript' one is used.
+- on MacOS system: 'pdf terminal' seems to be not available due to old version of cairo, 'postscript' one is used.
 
 =======
 
