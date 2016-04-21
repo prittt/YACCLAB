@@ -59,6 +59,14 @@ const char kPathSeparator =
                             '/';
 #endif
 
+#ifdef __APPLE__
+    const string terminal = "postscript";
+    const string terminalExtension = ".ps"; 
+#else
+    const string terminal = "pdf";
+    const string terminalExtension = ".pdf";
+#endif
+
 // To check for the presence of a directory
 bool dirExists(const char* pathname){
 	struct stat info;
@@ -140,6 +148,7 @@ bool compareMat(const Mat1i& mata, const Mat1i& matb){
 void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vector<string>& datasets, const string& input_path, const string& input_txt){
 
     vector<bool> stats(CCLAlgorithms.size(), true); // true if the i-th algorithm is correct, false otherwise
+    vector<string> firstFail(CCLAlgorithms.size()); // name of the file on which algorithm fails the first time
     bool stop = false; // true if all algorithms are incorrect
     bool checkPerform = false; // true if almost one check was execute 
 
@@ -197,7 +206,7 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
                     normalizeLabels(labeledImgToControl, nLabelsToControl);
                     if (nLabelsCorrect != nLabelsToControl || !compareMat(labeledImgCorrect, labeledImgToControl)){
                         stats[j] = false;
-                        cout << "\"" << (*it).second << "\" is not correct, it fails on " << input_path + kPathSeparator + datasets[i] + kPathSeparator + filename << endl;
+                        firstFail[j] = input_path + kPathSeparator + datasets[i] + kPathSeparator + filename; 
                         if (adjacent_find(stats.begin(), stats.end(), not_equal_to<int>()) == stats.end()){
                             stop = true; 
                             break;
@@ -215,6 +224,8 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
         for (vector<pair<CCLPointer, string>>::iterator it = CCLAlgorithms.begin(); it != CCLAlgorithms.end(); ++it, ++j){
             if (stats[j])
                 cout << "\"" << (*it).second << "\" is correct!" << endl;
+            else
+                cout << "\"" << (*it).second << "\" is not correct, it first fails on " << firstFail[j] << endl;
         }
     }
     else{
@@ -268,13 +279,13 @@ void saveBroadOutputResults(const Mat1d& results, const string& oFileName, vecto
 
 string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all_res, const unsigned int& alg_pos, const string& input_path, const string& input_folder, const string& input_txt, const string& gnuplot_script, string& output_path, string& colors_folder, const bool& saveMiddleResults, const uint& nTest, const string& middleFolder, const bool& write_n_labels = true, const bool& output_colors = true){
 
-	string output_folder = input_folder,
+    string output_folder = input_folder,
 		   complete_output_path = output_path + kPathSeparator + output_folder,
 		   output_broad_results = "results.txt",
            middleFile = "run", 
 		   output_averages_results = "averages.txt",
-		   output_graph = output_folder + ".pdf",
-           output_graph_bw = output_folder + "_bw.pdf",
+		   output_graph = output_folder + terminalExtension,
+           output_graph_bw = output_folder + "_bw" + terminalExtension,
            middleOut_Folder = complete_output_path + kPathSeparator + middleFolder,
            out_color_folder = output_path + kPathSeparator + output_folder + kPathSeparator + colors_folder;
 
@@ -440,8 +451,8 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
     scriptos << "set output \"" + output_graph + "\"" << endl;
     scriptos << "#set title \"" + output_folder + "\" font ', 12'" << endl << endl;
     
-    scriptos << "# pdf colors" << endl;
-    scriptos << "set terminal pdf enhanced color font ',15'" << endl << endl;
+    scriptos << "# " << terminal << " colors" << endl;
+    scriptos << "set terminal "<< terminal <<" enhanced color font ',15'" << endl << endl;
 
     scriptos << "# Graph style"<< endl;
     scriptos << "set style data histogram" << endl;
@@ -472,10 +483,10 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
 	
     scriptos << "# " << output_folder << "(BLACK AND WHITE)" << endl;
     scriptos << "set output \"" + output_graph_bw + "\"" << endl;
-    scriptos << "set title \"" + output_folder + "\" font ', 12'" << endl << endl;
+    scriptos << "#set title \"" + output_folder + "\" font ', 12'" << endl << endl;
 
-    scriptos << "# pdf black and white" << endl;
-    scriptos << "set terminal pdf enhanced monochrome dashed font ',15'" << endl << endl;
+    scriptos << "# " << terminal <<" black and white" << endl;
+    scriptos << "set terminal " << terminal << " enhanced monochrome dashed font ',15'" << endl << endl;
 
     scriptos << "replot" << endl << endl;
 
@@ -498,10 +509,10 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
 		   output_broad_result = "results.txt",
 		   output_size_result = "size.txt",
 		   output_density_result = "density.txt",
-		   output_size_graph = "size.pdf",
-           output_size_graph_bw = "size_bw.pdf",
-		   output_density_graph = "density.pdf",
-           output_density_graph_bw = "density_bw.pdf",
+		   output_size_graph = "size" + terminalExtension,
+           output_size_graph_bw = "size_bw" + terminalExtension,
+           output_density_graph = "density" + terminalExtension,
+           output_density_graph_bw = "density_bw" + terminalExtension,
            middleFile = "run",
            middleOut_Folder = complete_output_path + kPathSeparator + middleFolder,
            out_color_folder = output_path + kPathSeparator + output_folder + kPathSeparator + colors_folder;
@@ -775,8 +786,8 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
     scriptos << "set output \"" + output_density_graph + "\"" << endl;
     scriptos << "#set title \"Density\" font ', 12'" << endl << endl;
 
-    scriptos << "# pdf colors" << endl; 
-    scriptos << "set terminal pdf enhanced color font ',15'" << endl << endl;
+    scriptos << "# " << terminal << " colors" << endl; 
+    scriptos << "set terminal " << terminal << " enhanced color font ',15'" << endl << endl;
 
     scriptos << "# Axes labels" << endl; 
     scriptos << "set xlabel \"Density\"" << endl;
@@ -804,8 +815,8 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
     scriptos << "set output \"" + output_density_graph_bw + "\"" << endl;
     scriptos << "#set title \"Density\" font ', 12'" << endl << endl;
 
-    scriptos << "# pdf black and white" << endl;
-    scriptos << "set terminal pdf enhanced monochrome dashed font ',15'" << endl << endl;
+    scriptos << "# " << terminal << " black and white" << endl;
+    scriptos << "set terminal " << terminal << " enhanced monochrome dashed font ',15'" << endl << endl;
 
     scriptos << "replot" << endl << endl;
 
@@ -815,8 +826,8 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
     scriptos << "set output \"" + output_size_graph + "\"" << endl;
     scriptos << "#set title \"Size\" font ',12'" << endl << endl;
 
-    scriptos << "# pdf colors" << endl;
-    scriptos << "set terminal pdf enhanced color font ',15'" << endl << endl;
+    scriptos << "# " << terminal << " colors" << endl;
+    scriptos << "set terminal " << terminal << " enhanced color font ',15'" << endl << endl;
     
     scriptos << "# Axes labels" << endl;
     scriptos << "set xlabel \"Pixels\"" << endl;
@@ -856,8 +867,8 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
     scriptos << "set output \"" + output_size_graph_bw + "\"" << endl;
     scriptos << "#set title \"Size\" font ', 12'" << endl << endl;
 
-    scriptos << "# pdf black and white" << endl;
-    scriptos << "set terminal pdf enhanced monochrome dashed font ',15'" << endl << endl;
+    scriptos << "# " << terminal << " black and white" << endl;
+    scriptos << "set terminal " << terminal << " enhanced monochrome dashed font ',15'" << endl << endl;
 
     scriptos << "replot" << endl << endl;
 
