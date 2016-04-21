@@ -52,7 +52,7 @@ Note for gnuplot:
 
 - <p align="justify">Clone the GitHub repository (HTTPS clone URL: https://github.com/prittt/YACCLAB.git) or simply download the full master branch zip file and extract it (e.g YACCLAB folder).</p>
 - <p align="justify">Install software in YACCLAB/build subfolder (suggested) or wherever you want using CMake. Note that CMake should automatically find OpenCV path (if installed), download YACCLAB Dataset and create a project for the selected IDE/compiler.</p>
-- <p align="justify">Set <a href="#conf">configuration file</a> in order to execute desired tests, open the project create at the previous point, compile and run it: the work is done. </p>
+- <p align="justify">Set <a href="#conf">configuration file</a> in order to execute desired tests, open the project created at the previous point, compile and run it: the work is done. </p>
 
 =======
 <a name="conf"></a>
