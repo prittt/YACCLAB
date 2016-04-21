@@ -98,7 +98,7 @@ Note for gnuplot:
 
 =======
 
-###How Add New Algorithms
+###How Add New Algorithms to YACCLAB
 
 <p align="justify">YACCLAB has been designed with extensibility in mind, so that new resources can be easily integrated into the project. A CCL algorithm is coded with a <tt>.h</tt> header file, which declares a function implementing the algorithm, and a <tt>.cpp</tt> source file which defines the function itself. The function must follow a standard signature: its first parameter should be a const reference to an OpenCV Mat1b matrix, containing the input image, and its second parameter should be a reference to a Mat1i matrix, which shall be populated with computed labels. The function must also return an integer specifying the number of labels found in the image, included background's one. For example:</p>
 ```c++
