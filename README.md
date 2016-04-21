@@ -4,7 +4,7 @@
 <p align="justify"> 
 YACCLAB is an open source C++ project which runs and tests CCL algorithms on a collection of datasets described below. Beside running a CCL algorithm and testing its correctness, YACCLAB performs three more kinds of test: average run-time test, density test and size test, in which the performance of the algorithms are evaluated with images of increasing density and size (see <a href="#tests">Tests</a> section for more details).
 <br/><br/>
-To check the correctness of an implementation, the output of an algorithm is compared with that of the OpenCV 'cv::connectedComponents function' available from 3.0 release. Notice that 8-connectivity is always used. A colorized version of the input images can also be produced,to visually check the output and investigate possible labeling errors.
+To check the correctness of an implementation, the output of an algorithm is compared with that of the OpenCV 'cv::connectedComponents' function available from 3.0 release. Notice that 8-connectivity is always used. A colorized version of the input images can also be produced,to visually check the output and investigate possible labeling errors.
 </p>
 
 =======
@@ -13,7 +13,7 @@ To check the correctness of an implementation, the output of an algorithm is com
  
 <p align="justify">YACCLAB dataset includes both synthetic and real images. All images are provided in 1 bit per pixel PNG format, with 0 (black) being background and 1 (white) being foreground. Images are organized by folders and as follows: </p>
 
-- <p align="justify"><b>test_random:</b> a set of synthetic random noise images who contain black and white random noise with 9 different foreground densities (10\% up to 90\%), from a low resolution of 32x32 pixels to a maximum resolution of 4096x4096 pixels, allowing to test the scalability and the effectiveness of different approaches when the number of labels gets high. For every combination of size and density, 10 images are provided for a total of 720 images. The resulting subset allows to evaluate performance both in terms of scalability on the number of pixels and on the number of labels (density).</p>
+- <p align="justify"><b>test_random:</b> a set of synthetic random noise images who contain black and white random noise with 9 different foreground densities (10% up to 90%), from a low resolution of 32x32 pixels to a maximum resolution of 4096x4096 pixels, allowing to test the scalability and the effectiveness of different approaches when the number of labels gets high. For every combination of size and density, 10 images are provided for a total of 720 images. The resulting subset allows to evaluate performance both in terms of scalability on the number of pixels and on the number of labels (density).</p>
 
 - <p align="justify"><b>mirflickr:</b> Otsu-binarized version of the MIRflickr dataset, publicly available under a Creative Commons License. It contains 25,000 standard resolution images taken from Flickr. These images have an average resolution of 0.17 megapixels, there are few connected components (495 on average) and are generally composed of not too complex patterns, so the labeling is quite easy and fast.</p>
 
@@ -27,9 +27,9 @@ To check the correctness of an implementation, the output of an algorithm is com
 <a name="tests"></a>
 ###Tests
 
-- <p align="justify"><b>Average run-time tests:</b> execute an algorithm on every image of a dataset. The process can be repeated more times in a single test, to get the minimum execution time for each image: this allows to get more reproducible results and overlook delays produced by other running processes. It is also possible to compare the execution speed of different algorithms on the same dataset: in this case, selected algorithms (see <a href="#conf">Configuration File</a> for more details) are executed sequentially on every image of the dataset. Results are presented in three different formats: a plain text file, histogram charts, either in color or in gray-scale, and a LaTeX table, which can be directly included in research papers.</p>
+- <p align="justify"><b>Average run-time tests:</b> execute an algorithm on every image of a dataset. The process can be repeated more times in a single test, to get the minimum execution time for each image: this allows to get more reproducible results and overlook delays produced by other running processes. It is also possible to compare the execution speed of different algorithms on the same dataset: in this case, selected algorithms (see <a href="#conf">Configuration File</a> for more details) are executed sequentially on every image of the dataset. Results are presented in three different formats: a plain text file, histogram charts (.pdf/.ps), either in color or in gray-scale, and a LaTeX table, which can be directly included in research papers.</p>
 
-- <p align="justify"><b>Average density and size tests:</b> check the performance of different CCL algorithms when they are executed on images with varying foreground density and size. To this aim, a list of algorithms selected by the user is run sequentially on every image of the test_random dataset. As for run-time tests, it is possible to repeat this test for more than one run. The output is presented as both plain text and charts. For a density test, the mean execution time of each algorithm is reported for densities ranging from 10\% up to 90\%, while for a size test the same is reported for resolutions ranging from 32x32 up to 4096x4096.</p>
+- <p align="justify"><b>Average density and size tests:</b> check the performance of different CCL algorithms when they are executed on images with varying foreground density and size. To this aim, a list of algorithms selected by the user is run sequentially on every image of the test_random dataset. As for run-time tests, it is possible to repeat this test for more than one run. The output is presented as both plain text and charts(.pdf/.ps). For a density test, the mean execution time of each algorithm is reported for densities ranging from 10% up to 90%, while for a size test the same is reported for resolutions ranging from 32x32 up to 4096x4096.</p>
 
 =======
 
@@ -44,7 +44,7 @@ To check the correctness of an implementation, the output of an algorithm is com
 
 Note for gnuplot:
 - on Windows system: be sure add gnuplot to system path if you want YACCLAB automatically generates charts.
-- on MacOS system: 'pdf terminal' seams to be not available, 'svg' one is used.
+- on MacOS system: 'pdf terminal' seems to be not available due to old version of cairo, 'postscript' one is used.
 
 =======
 
@@ -52,7 +52,7 @@ Note for gnuplot:
 
 - <p align="justify">Clone the GitHub repository (HTTPS clone URL: https://github.com/prittt/YACCLAB.git) or simply download the full master branch zip file and extract it (e.g YACCLAB folder).</p>
 - <p align="justify">Install software in YACCLAB/build subfolder (suggested) or wherever you want using CMake. Note that CMake should automatically find OpenCV path (if installed), download YACCLAB Dataset and create a project for the selected IDE/compiler.</p>
-- <p align="justify">Set <a href="#conf">configuration file</a> in order to execute desired tests, open the project create at the previous point, compile and run it: the work is done. </p>
+- <p align="justify">Set <a href="#conf">configuration file</a> in order to execute desired tests, open the project created at the previous point, compile and run it: the work is done. </p>
 
 =======
 <a name="conf"></a>
@@ -98,7 +98,7 @@ Note for gnuplot:
 
 =======
 
-###How Add New Algorithms
+###How Add New Algorithms to YACCLAB
 
 <p align="justify">YACCLAB has been designed with extensibility in mind, so that new resources can be easily integrated into the project. A CCL algorithm is coded with a <tt>.h</tt> header file, which declares a function implementing the algorithm, and a <tt>.cpp</tt> source file which defines the function itself. The function must follow a standard signature: its first parameter should be a const reference to an OpenCV Mat1b matrix, containing the input image, and its second parameter should be a reference to a Mat1i matrix, which shall be populated with computed labels. The function must also return an integer specifying the number of labels found in the image, included background's one. For example:</p>
 ```c++
