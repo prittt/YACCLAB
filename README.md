@@ -109,3 +109,29 @@ int MyLabelingAlgorithm(const cv::Mat1b& img,cv::Mat1i &imgLabels);
 <p align="justify">Once an algorithm has been added to YACCLAB, it is ready to be tested and compared to the others. To include the newly added algorithm in a test, it is sufficient to include its function name in the <tt>CCLAlgorithmsFunc</tt> <a href"#conf">parameter</a> and a display name in the <tt>CCLAlgorithmsName</tt> parameter. We look at YACCLAB as a growing effort towards better reproducibility of CCL algorithms, so implementations of new and existing labeling methods are welcome.</p>
 
 =======
+
+###Results
+
+<p align="justify">To  make  a  first  performance  comparison  and  to  showcase automatically  generated  charts  and  tables,  we  have  run  each algorithm in YACCLAB on all datasets and in three different environments:  a  Windows  PC  with  a  i7-4790  CPU  @  3.60 GHz and Microsoft Visual Studio 2013, a Linux workstation with a Xeon CPU E5-2609 v2 @ 2.50GHz and GCC 5.2, and a Intel Core Duo @ 2.8 GHz running OS X with X Code 7.2.1. Average run-time tests, as well as density and size tests, were repeated 10 times, and for each image the minimum execution time was considered.</p>
+
+We  use  acronyms  to  refer  to  the  available  algorithms:  
+- CT  is  the  Contour  Tracing  approach  by Fu  Chang et al.<sup>[1](#CT)</sup>; 
+- CCIT  is  the  algorithm  by  Wan-Yu Chang et al. <sup>[2](#CCIT)</sup>; 
+- DiStefano is the algorithm in <sup>[3](#DiStefano)</sup>; 
+- BBDT is the  Block  Based  with  Decision  Trees  algorithm  by  Grana et al. <sup>[4](#BBDT)</sup>; 
+- LSL STD  is  the  Light  Speed  Labeling  algorithm  by Lacassagne et al. <sup>[5](#LSL_STD)</sup>; 
+- SAUF  is  the  Scan  Array  Union  Find algorithm by Wu et al. <sup>[6](#SAUF)</sup>, which is the algorithm currently included in OpenCV.
+
+![alt tag](http://http://birradelborgo.it/blog/wp-content/uploads/2011/12/lavori_in_corso.jpg)
+
+<a name="CT">[1]</a><p align="justify"><em>F. Chang, C.-J. Chen, and C.-J. Lu, “A linear-time component-labeling algorithm using contour tracing technique,” Computer Vision and Image Understanding, vol. 93, no. 2, pp. 206–220, 2004.</em></p>
+
+<a name="CCIT">[2]</a><p align="justify"><em>W.-Y.  Chang,  C.-C.  Chiu,  and  J.-H.  Yang,  “Block-based  connected-component  labeling  algorithm  using  binary  decision  trees,” Sensors, vol. 15, no. 9, pp. 23 763–23 787, 2015.</em></p>
+
+<a name="DiStefano">[3]</a><p align="justify"><em>L.  Di  Stefano  and  A.  Bulgarelli,  “A  Simple  and  Efficient  Connected Components Labeling Algorithm,” in International Conference on Image Analysis and Processing. IEEE, 1999, pp. 322–327.</em></p>
+
+<a name="BBDT">[4]</a><p align="justify"><em>C.  Grana,  D.  Borghesani,  and  R.  Cucchiara,  “Optimized  Block-based Connected Components Labeling with Decision Trees,” IEEE Transac-tions on Image Processing, vol. 19, no. 6, pp. 1596–1609, 2010.</em></p>
+
+<a name="LSL_STD">[5]</a><p align="justify"><em>L. Lacassagne and B. Zavidovique, “Light speed labeling: efficient connected component labeling on risc architectures,” Journal of Real-Time Image Processing, vol. 6, no. 2, pp. 117–135, 2011</em>.</p>
+
+<a name="SAUF">[6]</a><p align="justify"><em>K. Wu, E. Otoo, and K. Suzuki, Optimizing two-pass connected-component labeling algorithms,” Pattern Analysis and Applications, vol. 12, no. 2, pp. 117–135, 2009.</em></p>
