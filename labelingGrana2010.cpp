@@ -1200,7 +1200,7 @@ void firstScanBBDT_OPT(const Mat1b &img, Mat1i& imgLabels, uint* P, uint &luniqu
 
 int BBDT_OPT(const cv::Mat1b &img, cv::Mat1i &imgLabels) {
 	
-    imgLabels = cv::Mat1i(img.size()); // Controlla!!! TODO
+    imgLabels = cv::Mat1i(img.size());
 	//A quick and dirty upper bound for the maximimum number of labels.
 	const size_t Plength = img.rows*img.cols / 4;
 	//Tree of labels
