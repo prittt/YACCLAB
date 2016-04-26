@@ -122,7 +122,107 @@ We  use  acronyms  to  refer  to  the  available  algorithms:
 - LSL STD  is  the  Light  Speed  Labeling  algorithm  by Lacassagne et al. <sup>[5](#LSL_STD)</sup>; 
 - SAUF  is  the  Scan  Array  Union  Find algorithm by Wu et al. <sup>[6](#SAUF)</sup>, which is the algorithm currently included in OpenCV.
 
-![alt tag](http://http://birradelborgo.it/blog/wp-content/uploads/2011/12/lavori_in_corso.jpg)
+<table border="0">
+<caption><h4>Average run-time tests on a i7-4790 CPU @ 3.60 GHz with Windows</h4></caption>
+<tr>
+ <td align="center"><b>3dpes</b></td>
+ <td align="center"><b>hamlet</b></td>
+</tr>
+<tr>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/ilb14_averages_3dpes.png" alt="ilb14_3dpes" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/ilb14_averages_hamlet.png" alt="ilb14_mirflickr" height="260" width="415"></td>
+</tr>
+</table>
+<table border="0">
+<tr>
+ <td align="center"><b>mirflickr</b></td>
+ <td align="center"><b>tobacco800</b></td>
+</tr>
+<tr>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/ilb14_averages_mirflickr.png" alt="ilb14_mirflickr" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/ilb14_averages_tobacco800.png" alt="ilb14_tobacco800" height="260" width="415"></td>
+</tr>
+</table>
+
+<table border="0">
+<caption><h4>Average run-time tests on a Xeon CPU E5-2609 v2 @ 2.50GHz with Linux</h4></caption>
+<tr>
+ <td align="center"><b>3dpes</b></td>
+ <td align="center"><b>hamlet</b></td>
+</tr>
+<tr>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/softechict-nvidia_averages_3dpes.png" alt="softechict-nvidia_3dpes" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/softechict-nvidia_averages_hamlet.png" alt="softechict-nvidia_mirflickr" height="260" width="415"></td>
+</tr>
+</table>
+<table border="0">
+<tr>
+ <td align="center"><b>mirflickr</b></td>
+ <td align="center"><b>tobacco800</b></td>
+</tr>
+<tr>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/softechict-nvidia_averages_mirflickr.png" alt="softechict-nvidia_mirflickr" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/softechict-nvidia_averages_tobacco800.png" alt="softechict-nvidia_tobacco800" height="260" width="415"></td>
+</tr>
+</table>
+
+<table border="0">
+<caption><h4>Average run-time tests on a Intel Core Duo @ 2.8GHz with OSX</h4></caption>
+<tr>
+ <td align="center"><b>3dpes</b></td>
+ <td align="center"><b>hamlet</b></td>
+</tr>
+<tr>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/pro_mid2009_averages_3dpes.png" alt="pro_mid2009_3dpes" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/pro_mid2009_averages_hamlet.png" alt="pro_mid2009_mirflickr" height="260" width="415"></td>
+</tr>
+</table>
+<table border="0">
+<tr>
+ <td align="center"><b>mirflickr</b></td>
+ <td align="center"><b>tobacco800</b></td>
+</tr>
+<tr>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/pro_mid2009_averages_mirflickr.png" alt="pro_mid2009_mirflickr" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/pro_mid2009_averages_tobacco800.png" alt="pro_mid2009_tobacco800" height="260" width="415"></td>
+</tr>
+</table>
+
+<table border="0">
+<caption><h4>Density-Size tests on a i7-4790 CPU @ 3.60 GHz with Windows</h4></caption>
+<tr>
+ <td align="center"><b>Density</b></td>
+ <td align="center"><b>Size</b></td>
+</tr>
+<tr>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/ilb14_density.png" alt="ilb14_density" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/ilb14_size.png" alt="ilb14_size" height="260" width="415"></td>
+</tr>
+</table>
+
+<table border="0">
+<caption><h4>Density-Size tests on a Xeon CPU E5-2609 v2 @ 2.50GHz with Linux</h4></caption>
+<tr>
+ <td align="center"><b>Density</b></td>
+ <td align="center"><b>Size</b></td>
+</tr>
+<tr>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/softechict-nvidia_density.png" alt="softechict-nvidia_density" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/softechict-nvidia_size.png" alt="softechict-nvidia_size" height="260" width="415"></td>
+</tr>
+</table>
+
+<table border="0">
+<caption><h4>Density-Size tests on a Intel Core Duo @ 2.8GHz with OSX</h4></caption>
+<tr>
+ <td align="center"><b>Density</b></td>
+ <td align="center"><b>Size</b></td>
+</tr>
+<tr>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/pro_mid2009_density.png" alt="pro_mid2009_density" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/pro_mid2009_size.png" alt="pro_mid2009_size" height="260" width="415"></td>
+</tr>
+</table>
 
 <a name="CT">[1]</a><p align="justify"><em>F. Chang, C.-J. Chen, and C.-J. Lu, “A linear-time component-labeling algorithm using contour tracing technique,” Computer Vision and Image Understanding, vol. 93, no. 2, pp. 206–220, 2004.</em></p>
 
