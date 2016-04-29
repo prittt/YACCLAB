@@ -167,8 +167,13 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
                 if (stats[j]){
                     nLabelsToControl = (*it).first(binaryImg, labeledImgToControl);
                     normalizeLabels(labeledImgToControl, nLabelsToControl);
-                    if (nLabelsCorrect != nLabelsToControl || !compareMat(labeledImgCorrect, labeledImgToControl)){
-                        stats[j] = false;
+                    if (nLabelsCorrect != nLabelsToControl || !compareMat(labeledImgCorrect, labeledImgToControl)) {
+						/*Mat3b imgOut;
+						colorLabels(labeledImgCorrect, imgOut);
+						imwrite("correct.png", imgOut);
+						colorLabels(labeledImgToControl, imgOut);
+						imwrite("wrong.png", imgOut);*/
+						stats[j] = false;
                         cout << "\"" << (*it).second << "\" is not correct, it fails on " << input_path + kPathSeparator + datasets[i] + kPathSeparator + filename << endl;
                         if (adjacent_find(stats.begin(), stats.end(), not_equal_to<int>()) == stats.end()){
                             stop = true; 
@@ -337,9 +342,14 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
                 Mat3b imgColors;
 
                 // Perform current algorithm on current image and save result
-                perf.start((*it).second);
-                nLabels = (*it).first(binaryImg, labeledMat);
-                perf.stop((*it).second);
+				if (it->second == "SBLA") {
+					nLabels = SBLA_perf(binaryImg, labeledMat, perf);
+				}
+				else {
+					perf.start((*it).second);
+					nLabels = (*it).first(binaryImg, labeledMat);
+					perf.stop((*it).second);
+				}
 
                 // Save number of labels (we reasonably supposed that labels's number is the same on every #test so only the first time we save it)
                 if (test == 0)
@@ -614,9 +624,14 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
                 Mat3b imgColors;
 
                 // Note that "i" represent the current algorithm's position in vectors "supp_density" and "supp_dimension"
-                perf.start((*it).second);
-                nLabels = (*it).first(binaryImg, labeledMat);
-                perf.stop((*it).second);
+				if (it->second == "SBLA") {
+					nLabels = SBLA_perf(binaryImg, labeledMat, perf);
+				}
+				else {
+					perf.start((*it).second);
+					nLabels = (*it).first(binaryImg, labeledMat);
+					perf.stop((*it).second);
+				}
 
                 if (test == 0)
                     labels(file, i) = nLabels;
@@ -649,7 +664,7 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
         }
 	}// END TEST FOR
 
-    // To wirte in a file min results
+    // To write in a file min results
     saveBroadOutputResults(min_res, os_path, CCLAlgorithms, write_n_labels, labels, filesNames);
     
     // To sum min results, in the correct manner, before make averages
@@ -893,6 +908,8 @@ void generateLatexTable(const string& output_path, const string& latex_file, con
 
     is.close(); 
 }
+
+#include "SBLA/sbla.h"
 
 int main(int argc, char **argv) 
 {

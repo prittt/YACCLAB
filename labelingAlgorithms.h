@@ -19,6 +19,10 @@
 // A simple and efficient connected components labeling algorithm: L.Di Stefano and A.Bulgarelli
 #include "labelingDiStefano1999.h"
 
+#include "labelingZhao2010.h"
+
+#include "labelingNULL.h"
+
 // FUNCTION POINTER: 
 //	Mat1b:	the 8-bit single-channel image to be labeled;
 //	Mat1i:	destination labeled image; 
@@ -44,5 +48,11 @@ std::map<std::string, CCLPointer> CCLAlgorithmsMap =
     // Chang
     new_algorithm(CT_OPT),
     new_algorithm(CCIT_OPT),
+	// Zhao
+	new_algorithm(SBLAmio),
+	new_algorithm(SBLAmioOPT),
+	new_algorithm(SBLA),
+	// NULL
+	new_algorithm(labelingNULL)
 };
 // Map of connected components algorithms: functions's name (first), pointer to algorithm (second)
