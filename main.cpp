@@ -1,3 +1,31 @@
+// Copyright(c) 2016 - Costantino Grana, Federico Bolelli, Lorenzo Baraldi and Roberto Vezzani
+// All rights reserved.
+// 
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met :
+// 
+// *Redistributions of source code must retain the above copyright notice, this
+// list of conditions and the following disclaimer.
+// 
+// * Redistributions in binary form must reproduce the above copyright notice,
+// this list of conditions and the following disclaimer in the documentation
+// and / or other materials provided with the distribution.
+// 
+// * Neither the name of YACCLAB nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED.IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+// OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 #include <opencv2/core/core.hpp> 
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc.hpp>
@@ -29,6 +57,14 @@ const char kPathSeparator =
                             '\\';
 #else
                             '/';
+#endif
+
+#ifdef __APPLE__
+    const string terminal = "postscript";
+    const string terminalExtension = ".ps"; 
+#else
+    const string terminal = "pdf";
+    const string terminalExtension = ".pdf";
 #endif
 
 // To check for the presence of a directory
@@ -112,6 +148,7 @@ bool compareMat(const Mat1i& mata, const Mat1i& matb){
 void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vector<string>& datasets, const string& input_path, const string& input_txt){
 
     vector<bool> stats(CCLAlgorithms.size(), true); // true if the i-th algorithm is correct, false otherwise
+    vector<string> firstFail(CCLAlgorithms.size()); // name of the file on which algorithm fails the first time
     bool stop = false; // true if all algorithms are incorrect
     bool checkPerform = false; // true if almost one check was execute 
 
@@ -167,14 +204,9 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
                 if (stats[j]){
                     nLabelsToControl = (*it).first(binaryImg, labeledImgToControl);
                     normalizeLabels(labeledImgToControl, nLabelsToControl);
-                    if (nLabelsCorrect != nLabelsToControl || !compareMat(labeledImgCorrect, labeledImgToControl)) {
-						/*Mat3b imgOut;
-						colorLabels(labeledImgCorrect, imgOut);
-						imwrite("correct.png", imgOut);
-						colorLabels(labeledImgToControl, imgOut);
-						imwrite("wrong.png", imgOut);*/
-						stats[j] = false;
-                        cout << "\"" << (*it).second << "\" is not correct, it fails on " << input_path + kPathSeparator + datasets[i] + kPathSeparator + filename << endl;
+                    if (nLabelsCorrect != nLabelsToControl || !compareMat(labeledImgCorrect, labeledImgToControl)){
+                        stats[j] = false;
+                        firstFail[j] = input_path + kPathSeparator + datasets[i] + kPathSeparator + filename; 
                         if (adjacent_find(stats.begin(), stats.end(), not_equal_to<int>()) == stats.end()){
                             stop = true; 
                             break;
@@ -192,6 +224,8 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
         for (vector<pair<CCLPointer, string>>::iterator it = CCLAlgorithms.begin(); it != CCLAlgorithms.end(); ++it, ++j){
             if (stats[j])
                 cout << "\"" << (*it).second << "\" is correct!" << endl;
+            else
+                cout << "\"" << (*it).second << "\" is not correct, it first fails on " << firstFail[j] << endl;
         }
     }
     else{
@@ -245,13 +279,13 @@ void saveBroadOutputResults(const Mat1d& results, const string& oFileName, vecto
 
 string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all_res, const unsigned int& alg_pos, const string& input_path, const string& input_folder, const string& input_txt, const string& gnuplot_script, string& output_path, string& colors_folder, const bool& saveMiddleResults, const uint& nTest, const string& middleFolder, const bool& write_n_labels = true, const bool& output_colors = true){
 
-	string output_folder = input_folder,
+    string output_folder = input_folder,
 		   complete_output_path = output_path + kPathSeparator + output_folder,
 		   output_broad_results = "results.txt",
            middleFile = "run", 
 		   output_averages_results = "averages.txt",
-		   output_graph = output_folder + ".pdf",
-           output_graph_bw = output_folder + "_bw.pdf",
+		   output_graph = output_folder + terminalExtension,
+           output_graph_bw = output_folder + "_bw" + terminalExtension,
            middleOut_Folder = complete_output_path + kPathSeparator + middleFolder,
            out_color_folder = output_path + kPathSeparator + output_folder + kPathSeparator + colors_folder;
 
@@ -342,9 +376,9 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
                 Mat3b imgColors;
 
                 // Perform current algorithm on current image and save result
-				perf.start((*it).second);
-				nLabels = (*it).first(binaryImg, labeledMat);
-				perf.stop((*it).second);
+                perf.start((*it).second);
+                nLabels = (*it).first(binaryImg, labeledMat);
+                perf.stop((*it).second);
 
                 // Save number of labels (we reasonably supposed that labels's number is the same on every #test so only the first time we save it)
                 if (test == 0)
@@ -417,8 +451,8 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
     scriptos << "set output \"" + output_graph + "\"" << endl;
     scriptos << "#set title \"" + output_folder + "\" font ', 12'" << endl << endl;
     
-    scriptos << "# pdf colors" << endl;
-    scriptos << "set terminal pdf enhanced color font ',15'" << endl << endl;
+    scriptos << "# " << terminal << " colors" << endl;
+    scriptos << "set terminal "<< terminal <<" enhanced color font ',15'" << endl << endl;
 
     scriptos << "# Graph style"<< endl;
     scriptos << "set style data histogram" << endl;
@@ -449,10 +483,10 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
 	
     scriptos << "# " << output_folder << "(BLACK AND WHITE)" << endl;
     scriptos << "set output \"" + output_graph_bw + "\"" << endl;
-    scriptos << "set title \"" + output_folder + "\" font ', 12'" << endl << endl;
+    scriptos << "#set title \"" + output_folder + "\" font ', 12'" << endl << endl;
 
-    scriptos << "# pdf black and white" << endl;
-    scriptos << "set terminal pdf enhanced monochrome dashed font ',15'" << endl << endl;
+    scriptos << "# " << terminal <<" black and white" << endl;
+    scriptos << "set terminal " << terminal << " enhanced monochrome dashed font ',15'" << endl << endl;
 
     scriptos << "replot" << endl << endl;
 
@@ -475,10 +509,10 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
 		   output_broad_result = "results.txt",
 		   output_size_result = "size.txt",
 		   output_density_result = "density.txt",
-		   output_size_graph = "size.pdf",
-           output_size_graph_bw = "size_bw.pdf",
-		   output_density_graph = "density.pdf",
-           output_density_graph_bw = "density_bw.pdf",
+		   output_size_graph = "size" + terminalExtension,
+           output_size_graph_bw = "size_bw" + terminalExtension,
+           output_density_graph = "density" + terminalExtension,
+           output_density_graph_bw = "density_bw" + terminalExtension,
            middleFile = "run",
            middleOut_Folder = complete_output_path + kPathSeparator + middleFolder,
            out_color_folder = output_path + kPathSeparator + output_folder + kPathSeparator + colors_folder;
@@ -619,9 +653,9 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
                 Mat3b imgColors;
 
                 // Note that "i" represent the current algorithm's position in vectors "supp_density" and "supp_dimension"
-				perf.start((*it).second);
-				nLabels = (*it).first(binaryImg, labeledMat);
-				perf.stop((*it).second);
+                perf.start((*it).second);
+                nLabels = (*it).first(binaryImg, labeledMat);
+                perf.stop((*it).second);
 
                 if (test == 0)
                     labels(file, i) = nLabels;
@@ -654,7 +688,7 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
         }
 	}// END TEST FOR
 
-    // To write in a file min results
+    // To wirte in a file min results
     saveBroadOutputResults(min_res, os_path, CCLAlgorithms, write_n_labels, labels, filesNames);
     
     // To sum min results, in the correct manner, before make averages
@@ -752,8 +786,8 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
     scriptos << "set output \"" + output_density_graph + "\"" << endl;
     scriptos << "#set title \"Density\" font ', 12'" << endl << endl;
 
-    scriptos << "# pdf colors" << endl; 
-    scriptos << "set terminal pdf enhanced color font ',15'" << endl << endl;
+    scriptos << "# " << terminal << " colors" << endl; 
+    scriptos << "set terminal " << terminal << " enhanced color font ',15'" << endl << endl;
 
     scriptos << "# Axes labels" << endl; 
     scriptos << "set xlabel \"Density\"" << endl;
@@ -781,8 +815,8 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
     scriptos << "set output \"" + output_density_graph_bw + "\"" << endl;
     scriptos << "#set title \"Density\" font ', 12'" << endl << endl;
 
-    scriptos << "# pdf black and white" << endl;
-    scriptos << "set terminal pdf enhanced monochrome dashed font ',15'" << endl << endl;
+    scriptos << "# " << terminal << " black and white" << endl;
+    scriptos << "set terminal " << terminal << " enhanced monochrome dashed font ',15'" << endl << endl;
 
     scriptos << "replot" << endl << endl;
 
@@ -792,8 +826,8 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
     scriptos << "set output \"" + output_size_graph + "\"" << endl;
     scriptos << "#set title \"Size\" font ',12'" << endl << endl;
 
-    scriptos << "# pdf colors" << endl;
-    scriptos << "set terminal pdf enhanced color font ',15'" << endl << endl;
+    scriptos << "# " << terminal << " colors" << endl;
+    scriptos << "set terminal " << terminal << " enhanced color font ',15'" << endl << endl;
     
     scriptos << "# Axes labels" << endl;
     scriptos << "set xlabel \"Pixels\"" << endl;
@@ -833,8 +867,8 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
     scriptos << "set output \"" + output_size_graph_bw + "\"" << endl;
     scriptos << "#set title \"Size\" font ', 12'" << endl << endl;
 
-    scriptos << "# pdf black and white" << endl;
-    scriptos << "set terminal pdf enhanced monochrome dashed font ',15'" << endl << endl;
+    scriptos << "# " << terminal << " black and white" << endl;
+    scriptos << "set terminal " << terminal << " enhanced monochrome dashed font ',15'" << endl << endl;
 
     scriptos << "replot" << endl << endl;
 
