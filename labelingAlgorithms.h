@@ -46,6 +46,8 @@
 #include "labelingWu2009.h"
 // A simple and efficient connected components labeling algorithm: L.Di Stefano and A.Bulgarelli
 #include "labelingDiStefano1999.h"
+// Configuration-Transition-Based Connected-Component Labeling: L. He, X. Zhao, Y.Chao, K. Suzuki
+#include "labelingHe2014.h"
 
 // FUNCTION POINTER: 
 //	Mat1b:	the 8-bit single-channel image to be labeled;
@@ -69,6 +71,8 @@ std::map<std::string, CCLPointer> CCLAlgorithmsMap =
     // Lacassagne
     new_algorithm(LSL_STD),
     new_algorithm(LSL_STD_OPT),
+	// He
+	new_algorithm(CTB_OPT),
     // Chang
     new_algorithm(CT_OPT),
     new_algorithm(CCIT_OPT),
