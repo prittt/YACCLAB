@@ -342,14 +342,9 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
                 Mat3b imgColors;
 
                 // Perform current algorithm on current image and save result
-				if (it->second == "SBLA") {
-					nLabels = SBLA_perf(binaryImg, labeledMat, perf);
-				}
-				else {
-					perf.start((*it).second);
-					nLabels = (*it).first(binaryImg, labeledMat);
-					perf.stop((*it).second);
-				}
+				perf.start((*it).second);
+				nLabels = (*it).first(binaryImg, labeledMat);
+				perf.stop((*it).second);
 
                 // Save number of labels (we reasonably supposed that labels's number is the same on every #test so only the first time we save it)
                 if (test == 0)
@@ -624,14 +619,9 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
                 Mat3b imgColors;
 
                 // Note that "i" represent the current algorithm's position in vectors "supp_density" and "supp_dimension"
-				if (it->second == "SBLA") {
-					nLabels = SBLA_perf(binaryImg, labeledMat, perf);
-				}
-				else {
-					perf.start((*it).second);
-					nLabels = (*it).first(binaryImg, labeledMat);
-					perf.stop((*it).second);
-				}
+				perf.start((*it).second);
+				nLabels = (*it).first(binaryImg, labeledMat);
+				perf.stop((*it).second);
 
                 if (test == 0)
                     labels(file, i) = nLabels;
@@ -908,8 +898,6 @@ void generateLatexTable(const string& output_path, const string& latex_file, con
 
     is.close(); 
 }
-
-#include "SBLA/sbla.h"
 
 int main(int argc, char **argv) 
 {

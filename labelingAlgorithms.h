@@ -49,9 +49,8 @@ std::map<std::string, CCLPointer> CCLAlgorithmsMap =
     new_algorithm(CT_OPT),
     new_algorithm(CCIT_OPT),
 	// Zhao
-	new_algorithm(SBLAmio),
-	new_algorithm(SBLAmioOPT),
 	new_algorithm(SBLA),
+	new_algorithm(SBLA_OPT),
 	// NULL
 	new_algorithm(labelingNULL)
 };

@@ -27,7 +27,7 @@ inline void FindRootAndCompress(Mat1i &imgOut, int pos, int newroot)
 	}
 }
 
-int SBLAmio(const Mat1b &img, Mat1i &imgOut) 
+int SBLA(const Mat1b &img, Mat1i &imgOut) 
 {
 	int N = img.cols;
 	int M = img.rows;
@@ -151,7 +151,7 @@ int SBLAmio(const Mat1b &img, Mat1i &imgOut)
 	return LabelNum + 1;
 }
 
-inline int FindRootOPT(int *imgOut, int pos)
+inline int FindRoot_OPT(int *imgOut, int pos)
 {
 	while (true) {
 		int tmppos = imgOut[-pos];
@@ -162,7 +162,7 @@ inline int FindRootOPT(int *imgOut, int pos)
 	return pos;
 }
 
-inline void FindRootAndCompressOPT(int *imgOut, int pos, int newroot)
+inline void FindRootAndCompress_OPT(int *imgOut, int pos, int newroot)
 {
 	while (true) {
 		int tmppos = imgOut[-pos];
@@ -175,19 +175,11 @@ inline void FindRootAndCompressOPT(int *imgOut, int pos, int newroot)
 	}
 }
 
-int SBLAmioOPT(const Mat1b &img, Mat1i &imgOut)
+int SBLA_OPT(const Mat1b &img, Mat1i &imgOut)
 {
 	int N = img.cols;
 	int M = img.rows;
 	imgOut = Mat1i(M, N);
-
-	//copy(begin(img), end(img), begin(imgOut));
-	//int MN = M*N;
-	//uchar *imgdata = img.data;
-	//int *imgOutdata = reinterpret_cast<int*>(imgOut.data);
-	//const int *imgOutdataend = reinterpret_cast<const int*>(imgOut.dataend);
-	//while (imgOutdata < imgOutdataend) 
-	//	*imgOutdata++ = *imgdata++;
 
 	// Fix for first pixel!
 	int LabelNum = 0;
@@ -270,13 +262,13 @@ int SBLAmioOPT(const Mat1b &img, Mat1i &imgOut)
 					if (!curpix)
 						continue;
 
-					int newroot = FindRootOPT(reinterpret_cast<int*>(imgOut.data), curpix);
+					int newroot = FindRoot_OPT(reinterpret_cast<int*>(imgOut.data), curpix);
 					if (newroot > lastroot) {
 						lastroot = newroot;
-						FindRootAndCompressOPT(reinterpret_cast<int*>(imgOut.data), Gp, lastroot);
+						FindRootAndCompress_OPT(reinterpret_cast<int*>(imgOut.data), Gp, lastroot);
 					}
 					else if (newroot < lastroot) {
-						FindRootAndCompressOPT(reinterpret_cast<int*>(imgOut.data), newroot, lastroot);
+						FindRootAndCompress_OPT(reinterpret_cast<int*>(imgOut.data), newroot, lastroot);
 					}
 
 					do
@@ -323,63 +315,3 @@ int SBLAmioOPT(const Mat1b &img, Mat1i &imgOut)
 	return LabelNum + 1;
 }
 
-#include "SBLA/sbla.h"
-
-int SBLA(const cv::Mat1b &img, cv::Mat1i &imgOut) 
-{
-	int maxcols = 13920;
-	int maxrows = 13960;
-	int N = min(maxcols, img.cols + 2);
-	int M = min(maxrows, img.rows + img.rows % 2 + 2);
-	//N = M;
-	
-	imgOut = Mat1i(M, N, 0);
-
-	for (int r = 0; r < min(M - 1, img.rows); ++r) {
-		for (int c = 0; c < min(N - 1, img.cols); ++c) {
-			imgOut(r + 1, c + 1) = img(r, c);
-		}
-	}
-	
-	int LabelNum = LabelSBLA(reinterpret_cast<int*>(imgOut.data), N, M);
-
-	imgOut = -imgOut(Rect({ 1, 1 }, img.size())).clone();
-
-	return LabelNum + 1;
-}
-
-int SBLA_perf(const cv::Mat1b &img, cv::Mat1i &imgOut, PerformanceEvaluator& perf)
-{
-	perf.start("SBLA");
-
-	int N = img.cols + 2;
-	int M = img.rows + img.rows % 2 + 2;
-	//N = M;
-
-	imgOut = Mat1i(M, N);
-
-	int r = 0;
-	memset(imgOut.ptr<uint>(r), 0, N*sizeof(int));
-	++r;
-	for (; r <= img.rows; ++r) {
-		const uchar* const img_row = img.ptr<uchar>(r - 1);
-		uint* const imgOut_row = imgOut.ptr<uint>(r);
-
-		int c = 0;
-		imgOut_row[c] = 0;
-		++c;
-		for (; c <= img.cols; ++c) {
-			imgOut_row[c] = img_row[c - 1];
-		}
-		imgOut_row[c] = 0;
-	}
-	for (; r < M; ++r)
-		memset(imgOut.ptr<uint>(r), 0, N*sizeof(int));
-
-	int LabelNum = LabelSBLA(reinterpret_cast<int*>(imgOut.data), N, M);
-
-	imgOut = -imgOut(Rect({ 1, 1 }, img.size())).clone();
-	perf.stop("SBLA");
-
-	return LabelNum + 1;
-}
