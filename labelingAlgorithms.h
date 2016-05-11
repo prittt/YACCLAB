@@ -48,9 +48,10 @@
 #include "labelingDiStefano1999.h"
 // Configuration-Transition-Based Connected-Component Labeling: L. He, X. Zhao, Y.Chao, K. Suzuki
 #include "labelingHe2014.h"
-
+// Stripe-based connected components labelling: H.L. Zhao, Y.B. Fan, T.X. Zhang, H.S. Sang
 #include "labelingZhao2010.h"
-
+// A reference function which DOESN'T perform labeling, but allocates memory for output and scans the input image
+// writing an output value (quasi random) to the labels image
 #include "labelingNULL.h"
 
 // FUNCTION POINTER: 
