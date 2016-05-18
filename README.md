@@ -110,7 +110,7 @@ int MyLabelingAlgorithm(const cv::Mat1b& img,cv::Mat1i &imgLabels);
 
 =======
 
-###Results (20/04/2016)
+###Results on 04/21/2016
 
 <p align="justify">To  make  a  first  performance  comparison  and  to  showcase automatically  generated  charts  and  tables,  we  have  run  each algorithm in YACCLAB on all datasets and in three different environments:  a  Windows  PC  with  a  i7-4790  CPU  @  3.60 GHz and Microsoft Visual Studio 2013, a Linux workstation with a Xeon CPU E5-2609 v2 @ 2.50GHz and GCC 5.2, and a Intel Core Duo @ 2.8 GHz running OS X with X Code 7.2.1. Average run-time tests, as well as density and size tests, were repeated 10 times, and for each image the minimum execution time was considered.</p>
 
