@@ -508,14 +508,19 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
 		   complete_output_path = output_path + kPathSeparator + output_folder,
 		   output_broad_result = "results.txt",
 		   output_size_result = "size.txt",
+           output_size_normalized_result = "",
 		   output_density_result = "density.txt",
+           output_density_normalized_result = "normalizedDensity.txt",
 		   output_size_graph = "size" + terminalExtension,
            output_size_graph_bw = "size_bw" + terminalExtension,
            output_density_graph = "density" + terminalExtension,
            output_density_graph_bw = "density_bw" + terminalExtension,
+           output_normalization_density_graph = "normalized_density" + terminalExtension,
+           output_normalization_density_graph_bw = "normalize_density_bw" + terminalExtension,
            middleFile = "run",
            middleOut_Folder = complete_output_path + kPathSeparator + middleFolder,
-           out_color_folder = output_path + kPathSeparator + output_folder + kPathSeparator + colors_folder;
+           out_color_folder = output_path + kPathSeparator + output_folder + kPathSeparator + colors_folder,
+           output_NULL = "NULL_results";
 
     // Creation of output path
 	if (!dirExists(complete_output_path.c_str()))
@@ -538,12 +543,19 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
 	string is_path = input_path + kPathSeparator + input_folder + kPathSeparator + input_txt,
 		   os_path = output_path + kPathSeparator + output_folder + kPathSeparator + output_broad_result,
 		   density_os_path = output_path + kPathSeparator + output_folder + kPathSeparator + output_density_result,
-	       size_os_path = output_path + kPathSeparator + output_folder + kPathSeparator + output_size_result;
+           density_normalized_os_path = output_path + kPathSeparator + output_folder + kPathSeparator + output_density_normalized_result,
+	       size_os_path = output_path + kPathSeparator + output_folder + kPathSeparator + output_size_result,
+           size_normalized_os_path = output_path + kPathSeparator + output_folder + kPathSeparator + output_size_normalized_result, 
+           NULL_path = output_path + kPathSeparator + output_folder + kPathSeparator + output_NULL;
 
     // For DENSITY RESULT
     ofstream density_os(density_os_path);
     if (!density_os.is_open())
         return ("Density_Size_Test on '" + input_folder + "': Unable to create " + density_os_path);
+    // For DENSITY NORMALIZED RESULT
+    ofstream density_normalized_os(density_normalized_os_path);
+    if (!density_normalized_os.is_open())
+        return ("Density_Size_Test on '" + input_folder + "': Unable to create " + density_normalized_os_path);
     // For SIZE RESULT
     ofstream size_os(size_os_path);
     if (!size_os.is_open())
@@ -564,31 +576,40 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
     // Number of files
     int fileNumber = filesNames.size();
 
-    // To save middle/min and averages results; 
+    // To save middle/min and averages results;
     Mat1d min_res(fileNumber, CCLAlgorithms.size(), numeric_limits<double>::max());
     Mat1d current_res(fileNumber, CCLAlgorithms.size(), numeric_limits<double>::max());
     Mat1i labels(fileNumber, CCLAlgorithms.size(), 0);
     vector<pair<double, uint16_t>> supp_averages(CCLAlgorithms.size(), make_pair(0, 0));
 
+    // To save labeling NULL results
+    vector<double> NULL_labeling(fileNumber, numeric_limits<double>::max());
+
     // To set heading file format (SIZE RESULT, DENSITY RESULT)
     //os << "#";
     density_os << "#Density";
     size_os << "#Size";
+    density_normalized_os << "#DensityNorm"; 
     for (vector<pair<CCLPointer, string>>::iterator it = CCLAlgorithms.begin(); it != CCLAlgorithms.end(); ++it){
         //os << "\t" << (*it).second;
         //write_n_labels ? os << "\t" << "n_label" : os << "";
         density_os << "\t" << (*it).second;
         size_os << "\t" << (*it).second;
+        density_normalized_os << "\t" << (*it).second;
     }
     //os << endl;
     density_os << endl;
     size_os << endl;
+    density_normalized_os << endl;
     // To set heading file format (SIZE RESULT, DENSITY RESULT)
     
     uint8_t density = 9 /*[0.1,0.9]*/, size = 8 /*[32,64,128,256,512,1024,2048,4096]*/;
 
     vector<vector<pair<double, uint16_t>>> supp_density(CCLAlgorithms.size(), vector<pair<double, uint16_t>>(density, make_pair(0, 0)));
+    vector<vector<pair<double, uint16_t>>> supp_normalized_density(CCLAlgorithms.size(), vector<pair<double, uint16_t>>(density, make_pair(0, 0)));
     vector<vector<pair<double, uint16_t>>> supp_size(CCLAlgorithms.size(), vector<pair<double, uint16_t>>(size, make_pair(0, 0)));
+    //vector<vector<pair<double, uint16_t>>> supp_normalized_size(CCLAlgorithms.size(), vector<pair<double, uint16_t>>(size, make_pair(0, 0)));
+
     // Note that number of random_images is less than 800, this is why the second element of the 
     // pair has uint16_t data type. Extern vector represent the algorithms, inner vector represent 
     // density for "supp_density" variable and dimension for "supp_dimension" one. In particular: 
@@ -635,12 +656,22 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
             currentNumber++;
 
             Mat1b binaryImg;
+            Mat1i null_labels; 
 
             if (!getBinaryImage(input_path + kPathSeparator + input_folder + kPathSeparator + filename, binaryImg)){
                 if (filesNames[file].second)
                     cout << "'" + filename + "' does not exist" << endl;
                 filesNames[file].second = false;
                 continue;
+            }
+
+            // One time for every test and for every image we execute the NULL labeling and get the minimum 
+            perf.start("NULL_reference");
+            labelingNULL(binaryImg, null_labels);
+            perf.stop("NULL_reference");
+
+            if (perf.last("NULL_reference") < NULL_labeling[file]){
+                NULL_labeling[file] = perf.last("NULL_reference"); 
             }
 
             unsigned int i = 0;
@@ -702,6 +733,10 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
                     supp_density[c][ctoi(filesNames[files].first[1])].first += min_res(files, c);
                     supp_density[c][ctoi(filesNames[files].first[1])].second++;
 
+                    // For normalized desnity graph
+                    supp_normalized_density[c][ctoi(filesNames[files].first[1])].first += (min_res(files, c)) / (NULL_labeling[files]);
+                    supp_normalized_density[c][ctoi(filesNames[files].first[1])].second++;
+
                     // For dimension graph
                     supp_size[c][ctoi(filesNames[files].first[0])].first += min_res(files, c);
                     supp_size[c][ctoi(filesNames[files].first[0])].second++;
@@ -715,14 +750,20 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
 
 	// To calculate averages times
 	vector<vector<long double>> density_averages(CCLAlgorithms.size(), vector<long double>(density)), size_averages(CCLAlgorithms.size(), vector<long double>(size));
-	for (unsigned int i = 0; i < CCLAlgorithms.size(); ++i){
+    vector<vector<long double>> density_normalized_averages(CCLAlgorithms.size(), vector<long double>(density));
+    for (unsigned int i = 0; i < CCLAlgorithms.size(); ++i){
 		// For all algorithms
 		for (unsigned int j = 0; j < density_averages[i].size(); ++j){
-			// For all density
-			if (supp_density[i][j].second != 0)
-				density_averages[i][j] = supp_density[i][j].first / supp_density[i][j].second;
-			else
-				density_averages[i][j] = 0.0;  // If there is no element with this density characyteristic the averages value is set to zero
+			// For all density and normalized density
+            if (supp_density[i][j].second != 0){
+                density_averages[i][j] = supp_density[i][j].first / supp_density[i][j].second;
+                density_normalized_averages[i][j] = supp_normalized_density[i][j].first / supp_normalized_density[i][j].second;
+            }
+            else{
+                // If there is no element with this density characyteristic the averages value is set to zero
+                density_averages[i][j] = 0.0;  
+                density_normalized_averages[i][j] = 0.0;
+            }
 		}
 		for (unsigned int j = 0; j < size_averages[i].size(); ++j){
 			// For all size
@@ -737,14 +778,19 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
 	// To write density result on specified file
 	for (unsigned int i = 0; i < density; ++i){
 		// For every density
-		if (density_averages[0][i] == 0.0) // Check it only for the first algorithm (it is the same for the others)
-			density_os << "#"; // It means that there is no element with this density characyteristic 
-		density_os << ((float)(i + 1) / 10) << "\t"; //Density value
+        if (density_averages[0][i] == 0.0){ // Check it only for the first algorithm (it is the same for the others)
+            density_os << "#"; // It means that there is no element with this density characyteristic 
+            density_normalized_os << "#"; // It means that there is no element with this density characyteristic
+        }
+        density_os << ((float)(i + 1) / 10) << "\t"; //Density value
+        density_normalized_os << ((float)(i + 1) / 10) << "\t"; //Density value
 		for (unsigned int j = 0; j < density_averages.size(); ++j){
 			// For every alghorithm
 			density_os << density_averages[j][i] << "\t";
+            density_normalized_os << density_normalized_averages[j][i] << "\t";
 		}
 		density_os << endl; // End of current line (current density)
+        density_normalized_os << endl; // End of current line (current density)
 	}
 	// To write density result on specified file
 
@@ -765,7 +811,14 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
 		}
 		size_os << endl; // End of current line (current size)
 	}
-	// To write size result
+	// To write size result on specified file
+
+    // To write NULL result on specified file
+    ofstream NULL_os(NULL_path);
+    for (unsigned int i = 0; i < filesNames.size(); ++i){
+        NULL_os << filesNames[i].first << "\t" << NULL_labeling[i] << endl; 
+    }
+    // To write NULL result on specified file
 
 	// GNUPLOT SCRIPT
 	string scriptos_path = output_path + kPathSeparator + output_folder + kPathSeparator + gnuplot_script;
@@ -813,6 +866,47 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
     scriptos << "# DENSITY GRAPH (BLACK AND WHITE)" << endl << endl;
     
     scriptos << "set output \"" + output_density_graph_bw + "\"" << endl;
+    scriptos << "#set title \"Density\" font ', 12'" << endl << endl;
+
+    scriptos << "# " << terminal << " black and white" << endl;
+    scriptos << "set terminal " << terminal << " enhanced monochrome dashed font ',15'" << endl << endl;
+
+    scriptos << "replot" << endl << endl;
+
+    // DENSITY NORMALIZED
+    scriptos << "#NORMALIZED DENSITY GRAPH (COLORS)" << endl << endl;
+
+    scriptos << "set output \"" + output_normalization_density_graph + "\"" << endl;
+    scriptos << "#set title \"Normalized Density\" font ', 12'" << endl << endl;
+
+    scriptos << "# " << terminal << " colors" << endl;
+    scriptos << "set terminal " << terminal << " enhanced color font ',15'" << endl << endl;
+
+    scriptos << "# Axes labels" << endl;
+    scriptos << "set xlabel \"Density\"" << endl;
+    scriptos << "set ylabel \"Normalized Execution Time [ms]\"" << endl << endl;
+
+    scriptos << "# Axes range" << endl;
+    scriptos << "set xrange [0:1]" << endl;
+    scriptos << "set yrange [*:*]" << endl;
+    scriptos << "set logscale y" << endl << endl;
+
+    scriptos << "# Legend" << endl;
+    scriptos << "set key left top nobox spacing 2 font ', 8'" << endl << endl;
+
+    scriptos << "# Plot" << endl;
+    scriptos << "plot \\" << endl;
+    //vector<pair<CCLPointer, string>>::iterator it; // I need it after the cycle
+    //unsigned int i = 2;
+    i = 2;
+    for (it = CCLAlgorithms.begin(); it != (CCLAlgorithms.end() - 1); ++it, ++i){
+        scriptos << "\"" + output_density_normalized_result + "\" using 1:" << i << " with linespoints title \"" + (*it).second + "\" , \\" << endl;
+    }
+    scriptos << "\"" + output_density_normalized_result + "\" using 1:" << i << " with linespoints title \"" + (*it).second + "\"" << endl << endl;
+
+    scriptos << "# NORMALIZED DENSITY GRAPH (BLACK AND WHITE)" << endl << endl;
+
+    scriptos << "set output \"" + output_normalization_density_graph_bw + "\"" << endl;
     scriptos << "#set title \"Density\" font ', 12'" << endl << endl;
 
     scriptos << "# " << terminal << " black and white" << endl;
