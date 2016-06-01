@@ -508,19 +508,19 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
 		   complete_output_path = output_path + kPathSeparator + output_folder,
 		   output_broad_result = "results.txt",
 		   output_size_result = "size.txt",
-           output_size_normalized_result = "",
+           //output_size_normalized_result = "",
 		   output_density_result = "density.txt",
-           output_density_normalized_result = "normalizedDensity.txt",
+           output_density_normalized_result = "normalized_density.txt",
 		   output_size_graph = "size" + terminalExtension,
            output_size_graph_bw = "size_bw" + terminalExtension,
            output_density_graph = "density" + terminalExtension,
            output_density_graph_bw = "density_bw" + terminalExtension,
            output_normalization_density_graph = "normalized_density" + terminalExtension,
-           output_normalization_density_graph_bw = "normalize_density_bw" + terminalExtension,
+           output_normalization_density_graph_bw = "normalized_density_bw" + terminalExtension,
            middleFile = "run",
            middleOut_Folder = complete_output_path + kPathSeparator + middleFolder,
            out_color_folder = output_path + kPathSeparator + output_folder + kPathSeparator + colors_folder,
-           output_NULL = "NULL_results";
+           output_NULL = "NULL_results.txt";
 
     // Creation of output path
 	if (!dirExists(complete_output_path.c_str()))
@@ -564,6 +564,10 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
     ifstream is(is_path);
     if (!is.is_open())
         return ("Density_Size_Test on '" + input_folder + "': Unable to open " + is_path);
+    // For NULL LABELING RESULTS
+    ofstream NULL_os(NULL_path);
+    if (!NULL_os.is_open())
+        return ("Density_Size_Test on '" + input_folder + "': Unable to create " + NULL_path);
 
     // To save list of filename on which CLLAlgorithms must be tested
     vector<pair<string, bool>> filesNames;  // first: filename, second: state of filename (find or not)
@@ -673,6 +677,7 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
             if (perf.last("NULL_reference") < NULL_labeling[file]){
                 NULL_labeling[file] = perf.last("NULL_reference"); 
             }
+            // One time for every test and for every image we execute the NULL labeling and get the minimum 
 
             unsigned int i = 0;
             for (vector<pair<CCLPointer, string>>::iterator it = CCLAlgorithms.begin(); it != CCLAlgorithms.end(); ++it, ++i){
@@ -814,7 +819,6 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
 	// To write size result on specified file
 
     // To write NULL result on specified file
-    ofstream NULL_os(NULL_path);
     for (unsigned int i = 0; i < filesNames.size(); ++i){
         NULL_os << filesNames[i].first << "\t" << NULL_labeling[i] << endl; 
     }
