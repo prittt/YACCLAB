@@ -277,18 +277,20 @@ void saveBroadOutputResults(const Mat1d& results, const string& oFileName, vecto
     }
 }
 
-string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all_res, const unsigned int& alg_pos, const string& input_path, const string& input_folder, const string& input_txt, const string& gnuplot_script, string& output_path, string& colors_folder, const bool& saveMiddleResults, const uint& nTest, const string& middleFolder, const bool& write_n_labels = true, const bool& output_colors = true){
+string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all_res, const unsigned int& alg_pos, const string& input_path, const string& input_folder, const string& input_txt, const string& gnuplot_scipt_extension, string& output_path, string& colors_folder, const bool& saveMiddleResults, const uint& nTest, const string& middleFolder, const bool& write_n_labels = true, const bool& output_colors = true){
 
     string output_folder = input_folder,
 		   complete_output_path = output_path + kPathSeparator + output_folder,
-		   output_broad_results = "results.txt",
-           middleFile = "run", 
-		   output_averages_results = "averages.txt",
+           gnuplot_script = input_folder + gnuplot_scipt_extension,
+           output_broad_results = input_folder + "_results.txt",
+           middleFile = input_folder + "_run",
+           output_averages_results = input_folder + "_averages.txt",
 		   output_graph = output_folder + terminalExtension,
            output_graph_bw = output_folder + "_bw" + terminalExtension,
            middleOut_Folder = complete_output_path + kPathSeparator + middleFolder,
            out_color_folder = output_path + kPathSeparator + output_folder + kPathSeparator + colors_folder;
 
+    uint number_of_decimal_digit_to_display_in_graph = 2;
 
     // Creation of output path
 	if (!dirExists(complete_output_path.c_str()))
@@ -424,13 +426,15 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
                 supp_averages[c].first += min_res(r, c);
                 supp_averages[c].second++; 
             }
-        }
+        } 
     }
 
+    averages_os << "#Algorithm" << "\t" << "Average" << "\t" << "Round Average for Graphs" << endl;
     for (unsigned int i = 0; i < CCLAlgorithms.size(); ++i){
         // For all the Algorithms in the array
         all_res(alg_pos, i) = supp_averages[i].first / supp_averages[i].second;
-        averages_os << CCLAlgorithms[i].second << "\t" << supp_averages[i].first / supp_averages[i].second << endl;
+        averages_os << CCLAlgorithms[i].second << "\t" << supp_averages[i].first / supp_averages[i].second << "\t";
+        averages_os << std::fixed << std::setprecision(number_of_decimal_digit_to_display_in_graph) << supp_averages[i].first / supp_averages[i].second << endl;
     }
 
 	// GNUPLOT SCRIPT
@@ -479,7 +483,7 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
 
     scriptos << "# Plot" << endl; 
 	scriptos << "plot \\" << endl; 
-    scriptos << "'" + output_averages_results + "' using 2:xtic(1), '" << output_averages_results << "' using ($0 - xw) : ($2 + yw) : (stringcolumn(2)) with labels" << endl << endl;
+    scriptos << "'" + output_averages_results + "' using 2:xtic(1), '" << output_averages_results << "' using ($0 - xw) : ($2 + yw) : (stringcolumn(3)) with labels" << endl << endl;
 	
     scriptos << "# " << output_folder << "(BLACK AND WHITE)" << endl;
     scriptos << "set output \"" + output_graph_bw + "\"" << endl;
@@ -502,11 +506,12 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
 	return ("Averages_Test on '" + input_folder + "': successfuly done");
 }
 
-string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const string& input_path, const string& input_folder, const string& input_txt, const string& gnuplot_script, string& output_path, string& colors_folder, const bool& saveMiddleResults, const uint& nTest, const string& middleFolder, const bool& write_n_labels = true, const bool& output_colors = true){
+string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const string& input_path, const string& input_folder, const string& input_txt, const string& gnuplot_script_extension, string& output_path, string& colors_folder, const bool& saveMiddleResults, const uint& nTest, const string& middleFolder, const bool& write_n_labels = true, const bool& output_colors = true){
 	
 	string output_folder = input_folder,
 		   complete_output_path = output_path + kPathSeparator + output_folder,
-		   output_broad_result = "results.txt",
+           gnuplot_script = input_folder + gnuplot_script_extension,
+		   output_broad_result = input_folder + "_results.txt",
 		   output_size_result = "size.txt",
            //output_size_normalized_result = "",
 		   output_density_result = "density.txt",
@@ -517,10 +522,10 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
            output_density_graph_bw = "density_bw" + terminalExtension,
            output_normalization_density_graph = "normalized_density" + terminalExtension,
            output_normalization_density_graph_bw = "normalized_density_bw" + terminalExtension,
-           middleFile = "run",
+           middleFile = input_folder + "_run",
            middleOut_Folder = complete_output_path + kPathSeparator + middleFolder,
            out_color_folder = output_path + kPathSeparator + output_folder + kPathSeparator + colors_folder,
-           output_NULL = "NULL_results.txt";
+           output_NULL = input_folder + "_NULL_results.txt";
 
     // Creation of output path
 	if (!dirExists(complete_output_path.c_str()))
@@ -545,7 +550,7 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
 		   density_os_path = output_path + kPathSeparator + output_folder + kPathSeparator + output_density_result,
            density_normalized_os_path = output_path + kPathSeparator + output_folder + kPathSeparator + output_density_normalized_result,
 	       size_os_path = output_path + kPathSeparator + output_folder + kPathSeparator + output_size_result,
-           size_normalized_os_path = output_path + kPathSeparator + output_folder + kPathSeparator + output_size_normalized_result, 
+           //size_normalized_os_path = output_path + kPathSeparator + output_folder + kPathSeparator + output_size_normalized_result, 
            NULL_path = output_path + kPathSeparator + output_folder + kPathSeparator + output_NULL;
 
     // For DENSITY RESULT
@@ -1051,7 +1056,7 @@ int main(int argc, char **argv)
             at_testsNumber = cfg.getValueOfKey<uint>("at_testsNumber", 1);
 
 	string input_txt = "files.txt",             /* Files who contains list of images's name on which CCLAlgorithms are tested */
-           gnuplot_scipt = "gpScript.gnuplot",  /* Name of gnuplot scripts*/
+           gnuplot_scipt_extension = ".gnuplot",  /* Extension of gnuplot scripts*/
            colors_folder = "colors",
            middel_folder = "middle_results",
            latec_file = "averageResults.tex",
@@ -1104,7 +1109,7 @@ int main(int argc, char **argv)
         cout << endl << "AVERAGES TESTS: " << endl;
 	    for (unsigned int i = 0; i < input_folders_averages_test.size(); ++i){
 	    	cout << "Averages_Test on '" << input_folders_averages_test[i] << "': starts" << endl;
-            cout << averages_test(CCLAlgorithms, all_res, i, input_path, input_folders_averages_test[i], input_txt, gnuplot_scipt, output_path, colors_folder, at_saveMiddleTests, at_testsNumber, middel_folder, write_n_labels, output_colors_average_test) << endl;
+            cout << averages_test(CCLAlgorithms, all_res, i, input_path, input_folders_averages_test[i], input_txt, gnuplot_scipt_extension, output_path, colors_folder, at_saveMiddleTests, at_testsNumber, middel_folder, write_n_labels, output_colors_average_test) << endl;
 	    	cout << "Averages_Test on '" << input_folders_averages_test[i] << "': ends" << endl << endl;
 	    }
         generateLatexTable(output_path, latec_file, all_res, input_folders_averages_test, CCLAlgorithms);
@@ -1115,7 +1120,7 @@ int main(int argc, char **argv)
         cout << endl << "DENSITY_SIZE TESTS: " << endl;
         for (unsigned int i = 0; i < input_folders_density_size_test.size(); ++i){
             cout << "Density_Size_Test on '" << input_folders_density_size_test[i] << "': starts" << endl;
-            cout << density_size_test(CCLAlgorithms, input_path, input_folders_density_size_test[i], input_txt, gnuplot_scipt, output_path, colors_folder, ds_saveMiddleTests, ds_testsNumber, middel_folder, write_n_labels, output_colors_density_size) << endl;
+            cout << density_size_test(CCLAlgorithms, input_path, input_folders_density_size_test[i], input_txt, gnuplot_scipt_extension, output_path, colors_folder, ds_saveMiddleTests, ds_testsNumber, middel_folder, write_n_labels, output_colors_density_size) << endl;
             cout << "Density_Size_Test on '" << input_folders_density_size_test[i] << "': ends" << endl << endl;
         }
     }
