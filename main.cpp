@@ -1003,11 +1003,11 @@ void generateLatexTable(const string& output_path, const string& latex_file, con
 
     is << "\\begin{table}[tbh]" << endl << endl; 
     is << "\t\\centering" << endl;
-    is << "\t\\caption{Average Results}" << endl;
+    is << "\t\\caption{Average Results in ms}" << endl;
     is << "\t\\label{tab:table1}" << endl;
     is << "\t\\begin{tabular}{|l|"; 
     for (uint i = 0; i < CCLAlgorithms.size(); ++i)
-        is << "c|"; 
+        is << "S[table-format=2.3]|"; 
     is << "}" << endl;
     is << "\t\\hline" << endl;
     is << "\t";
@@ -1015,7 +1015,7 @@ void generateLatexTable(const string& output_path, const string& latex_file, con
         string algName = CCLAlgorithms[i].second;
         eraseDoubleEscape(algName);
         //algName.erase(std::remove(algName.begin(), algName.end(), '\\'), algName.end());
-        is << " & " << algName; //Header
+        is << " & {" << algName << "}"; //Header
     }
     is << "\\\\" << endl;
     is << "\t\\hline" << endl;
