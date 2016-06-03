@@ -32,5 +32,5 @@
 // Readable version of He's algorithm
 //int CTB(const cv::Mat1b &img, cv::Mat1i &imgLabels);
 
-// Readable version of He's algorithm
+// Optimized version of He's algorithm
 int CTB_OPT(const cv::Mat1b &img, cv::Mat1i &imgLabels);
