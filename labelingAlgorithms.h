@@ -53,6 +53,8 @@
 // A reference function which DOESN'T perform labeling, but allocates memory for output and scans the input image
 // writing an output value (quasi random) to the labels image
 #include "labelingNULL.h"
+// Optimized Connected Components Labeling with Pixel Prediction
+#include "labelingPred.h"
 
 // FUNCTION POINTER: 
 //	Mat1b:	the 8-bit single-channel image to be labeled;
@@ -73,6 +75,7 @@ std::map<std::string, CCLPointer> CCLAlgorithmsMap =
     // Grana
     //new_algorithm(BBDT),
     new_algorithm(BBDT_OPT),
+    new_algorithm(PRED_OPT),
     // Lacassagne
     new_algorithm(LSL_STD),
     new_algorithm(LSL_STD_OPT),
