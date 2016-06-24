@@ -1018,6 +1018,8 @@ void generateLatexTable(const string& output_path, const string& latex_file, con
     is << fixed;
     is << setprecision(3);
 
+    is << "%This table format needs the package 'siunitx', please uncomment and add the following line code in latex preamble if you want to add the table in your latex file" << endl; 
+    is << "%\\usepackage{siunitx}"<< endl << endl;
     is << "\\begin{table}[tbh]" << endl << endl; 
     is << "\t\\centering" << endl;
     is << "\t\\caption{Average Results in ms}" << endl;
