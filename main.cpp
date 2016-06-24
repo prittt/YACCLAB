@@ -327,6 +327,15 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
     vector<pair<string, bool>> filesNames;  // first: filename, second: state of filename (find or not)
     string filename;
     while (getline(is, filename)){
+        // To delete eventual carriage return in the file name (especially designed for windows file newline format) 
+        size_t found;
+        do{
+            // The while cycle is probably unnecessary
+            found = filename.find("\r");
+            if (found != string::npos)
+                filename.erase(found, 1);
+        } while(found != string::npos);
+        // Add purified file name in the vector
         filesNames.push_back(make_pair(filename,true)); 
     }
     is.close();
@@ -578,6 +587,14 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
     vector<pair<string, bool>> filesNames;  // first: filename, second: state of filename (find or not)
     string filename;
     while (getline(is, filename)){
+        // To delete eventual carriage return in the file name (especially designed for windows file newline format) 
+        size_t found;
+        do{
+            // The while cycle is probably unnecessary
+            found = filename.find("\r");
+            if (found != string::npos)
+                filename.erase(found, 1);
+        } while (found != string::npos);
         filesNames.push_back(make_pair(filename, true));
     }
     is.close();
