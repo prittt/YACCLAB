@@ -1022,7 +1022,7 @@ void generateLatexTable(const string& output_path, const string& latex_file, con
     is << "%\\usepackage{siunitx}"<< endl << endl;
     is << "\\begin{table}[tbh]" << endl << endl; 
     is << "\t\\centering" << endl;
-    is << "\t\\caption{Average Results in ms}" << endl;
+    is << "\t\\caption{Average Results in ms (Lower is Better)}" << endl;
     is << "\t\\label{tab:table1}" << endl;
     is << "\t\\begin{tabular}{|l|"; 
     for (uint i = 0; i < CCLAlgorithms.size(); ++i)
