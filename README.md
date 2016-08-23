@@ -40,7 +40,7 @@ To check the correctness of an implementation, the output of an algorithm is com
 - CMake 2.4.0 or higher (https://cmake.org/download/),
 - OpenCV 3.0 or higher (http://opencv.org/downloads.html),
 - Gnuplot (http://www.gnuplot.info/), 
-- One of your favourite IDE/compiler: Visual Studio 2013 or higher, Xcode 5.0.1, gcc 4.7 or higher, ..
+- One of your favourite IDE/compiler: Visual Studio 2013 or higher, Xcode 5.0.1, gcc 4.7 or higher, .. (with C++11 support)
 
 Note for gnuplot:
 - on Windows system: be sure add gnuplot to system path if you want YACCLAB automatically generates charts.
