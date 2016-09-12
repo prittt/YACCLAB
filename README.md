@@ -23,7 +23,7 @@ To check the correctness of an implementation, the output of an algorithm is com
 
 - <p align="justify"><b>3dpes:<sup><a href="#3DPES">11</a></sup></b> it comes from 3DPeS (3D People Surveillance Dataset), a surveillance dataset designed mainly for people re-identification in multi camera systems with non-overlapped fields of view. 3DPeS can be also exploited to test many other tasks, such as people detection, tracking, action analysis and trajectory analysis. The background models for all cameras are provided, so a very basic technique of motion segmentation has been applied to generate the foreground binary masks, i.e.,  background subtraction and fixed thresholding. The analysis of the foreground masks to remove small connected components and for nearest neighbor matching is a common application for CCL. </p>
 
-- <p align="justify"><b>medical:<sup><a href="#MEDICAL">12</a></sup></b> this dataset is composed by histological images and allow us to cover this fundamental medical field. The process used for nuclei segmentation and binarization is described in  <sup><a href="#MEDICAL">12</a></sup>. The resulting dataset is a collection of 343 binary histological images with an average amount of 1.21 million of pixels to analyze and 484 components to label. </p> 
+- <p align="justify"><b>medical:<sup><a href="#MEDICAL">12</a></sup></b> this dataset is composed by histological images and allow us to cover this fundamental medical field. The process used for nuclei segmentation and binarization is described in  <a href="#MEDICAL">[12]</a>. The resulting dataset is a collection of 343 binary histological images with an average amount of 1.21 million of pixels to analyze and 484 components to label. </p> 
 
 
 =======
