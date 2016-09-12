@@ -44,6 +44,7 @@
 #include "labelingWYChang2015.h"      
 // Optimizing two-pass connected-component labeling algorithms: Wu, Kesheng and Otoo, Ekow and Suzuki, Kenji
 #include "labelingWu2009.h"
+#include "labelingWu2009OpenCV.h"
 // A simple and efficient connected components labeling algorithm: L.Di Stefano and A.Bulgarelli
 #include "labelingDiStefano1999.h"
 // Configuration-Transition-Based Connected-Component Labeling: L. He, X. Zhao, Y.Chao, K. Suzuki
@@ -72,8 +73,8 @@ std::map<std::string, CCLPointer> CCLAlgorithmsMap =
     new_algorithm(DiStefanoOPT),
     // Wu/He
     new_algorithm(SAUF_OPT),
+	new_algorithm(SAUFCV_OPT),
     // Grana
-    //new_algorithm(BBDT),
     new_algorithm(BBDT_OPT),
     new_algorithm(PRED_OPT),
     // Lacassagne
@@ -81,8 +82,9 @@ std::map<std::string, CCLPointer> CCLAlgorithmsMap =
     new_algorithm(LSL_STD_OPT),
 	// He
 	new_algorithm(CTB_OPT),
-    // Chang
+    // Fu Chang
     new_algorithm(CT_OPT),
+	// Wan-Yu Chang
     new_algorithm(CCIT_OPT),
 	// Zhao
 	new_algorithm(SBLA),

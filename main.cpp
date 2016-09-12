@@ -97,18 +97,20 @@ void colorLabels(const Mat1i& imgLabels, Mat3b& imgOut) {
 // This function may be useful to compare the output of different labeling procedures
 // which may assign different labels to the same object. Use this to force a row major
 // ordering of labels.
-void normalizeLabels(Mat1i& imgLabels, int iNumLabels) {
-	vector<int> vecNewLabels(iNumLabels + 1, 0);
+void normalizeLabels(Mat1i& imgLabels) {
+	
+	map<int,int> mapNewLabels;
 	int iMaxNewLabel = 0;
 
 	for (int r = 0; r<imgLabels.rows; ++r) {
+		uint * const imgLabels_row = imgLabels.ptr<uint>(r); 
 		for (int c = 0; c<imgLabels.cols; ++c) {
-			int iCurLabel = imgLabels(r, c);
+			int iCurLabel = imgLabels_row[c];
 			if (iCurLabel>0) {
-				if (vecNewLabels[iCurLabel] == 0) {
-					vecNewLabels[iCurLabel] = ++iMaxNewLabel;
+				if (mapNewLabels.find(iCurLabel) == mapNewLabels.end()) {
+					mapNewLabels[iCurLabel] = ++iMaxNewLabel;
 				}
-				imgLabels(r, c) = vecNewLabels[iCurLabel];
+				imgLabels_row[c] = mapNewLabels.at(iCurLabel);
 			}
 		}
 	}
@@ -196,14 +198,14 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
                 continue;
             }
 
-            nLabelsCorrect = connectedComponents(binaryImg, labeledImgCorrect); // OPENCV is the reference
+            nLabelsCorrect = SAUF_OPT(binaryImg, labeledImgCorrect); // SAUF is the reference (the labels are already normalized)
             uint j = 0; 
             for (vector<pair<CCLPointer, string>>::iterator it = CCLAlgorithms.begin(); it != CCLAlgorithms.end(); ++it, ++j){
                 // For all the Algorithms in the array
                 checkPerform = true; 
                 if (stats[j]){
                     nLabelsToControl = (*it).first(binaryImg, labeledImgToControl);
-                    normalizeLabels(labeledImgToControl, nLabelsToControl);
+                    normalizeLabels(labeledImgToControl);
                     if (nLabelsCorrect != nLabelsToControl || !compareMat(labeledImgCorrect, labeledImgToControl)){
                         stats[j] = false;
                         firstFail[j] = input_path + kPathSeparator + datasets[i] + kPathSeparator + filename; 
@@ -407,7 +409,7 @@ string averages_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, Mat1d& all
                     string algName = (*it).second;
                     algName.erase(std::remove(algName.begin(), algName.end(), '\\'), algName.end());
 
-                    normalizeLabels(labeledMat, nLabels);
+                    normalizeLabels(labeledMat);
                     colorLabels(labeledMat, imgColors);
                     imwrite(out_color_folder + kPathSeparator + filename + "_" + algName + ".png", imgColors);
                 }
@@ -729,7 +731,7 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
                     string algName = (*it).second;
                     algName.erase(std::remove(algName.begin(), algName.end(), '\\'), algName.end());
 
-                    normalizeLabels(labeledMat, nLabels);
+                    normalizeLabels(labeledMat);
                     colorLabels(labeledMat, imgColors);
                     imwrite(out_color_folder + kPathSeparator + filename + "_" + algName + ".png", imgColors);
                 }
