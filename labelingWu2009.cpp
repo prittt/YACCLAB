@@ -1,358 +1,201 @@
-/*M///////////////////////////////////////////////////////////////////////////////////////
-//
-//  IMPORTANT: READ BEFORE DOWNLOADING, COPYING, INSTALLING OR USING.
-//
-//  By downloading, copying, installing or using the software you agree to this license.
-//  If you do not agree to this license, do not download, install,
-//  copy or use the software.
-//
-//
-//                        Intel License Agreement
-//                For Open Source Computer Vision Library
-//
-// Copyright (C) 2000, Intel Corporation, all rights reserved.
-// Third party copyrights are property of their respective owners.
-//
-// Redistribution and use in source and binary forms, with or without modification,
-// are permitted provided that the following conditions are met:
-//
-//   * Redistribution's of source code must retain the above copyright notice,
-//     this list of conditions and the following disclaimer.
-//
-//   * Redistribution's in binary form must reproduce the above copyright notice,
-//     this list of conditions and the following disclaimer in the documentation
-//     and/or other materials provided with the distribution.
-//
-//   * The name of Intel Corporation may not be used to endorse or promote products
-//     derived from this software without specific prior written permission.
-//
-// This software is provided by the copyright holders and contributors "as is" and
-// any express or implied warranties, including, but not limited to, the implied
-// warranties of merchantability and fitness for a particular purpose are disclaimed.
-// In no event shall the Intel Corporation or contributors be liable for any direct,
-// indirect, incidental, special, exemplary, or consequential damages
-// (including, but not limited to, procurement of substitute goods or services;
-// loss of use, data, or profits; or business interruption) however caused
-// and on any theory of liability, whether in contract, strict liability,
-// or tort (including negligence or otherwise) arising in any way out of
-// the use of this software, even if advised of the possibility of such damage.
-//
-// 2011 Jason Newton <nevion@gmail.com>
-//M*/
+// Copyright(c) 2016 - Costantino Grana, Federico Bolelli, Lorenzo Baraldi and Roberto Vezzani
+// All rights reserved.
+// 
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met :
+// 
+// *Redistributions of source code must retain the above copyright notice, this
+// list of conditions and the following disclaimer.
+// 
+// * Redistributions in binary form must reproduce the above copyright notice,
+// this list of conditions and the following disclaimer in the documentation
+// and / or other materials provided with the distribution.
+// 
+// * Neither the name of YACCLAB nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+// 
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED.IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+// DAMAGES(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+// OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "labelingWu2009.h"
 #include <vector>
 
 using namespace std;
+using namespace cv; 
 
-namespace cclSAUF{
+//Find the root of the tree of node i
+template<typename LabelT>
+inline static
+LabelT findRoot(const LabelT *P, LabelT i){
+	LabelT root = i;
+	while (P[root] < root){
+		root = P[root];
+	}
+	return root;
+}
 
-		//struct NoOp{
-		//	NoOp(){
-		//	}
-		//	void init(int /*labels*/){
-		//	}
-		//	inline
-		//		void operator()(int r, int c, int l){
-		//			(void)r;
-		//			(void)c;
-		//			(void)l;
-		//		}
-		//	void finish(){}
-		//};
-		//struct Point2ui64{
-		//	uint64 x, y;
-		//	Point2ui64(uint64 _x, uint64 _y) :x(_x), y(_y){}
-		//};
-        //
-		//struct CCStatsOp{
-		//	const cv::_OutputArray* _mstatsv;
-		//	cv::Mat statsv;
-		//	const cv::_OutputArray* _mcentroidsv;
-		//	cv::Mat centroidsv;
-		//	std::vector<Point2ui64> integrals;
-        //
-		//	CCStatsOp(cv::OutputArray _statsv, cv::OutputArray _centroidsv) : _mstatsv(&_statsv), _mcentroidsv(&_centroidsv){
-		//	}
-		//	inline
-		//		void init(int nlabels){
-		//			_mstatsv->create(cv::Size(cv::CC_STAT_MAX, nlabels), cv::DataType<int>::type);
-		//			statsv = _mstatsv->getMat();
-		//			_mcentroidsv->create(cv::Size(2, nlabels), cv::DataType<double>::type);
-		//			centroidsv = _mcentroidsv->getMat();
-        //
-		//			for (int l = 0; l < (int)nlabels; ++l){
-		//				int *row = (int *)&statsv.at<int>(l, 0);
-		//				row[cv::CC_STAT_LEFT] = INT_MAX;
-		//				row[cv::CC_STAT_TOP] = INT_MAX;
-		//				row[cv::CC_STAT_WIDTH] = INT_MIN;
-		//				row[cv::CC_STAT_HEIGHT] = INT_MIN;
-		//				row[cv::CC_STAT_AREA] = 0;
-		//			}
-		//			integrals.resize(nlabels, Point2ui64(0, 0));
-		//		}
-		//	void operator()(int r, int c, int l){
-		//		int *row = &statsv.at<int>(l, 0);
-		//		row[cv::CC_STAT_LEFT] = MIN(row[cv::CC_STAT_LEFT], c);
-		//		row[cv::CC_STAT_WIDTH] = MAX(row[cv::CC_STAT_WIDTH], c);
-		//		row[cv::CC_STAT_TOP] = MIN(row[cv::CC_STAT_TOP], r);
-		//		row[cv::CC_STAT_HEIGHT] = MAX(row[cv::CC_STAT_HEIGHT], r);
-		//		row[cv::CC_STAT_AREA]++;
-		//		Point2ui64 &integral = integrals[l];
-		//		integral.x += c;
-		//		integral.y += r;
-		//	}
-		//	void finish(){
-		//		for (int l = 0; l < statsv.rows; ++l){
-		//			int *row = &statsv.at<int>(l, 0);
-		//			row[cv::CC_STAT_WIDTH] = row[cv::CC_STAT_WIDTH] - row[cv::CC_STAT_LEFT] + 1;
-		//			row[cv::CC_STAT_HEIGHT] = row[cv::CC_STAT_HEIGHT] - row[cv::CC_STAT_TOP] + 1;
-        //
-		//			Point2ui64 &integral = integrals[l];
-		//			double *centroid = &centroidsv.at<double>(l, 0);
-		//			double area = ((unsigned*)row)[cv::CC_STAT_AREA];
-		//			centroid[0] = double(integral.x) / area;
-		//			centroid[1] = double(integral.y) / area;
-		//		}
-		//	}
-		//};
+//Make all nodes in the path of node i point to root
+template<typename LabelT>
+inline static
+void setRoot(LabelT *P, LabelT i, LabelT root){
+	while (P[i] < i){
+		LabelT j = P[i];
+		P[i] = root;
+		i = j;
+	}
+	P[i] = root;
+}
 
-		//Find the root of the tree of node i
-		template<typename LabelT>
-		inline static
-			LabelT findRoot(const LabelT *P, LabelT i){
-				LabelT root = i;
-				while (P[root] < root){
-					root = P[root];
+//Find the root of the tree of the node i and compress the path in the process
+template<typename LabelT>
+inline static
+LabelT find(LabelT *P, LabelT i){
+	LabelT root = findRoot(P, i);
+	setRoot(P, i, root);
+	return root;
+}
+
+//unite the two trees containing nodes i and j and return the new root
+template<typename LabelT>
+inline static
+LabelT set_union(LabelT *P, LabelT i, LabelT j){
+	LabelT root = findRoot(P, i);
+	if (i != j){
+		LabelT rootj = findRoot(P, j);
+		if (root > rootj){
+			root = rootj;
+		}
+		setRoot(P, j, root);
+	}
+	setRoot(P, i, root);
+	return root;
+}
+
+//Flatten the Union Find tree and relabel the components
+template<typename LabelT>
+inline static
+LabelT flattenL(LabelT *P, LabelT length){
+	LabelT k = 1;
+	for (LabelT i = 1; i < length; ++i){
+		if (P[i] < i){
+			P[i] = P[P[i]];
+		}
+		else{
+			P[i] = k; k = k + 1;
+		}
+	}
+	return k;
+}
+
+int SAUF_OPT(const Mat1b &img, Mat1i &imgLabels){
+
+	const int h = img.rows;
+	const int w = img.cols;
+    
+	imgLabels = Mat1i(img.size(),0);
+
+	const size_t Plength = img.rows * img.cols / 4;		 // Raw superior limit for labels number
+	uint *P = (uint *)fastMalloc(sizeof(uint)* Plength); //array P for equivalences resolution
+	P[0] = 0;	//first label is for background pixels
+	uint lunique = 1;
+
+	// first scan 
+
+	// Rosenfeld Mask
+	// +-+-+-+
+	// |p|q|r|
+	// +-+-+-+
+	// |s|x|
+	// +-+-+
+
+	for (int r = 0; r < h; ++r)
+	{
+		uchar const * const img_row = img.ptr<uchar>(r);
+		uchar const * const img_row_prev = (uchar *)(((char *)img_row) - img.step.p[0]);
+		uint * const  imgLabels_row = imgLabels.ptr<uint>(r);
+		uint * const  imgLabels_row_prev = (uint *)(((char *)imgLabels_row) - imgLabels.step.p[0]);
+		
+		for (int c = 0; c < w; ++c) {
+
+			#define condition_p c>0 && r>0 && img_row_prev[c - 1]>0
+			#define condition_q r>0 && img_row_prev[c]>0
+			#define condition_r c < w - 1 && r > 0 && img_row_prev[c + 1] > 0
+			#define condition_s c > 0 && img_row[c - 1] > 0
+			#define condition_x img_row[c] > 0
+
+			if (condition_x){
+				if (condition_q){
+					//x <- q
+					imgLabels_row[c] = imgLabels_row_prev[c];
 				}
-				return root;
-			}
-
-		//Make all nodes in the path of node i point to root
-		template<typename LabelT>
-		inline static
-			void setRoot(LabelT *P, LabelT i, LabelT root){
-				while (P[i] < i){
-					LabelT j = P[i];
-					P[i] = root;
-					i = j;
-				}
-				P[i] = root;
-			}
-
-		//Find the root of the tree of the node i and compress the path in the process
-		template<typename LabelT>
-		inline static
-			LabelT find(LabelT *P, LabelT i){
-				LabelT root = findRoot(P, i);
-				setRoot(P, i, root);
-				return root;
-			}
-
-		//unite the two trees containing nodes i and j and return the new root
-		template<typename LabelT>
-		inline static
-			LabelT set_union(LabelT *P, LabelT i, LabelT j){
-				LabelT root = findRoot(P, i);
-				if (i != j){
-					LabelT rootj = findRoot(P, j);
-					if (root > rootj){
-						root = rootj;
-					}
-					setRoot(P, j, root);
-				}
-				setRoot(P, i, root);
-				return root;
-			}
-
-		//Flatten the Union Find tree and relabel the components
-		template<typename LabelT>
-		inline static
-			LabelT flattenL(LabelT *P, LabelT length){
-				LabelT k = 1;
-				for (LabelT i = 1; i < length; ++i){
-					if (P[i] < i){
-						P[i] = P[P[i]];
-					}
-					else{
-						P[i] = k; k = k + 1;
-					}
-				}
-				return k;
-			}
-
-		//Based on "Two Strategies to Speed up Connected Components Algorithms", the SAUF (Scan array union find) variant
-		//using decision trees
-		//Kesheng Wu, et al
-		//Note: rows are encoded as position in the "rows" array to save lookup times
-		//reference for 4-way: {{-1, 0}, {0, -1}};//b, d neighborhoods
-		const int G4[2][2] = { { 1, 0 }, { 0, -1 } };//b, d neighborhoods
-		//reference for 8-way: {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}};//a, b, c, d neighborhoods
-		const int G8[4][2] = { { 1, -1 }, { 1, 0 }, { 1, 1 }, { 0, -1 } };//a, b, c, d neighborhoods
-		template<typename LabelT, typename PixelT>
-		struct LabelingImpl{
-			LabelT operator()(const cv::Mat &I, cv::Mat &L){
-                int connectivity = 8; 
-                //CV_Assert(L.rows == I.rows);
-				//CV_Assert(L.cols == I.cols);
-				//CV_Assert(connectivity == 8 || connectivity == 4);
-				const int rows = L.rows;
-				const int cols = L.cols;
-				//A quick and dirty upper bound for the maximimum number of labels.  The 4 comes from
-				//the fact that a 3x3 block can never have more than 4 unique labels for both 4 & 8-way
-				const size_t Plength = 4 * (size_t(rows + 3 - 1) / 3) * (size_t(cols + 3 - 1) / 3);
-				LabelT *P = (LabelT *)malloc(sizeof(LabelT)* Plength);
-				P[0] = 0;
-				LabelT lunique = 1;
-				//scanning phase
-				for (int r_i = 0; r_i < rows; ++r_i){
-					LabelT * const Lrow = L.ptr<LabelT>(r_i);
-					LabelT * const Lrow_prev = (LabelT *)(((char *)Lrow) - L.step.p[0]);
-					const PixelT * const Irow = I.ptr<PixelT>(r_i);
-					const PixelT * const Irow_prev = (const PixelT *)(((char *)Irow) - I.step.p[0]);
-					LabelT *Lrows[2] = {
-						Lrow,
-						Lrow_prev
-					};
-					const PixelT *Irows[2] = {
-						Irow,
-						Irow_prev
-					};
-					if (connectivity == 8){
-						const int a = 0;
-						const int b = 1;
-						const int c = 2;
-						const int d = 3;
-						const bool T_a_r = (r_i - G8[a][0]) >= 0;
-						const bool T_b_r = (r_i - G8[b][0]) >= 0;
-						const bool T_c_r = (r_i - G8[c][0]) >= 0;
-						for (int c_i = 0; Irows[0] != Irow + cols; ++Irows[0], c_i++){
-							if (!*Irows[0]){
-								Lrow[c_i] = 0;
-								continue;
+				else{
+					// q = 0
+					if (condition_r){
+						if (condition_p){
+							// x <- merge(p,r)
+							imgLabels_row[c] = set_union(P, imgLabels_row_prev[c - 1], imgLabels_row_prev[c + 1]);
+						}
+						else{ 
+							// p = q = 0
+							if (condition_s){
+								// x <- merge(s,r)
+								imgLabels_row[c] = set_union(P, imgLabels_row[c - 1], imgLabels_row_prev[c + 1]);
 							}
-							Irows[1] = Irow_prev + c_i;
-							Lrows[0] = Lrow + c_i;
-							Lrows[1] = Lrow_prev + c_i;
-							const bool T_a = T_a_r && (c_i + G8[a][1]) >= 0 && *(Irows[G8[a][0]] + G8[a][1]);
-							const bool T_b = T_b_r                            && *(Irows[G8[b][0]] + G8[b][1]);
-							const bool T_c = T_c_r && (c_i + G8[c][1]) < cols && *(Irows[G8[c][0]] + G8[c][1]);
-							const bool T_d = (c_i + G8[d][1]) >= 0 && *(Irows[G8[d][0]] + G8[d][1]);
-
-							//decision tree
-							if (T_b){
-								//copy(b)
-								*Lrows[0] = *(Lrows[G8[b][0]] + G8[b][1]);
-							}
-							else{//not b
-								if (T_c){
-									if (T_a){
-										//copy(c, a)
-										*Lrows[0] = set_union(P, *(Lrows[G8[c][0]] + G8[c][1]), *(Lrows[G8[a][0]] + G8[a][1]));
-									}
-									else{
-										if (T_d){
-											//copy(c, d)
-											*Lrows[0] = set_union(P, *(Lrows[G8[c][0]] + G8[c][1]), *(Lrows[G8[d][0]] + G8[d][1]));
-										}
-										else{
-											//copy(c)
-											*Lrows[0] = *(Lrows[G8[c][0]] + G8[c][1]);
-										}
-									}
-								}
-								else{//not c
-									if (T_a){
-										//copy(a)
-										*Lrows[0] = *(Lrows[G8[a][0]] + G8[a][1]);
-									}
-									else{
-										if (T_d){
-											//copy(d)
-											*Lrows[0] = *(Lrows[G8[d][0]] + G8[d][1]);
-										}
-										else{
-											//new label
-											*Lrows[0] = lunique;
-											P[lunique] = lunique;
-											lunique = lunique + 1;
-										}
-									}
-								}
+							else{ 
+								// p = q = s = 0
+								// x <- r
+								imgLabels_row[c] = imgLabels_row_prev[c + 1];
 							}
 						}
 					}
 					else{
-						//B & D only
-						const int b = 0;
-						const int d = 1;
-						const bool T_b_r = (r_i - G4[b][0]) >= 0;
-						for (int c_i = 0; Irows[0] != Irow + cols; ++Irows[0], c_i++){
-							if (!*Irows[0]){
-								Lrow[c_i] = 0;
-								continue;
-							}
-							Irows[1] = Irow_prev + c_i;
-							Lrows[0] = Lrow + c_i;
-							Lrows[1] = Lrow_prev + c_i;
-							const bool T_b = T_b_r                            && *(Irows[G4[b][0]] + G4[b][1]);
-							const bool T_d = (c_i + G4[d][1]) >= 0 && *(Irows[G4[d][0]] + G4[d][1]);
-							if (T_b){
-								if (T_d){
-									//copy(d, b)
-									*Lrows[0] = set_union(P, *(Lrows[G4[d][0]] + G4[d][1]), *(Lrows[G4[b][0]] + G4[b][1]));
-								}
-								else{
-									//copy(b)
-									*Lrows[0] = *(Lrows[G4[b][0]] + G4[b][1]);
-								}
+						// r = q = 0
+						if (condition_p){
+							// x <- p
+							imgLabels_row[c] = imgLabels_row_prev[c - 1];
+						}
+						else{
+							// r = q = p = 0
+							if (condition_s){
+								imgLabels_row[c] = imgLabels_row[c - 1];
 							}
 							else{
-								if (T_d){
-									//copy(d)
-									*Lrows[0] = *(Lrows[G4[d][0]] + G4[d][1]);
-								}
-								else{
-									//new label
-									*Lrows[0] = lunique;
-									P[lunique] = lunique;
-									lunique = lunique + 1;
-								}
+								//new label
+								imgLabels_row[c] = lunique;
+								P[lunique] = lunique;
+								lunique = lunique + 1;
 							}
 						}
 					}
 				}
+			}
+			else{
+				//Nothing to do, x is a background pixel
+			}
+		}
+	}
 
-				//analysis
-				LabelT nLabels = flattenL(P, lunique);
-				//sop.init(nLabels);
+	//second scan
+	uint nLabel = flattenL(P, lunique);
 
-				for (int r_i = 0; r_i < rows; ++r_i){
-					LabelT *Lrow_start = L.ptr<LabelT>(r_i);
-					LabelT *Lrow_end = Lrow_start + cols;
-					LabelT *Lrow = Lrow_start;
-					for (int c_i = 0; Lrow != Lrow_end; ++Lrow, ++c_i){
-						const LabelT l = P[*Lrow];
-						*Lrow = l;
-						//sop(r_i, c_i, l);
-					}
-				}
+	for (int r = 0; r < imgLabels.rows; ++r) {
 
-				//sop.finish();
-				free(P);
+		uint * img_row_start = imgLabels.ptr<uint>(r);
+		uint * const img_row_end = img_row_start + imgLabels.cols;
+		for (; img_row_start != img_row_end; ++img_row_start){
+			*img_row_start = P[*img_row_start];
+		}
+	}
 
-				return nLabels;
-			}//End function LabelingImpl operator()
-
-		};//End struct LabelingImpl
-} // End cclWu
-
-int SAUF_OPT(const cv::Mat1b &img, cv::Mat1i &labels){
-
-    labels = cv::Mat1i(img.size());
-
-    using cclSAUF::LabelingImpl;
-    //warn if L's depth is not sufficient?
-
-    return (int)LabelingImpl<int, uchar>()(img, labels);
+	fastFree(P);
+	return nLabel;
 }
