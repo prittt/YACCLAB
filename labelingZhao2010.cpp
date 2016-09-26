@@ -202,9 +202,11 @@ int SBLA_OPT(const Mat1b &img, Mat1i &imgOut)
 		uint* const imgOut_row_fol = (uint *)(((char *)imgOut_row) + imgOut.step.p[0]);
 		for (int c = 0; c < N; ++c) {
 			imgOut_row[c] = img_row[c];
-			if (r + 1 < M)
-				imgOut_row_fol[c] = img_row_fol[c];
 		}
+		if (r + 1 < M)
+			for (int c = 0; c < N; ++c) {
+				imgOut_row_fol[c] = img_row_fol[c];
+			}
 
 		for (int c = 0; c < N; ++c) {
 			// Step 1
