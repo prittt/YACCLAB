@@ -42,12 +42,15 @@
 #include <algorithm>
 #include <functional>
 
-using namespace cv;
-using namespace std;
-
 #include "performanceEvaluator.h"
 #include "configurationReader.h"
 #include "labelingAlgorithms.h"
+#include "foldersManager.h"
+#include "progressBar.h"
+#include "memoryTester.h"
+
+using namespace cv;
+using namespace std;
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -66,22 +69,6 @@ const char kPathSeparator =
     const string terminal = "pdf";
     const string terminalExtension = ".pdf";
 #endif
-
-// To check for the presence of a directory
-bool dirExists(const char* pathname){
-	struct stat info;
-	if (stat(pathname, &info) != 0){
-		//printf("cannot access %s\n", pathname);
-		return false; 
-	}
-	else if (info.st_mode & S_IFDIR){  // S_ISDIR() doesn't exist on my windows 
-		//printf("%s is a directory\n", pathname);
-		return true;
-	}
-	
-	//printf("%s is no directory\n", pathname);
-	return false; 
-}
 
 // Create a bunch of pseudo random colors from labels indexes and create a
 // color representation for the labels
@@ -127,16 +114,13 @@ bool getBinaryImage(const string FileName, Mat1b& binaryMat){
 	if (image.empty())
 		return false;
 
-	//// Convert the image to grayscale
-	//Mat grayscaleMat;
-	//cvtColor(image, grayscaleMat, CV_RGB2GRAY);
-
 	// Adjust the threshold to actually make it binary
 	threshold(image, binaryMat, 100, 1, CV_THRESH_BINARY);
 
 	return true;
 }
 
+// Compare two int matrixes element by element
 bool compareMat(const Mat1i& mata, const Mat1i& matb){
 
     // Get a matrix with non-zero values at points where the 
@@ -1006,6 +990,107 @@ string density_size_test(vector<pair<CCLPointer, string>>& CCLAlgorithms, const 
 	return ("Density_Size_Test on '" + output_folder + "': successfuly done");
 }
 
+string memory_test(vector<pair<CCLMemPointer, string>>& CCLMemAlgorithms, Mat1d& algo_averages_accesses, const string& input_path, const string& input_folder, const string& input_txt, string& output_path){
+
+	string output_folder = input_folder,
+		   complete_output_path = output_path + kPathSeparator + output_folder;
+		   
+	uint number_of_decimal_digit_to_display_in_graph = 2;
+
+	// Creation of output path
+	if(!makeDir(complete_output_path))
+		return ("Memory_Test on '" + input_folder + "': Unable to find/create the output path " + complete_output_path);
+
+	string is_path = input_path + kPathSeparator + input_folder + kPathSeparator + input_txt;
+
+	// For LIST OF INPUT IMAGES
+	ifstream is(is_path);
+	if (!is.is_open())
+		return ("Memory_Test on '" + input_folder + "': Unable to open " + is_path);
+
+	// (TODO move this code into a function)
+	// To save list of filename on which CLLAlgorithms must be tested 
+	vector<pair<string, bool>> filesNames;  // first: filename, second: state of filename (find or not)
+	string filename;
+	while (getline(is, filename)){
+		// To delete eventual carriage return in the file name (especially designed for windows file newline format) 
+		size_t found;
+		do{
+			// The while cycle is probably unnecessary
+			found = filename.find("\r");
+			if (found != string::npos)
+				filename.erase(found, 1);
+		} while (found != string::npos);
+		// Add purified file name in the vector
+		filesNames.push_back(make_pair(filename, true));
+	}
+	is.close();
+	// (TODO move this code into a function)
+
+	// Number of files
+	int fileNumber = filesNames.size();
+
+	// To store averages memory accesses (one column for every data structure type: col 1 -> BINARY_MAT, col 2 -> LABELED_MAT, col 3 -> EQUIVALENCE_VET, col 0 -> OTHER)
+	algo_averages_accesses = Mat1d(Size(MD_SIZE, CCLMemAlgorithms.size()), 0);
+
+	// Count number of lines to display "progress bar"
+	uint currentNumber = 0;
+
+	uint totTest = 0; // To count the real number of image on which labeling will be applied
+	// For every file in list
+	for (uint file = 0; file < filesNames.size(); ++file){
+
+		string filename = filesNames[file].first;
+
+		// Display "progress bar"
+		if (currentNumber * 100 / fileNumber != (currentNumber - 1) * 100 / fileNumber){
+			cout << currentNumber << "/" << fileNumber << "         \r";
+			fflush(stdout);
+		}
+		currentNumber++;
+
+		Mat1b binaryImg;
+
+		if (!getBinaryImage(input_path + kPathSeparator + input_folder + kPathSeparator + filename, binaryImg)){
+			if (filesNames[file].second)
+				cout << "'" + filename + "' does not exist" << endl;
+			filesNames[file].second = false;
+			continue;
+		}
+
+		totTest++;
+		uint i = 0;
+		// For all the Algorithms in the list
+		for (auto it = CCLMemAlgorithms.begin(); it != CCLMemAlgorithms.end(); ++it, ++i){
+
+			// The following data structure is used to get the memory access matrixes
+			vector<unsigned long int> accessesVal; // Rows represents algorithms and columns represent data structures
+			uint nLabels;
+
+			nLabels = (*it).first(binaryImg, accessesVal);
+
+			// For every data structure "returned" by the algorithm
+			for (size_t a = 0; a < accessesVal.size(); ++a){
+				algo_averages_accesses(i, a) += accessesVal[a];
+			}
+		}// END ALGORITHMS FOR
+	} // END FILES FOR
+
+	// To display "progress bar"
+	cout << currentNumber << "/" << fileNumber << "         \r";
+	fflush(stdout);
+
+	// To calculate average memory accesses
+	for (int r = 0; r < algo_averages_accesses.rows; ++r){
+		for (int c = 0; c < algo_averages_accesses.cols; ++c){
+			algo_averages_accesses(r, c) /= totTest; 
+			cout << "id" << algo_averages_accesses(r, c) << endl;
+		}
+	}
+	
+	return ("Memory_Test on '" + input_folder + "': successfuly done");
+}
+
 // To generate latex table with averages results
 void generateLatexTable(const string& output_path, const string& latex_file, const Mat1d& all_res, const vector<string>& algName, const vector<pair<CCLPointer, string>>& CCLAlgorithms){
     
@@ -1057,6 +1142,69 @@ void generateLatexTable(const string& output_path, const string& latex_file, con
     is.close(); 
 }
 
+// To generate latex table with memory average accesses
+void generateMemoryLatexTable(const string& output_path, const string& latex_file, const Mat1d& accesses,const string& dataset, const vector<pair<CCLMemPointer, string>>& CCLMemAlgorithms){
+
+	// TODO handle if folder does not exists
+	string latex_path = output_path + kPathSeparator + dataset + kPathSeparator + latex_file;
+	ofstream is(latex_path);
+	if (!is.is_open()){
+		cout << "Unable to open/create " + latex_path << endl;
+		return;
+	}
+
+	// fixed number of decimal values
+	is << fixed;
+	is << setprecision(3);
+
+	is << "%This table format needs the package 'siunitx', please uncomment and add the following line code in latex preamble if you want to add the table in your latex file" << endl;
+	is << "%\\usepackage{siunitx}" << endl << endl;
+	is << "\\begin{table}[tbh]" << endl << endl;
+	is << "\t\\centering" << endl;
+	is << "\t\\caption{Analysis of memory accesses required by connected components computation for '" << dataset << "' dataset. The numbers are given in millions of accesses}" << endl;
+	is << "\t\\label{tab:table1}" << endl;
+	is << "\t\\begin{tabular}{|l|";
+	for (int i = 0; i < accesses.cols + 1; ++i)
+		is << "S[table-format=2.3]|";
+	is << "}" << endl;
+	is << "\t\\hline" << endl;
+	is << "\t";
+	
+	// Header
+	is << "{Algorithm} & {Binary Image Accesses} & {Label Image Accesses} & {Equivalence Vector/s Accesses}  & {Other Structures} & {Total Accesses}";
+	is << "\\\\" << endl;
+	is << "\t\\hline" << endl;
+
+	for (uint i = 0; i < CCLMemAlgorithms.size(); ++i){
+		
+		// For every algorithm
+		string algName = CCLMemAlgorithms[i].second;
+		eraseDoubleEscape(algName);
+		is << "\t{" << algName << "}";
+
+		double tot = 0; 
+
+		for (int s = 0; s < accesses.cols; ++s){			
+			// For every data structure
+			is << "\t& " << (accesses(i, s)/1000000);
+			tot += (accesses(i, s) / 1000000); 
+		}
+		// Total Accesses
+		is << "\t& " << tot; 
+
+		// EndLine
+		is << "\t\\\\" << endl;
+	}
+
+	// EndTable
+	is << "\t\\hline" << endl;
+	is << "\t\\end{tabular}" << endl << endl;
+	is << "\\end{table}" << endl;
+
+	is.close();
+}
+
+
 int main(int argc, char **argv) 
 {
     // Configuration file
@@ -1064,13 +1212,14 @@ int main(int argc, char **argv)
 
     // Flags to customize output format
     bool output_colors_density_size = cfg.getValueOfKey<bool>("ds_colorLabels", false),
-        output_colors_average_test = cfg.getValueOfKey<bool>("at_colorLabels", false),
-        write_n_labels = cfg.getValueOfKey<bool>("write_n_labels", true),
-        check_8connectivity = cfg.getValueOfKey<bool>("check_8connectivity", true),
-        ds_saveMiddleTests = cfg.getValueOfKey<bool>("ds_saveMiddleTests", false),
-        at_saveMiddleTests = cfg.getValueOfKey<bool>("at_saveMiddleTests", false),
-        ds_perform = cfg.getValueOfKey<bool>("ds_perform", true),
-        at_perform = cfg.getValueOfKey<bool>("at_perform", true);    
+         output_colors_average_test = cfg.getValueOfKey<bool>("at_colorLabels", false),
+         write_n_labels = cfg.getValueOfKey<bool>("write_n_labels", true),
+         check_8connectivity = cfg.getValueOfKey<bool>("check_8connectivity", true),
+         ds_saveMiddleTests = cfg.getValueOfKey<bool>("ds_saveMiddleTests", false),
+         at_saveMiddleTests = cfg.getValueOfKey<bool>("at_saveMiddleTests", false),
+         ds_perform = cfg.getValueOfKey<bool>("ds_perform", true),
+         at_perform = cfg.getValueOfKey<bool>("at_perform", true),
+		 mt_perform = cfg.getValueOfKey<bool>("mt_perform", true);
 
     // Number of tests
     uint8_t ds_testsNumber = cfg.getValueOfKey<uint>("ds_testsNumber", 1), 
@@ -1081,45 +1230,73 @@ int main(int argc, char **argv)
            colors_folder = "colors",
            middel_folder = "middle_results",
            latec_file = "averageResults.tex",
+		   latex_memory_file = "memoryAccesses.tex",
            output_path = cfg.getValueOfKey<string>("output_path", "output"), /* Folder on which result are stored */
            input_path = cfg.getValueOfKey<string>("input_path", "input");    /* Folder on which datasets are placed */
                
     // List of dataset on which CCLA are checked
-    vector<string> check_list = cfg.getStringValuesOfKey("check_list", vector<string> {"test_random", "hamlet"});
+	vector<string> check_list = cfg.getStringValuesOfKey("check_list", vector<string> {"3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "test_random", "tobacco800"});
+
+	// List of dataset on which CCLA are memory checked
+	vector<string> memory_list = cfg.getStringValuesOfKey("memory_tests", vector<string> {"3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "test_random", "tobacco800"});
 
     // Lists of dataset on which CCLA are tested: one list for every type of test
     vector<string> input_folders_density_size_test = { "test_random" },
-				   input_folders_averages_test = cfg.getStringValuesOfKey("averages_tests" , vector<string> { "mirflickr", "tobacco800", "Sarc3D_masks", "hamlet" });
+				   input_folders_averages_test = cfg.getStringValuesOfKey("averages_tests" , vector<string> {"3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800"});
 
-    // Lists of algorithms to check and/or test
+    // Lists of 'STANDARD' algorithms to check and/or test
     vector<pair<CCLPointer, string>> CCLAlgorithms;
-    vector<string> funcName = cfg.getStringValuesOfKey("CCLAlgorithmsFunc", vector<string> { "labelingGranaOPT", "Wu", "labelingGranaOPTv2", "labelingGranaOPTv3", "LSL_STD", "CCIT" });
-    vector<string> algName = cfg.getStringValuesOfKey("CCLAlgorithmsName", vector<string> { "BBDT_v1", "SAUF", "BBDT_v2", "BBDT_V3", "LSL _ STD", "CCIT" });
+    vector<string> funcName = cfg.getStringValuesOfKey("CCLAlgorithmsFunc", vector<string> {});
+    vector<string> algName = cfg.getStringValuesOfKey("CCLAlgorithmsName", vector<string> {});
 
-    if (funcName.size() != algName.size())
+    if (funcName.size() != algName.size() || funcName.size() == 0)
     {
-        cout << "'CCLAlgorithmsFunc' and 'CCLAlgorithmsName' dimension must match" << endl;
+        cout << "'CCLAlgorithmsFunc' and 'CCLAlgorithmsName' must match in length and order and must not be empty" << endl;
         return 1; 
     }
 
     uint i = 0; 
     for (vector<string>::iterator it = funcName.begin(); it != funcName.end(); ++it, ++i){  
         if (CCLAlgorithmsMap.find(*it) == CCLAlgorithmsMap.end())
-            cout << "Unable to find " << *it << " algorithm, skipped" << endl;
+            cout << "Unable to find '" << *it << "' algorithm, skipped" << endl;
         else
             CCLAlgorithms.push_back({CCLAlgorithmsMap.find(*it)->second, algName[i]});
     }
+	// Lists of 'STANDARD' algorithms to check and/or test
+
+	// Lists of 'MEMORY' algorithms on which execute memory test
+	vector<pair<CCLMemPointer, string>> CCLMemAlgorithms;
+	vector<string> funcMemName = cfg.getStringValuesOfKey("CCLMemAlgorithmsFunc", vector<string> {});
+	vector<string> algoMemName = cfg.getStringValuesOfKey("CCLMemAlgorithmsName", vector<string> {});
+
+	if (mt_perform && (funcMemName.size() != algoMemName.size() || funcMemName.size() == 0))
+	{
+		cout << "'CCLMemAlgorithmsFunc' and 'CCLMemAlgorithmsName' must match in length and order and must not be empty. Please check this or set 'mt_perform' flag to false to skip memory tests" << endl;
+		return 1;
+	}
+
+	i = 0;
+	for (vector<string>::iterator it = funcMemName.begin(); it != funcMemName.end(); ++it, ++i){
+		if (CCLMemAlgorithmsMap.find(*it) == CCLMemAlgorithmsMap.end())
+			cout << "Unable to find '" << *it << "' algorithm, skipped" << endl;
+		else
+			CCLMemAlgorithms.push_back({ CCLMemAlgorithmsMap.find(*it)->second, algoMemName[i] });
+	}
+	// Lists of 'MEMORY' algorithms on which execute memory test
 
     // Create output directory
-    if (!dirExists(output_path.c_str()))
-	if (0 != std::system(("mkdir " + output_path).c_str())) {
-		cout << "Unable to find/create the output path " + output_path;
-                return 1;
-        }
+   if(!makeDir(output_path))
+	   return 1;
+
 	// Check if algorithms are correct
     if (check_8connectivity){
         cout << "CHECK ALGORITHMS ON 8-CONNECTIVITY: " << endl;
-        checkAlgorithms(CCLAlgorithms, check_list, input_path, input_txt);
+		if (CCLAlgorithms.size() == 0){
+			cout << "ERROR: no algorithms, check skipped" << endl; 
+		}
+		else{
+			checkAlgorithms(CCLAlgorithms, check_list, input_path, input_txt);
+		}
     }
 	// Check if algorithms are correct
 
@@ -1127,24 +1304,51 @@ int main(int argc, char **argv)
 	// AVERAGES TEST
     Mat1d all_res(input_folders_averages_test.size(), CCLAlgorithms.size(), numeric_limits<double>::max()); // We need it to save average results and generate latex table
     if (at_perform){
-        cout << endl << "AVERAGES TESTS: " << endl;
-	    for (unsigned int i = 0; i < input_folders_averages_test.size(); ++i){
-	    	cout << "Averages_Test on '" << input_folders_averages_test[i] << "': starts" << endl;
-            cout << averages_test(CCLAlgorithms, all_res, i, input_path, input_folders_averages_test[i], input_txt, gnuplot_scipt_extension, output_path, colors_folder, at_saveMiddleTests, at_testsNumber, middel_folder, write_n_labels, output_colors_average_test) << endl;
-	    	cout << "Averages_Test on '" << input_folders_averages_test[i] << "': ends" << endl << endl;
-	    }
+        cout << endl << "AVERAGE TESTS: " << endl;
+		if (CCLAlgorithms.size() == 0){
+			cout << "ERROR: no algorithms, average tests skipped" << endl;
+		}
+		else{
+			for (unsigned int i = 0; i < input_folders_averages_test.size(); ++i){
+	    		cout << "Averages_Test on '" << input_folders_averages_test[i] << "': starts" << endl;
+				cout << averages_test(CCLAlgorithms, all_res, i, input_path, input_folders_averages_test[i], input_txt, gnuplot_scipt_extension, output_path, colors_folder, at_saveMiddleTests, at_testsNumber, middel_folder, write_n_labels, output_colors_average_test) << endl;
+	    		cout << "Averages_Test on '" << input_folders_averages_test[i] << "': ends" << endl << endl;
+			}
         generateLatexTable(output_path, latec_file, all_res, input_folders_averages_test, CCLAlgorithms);
-    }
+		}
+	}
     
 	// DENSITY_SIZE_TESTS
     if (ds_perform){
         cout << endl << "DENSITY_SIZE TESTS: " << endl;
-        for (unsigned int i = 0; i < input_folders_density_size_test.size(); ++i){
-            cout << "Density_Size_Test on '" << input_folders_density_size_test[i] << "': starts" << endl;
-            cout << density_size_test(CCLAlgorithms, input_path, input_folders_density_size_test[i], input_txt, gnuplot_scipt_extension, output_path, colors_folder, ds_saveMiddleTests, ds_testsNumber, middel_folder, write_n_labels, output_colors_density_size) << endl;
-            cout << "Density_Size_Test on '" << input_folders_density_size_test[i] << "': ends" << endl << endl;
-        }
+		if (CCLAlgorithms.size() == 0){
+			cout << "ERROR: no algorithms, density_size tests skipped" << endl;
+		}
+		else{
+			for (unsigned int i = 0; i < input_folders_density_size_test.size(); ++i){
+				cout << "Density_Size_Test on '" << input_folders_density_size_test[i] << "': starts" << endl;
+				cout << density_size_test(CCLAlgorithms, input_path, input_folders_density_size_test[i], input_txt, gnuplot_scipt_extension, output_path, colors_folder, ds_saveMiddleTests, ds_testsNumber, middel_folder, write_n_labels, output_colors_density_size) << endl;
+				cout << "Density_Size_Test on '" << input_folders_density_size_test[i] << "': ends" << endl << endl;
+			}
+		}
     }
+
+	// MEMORY_TESTS
+	if (mt_perform){
+		Mat1d accesses; 
+		cout << endl << "MEMORY TESTS: " << endl;
+		if (CCLMemAlgorithms.size() == 0){
+			cout << "ERROR: no algorithms, memory tests skipped" << endl;
+		}
+		else{
+			for (unsigned int i = 0; i < memory_list.size(); ++i){
+				cout << "Memory_Test on '" << memory_list[i] << "': starts" << endl;
+				cout << memory_test(CCLMemAlgorithms, accesses, input_path, memory_list[i], input_txt, output_path) << endl;
+				cout << "Memory_Test on '" << memory_list[i] << "': ends" << endl << endl;
+				generateMemoryLatexTable(output_path, latex_memory_file, accesses, memory_list[i], CCLMemAlgorithms);
+			}
+		}
+	}
 
 	return 0; 
 }

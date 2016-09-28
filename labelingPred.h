@@ -28,9 +28,14 @@
 
 #pragma once
 #include "opencv2/opencv.hpp"
+#include "memoryTester.h"
+#include "equivalenceSolverSuzuki.h"
 
 // Readable version of PRED algorithm
-// int PRED(const cv::Mat1b &img, cv::Mat1i &imgLabels);
+int PRED(const cv::Mat1b &img, cv::Mat1i &imgLabels);
 
 // Optimized version of PRED algorithm
 int PRED_OPT(const cv::Mat1b &img, cv::Mat1i &imgLabels);
+
+//  Version of PRED algorithm which provides memory accesses details
+int PRED_MEM(const cv::Mat1b &img, cv::Mat1i & a);//std::vector<unsigned long int> &accesses);

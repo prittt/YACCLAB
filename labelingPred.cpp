@@ -31,73 +31,227 @@
 using namespace cv;
 using namespace std;
 
-//Find the root of the tree of node i
-//template<typename LabelT>
-inline static
-uint findRoot(const uint *P, uint i){
-	uint root = i;
-	while (P[root] < root){
-		root = P[root];
-	}
-	return root;
-}
-
-//Make all nodes in the path of node i point to root
-//template<typename LabelT>
-inline static
-void setRoot(uint *P, uint i, uint root){
-	while (P[i] < i){
-		uint j = P[i];
-		P[i] = root;
-		i = j;
-	}
-	P[i] = root;
-}
-
-//Find the root of the tree of the node i and compress the path in the process
-//template<typename LabelT>
-inline static
-uint find(uint *P, uint i){
-	uint root = findRoot(P, i);
-	setRoot(P, i, root);
-	return root;
-}
-
-//unite the two trees containing nodes i and j and return the new root
-//template<typename LabelT>
-inline static
-uint set_union(uint *P, uint i, uint j){
-	uint root = findRoot(P, i);
-	if (i != j){
-		uint rootj = findRoot(P, j);
-		if (root > rootj){
-			root = rootj;
-		}
-		setRoot(P, j, root);
-	}
-	setRoot(P, i, root);
-	return root;
-}
-
-//Flatten the Union Find tree and relabel the components
-//template<typename LabelT>
-inline static
-uint flattenL(uint *P, uint length){
-	uint k = 1;
-	for (uint i = 1; i < length; ++i){
-		if (P[i] < i){
-			P[i] = P[P[i]];
-		}
-		else{
-			P[i] = k; k = k + 1;
-		}
-	}
-	return k;
-}
-
 
 inline static
 void firstScan(const Mat1b &img, Mat1i& imgLabels, uint* P, uint &lunique) {
+	int w(img.cols), h(img.rows);
+
+#define condition_x img(r,c)>0
+#define condition_p img(r-1,c-1)>0
+#define condition_q img(r-1,c)>0
+#define condition_r img(r-1,c+1)>0
+
+	{
+		int r = 0;
+		int c = -1;
+	tree_A0: if (++c >= w) goto break_A0;
+		if (condition_x) {
+			// x = new label
+			imgLabels(r, c) = lunique;
+			P[lunique] = lunique;
+			lunique++;
+			goto tree_B0;
+		}
+		else {
+			// nothing
+			goto tree_A0;
+		}
+	tree_B0: if (++c >= w) goto break_B0;
+		if (condition_x) {
+			imgLabels(r, c) = imgLabels(r , c - 1); // x = s
+			goto tree_B0;
+		}
+		else {
+			// nothing
+			goto tree_A0;
+		}
+	break_A0:
+	break_B0 : ;
+	}
+
+	for (int r = 1; r < h; ++r) {
+		// First column
+		int c = 0;
+		if (condition_x) {
+			if (condition_q) {
+				imgLabels(r, c) = imgLabels(r - 1, c); // x = q
+				goto tree_A;
+			}
+			else {
+				if (condition_r) {
+					imgLabels(r,c) = imgLabels(r - 1, c + 1); // x = r
+					goto tree_B;
+				}
+				else {
+					// x = new label
+					imgLabels(r,c) = lunique;
+					P[lunique] = lunique;
+					lunique++;
+					goto tree_C;
+				}
+			}
+		}
+		else {
+			// nothing
+			goto tree_D;
+		}
+
+	tree_A: if (++c >= w - 1) goto break_A;
+		if (condition_x) {
+			if (condition_q) {
+				imgLabels(r, c) = imgLabels(r - 1, c); // x = q
+				goto tree_A;
+			}
+			else {
+				if (condition_r) {
+					imgLabels(r, c) = set_union(P, (uint)imgLabels(r - 1, c + 1), (uint)imgLabels(r, c - 1)); // x = r + s
+					goto tree_B;
+				}
+				else {
+					imgLabels(r,c) = imgLabels(r,c - 1); // x = s
+					goto tree_C;
+				}
+			}
+		}
+		else {
+			// nothing
+			goto tree_D;
+		}
+	tree_B: if (++c >= w - 1) goto break_B;
+		if (condition_x) {
+			imgLabels(r,c) = imgLabels(r - 1, c); // x = q
+			goto tree_A;
+		}
+		else {
+			// nothing
+			goto tree_D;
+		}
+	tree_C: if (++c >= w - 1) goto break_C;
+		if (condition_x) {
+			if (condition_r) {
+				imgLabels(r, c) = set_union(P, (uint)imgLabels(r - 1, c + 1), (uint)imgLabels(r, c - 1)); // x = r + s
+				goto tree_B;
+			}
+			else {
+				imgLabels(r,c) = imgLabels(r,c - 1); // x = s
+				goto tree_C;
+			}
+		}
+		else {
+			// nothing
+			goto tree_D;
+		}
+	tree_D: if (++c >= w - 1) goto break_D;
+		if (condition_x) {
+			if (condition_q) {
+				imgLabels(r,c) = imgLabels(r-1, c); // x = q
+				goto tree_A;
+			}
+			else {
+				if (condition_r) {
+					if (condition_p) {
+						imgLabels(r, c) = set_union(P, (uint)imgLabels(r - 1, c - 1), (uint)imgLabels(r - 1, c + 1)); // x = p + r
+						goto tree_B;
+					}
+					else {
+						imgLabels(r,c) = imgLabels(r - 1, c + 1); // x = r
+						goto tree_B;
+					}
+				}
+				else {
+					if (condition_p) {
+						imgLabels(r, c) = imgLabels(r - 1, c - 1); // x = p
+						goto tree_C;
+					}
+					else {
+						// x = new label
+						imgLabels(r,c) = lunique;
+						P[lunique] = lunique;
+						lunique++;
+						goto tree_C;
+					}
+				}
+			}
+		}
+		else {
+			// nothing
+			goto tree_D;
+		}
+
+
+		// Last column
+	break_A:
+		if (condition_x) {
+			if (condition_q) {
+				imgLabels(r, c) = imgLabels(r - 1, c); // x = q
+			}
+			else {
+				imgLabels(r,c) = imgLabels(r,c - 1); // x = s
+			}
+		}
+		continue;
+	break_B:
+		if (condition_x) {
+			imgLabels(r,c) = imgLabels(r - 1, c); // x = q
+		}
+		continue;
+	break_C:
+		if (condition_x) {
+			imgLabels(r,c) = imgLabels(r,c - 1); // x = s
+		}
+		continue;
+	break_D:
+		if (condition_x) {
+			if (condition_q) {
+				imgLabels(r,c) = imgLabels(r - 1, c); // x = q
+			}
+			else {
+				if (condition_p) {
+					imgLabels(r, c) = imgLabels(r - 1, c - 1); // x = p
+				}
+				else {
+					// x = new label
+					imgLabels(r,c) = lunique;
+					P[lunique] = lunique;
+					lunique++;
+				}
+			}
+		}
+	}//End rows's for
+
+#undef condition_x
+#undef condition_p
+#undef condition_q
+#undef condition_r
+}
+
+int PRED(const cv::Mat1b &img, cv::Mat1i &imgLabels) {
+
+	imgLabels = cv::Mat1i(img.size(), 0); // memset is used
+	//A quick and dirty upper bound for the maximimum number of labels.
+	const size_t Plength = img.rows*img.cols / 4;
+	//Tree of labels
+	vector<uint> P(Plength);
+	//Background
+	P[0] = 0;
+	uint lunique = 1;
+
+	firstScan(img, imgLabels, P.data(), lunique);
+
+	uint nLabel = flattenL(P.data(), lunique);
+
+	// second scan
+	for (int r_i = 0; r_i < imgLabels.rows; ++r_i) {
+		for (int c_i = 0; c_i < imgLabels.cols; ++c_i){
+			imgLabels(r_i, c_i) = P[imgLabels(r_i, c_i)];
+		}
+	}
+
+	return nLabel;
+}
+
+inline static
+void firstScanOPT(const Mat1b &img, Mat1i& imgLabels, uint* P, uint &lunique) {
 	int w(img.cols), h(img.rows);
 
 #define condition_x img_row[c]>0
@@ -291,6 +445,11 @@ void firstScan(const Mat1b &img, Mat1i& imgLabels, uint* P, uint &lunique) {
 			}
 		}
     }//End rows's for
+
+#undef condition_x
+#undef condition_p
+#undef condition_q
+#undef condition_r
 }
 
 int PRED_OPT(const cv::Mat1b &img, cv::Mat1i &imgLabels) {
@@ -304,7 +463,7 @@ int PRED_OPT(const cv::Mat1b &img, cv::Mat1i &imgLabels) {
 	P[0] = 0;
 	uint lunique = 1;
 
-    firstScan(img, imgLabels, P, lunique);
+    firstScanOPT(img, imgLabels, P, lunique);
 
 	uint nLabel = flattenL(P, lunique);
 
@@ -318,5 +477,233 @@ int PRED_OPT(const cv::Mat1b &img, cv::Mat1i &imgLabels) {
     }
 
 	fastFree(P);
+	return nLabel;
+}
+
+inline static
+void firstScanMEM(memMat<uchar> &img, memMat<int> imgLabels, memVector<uint> &P, uint &lunique) {
+	int w(img.cols), h(img.rows);
+
+#define condition_x img(r,c)>0
+#define condition_p img(r-1,c-1)>0
+#define condition_q img(r-1,c)>0
+#define condition_r img(r-1,c+1)>0
+
+	{
+		int r = 0;
+		int c = -1;
+	tree_A0: if (++c >= w) goto break_A0;
+		if (condition_x) {
+			// x = new label
+			imgLabels(r, c) = lunique;
+			P[lunique] = lunique;
+			lunique++;
+			goto tree_B0;
+		}
+		else {
+			// nothing
+			goto tree_A0;
+		}
+	tree_B0: if (++c >= w) goto break_B0;
+		if (condition_x) {
+			imgLabels(r, c) = imgLabels(r, c - 1); // x = s
+			goto tree_B0;
+		}
+		else {
+			// nothing
+			goto tree_A0;
+		}
+	break_A0:
+	break_B0 : ;
+	}
+
+	for (int r = 1; r < h; ++r) {
+		// First column
+		int c = 0;
+		if (condition_x) {
+			if (condition_q) {
+				imgLabels(r, c) = imgLabels(r - 1, c); // x = q
+				goto tree_A;
+			}
+			else {
+				if (condition_r) {
+					imgLabels(r, c) = imgLabels(r - 1, c + 1); // x = r
+					goto tree_B;
+				}
+				else {
+					// x = new label
+					imgLabels(r, c) = lunique;
+					P[lunique] = lunique;
+					lunique++;
+					goto tree_C;
+				}
+			}
+		}
+		else {
+			// nothing
+			goto tree_D;
+		}
+
+	tree_A: if (++c >= w - 1) goto break_A;
+		if (condition_x) {
+			if (condition_q) {
+				imgLabels(r, c) = imgLabels(r - 1, c); // x = q
+				goto tree_A;
+			}
+			else {
+				if (condition_r) {
+					imgLabels(r, c) = set_union(P, (uint)imgLabels(r - 1, c + 1), (uint)imgLabels(r, c - 1)); // x = r + s
+					goto tree_B;
+				}
+				else {
+					imgLabels(r, c) = imgLabels(r, c - 1); // x = s
+					goto tree_C;
+				}
+			}
+		}
+		else {
+			// nothing
+			goto tree_D;
+		}
+	tree_B: if (++c >= w - 1) goto break_B;
+		if (condition_x) {
+			imgLabels(r, c) = imgLabels(r - 1, c); // x = q
+			goto tree_A;
+		}
+		else {
+			// nothing
+			goto tree_D;
+		}
+	tree_C: if (++c >= w - 1) goto break_C;
+		if (condition_x) {
+			if (condition_r) {
+				imgLabels(r, c) = set_union(P, (uint)imgLabels(r - 1, c + 1), (uint)imgLabels(r, c - 1)); // x = r + s
+				goto tree_B;
+			}
+			else {
+				imgLabels(r, c) = imgLabels(r, c - 1); // x = s
+				goto tree_C;
+			}
+		}
+		else {
+			// nothing
+			goto tree_D;
+		}
+	tree_D: if (++c >= w - 1) goto break_D;
+		if (condition_x) {
+			if (condition_q) {
+				imgLabels(r, c) = imgLabels(r - 1, c); // x = q
+				goto tree_A;
+			}
+			else {
+				if (condition_r) {
+					if (condition_p) {
+						imgLabels(r, c) = set_union(P, (uint)imgLabels(r - 1, c - 1), (uint)imgLabels(r - 1, c + 1)); // x = p + r
+						goto tree_B;
+					}
+					else {
+						imgLabels(r, c) = imgLabels(r - 1, c + 1); // x = r
+						goto tree_B;
+					}
+				}
+				else {
+					if (condition_p) {
+						imgLabels(r, c) = imgLabels(r - 1, c - 1); // x = p
+						goto tree_C;
+					}
+					else {
+						// x = new label
+						imgLabels(r, c) = lunique;
+						P[lunique] = lunique;
+						lunique++;
+						goto tree_C;
+					}
+				}
+			}
+		}
+		else {
+			// nothing
+			goto tree_D;
+		}
+
+
+		// Last column
+	break_A:
+		if (condition_x) {
+			if (condition_q) {
+				imgLabels(r, c) = imgLabels(r - 1, c); // x = q
+			}
+			else {
+				imgLabels(r, c) = imgLabels(r, c - 1); // x = s
+			}
+		}
+		continue;
+	break_B:
+		if (condition_x) {
+			imgLabels(r, c) = imgLabels(r - 1, c); // x = q
+		}
+		continue;
+	break_C:
+		if (condition_x) {
+			imgLabels(r, c) = imgLabels(r, c - 1); // x = s
+		}
+		continue;
+	break_D:
+		if (condition_x) {
+			if (condition_q) {
+				imgLabels(r, c) = imgLabels(r - 1, c); // x = q
+			}
+			else {
+				if (condition_p) {
+					imgLabels(r, c) = imgLabels(r - 1, c - 1); // x = p
+				}
+				else {
+					// x = new label
+					imgLabels(r, c) = lunique;
+					P[lunique] = lunique;
+					lunique++;
+				}
+			}
+		}
+	}//End rows's for
+
+#undef condition_x
+#undef condition_p
+#undef condition_q
+#undef condition_r
+}
+
+int PRED_MEM(const cv::Mat1b &img_origin, cv::Mat1i &a) {
+
+	memMat<uchar> img(img_origin); 
+	memMat<int> imgLabels(img_origin.size(), 0); // memset is used
+	//A quick and dirty upper bound for the maximimum number of labels.
+	const size_t Plength = img_origin.rows*img_origin.cols / 4;
+	//Tree of labels
+	memVector<uint> P(Plength);
+	//Background
+	P[0] = 0;
+	uint lunique = 1;
+
+	firstScanMEM(img, imgLabels, P, lunique);
+
+	uint nLabel = flattenL(P, lunique);
+
+	// second scan
+	for (int r_i = 0; r_i < imgLabels.rows; ++r_i) {
+		for (int c_i = 0; c_i < imgLabels.cols; ++c_i){
+			imgLabels(r_i, c_i) = P[imgLabels(r_i, c_i)];
+		}
+	}
+
+	//// Store total accesses in the output vector 'accesses'
+	//accesses = vector<unsigned long int>((int)MD_SIZE, 0);
+
+	//accesses[MD_BINARY_MAT] = (unsigned long int)img.getTotalAcesses();
+	//accesses[MD_LABELED_MAT] = (unsigned long int)imgLabels.getTotalAcesses();
+	//accesses[MD_EQUIVALENCE_VEC] = (unsigned long int)P.getTotalAcesses();
+
+	a = imgLabels.getImage(); 
+
 	return nLabel;
 }

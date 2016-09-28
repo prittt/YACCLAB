@@ -27,73 +27,108 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "labelingWu2009.h"
-#include <vector>
 
 using namespace std;
 using namespace cv; 
 
-//Find the root of the tree of node i
-template<typename LabelT>
-inline static
-LabelT findRoot(const LabelT *P, LabelT i){
-	LabelT root = i;
-	while (P[root] < root){
-		root = P[root];
-	}
-	return root;
-}
+int SAUF(const Mat1b &img, Mat1i &imgLabels){
 
-//Make all nodes in the path of node i point to root
-template<typename LabelT>
-inline static
-void setRoot(LabelT *P, LabelT i, LabelT root){
-	while (P[i] < i){
-		LabelT j = P[i];
-		P[i] = root;
-		i = j;
-	}
-	P[i] = root;
-}
+	const int h = img.rows;
+	const int w = img.cols;
 
-//Find the root of the tree of the node i and compress the path in the process
-template<typename LabelT>
-inline static
-LabelT find(LabelT *P, LabelT i){
-	LabelT root = findRoot(P, i);
-	setRoot(P, i, root);
-	return root;
-}
+	imgLabels = Mat1i(img.size(), 0);
 
-//unite the two trees containing nodes i and j and return the new root
-template<typename LabelT>
-inline static
-LabelT set_union(LabelT *P, LabelT i, LabelT j){
-	LabelT root = findRoot(P, i);
-	if (i != j){
-		LabelT rootj = findRoot(P, j);
-		if (root > rootj){
-			root = rootj;
+	const size_t Plength = img.rows * img.cols / 4;		 // Raw superior limit for labels number
+	vector<uint> P(Plength); //array P for equivalences resolution
+	P[0] = 0;	//first label is for background pixels
+	uint lunique = 1;
+
+	// first scan 
+
+	// Rosenfeld Mask
+	// +-+-+-+
+	// |p|q|r|
+	// +-+-+-+
+	// |s|x|
+	// +-+-+
+
+	for (int r = 0; r < h; ++r){
+		for (int c = 0; c < w; ++c){
+
+		#define condition_p c>0 && r>0 && img(r-1 , c-1)>0
+		#define condition_q r>0 && img(r-1, c)>0
+		#define condition_r c < w - 1 && r > 0 && img(r-1,c+1)>0
+		#define condition_s c > 0 && img(r,c-1)>0
+		#define condition_x img(r,c)>0
+
+			if (condition_x){
+				if (condition_q){
+					//x <- q
+					imgLabels(r, c) = imgLabels(r-1,c);
+				}
+				else{
+					// q = 0
+					if (condition_r){
+						if (condition_p){
+							// x <- merge(p,r)
+							imgLabels(r, c) = set_union(P.data(), (uint)imgLabels(r - 1, c - 1), (uint)imgLabels(r - 1, c + 1));
+						}
+						else{
+							// p = q = 0
+							if (condition_s){
+								// x <- merge(s,r)
+								imgLabels(r, c) = set_union(P.data(), (uint)imgLabels(r, c - 1), (uint)imgLabels(r - 1, c + 1));
+							}
+							else{
+								// p = q = s = 0
+								// x <- r
+								imgLabels(r,c) = imgLabels(r-1,c+1);
+							}
+						}
+					}
+					else{
+						// r = q = 0
+						if (condition_p){
+							// x <- p
+							imgLabels(r,c) = imgLabels(r-1,c-1);
+						}
+						else{
+							// r = q = p = 0
+							if (condition_s){
+								imgLabels(r,c) = imgLabels(r,c-1);
+							}
+							else{
+								//new label
+								imgLabels(r,c) = lunique;
+								P[lunique] = lunique;
+								lunique = lunique + 1;
+							}
+						}
+					}
+				}
+			}
+			else{
+				//Nothing to do, x is a background pixel
+			}
 		}
-		setRoot(P, j, root);
 	}
-	setRoot(P, i, root);
-	return root;
-}
 
-//Flatten the Union Find tree and relabel the components
-template<typename LabelT>
-inline static
-LabelT flattenL(LabelT *P, LabelT length){
-	LabelT k = 1;
-	for (LabelT i = 1; i < length; ++i){
-		if (P[i] < i){
-			P[i] = P[P[i]];
-		}
-		else{
-			P[i] = k; k = k + 1;
+	//second scan
+	uint nLabel = flattenL(P.data(), lunique);
+
+	for (int r = 0; r < imgLabels.rows; ++r) {
+		for (int c = 0; c < imgLabels.cols; ++c){
+			imgLabels(r,c) = P[imgLabels(r,c)];
 		}
 	}
-	return k;
+
+	return nLabel;
+
+#undef condition_p
+#undef condition_q
+#undef condition_r
+#undef condition_s
+#undef condition_x
 }
 
 int SAUF_OPT(const Mat1b &img, Mat1i &imgLabels){
@@ -117,8 +152,8 @@ int SAUF_OPT(const Mat1b &img, Mat1i &imgLabels){
 	// |s|x|
 	// +-+-+
 
-	for (int r = 0; r < h; ++r)
-	{
+	for (int r = 0; r < h; ++r){
+		// Get row pointers
 		uchar const * const img_row = img.ptr<uchar>(r);
 		uchar const * const img_row_prev = (uchar *)(((char *)img_row) - img.step.p[0]);
 		uint * const  imgLabels_row = imgLabels.ptr<uint>(r);
@@ -198,4 +233,122 @@ int SAUF_OPT(const Mat1b &img, Mat1i &imgLabels){
 
 	fastFree(P);
 	return nLabel;
+
+#undef condition_p
+#undef condition_q
+#undef condition_r
+#undef condition_s
+#undef condition_x
+}
+
+int SAUF_MEM(const Mat1b &img_origin, Mat1i &a){//vector<unsigned long int> &accesses){
+
+	const int h = img_origin.rows;
+	const int w = img_origin.cols;
+
+	const size_t Plength = h * w / 4;	 // Raw superior limit for labels number
+
+	// Data structure for memory test
+	memMat<uchar> img(img_origin);
+	memMat<int> imgLabels(img_origin.size(), 0);
+	memVector<uint> P(Plength);						 // Vector P for equivalences resolution
+
+	P[0] = 0;	//first label is for background pixels
+	uint lunique = 1;
+
+	// first scan 
+
+	// Rosenfeld Mask
+	// +-+-+-+
+	// |p|q|r|
+	// +-+-+-+
+	// |s|x|
+	// +-+-+
+
+	for (int r = 0; r < h; ++r){
+		for (int c = 0; c < w; ++c){
+
+#define condition_p c>0 && r>0 && img(r-1 , c-1)>0
+#define condition_q r>0 && img(r-1, c)>0
+#define condition_r c < w - 1 && r > 0 && img(r-1,c+1)>0
+#define condition_s c > 0 && img(r,c-1)>0
+#define condition_x img(r,c)>0
+
+			if (condition_x){
+				if (condition_q){
+					//x <- q
+					imgLabels(r, c) = imgLabels(r - 1, c);
+				}
+				else{
+					// q = 0
+					if (condition_r){
+						if (condition_p){
+							// x <- merge(p,r)
+							imgLabels(r, c) = set_union(P, (uint)imgLabels(r - 1, c - 1), (uint)imgLabels(r - 1, c + 1));
+						}
+						else{
+							// p = q = 0
+							if (condition_s){
+								// x <- merge(s,r)
+								imgLabels(r, c) = set_union(P, (uint)imgLabels(r, c - 1), (uint)imgLabels(r - 1, c + 1));
+							}
+							else{
+								// p = q = s = 0
+								// x <- r
+								imgLabels(r, c) = imgLabels(r - 1, c + 1);
+							}
+						}
+					}
+					else{
+						// r = q = 0
+						if (condition_p){
+							// x <- p
+							imgLabels(r, c) = imgLabels(r - 1, c - 1);
+						}
+						else{
+							// r = q = p = 0
+							if (condition_s){
+								imgLabels(r, c) = imgLabels(r, c - 1);
+							}
+							else{
+								//new label
+								imgLabels(r, c) = lunique;
+								P[lunique] = lunique;
+								lunique = lunique + 1;
+							}
+						}
+					}
+				}
+			}
+			else{
+				//Nothing to do, x is a background pixel
+			}
+		}
+	}
+
+	//second scan
+	uint nLabel = flattenL(P, lunique);
+
+	for (int r = 0; r < h; ++r) {
+		for (int c = 0; c < w; ++c){
+			imgLabels(r, c) = P[imgLabels(r, c)];
+		}
+	}
+
+	//// Store total accesses in the output vector 'accesses'
+	//accesses = vector<unsigned long int>((int)MD_SIZE, 0);
+
+	//accesses[MD_BINARY_MAT] = (unsigned long int)img.getTotalAcesses();
+	//accesses[MD_LABELED_MAT] = (unsigned long int)imgLabels.getTotalAcesses();
+	//accesses[MD_EQUIVALENCE_VEC] = (unsigned long int)P.getTotalAcesses();
+
+	a = imgLabels.getImage();
+
+	return nLabel;
+
+#undef condition_p
+#undef condition_q
+#undef condition_r
+#undef condition_s
+#undef condition_x
 }

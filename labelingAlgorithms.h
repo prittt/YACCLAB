@@ -31,7 +31,7 @@
 #include "opencv2/opencv.hpp"
 
 #include <string>
-#include <utility>      // std::pair, std::make_pair
+#include <utility>
 
 // ADD HERE YOUR ".h" FILE          <===============================================================================
 // Optimized Block-based Connected Components Labeling with Decision Trees: Grana Costantino, Borghesani Daniele, Cucchiara Rita
@@ -57,25 +57,33 @@
 // Optimized Connected Components Labeling with Pixel Prediction
 #include "labelingPred.h"
 
-// FUNCTION POINTER: 
+// STANDARD FUNCTION POINTER: 
 //	Mat1b:	the 8-bit single-channel image to be labeled;
 //	Mat1i:	destination labeled image; 
 typedef int(*CCLPointer) (const cv::Mat1b&, cv::Mat1i&);
 
+// MEMORY CONSUMPTION FUNCTION POINTER: 
+//	Mat1b:	the 8-bit single-channel image to be labeled;
+//	vector<unsigned long int> number of accesses to pixel (both read and write) group by data structures (see memoryTester.h for more details); 
+typedef int(*CCLMemPointer) (const cv::Mat1b&, std::vector<unsigned long int>&);
+
 // Map of connected components algorithms: function's name (first), pointer to algorithm (second)
 #define new_algorithm(x) {#x, x}
 
-// ADD HERE YOUR FUNCTION NAME      <===============================================================================
+// ADD HERE YOUR "OPTIMIZED" FUNCTION NAME      <===============================================================================
 std::map<std::string, CCLPointer> CCLAlgorithmsMap =
 {
     // Di Stefano
     new_algorithm(DiStefano),
     new_algorithm(DiStefanoOPT),
     // Wu/He
+	new_algorithm(SAUF),
     new_algorithm(SAUF_OPT),
 	new_algorithm(SAUFCV_OPT),
     // Grana
+	new_algorithm(BBDT),
     new_algorithm(BBDT_OPT),
+	new_algorithm(PRED),
     new_algorithm(PRED_OPT),
     // Lacassagne
     new_algorithm(LSL_STD),
@@ -90,6 +98,35 @@ std::map<std::string, CCLPointer> CCLAlgorithmsMap =
 	new_algorithm(SBLA),
 	new_algorithm(SBLA_OPT),
 	// NULL
-	new_algorithm(labelingNULL)
+	new_algorithm(labelingNULL),
+	
+	new_algorithm(LSL_STD_MEM),
+	new_algorithm(BBDT_MEM),
+	new_algorithm(SAUF_MEM),
+	new_algorithm(PRED_MEM),
+	new_algorithm(DiStefanoMEM),
 };
-// Map of connected components algorithms: functions's name (first), pointer to algorithm (second)
+
+
+// ADD HERE YOUR "MEMORY" FUNCTION NAME      <===============================================================================
+std::map<std::string, CCLMemPointer> CCLMemAlgorithmsMap =
+{
+	// Di Stefano
+	
+	// Wu/He
+	//new_algorithm(SAUF_MEM),
+	// Grana
+	//new_algorithm(BBDT_MEM),
+	// Lacassagne
+	//new_algorithm(LSL_STD_MEM),
+	// He
+	
+	// Fu Chang
+	
+	// Wan-Yu Chang
+	
+	// Zhao
+	
+	// NULL
+	new_algorithm(labelingNULL_MEM),
+};
