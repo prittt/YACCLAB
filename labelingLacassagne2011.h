@@ -37,5 +37,5 @@ int LSL_STD(const cv::Mat1b& img,cv::Mat1i& labels);
 int LSL_STD_OPT(const cv::Mat1b& img, cv::Mat1i& labels);
 
 //  Version of Lacassagne's algorithm which provides memory accesses details
-//int LSL_STD_MEM(const cv::Mat1b &img, std::vector<unsigned long int> &accesses);
-int LSL_STD_MEM(const cv::Mat1b &img, cv::Mat1i &a);
+int LSL_STD_MEM(const cv::Mat1b &img, std::vector<unsigned long int> &accesses);
+//int LSL_STD_MEM(const cv::Mat1b &img, cv::Mat1i &a);

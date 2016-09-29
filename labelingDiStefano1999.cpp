@@ -279,7 +279,7 @@ int DiStefanoOPT(const Mat1b &img, Mat1i &imgOut) {
 	return iCurLabel + 1;
 }
 
-int DiStefanoMEM(const Mat1b &img_origin, Mat1i &a) { //vector<unsigned long int> &accesses{
+int DiStefanoMEM(const Mat1b &img_origin, vector<unsigned long int> &accesses){
 	
 	memMat<uchar> img(img_origin); 
 	memMat<int> imgOut(img_origin.size());
@@ -394,14 +394,15 @@ int DiStefanoMEM(const Mat1b &img_origin, Mat1i &a) { //vector<unsigned long int
 		}
 	}
 
-	//// Store total accesses in the output vector 'accesses'
-	//accesses = vector<unsigned long int>((int)MD_SIZE, 0);
+	// Store total accesses in the output vector 'accesses'
+	accesses = vector<unsigned long int>((int)MD_SIZE, 0);
 
-	//accesses[MD_BINARY_MAT] = (unsigned long int)img.getTotalAcesses();
-	//accesses[MD_LABELED_MAT] = (unsigned long int)imgOut.getTotalAcesses();
-	//accesses[MD_EQUIVALENCE_VEC] = (unsigned long int)(aClass.getTotalAcesses() + aSingle.getTotalAcesses() + aRenum.getTotalAcesses());
+	accesses[MD_BINARY_MAT] = (unsigned long int)img.getTotalAcesses();
+	accesses[MD_LABELED_MAT] = (unsigned long int)imgOut.getTotalAcesses();
+	accesses[MD_EQUIVALENCE_VEC] = (unsigned long int)(aClass.getTotalAcesses() + aSingle.getTotalAcesses());
+	accesses[MD_OTHER] = (unsigned long int)(aRenum.getTotalAcesses());
 
-	a = imgOut.getImage(); 
+	//a = imgOut.getImage(); 
 
 	return iCurLabel + 1;
 }

@@ -130,6 +130,21 @@ bool compareMat(const Mat1i& mata, const Mat1i& matb){
     return cv::countNonZero(diff) == 0;
 }
 
+// This function is useful to delete eventual carriage return from a string 
+// and is especially designed for windows file newline format
+void deleteCarriageReturn(string &s){
+	size_t found;
+	do{
+		// The while cycle is probably unnecessary
+		found = s.find("\r");
+		if (found != string::npos)
+			s.erase(found, 1);
+	} while (found != string::npos);
+
+	return; 
+}
+
+
 // To check the correctness of algorithms on datasets specified
 void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vector<string>& datasets, const string& input_path, const string& input_txt){
 
@@ -165,6 +180,8 @@ void checkAlgorithms(vector<pair<CCLPointer, string>>& CCLAlgorithms, const vect
 
         string filename;
         while (getline(is, filename) && !stop){
+
+			deleteCarriageReturn(filename); 
 
             // Display "progress bar"
             if (currentNumber * 100 / fileNumber != (currentNumber - 1) * 100 / fileNumber){

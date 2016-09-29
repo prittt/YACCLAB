@@ -119,7 +119,7 @@ int LSL_STD(const Mat1b& img, Mat1i& labels) {
     //		EA(r, c) = ERA(r, ER(r, c));
     //	}
     //}
-    // Sorry, but I really don't get why this shouldn't be included in the last step
+    // Sorry, but we really don't get why this shouldn't be included in the last step
 
     // Step 4
     vector<int> A(EQ.size());
@@ -265,7 +265,7 @@ int LSL_STD_OPT(const Mat1b& img, Mat1i& labels) {
 	return ++na; // Background's label
 }
 
-int LSL_STD_MEM(const Mat1b& img_origin, Mat1i &a){//vector<unsigned long int> &accesses) {
+int LSL_STD_MEM(const Mat1b& img_origin, vector<unsigned long int> &accesses) {
 	int rows = img_origin.rows, cols = img_origin.cols;
 	
 	memMat<int> img(img_origin); 
@@ -354,7 +354,7 @@ int LSL_STD_MEM(const Mat1b& img_origin, Mat1i &a){//vector<unsigned long int> &
 	//		EA(r, c) = ERA(r, ER(r, c));
 	//	}
 	//}
-	// Sorry, but I really don't get why this shouldn't be included in the last step
+	// Sorry, but we really don't get why this shouldn't be included in the last step
 
 	// Step 4
 	memVector<int> A(EQ.size());
@@ -377,15 +377,15 @@ int LSL_STD_MEM(const Mat1b& img_origin, Mat1i &a){//vector<unsigned long int> &
 		}
 	}
 
-	//// Store total accesses in the output vector 'accesses'
-	//accesses = vector<unsigned long int>((int)MD_SIZE, 0);
+	// Store total accesses in the output vector 'accesses'
+	accesses = vector<unsigned long int>((int)MD_SIZE, 0);
 
-	//accesses[MD_BINARY_MAT] = (unsigned long int)img.getTotalAcesses();
-	//accesses[MD_LABELED_MAT] = (unsigned long int)labels.getTotalAcesses();
-	//accesses[MD_EQUIVALENCE_VEC] = (unsigned long int)EQ.getTotalAcesses();
-	//accesses[MD_OTHER] = (unsigned long int)(ER.getTotalAcesses() + RLC.getTotalAcesses() + ner.getTotalAcesses() + ERA.getTotalAcesses() + A.getTotalAcesses());
+	accesses[MD_BINARY_MAT] = (unsigned long int)img.getTotalAcesses();
+	accesses[MD_LABELED_MAT] = (unsigned long int)labels.getTotalAcesses();
+	accesses[MD_EQUIVALENCE_VEC] = (unsigned long int)EQ.getTotalAcesses();
+	accesses[MD_OTHER] = (unsigned long int)(ER.getTotalAcesses() + RLC.getTotalAcesses() + ner.getTotalAcesses() + ERA.getTotalAcesses() + A.getTotalAcesses());
 
-	a = labels.getImage(); 
+	//a = labels.getImage(); 
 
 	return ++na;
 }

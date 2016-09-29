@@ -241,7 +241,7 @@ int SAUF_OPT(const Mat1b &img, Mat1i &imgLabels){
 #undef condition_x
 }
 
-int SAUF_MEM(const Mat1b &img_origin, Mat1i &a){//vector<unsigned long int> &accesses){
+int SAUF_MEM(const Mat1b &img_origin, vector<unsigned long int> &accesses){
 
 	const int h = img_origin.rows;
 	const int w = img_origin.cols;
@@ -335,14 +335,14 @@ int SAUF_MEM(const Mat1b &img_origin, Mat1i &a){//vector<unsigned long int> &acc
 		}
 	}
 
-	//// Store total accesses in the output vector 'accesses'
-	//accesses = vector<unsigned long int>((int)MD_SIZE, 0);
+	// Store total accesses in the output vector 'accesses'
+	accesses = vector<unsigned long int>((int)MD_SIZE, 0);
 
-	//accesses[MD_BINARY_MAT] = (unsigned long int)img.getTotalAcesses();
-	//accesses[MD_LABELED_MAT] = (unsigned long int)imgLabels.getTotalAcesses();
-	//accesses[MD_EQUIVALENCE_VEC] = (unsigned long int)P.getTotalAcesses();
+	accesses[MD_BINARY_MAT] = (unsigned long int)img.getTotalAcesses();
+	accesses[MD_LABELED_MAT] = (unsigned long int)imgLabels.getTotalAcesses();
+	accesses[MD_EQUIVALENCE_VEC] = (unsigned long int)P.getTotalAcesses();
 
-	a = imgLabels.getImage();
+	//a = imgLabels.getImage();
 
 	return nLabel;
 

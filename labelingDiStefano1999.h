@@ -37,5 +37,5 @@ int DiStefano(const cv::Mat1b &img, cv::Mat1i &imgLabels);
 int DiStefanoOPT(const cv::Mat1b &img, cv::Mat1i &imgLabels);
 
 //  Version of Di Stefano's algorithm which provides memory accesses details
-//int DiStefano_MEM(const cv::Mat1b &img, std::vector<unsigned long int> &accesses);
-int DiStefanoMEM(const cv::Mat1b &img, cv::Mat1i &a);
+int DiStefanoMEM(const cv::Mat1b &img, std::vector<unsigned long int> &accesses);
+//int DiStefanoMEM(const cv::Mat1b &img, cv::Mat1i &a);

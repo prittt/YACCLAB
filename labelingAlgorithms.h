@@ -34,28 +34,29 @@
 #include <utility>
 
 // ADD HERE YOUR ".h" FILE          <===============================================================================
-// Optimized Block-based Connected Components Labeling with Decision Trees: Grana Costantino, Borghesani Daniele, Cucchiara Rita
-#include "labelingGrana2010.h"    
-// Light speed labeling : efficient connected component labeling on RISC architectures: Lacassagne, Lionel and Zavidovique, Bertrand
-#include "labelingLacassagne2011.h" 
+// A simple and efficient connected components labeling algorithm: L.Di Stefano and A.Bulgarelli
+#include "labelingDiStefano1999.h"
 // A component-labeling algorithm using contour tracing technique: F.Chang and C.Chen
 #include "labelingFChang2003.h"
-// Block-Based Connected-Component Labeling Algorithm Using Binary Decision Trees: Wan-Yu, Chung-Cheng Chiu and Jia-Horng Yang
-#include "labelingWYChang2015.h"      
 // Optimizing two-pass connected-component labeling algorithms: Wu, Kesheng and Otoo, Ekow and Suzuki, Kenji
 #include "labelingWu2009.h"
 #include "labelingWu2009OpenCV.h"
-// A simple and efficient connected components labeling algorithm: L.Di Stefano and A.Bulgarelli
-#include "labelingDiStefano1999.h"
-// Configuration-Transition-Based Connected-Component Labeling: L. He, X. Zhao, Y.Chao, K. Suzuki
-#include "labelingHe2014.h"
+// Optimized Block-based Connected Components Labeling with Decision Trees: Grana Costantino, Borghesani Daniele, Cucchiara Rita
+#include "labelingGrana2010.h"    
 // Stripe-based connected components labelling: H.L. Zhao, Y.B. Fan, T.X. Zhang, H.S. Sang
 #include "labelingZhao2010.h"
+// Light speed labeling : efficient connected component labeling on RISC architectures: Lacassagne, Lionel and Zavidovique, Bertrand
+#include "labelingLacassagne2011.h" 
+// Configuration-Transition-Based Connected-Component Labeling: L. He, X. Zhao, Y.Chao, K. Suzuki
+#include "labelingHe2014.h"
+// Block-Based Connected-Component Labeling Algorithm Using Binary Decision Trees: Wan-Yu, Chung-Cheng Chiu and Jia-Horng Yang
+#include "labelingWYChang2015.h"   
+// Optimized Connected Components Labeling with Pixel Prediction: C.Grana, L.Baraldi, F.Bolelli
+#include "labelingGrana2016.h"
 // A reference function which DOESN'T perform labeling, but allocates memory for output and scans the input image
 // writing an output value (quasi random) to the labels image
 #include "labelingNULL.h"
-// Optimized Connected Components Labeling with Pixel Prediction
-#include "labelingPred.h"
+
 
 // STANDARD FUNCTION POINTER: 
 //	Mat1b:	the 8-bit single-channel image to be labeled;
@@ -97,14 +98,8 @@ std::map<std::string, CCLPointer> CCLAlgorithmsMap =
 	// Zhao
 	new_algorithm(SBLA),
 	new_algorithm(SBLA_OPT),
-	// NULL
+	// NULL labeling
 	new_algorithm(labelingNULL),
-	
-	new_algorithm(LSL_STD_MEM),
-	new_algorithm(BBDT_MEM),
-	new_algorithm(SAUF_MEM),
-	new_algorithm(PRED_MEM),
-	new_algorithm(DiStefanoMEM),
 };
 
 
@@ -112,21 +107,22 @@ std::map<std::string, CCLPointer> CCLAlgorithmsMap =
 std::map<std::string, CCLMemPointer> CCLMemAlgorithmsMap =
 {
 	// Di Stefano
-	
+	new_algorithm(DiStefanoMEM),
 	// Wu/He
-	//new_algorithm(SAUF_MEM),
+	new_algorithm(SAUF_MEM),
 	// Grana
-	//new_algorithm(BBDT_MEM),
+	new_algorithm(BBDT_MEM),
+	new_algorithm(PRED_MEM),
 	// Lacassagne
-	//new_algorithm(LSL_STD_MEM),
+	new_algorithm(LSL_STD_MEM),
 	// He
-	
+	// TODO
 	// Fu Chang
-	
+	// TODO
 	// Wan-Yu Chang
-	
+	// TODO
 	// Zhao
-	
-	// NULL
+	// TODO	
+	// NULL labeling
 	new_algorithm(labelingNULL_MEM),
 };
