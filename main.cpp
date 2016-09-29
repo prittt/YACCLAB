@@ -1101,7 +1101,6 @@ string memory_test(vector<pair<CCLMemPointer, string>>& CCLMemAlgorithms, Mat1d&
 	for (int r = 0; r < algo_averages_accesses.rows; ++r){
 		for (int c = 0; c < algo_averages_accesses.cols; ++c){
 			algo_averages_accesses(r, c) /= totTest; 
-			cout << "id" << algo_averages_accesses(r, c) << endl;
 		}
 	}
 	
@@ -1188,7 +1187,7 @@ void generateMemoryLatexTable(const string& output_path, const string& latex_fil
 	is << "\t";
 	
 	// Header
-	is << "{Algorithm} & {Binary Image Accesses} & {Label Image Accesses} & {Equivalence Vector/s Accesses}  & {Other Structures} & {Total Accesses}";
+	is << "{Algorithm} & {Binary Image} & {Label Image} & {Equivalence Vector/s}  & {Other} & {Total Accesses}";
 	is << "\\\\" << endl;
 	is << "\t\\hline" << endl;
 
@@ -1203,7 +1202,11 @@ void generateMemoryLatexTable(const string& output_path, const string& latex_fil
 
 		for (int s = 0; s < accesses.cols; ++s){			
 			// For every data structure
-			is << "\t& " << (accesses(i, s)/1000000);
+			if (accesses(i, s) != 0)
+				is << "\t& " << (accesses(i, s) / 1000000);
+			else
+				is << "\t& "; 
+
 			tot += (accesses(i, s) / 1000000); 
 		}
 		// Total Accesses
