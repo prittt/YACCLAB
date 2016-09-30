@@ -31,7 +31,9 @@ int CCIT_OPT(const Mat1b& img, Mat1i& imgOut) {
 
     unsigned char byF = 1;
 
-    imgOut = Mat1i(img.size(),0);
+	// add image initialization with memset (in the original code it was made out of the labeling procedure but it must
+	// be consider in the total ammount time request by the algorithm, like in all the other ones is done)
+    imgOut = Mat1i(img.size(),0); 
 
     int w = imgOut.cols, h = imgOut.rows;
 
@@ -43,13 +45,13 @@ int CCIT_OPT(const Mat1b& img, Mat1i& imgOut) {
     int lx, u, v, k;
 
     #define condition_b1 img_row[x]==byF
-    #define condition_b2 x+1<w && img_row[x+1]==byF   // add control condition
-    #define condition_b3 y+1<h && img_row_fol[x]==byF   // add control condition 
-    #define condition_b4 x+1<w && y+1<h && img_row_fol[x+1]==byF    // add control condition
-    #define condition_u1 y-1>0 && x-1>0 && img_row_prev[x-1]==byF    // add control consition
-    #define condition_u2 y-1>0 && img_row_prev[x]==byF  // add control consition
-    #define condition_u3 x+1<w && y-1>0 && img_row_prev[x+1]==byF   // add control consition
-    #define condition_u4 x+2<w && y-1>0 && img_row_prev[x+2]==byF   // add control consition
+    #define condition_b2 x+1<w && img_row[x+1]==byF       // add necessary control condition
+    #define condition_b3 y+1<h && img_row_fol[x]==byF     // add necessary control condition 
+    #define condition_b4 x+1<w && y+1<h && img_row_fol[x+1]==byF    // add necessary control condition
+    #define condition_u1 /*y-1>0 &&*/ x-1>0 && img_row_prev[x-1]==byF    // add necessary control consition
+    #define condition_u2 /*y-1>0 &&*/ img_row_prev[x]==byF
+    #define condition_u3 x+1<w && /*y-1>0 &&*/ img_row_prev[x+1]==byF   // add necessary control consition
+    #define condition_u4 x+2<w && /*y-1>0 &&*/ img_row_prev[x+2]==byF   // add necessary control consition
     #define assign_S imgOut_row[x] = imgOut_row[x-2]
     #define assign_P imgOut_row[x] = imgOut_row_prev_prev[x-2]
     #define assign_Q imgOut_row[x] = imgOut_row_prev_prev[x]
