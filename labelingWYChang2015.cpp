@@ -31,8 +31,8 @@ int CCIT_OPT(const Mat1b& img, Mat1i& imgOut) {
 
     unsigned char byF = 1;
 
-	// add image initialization with memset (in the original code it was made out of the labeling procedure but it must
-	// be consider in the total ammount time request by the algorithm, like in all the other ones is done)
+	// add image initialization with memset (in the original code it was made out of the labeling function but it must
+	// be considered in the total amount time requested by the algorithm, like in all the other ones is done)
     imgOut = Mat1i(img.size(),0); 
 
     int w = imgOut.cols, h = imgOut.rows;
