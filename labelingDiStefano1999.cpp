@@ -278,3 +278,131 @@ int DiStefanoOPT(const Mat1b &img, Mat1i &imgOut) {
 	delete[] aRenum;
 	return iCurLabel + 1;
 }
+
+int DiStefanoMEM(const Mat1b &img_origin, vector<unsigned long int> &accesses){
+	
+	memMat<uchar> img(img_origin); 
+	memMat<int> imgOut(img_origin.size());
+
+	int iNewLabel(0);
+	// p q r		  p
+	// s x			q x
+	// lp,lq,lx: labels assigned to p,q,x
+	// FIRST SCAN:
+	memVector<int> aClass(img_origin.rows*img_origin.cols / 4);
+	memVector<char> aSingle(img_origin.rows*img_origin.cols / 4);
+	for (int y = 0; y < img_origin.rows; y++) {
+		for (int x = 0; x < img_origin.cols; x++) {
+			if (img(y, x)) {
+
+				int lp(0), lq(0), lr(0), ls(0), lx(0); // lMin(INT_MAX);
+				if (y > 0) {
+					if (x > 0)
+						lp = imgOut(y - 1, x - 1);
+					lq = imgOut(y - 1, x);
+					if (x < img.cols - 1)
+						lr = imgOut(y - 1, x + 1);
+				}
+				if (x > 0)
+					ls = imgOut(y, x - 1);
+
+				// if everything around is background
+				if (lp == 0 && lq == 0 && lr == 0 && ls == 0) {
+					lx = ++iNewLabel;
+					aClass[lx] = lx;
+					aSingle[lx] = true;
+				}
+				else {
+					// p
+					lx = lp;
+					// q
+					if (lx == 0)
+						lx = lq;
+					// r
+					if (lx > 0) {
+						if (lr > 0 && aClass[lx] != aClass[lr]) {
+							if (aSingle[aClass[lx]]) {
+								aClass[lx] = aClass[lr];
+								aSingle[aClass[lr]] = false;
+							}
+							else if (aSingle[aClass[lr]]) {
+								aClass[lr] = aClass[lx];
+								aSingle[aClass[lx]] = false;
+							}
+							else {
+								int iClass = aClass[lr];
+								for (int k = 1; k <= iNewLabel; k++) {
+									if (aClass[k] == iClass) {
+										aClass[k] = aClass[lx];
+									}
+								}
+							}
+						}
+					}
+					else
+						lx = lr;
+					// s
+					if (lx > 0) {
+						if (ls > 0 && aClass[lx] != aClass[ls]) {
+							if (aSingle[aClass[lx]]) {
+								aClass[lx] = aClass[ls];
+								aSingle[aClass[ls]] = false;
+							}
+							else if (aSingle[aClass[ls]]) {
+								aClass[ls] = aClass[lx];
+								aSingle[aClass[lx]] = false;
+							}
+							else {
+								int iClass = aClass[ls];
+								for (int k = 1; k <= iNewLabel; k++) {
+									if (aClass[k] == iClass) {
+										aClass[k] = aClass[lx];
+									}
+								}
+							}
+						}
+					}
+					else
+						lx = ls;
+				}
+
+				imgOut(y, x) = lx;
+			}
+			else
+				imgOut(y, x) = 0;
+		}
+	}
+
+	// Renumbering of labels
+	memVector<int> aRenum(iNewLabel + 1);
+	int iCurLabel = 0;
+	for (int k = 1; k <= iNewLabel; k++) {
+		if (aClass[k] == k) {
+			iCurLabel++;
+			aRenum[k] = iCurLabel;
+		}
+	}
+	for (int k = 1; k <= iNewLabel; k++)
+		aClass[k] = aRenum[aClass[k]];
+
+	// SECOND SCAN 
+	for (int y = 0; y < imgOut.rows; y++) {
+		for (int x = 0; x < imgOut.cols; x++) {
+			int iLabel = imgOut(y, x);
+			if (iLabel > 0)
+				imgOut(y, x) = aClass[iLabel];
+		}
+	}
+
+	// Store total accesses in the output vector 'accesses'
+	accesses = vector<unsigned long int>((int)MD_SIZE, 0);
+
+	accesses[MD_BINARY_MAT] = (unsigned long int)img.getTotalAcesses();
+	accesses[MD_LABELED_MAT] = (unsigned long int)imgOut.getTotalAcesses();
+	accesses[MD_EQUIVALENCE_VEC] = (unsigned long int)(aClass.getTotalAcesses() + aSingle.getTotalAcesses());
+	accesses[MD_OTHER] = (unsigned long int)(aRenum.getTotalAcesses());
+
+	//a = imgOut.getImage(); 
+
+	return iCurLabel + 1;
+}

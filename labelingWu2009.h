@@ -28,5 +28,16 @@
 
 #pragma once
 #include "opencv2/opencv.hpp"
+#include "memoryTester.h"
+#include "equivalenceSolverSuzuki.h"
+#include <vector>
 
+// Readable version of Wu's algorithm
+int SAUF(const cv::Mat1b &img, cv::Mat1i &labels);
+
+// Optimized version of Wu's algorithm
 int SAUF_OPT(const cv::Mat1b &img, cv::Mat1i &labels);
+
+//  Version of Wu's algorithm which provides memory accesses details
+int SAUF_MEM(const cv::Mat1b &img, std::vector<unsigned long int> &accesses);
+//int SAUF_MEM(const cv::Mat1b &img, cv::Mat1i &a);

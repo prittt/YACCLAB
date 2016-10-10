@@ -28,9 +28,14 @@
 
 #pragma once
 #include "opencv2/opencv.hpp"
+#include "memoryTester.h"
 
 // Readable version of Di Stefano's algorithm
 int DiStefano(const cv::Mat1b &img, cv::Mat1i &imgLabels);
 
 // Optimized version of Di Stefano's algorithm
 int DiStefanoOPT(const cv::Mat1b &img, cv::Mat1i &imgLabels);
+
+//  Version of Di Stefano's algorithm which provides memory accesses details
+int DiStefanoMEM(const cv::Mat1b &img, std::vector<unsigned long int> &accesses);
+//int DiStefanoMEM(const cv::Mat1b &img, cv::Mat1i &a);
