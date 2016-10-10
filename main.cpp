@@ -1266,8 +1266,8 @@ int main(int argc, char **argv)
 
     // Lists of 'STANDARD' algorithms to check and/or test
     vector<pair<CCLPointer, string>> CCLAlgorithms;
-    vector<string> funcName = cfg.getStringValuesOfKey("CCLAlgorithmsFunc", vector<string> {});
-    vector<string> algName = cfg.getStringValuesOfKey("CCLAlgorithmsName", vector<string> {});
+    vector<string> funcName = cfg.getStringValuesOfKey("CCLAlgoFunc", vector<string> {});
+    vector<string> algName = cfg.getStringValuesOfKey("CCLAlgoName", vector<string> {});
 
     if (funcName.size() != algName.size() || funcName.size() == 0)
     {
@@ -1286,8 +1286,8 @@ int main(int argc, char **argv)
 
 	// Lists of 'MEMORY' algorithms on which execute memory test
 	vector<pair<CCLMemPointer, string>> CCLMemAlgorithms;
-	vector<string> funcMemName = cfg.getStringValuesOfKey("CCLMemAlgorithmsFunc", vector<string> {});
-	vector<string> algoMemName = cfg.getStringValuesOfKey("CCLMemAlgorithmsName", vector<string> {});
+	vector<string> funcMemName = cfg.getStringValuesOfKey("CCLMemAlgoFunc", vector<string> {});
+	vector<string> algoMemName = cfg.getStringValuesOfKey("CCLMemAlgoName", vector<string> {});
 
 	if (mt_perform && (funcMemName.size() != algoMemName.size() || funcMemName.size() == 0))
 	{

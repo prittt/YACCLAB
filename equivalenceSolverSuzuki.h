@@ -30,7 +30,7 @@
 #include <vector>
 #include "memoryTester.h"
 
-// "STANDARD" VERSION: BEGIN
+// "STANDARD" VERSION
 //Find the root of the tree of node i
 template<typename LabelT>
 inline static
@@ -94,10 +94,10 @@ LabelT flattenL(LabelT *P, LabelT length){
 	}
 	return k;
 }
-// "STANDARD" VERSION: END
+// "STANDARD" VERSION
 
 
-// "MEMORY TEST" VERSION: BEGIN
+// "MEMORY TEST" VERSION
 //Find the root of the tree of node i
 template<typename LabelT>
 inline static
@@ -161,4 +161,4 @@ LabelT flattenL(memVector<LabelT> &P, LabelT length){
 	}
 	return k;
 }
-// "MEMORY TEST" VERSION: END
+// "MEMORY TEST" VERSION
