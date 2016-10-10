@@ -4,7 +4,7 @@
 <p align="justify"> 
 YACCLAB is an open source C++ project which runs and tests CCL algorithms on a collection of datasets described below. Beside running a CCL algorithm and testing its correctness, YACCLAB performs four more kinds of test: average run-time test, density and size test in which the performance of the algorithms are evaluated with images of increasing density and size, and memory test (see <a href="#tests">Tests</a> section for more details).
 <br/><br/>
-To check the correctness of an implementation, the output of an algorithm is compared with that of the Scan Array Union Find Algorithm<sup><a href="#SAUF">7</a></sup>. Notice that 8-connectivity is always used. A colorized version of the input images can also be produced, to visually check the output and investigate possible labeling errors. A more detailed description of the project/benchmark can be found in <a href="#YACCLAB">17</a>
+To check the correctness of an implementation, the output of an algorithm is compared with that of the Scan Array Union Find Algorithm<sup><a href="#SAUF">6</a></sup>. Notice that 8-connectivity is always used. A colorized version of the input images can also be produced, to visually check the output and investigate possible labeling errors. A more detailed description of the project/benchmark can be found in <a href="#YACCLAB">17</a>
 </p>
 
 =======
@@ -438,5 +438,5 @@ Based  Connected-Component  Labeling, IEEE  Transactions  on  Image Processing, 
 <a name="FINGERPRINTS">[16]</a><p align="justify"><em>D. Maltoni, D. Maio, A. Jain, and S. Prabhakar, Handbook of fingerprint
 recognition. Springer Science & Business Media, 2009.</em></p>
 
-<a name="FINGERPRINTS">[16]</a><p align="justify"><em>C.Grana, F.Bolelli, L.Baraldi, and R.Vezzani, YACCLAB - Yet Another Connected Components Labeling Benchmark, Proceedings of the 23rd International Conference on Pattern Recognition, Cancun, Mexico, 4-8 Dec 2016, 2016</em></p>
+<a name="YACCLAB">[17]</a><p align="justify"><em>C.Grana, F.Bolelli, L.Baraldi, and R.Vezzani, YACCLAB - Yet Another Connected Components Labeling Benchmark, Proceedings of the 23rd International Conference on Pattern Recognition, Cancun, Mexico, 4-8 Dec 2016, 2016</em></p>
 
