@@ -258,8 +258,8 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
  <td align="center"><b>Hamlet</b></td>
 </tr>
 <tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/3dpesMAC_bw.png" alt="3dpesMAC" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/fingerprintsMAC_bw.png" alt="fingerprintsMAC" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/3dpesMAC.png" alt="3dpesMAC" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/fingerprintsMAC.png" alt="fingerprintsMAC" height="260" width="415"></td>
 </tr>
 </table>
 <table border="0">
@@ -268,12 +268,12 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
  <td align="center"><b>Tobacco800</b></td>
 </tr>
 <tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/hamletMAC_bw.png" alt="hamletMAC" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/medicalMAC_bw.png" alt="medicalMAC" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/hamletMAC.png" alt="hamletMAC" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/medicalMAC.png" alt="medicalMAC" height="260" width="415"></td>
 </tr>
 <tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/mirflickrMAC_bw.png" alt="mirflickrMAC" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/tobacco800MAC_bw.png" alt="tobacco800MAC" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/mirflickrMAC.png" alt="mirflickrMAC" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/tobacco800MAC.png" alt="tobacco800MAC" height="260" width="415"></td>
 </tr>
 </table>
 
@@ -284,8 +284,8 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
  <td align="center"><b>Hamlet</b></td>
 </tr>
 <tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/3dpesWIN_bw.png" alt="3dpesWIN" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/fingerprintsWIN_bw.png" alt="fingerprintsWIN" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/3dpesWIN.png" alt="3dpesWIN" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/fingerprintsWIN.png" alt="fingerprintsWIN" height="260" width="415"></td>
 </tr>
 </table>
 <table border="0">
@@ -294,12 +294,12 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
  <td align="center"><b>Tobacco800</b></td>
 </tr>
 <tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/hamletWIN_bw.png" alt="hamletWIN" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/medicalWIN_bw.png" alt="medicalWIN" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/hamletWIN.png" alt="hamletWIN" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/medicalWIN.png" alt="medicalWIN" height="260" width="415"></td>
 </tr>
 <tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/mirflickrWIN_bw.png" alt="mirflickrWIN" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/tobacco800WIN_bw.png" alt="tobacco800WIN" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/mirflickrWIN.png" alt="mirflickrWIN" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/tobacco800WIN.png" alt="tobacco800WIN" height="260" width="415"></td>
 </tr>
 </table>
 
@@ -310,8 +310,8 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
  <td align="center"><b>Hamlet</b></td>
 </tr>
 <tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/3dpesLINUX_bw.png" alt="3dpesLINUX" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/fingerprintsLINUX_bw.png" alt="fingerprintsLINUX" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/3dpesLINUX.png" alt="3dpesLINUX" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/fingerprintsLINUX.png" alt="fingerprintsLINUX" height="260" width="415"></td>
 </tr>
 </table>
 <table border="0">
@@ -320,12 +320,12 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
  <td align="center"><b>Tobacco800</b></td>
 </tr>
 <tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/hamletLINUX_bw.png" alt="hamletLINUX" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/medicalLINUX_bw.png" alt="medicalLINUX" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/hamletLINUX.png" alt="hamletLINUX" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/medicalLINUX.png" alt="medicalLINUX" height="260" width="415"></td>
 </tr>
 <tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/mirflickrLINUX_bw.png" alt="mirflickrLINUX" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/tobacco800LINUX_bw.png" alt="tobacco800LINUX" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/mirflickrLINUX.png" alt="mirflickrLINUX" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/tobacco800LINUX.png" alt="tobacco800LINUX" height="260" width="415"></td>
 </tr>
 </table>
 
@@ -336,8 +336,8 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
  <td align="center"><b>Hamlet</b></td>
 </tr>
 <tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/3dpesWIN2_bw.png" alt="3dpesWIN2" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/fingerprintsWIN2_bw.png" alt="fingerprintsWIN2" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/3dpesWIN2.png" alt="3dpesWIN2" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/fingerprintsWIN2.png" alt="fingerprintsWIN2" height="260" width="415"></td>
 </tr>
 </table>
 <table border="0">
@@ -346,12 +346,12 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
  <td align="center"><b>Tobacco800</b></td>
 </tr>
 <tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/hamletWIN2_bw.png" alt="hamletWIN2" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/medicalWIN2_bw.png" alt="medicalWIN2" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/hamletWIN2.png" alt="hamletWIN2" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/medicalWIN2.png" alt="medicalWIN2" height="260" width="415"></td>
 </tr>
 <tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/mirflickrWIN2_bw.png" alt="mirflickrWIN2" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/tobacco800WIN2_bw.png" alt="tobacco800WIN2" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/mirflickrWIN2.png" alt="mirflickrWIN2" height="260" width="415"></td>
+ <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/tobacco800WIN2.png" alt="tobacco800WIN2" height="260" width="415"></td>
 </tr>
 </table>
 
