@@ -33,7 +33,7 @@ To check the correctness of an implementation, the output of an algorithm is com
 
 - <b>Average run-time tests:</b> <p align="justify"> execute an algorithm on every image of a dataset. The process can be repeated more times in a single test, to get the minimum execution time for each image: this allows to get more reproducible results and overlook delays produced by other running processes. It is also possible to compare the execution speed of different algorithms on the same dataset: in this case, selected algorithms (see <a href="#conf">Configuration File</a> for more details) are executed sequentially on every image of the dataset. Results are presented in three different formats: a plain text file, histogram charts (.pdf/.ps), either in color or in gray-scale, and a LaTeX table, which can be directly included in research papers.</p>
 
-- <b>Average density and size tests:</b> <p align="justify"> check the performance of different CCL algorithms when they are executed on images with varying foreground density and size. To this aim, a list of algorithms selected by the user is run sequentially on every image of the test_random dataset. As for run-time tests, it is possible to repeat this test for more than one run. The output is presented as both plain text and charts(.pdf/.ps). For a density test, the mean execution time of each algorithm is reported for densities ranging from 10% up to 90%, while for a size test the same is reported for resolutions ranging from 32x32 up to 4096x4096.</p>
+- <b>Density and size tests:</b> <p align="justify"> check the performance of different CCL algorithms when they are executed on images with varying foreground density and size. To this aim, a list of algorithms selected by the user is run sequentially on every image of the test_random dataset. As for run-time tests, it is possible to repeat this test for more than one run. The output is presented as both plain text and charts(.pdf/.ps). For a density test, the mean execution time of each algorithm is reported for densities ranging from 10% up to 90%, while for a size test the same is reported for resolutions ranging from 32x32 up to 4096x4096.</p>
 
 - <b>Memory tests:</b> <p align="justify"> are useful to understand the reason for the good performances of an algorithm or in general to explain its behavior. Memory tests compute the average number of accesses to the label image (i.e the image used to store the provisional and then the final labels for the connected components), the average number of accesses to the binary image to be labeled, and, finally, the average number of accesses to data structures used to solve the equivalences between label classes. Moreover, if an algorithm requires extra data, memory tests summarize them as ``other'' accesses and return the average. Furthermore, all average contributions of an algorithm and dataset are summed together in order to show the total amount of memory accesses. Since counting the number of memory accesses imposes additional computations, functions implementing memory access tests are different from those implementing run-time and density tests, to keep run-time tests as objective as possible.</p>
 
@@ -146,7 +146,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
 <p align="justify">To  make  a  first  performance  comparison  and  to  showcase automatically  generated  charts  we  have  run  each algorithm in YACCLAB on all datasets and in three different environments:  a  Windows  PC  with  a  i7-4790  CPU  @  3.60 GHz and Microsoft Visual Studio 2013, a Linux workstation with a Xeon CPU E5-2609 v2 @ 2.50GHz and GCC 5.2, and a Intel Core Duo @ 2.8 GHz running OS~X with XCode 7.2.1. Average run-time tests, as well as density and size tests, were repeated 10 times, and for each image the minimum execution time was considered.</p>
 
 <table border="0">
-<caption><h4>Average run-time tests on a i7-4790 CPU @ 3.60 GHz with Windows and Microsof Visual Studio 2013</h4></caption>
+<caption><h4>Average run-time tests on a i7-4790 CPU @ 3.60 GHz with Windows and Microsof Visual Studio 2013 (lower is better)</h4></caption>
 <tr>
  <td align="center"><b>3DPeS</b></td>
  <td align="center"><b>Hamlet</b></td>
@@ -168,7 +168,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
 </table>
 
 <table border="0">
-<caption><h4>Average run-time tests on a Xeon CPU E5-2609 v2 @ 2.50GHz with Linux and GCC 5.2</h4></caption>
+<caption><h4>Average run-time tests on a Xeon CPU E5-2609 v2 @ 2.50GHz with Linux and GCC 5.2 (lower is better)</h4></caption>
 <tr>
  <td align="center"><b>3DPeS</b></td>
  <td align="center"><b>Hamlet</b></td>
@@ -190,7 +190,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
 </table>
 
 <table border="0">
-<caption><h4>Average run-time tests on a Intel Core Duo @ 2.8GHz with OS~X and XCode 7.2.1.</h4></caption>
+<caption><h4>Average run-time tests on a Intel Core Duo @ 2.8GHz with OS~X and XCode 7.2.1 (lower is better)</h4></caption>
 <tr>
  <td align="center"><b>3DPeS</b></td>
  <td align="center"><b>Hamlet</b></td>
@@ -212,7 +212,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
 </table>
 
 <table border="0">
-<caption><h4>Density-Size tests on a i7-4790 CPU @ 3.60 GHz with Windows and Microsof Visual Studio 2013</h4></caption>
+<caption><h4>Density-Size tests on a i7-4790 CPU @ 3.60 GHz with Windows and Microsof Visual Studio 2013 (lower is better)</h4></caption>
 <tr>
  <td align="center"><b>Density</b></td>
  <td align="center"><b>Size</b></td>
@@ -224,7 +224,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
 </table>
 
 <table border="0">
-<caption><h4>Density-Size tests on a Xeon CPU E5-2609 v2 @ 2.50GHz with Linux and GCC 5.2</h4></caption>
+<caption><h4>Density-Size tests on a Xeon CPU E5-2609 v2 @ 2.50GHz with Linux and GCC 5.2 (lower is better)</h4></caption>
 <tr>
  <td align="center"><b>Density</b></td>
  <td align="center"><b>Size</b></td>
@@ -236,7 +236,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
 </table>
 
 <table border="0">
-<caption><h4>Density-Size tests on a Intel Core Duo @ 2.8GHz with OS~X XCode 7.2.1.</h4></caption>
+<caption><h4>Density-Size tests on a Intel Core Duo @ 2.8GHz with OS~X XCode 7.2.1 (lower is better)</h4></caption>
 <tr>
  <td align="center"><b>Density</b></td>
  <td align="center"><b>Size</b></td>
@@ -252,7 +252,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
 <p align="justify">We performed tests on all datasets and algorithms on four different environments, in order to show newest features of YACCLAB: an Intel Core i7-4980HQ CPU @ 2.80GHz running OS~X with XCode 7.2.1, a Windows PC with i7-4770 CPU @ 3.40GHz and Microsoft Visual Studio 2013, a Linux workstation with a i5-6600 CPU @ 3.30GHz and gcc 5.3.1-14, and, finally, a Windows PC with i5-6600 CPU @ 3.30GHz and Microsoft Visual Studio 2013. All performance tests were repeated 10 times, and for each image the minimum execution time was considered. </p>
 
 <table border="0">
-<caption><h4>Average run-time tests on an Intel Core i7-4980HQ CPU @ 2.80GHz running OS~X with XCode 7.2.1</h4></caption>
+<caption><h4>Average run-time tests on an Intel Core i7-4980HQ CPU @ 2.80GHz running OS~X with XCode 7.2.1 (lower is better)</h4></caption>
 <tr>
  <td align="center"><b>3DPeS</b></td>
  <td align="center"><b>Fingerprints</b></td>
@@ -284,7 +284,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
 </table>
 
 <table border="0">
-<caption><h4>Average run-time tests on a i7-4770 CPU @ 3.40GHz with Windows and Microsoft Visual Studio 2013</h4></caption>
+<caption><h4>Average run-time tests on a i7-4770 CPU @ 3.40GHz with Windows and Microsoft Visual Studio 2013 (lower is better)</h4></caption>
 <tr>
  <td align="center"><b>3DPeS</b></td>
  <td align="center"><b>Fingerprints</b></td>
@@ -316,7 +316,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
 </table>
 
 <table border="0">
-<caption><h4>Average run-time tests on a i5-6600 CPU @ 3.30GHz with Linux and GCC 5.3.1-14</h4></caption>
+<caption><h4>Average run-time tests on a i5-6600 CPU @ 3.30GHz with Linux and GCC 5.3.1-14 (lower is better)</h4></caption>
 <tr>
  <td align="center"><b>3DPeS</b></td>
  <td align="center"><b>Fingerprints</b></td>
@@ -348,7 +348,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
 </table>
 
 <table border="0">
-<caption><h4>Average run-time tests on a i5-6600 CPU @ 3.30GHz with Windows and Microsof Visual Studio 2013</h4></caption>
+<caption><h4>Average run-time tests on a i5-6600 CPU @ 3.30GHz with Windows and Microsof Visual Studio 2013 (lower is better)</h4></caption>
 <tr>
  <td align="center"><b>3DPeS</b></td>
  <td align="center"><b>Fingerprints</b></td>
@@ -380,7 +380,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
 </table>
 
 <table border="0">
-<caption><h4>Density-Size tests on an Intel Core i7-4980HQ CPU @ 2.80GHz running OS~X with XCode 7.2.1 (some algorithms have been omitted to make the charts more legible). </h4></caption>
+<caption><h4>Density-Size tests on an Intel Core i7-4980HQ CPU @ 2.80GHz running OS~X with XCode 7.2.1 (some algorithms have been omitted to make the charts more legible, lower is better). </h4></caption>
 <tr>
  <td align="center"><b>Density</b></td>
  <td align="center"><b>Size</b></td>
@@ -392,7 +392,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
 </table>
 
 <table border="0">
-<caption><h4>Density-Size tests on a i7-4770 CPU @ 3.40GHz with Windows and Microsoft Visual Studio 2013 (some algorithms have been omitted to make the charts more legible).</h4></caption>
+<caption><h4>Density-Size tests on a i7-4770 CPU @ 3.40GHz with Windows and Microsoft Visual Studio 2013 (some algorithms have been omitted to make the charts more legible, lower is better).</h4></caption>
 <tr>
  <td align="center"><b>Density</b></td>
  <td align="center"><b>Size</b></td>
@@ -404,7 +404,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
 </table>
 
 <table border="0">
-<caption><h4>Density-Size tests on a i5-6600 CPU @ 3.30GHz with Linux and and GCC 5.3.1-14 (some algorithms have been omitted to make the charts more legible).</h4></caption>
+<caption><h4>Density-Size tests on a i5-6600 CPU @ 3.30GHz with Linux and and GCC 5.3.1-14 (some algorithms have been omitted to make the charts more legible, lower is better).</h4></caption>
 <tr>
  <td align="center"><b>Density</b></td>
  <td align="center"><b>Size</b></td>
@@ -417,7 +417,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
 
 
 <table border="0">
-<caption><h4>Density-Size tests on a i5-6600 CPU @ 3.30GHz with Windows and Microsof Visual Studio 2013 (some algorithms have been omitted to make the charts more legible).</h4></caption>
+<caption><h4>Density-Size tests on a i5-6600 CPU @ 3.30GHz with Windows and Microsof Visual Studio 2013 (some algorithms have been omitted to make the charts more legible, lower is better).</h4></caption>
 <tr>
  <td align="center"><b>Density</b></td>
  <td align="center"><b>Size</b></td>
