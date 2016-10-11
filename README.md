@@ -146,7 +146,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
 <p align="justify">To  make  a  first  performance  comparison  and  to  showcase automatically  generated  charts  we  have  run  each algorithm in YACCLAB on all datasets and in three different environments:  a  Windows  PC  with  a  i7-4790  CPU  @  3.60 GHz and Microsoft Visual Studio 2013, a Linux workstation with a Xeon CPU E5-2609 v2 @ 2.50GHz and GCC 5.2, and a Intel Core Duo @ 2.8 GHz running OS~X with XCode 7.2.1. Average run-time tests, as well as density and size tests, were repeated 10 times, and for each image the minimum execution time was considered.</p>
 
 <table border="0">
-<caption><h4>Average run-time tests on a i7-4790 CPU @ 3.60 GHz with Windows and Microsof Visual Studio 2013 (lower is better)</h4></caption>
+<caption><h4>Average run-time tests on a i7-4790 CPU @ 3.60 GHz with Windows and Microsoft Visual Studio 2013 (lower is better)</h4></caption>
 <tr>
  <td align="center"><b>3DPeS</b></td>
  <td align="center"><b>Hamlet</b></td>
@@ -212,7 +212,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
 </table>
 
 <table border="0">
-<caption><h4>Density-Size tests on a i7-4790 CPU @ 3.60 GHz with Windows and Microsof Visual Studio 2013 (lower is better)</h4></caption>
+<caption><h4>Density-Size tests on a i7-4790 CPU @ 3.60 GHz with Windows and Microsoft Visual Studio 2013 (lower is better)</h4></caption>
 <tr>
  <td align="center"><b>Density</b></td>
  <td align="center"><b>Size</b></td>
@@ -348,7 +348,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
 </table>
 
 <table border="0">
-<caption><h4>Average run-time tests on a i5-6600 CPU @ 3.30GHz with Windows and Microsof Visual Studio 2013 (lower is better)</h4></caption>
+<caption><h4>Average run-time tests on a i5-6600 CPU @ 3.30GHz with Windows and Microsoft Visual Studio 2013 (lower is better)</h4></caption>
 <tr>
  <td align="center"><b>3DPeS</b></td>
  <td align="center"><b>Fingerprints</b></td>
@@ -417,7 +417,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
 
 
 <table border="0">
-<caption><h4>Density-Size tests on a i5-6600 CPU @ 3.30GHz with Windows and Microsof Visual Studio 2013 (some algorithms have been omitted to make the charts more legible, lower is better).</h4></caption>
+<caption><h4>Density-Size tests on a i5-6600 CPU @ 3.30GHz with Windows and Microsoft Visual Studio 2013 (some algorithms have been omitted to make the charts more legible, lower is better).</h4></caption>
 <tr>
  <td align="center"><b>Density</b></td>
  <td align="center"><b>Size</b></td>
@@ -426,6 +426,127 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
  <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/densityWIN2.png" alt="densityWIN2" height="260" width="415"></td>
  <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/sizeWIN2.png" alt="sizeWIN2" height="260" width="415"></td>
 </tr>
+</table>
+
+<table>
+<caption><h4>Analysis of memory accesses required by connected components computation for 'Random' dataset. The numbers are given in millions of accesses</h4></caption>
+	<tr>	
+   <td align="center">Algorithm           </td>
+   <td align="center">Total Accesses      </td>
+   <td align="center">Binary Image        </td>
+   <td align="center">Label Image         </td>
+   <td align="center">Equivalence Vector/s</td>
+   <td align="center">Other               </td>
+	</tr>
+ <tr>	
+   <td align="center">SAUF  </td>
+   <td align="center">20.963</td>
+   <td align="center">5.475 </td>
+   <td align="center">11.288</td>
+   <td align="center">4.200 </td>
+   <td align="center">-     </td>
+	</tr>
+	<tr>	
+   <td align="center">DiStefano</td>
+   <td align="center">187.512  </td>
+   <td align="center">2.796    </td>
+   <td align="center">12.580   </td>
+   <td align="center">171.972  </td>
+   <td align="center">0.164    </td>
+	</tr>
+	<tr>	
+   <td align="center">BBDT  </td>
+   <td align="center">12.237</td>
+   <td align="center">6.012 </td>
+   <td align="center">4.757	</td>
+   <td align="center">1.468	</td>
+   <td align="center">-     </td>
+	</tr>
+	<tr>	
+   <td align="center">LSL\_STD</td>
+   <td align="center">27.792  </td>
+   <td align="center">2.796	  </td>
+   <td align="center">2.796	  </td>
+   <td align="center">1.616	  </td>
+   <td align="center">20.584  </td>
+	</tr>
+ 	<tr>	
+   <td align="center">PRED  </td>
+   <td align="center">20.194</td>
+   <td align="center">4.706	</td>
+   <td align="center">11.288</td>
+   <td align="center">4.200	</td>
+   <td align="center">-     </td>
+	</tr>
+ 	<tr>	
+   <td align="center">NULL </td>
+   <td align="center">5.592</td>
+   <td align="center">2.796</td>
+   <td align="center">2.796</td>
+   <td align="center">-    </td>
+   <td align="center">-    </td>
+	</tr>
+</table>
+
+
+<table>
+<caption><h4>Analysis of memory accesses required by connected components computation for 'Tobacco800' dataset. The numbers are given in millions of accesses</h4></caption>
+	<tr>	
+   <td align="center">Algorithm           </td>
+   <td align="center">Total Accesses      </td>
+   <td align="center">Binary Image        </td>
+   <td align="center">Label Image         </td>
+   <td align="center">Equivalence Vector/s</td>
+   <td align="center">Other               </td>
+	</tr>
+  <tr>	
+   <td align="center">SAUF  </td>
+   <td align="center">23.874</td>
+   <td align="center">4.935 </td>
+   <td align="center">14.286</td>
+   <td align="center">4.653 </td>
+   <td align="center">-     </td>
+	</tr>
+  <tr>	
+   <td align="center">DiStefano</td>
+   <td align="center">17.041   </td>
+   <td align="center">4.604    </td>
+   <td align="center">10.393   </td>
+   <td align="center">2.037    </td>
+   <td align="center">0.007    </td>
+	</tr>
+  <tr>	
+   <td align="center">BBDT  </td>
+   <td align="center">12.046</td>
+   <td align="center">4.942 </td>
+   <td align="center">6.982 </td>
+   <td align="center">0.122 </td>
+   <td align="center">-     </td>
+	</tr>
+   <tr>	
+   <td align="center">LSL_STD</td>
+   <td align="center">38.267 </td>
+   <td align="center">4.604  </td>
+   <td align="center">4.604  </td>
+   <td align="center">1.189  </td>
+   <td align="center">27.870 </td>
+	</tr>
+  <tr>	
+   <td align="center">PRED  </td>
+   <td align="center">23.799</td>
+   <td align="center">4.860 </td>
+   <td align="center">14.286</td>
+   <td align="center">4.653 </td>
+   <td align="center">-     </td>
+	</tr>
+  <tr>	
+   <td align="center">NULL </td>
+   <td align="center">9.208</td>
+   <td align="center">4.604</td>
+   <td align="center">4.604</td>
+   <td align="center">-    </td>
+   <td align="center">-    </td>
+	</tr>
 </table>
 
 <a name="CT">[1]</a><p align="justify"><em>F. Chang, C.-J. Chen, and C.-J. Lu, “A linear-time component-labeling algorithm using contour tracing technique,” Computer Vision and Image Understanding, vol. 93, no. 2, pp. 206–220, 2004.</em></p>
