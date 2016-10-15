@@ -4,6 +4,9 @@ set (ProjectName "YACCLAB")
 
 project (${ProjectName})
 
+#Suppress creation of ZERO_CHECK and ALL_BUILD
+set(CMAKE_SUPPRESS_REGENERATION true)
+
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Configs" FORCE)
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE PATH "Install prefix" FORCE)
 
@@ -106,7 +109,7 @@ if (NOT EXISTS "${CMAKE_INSTALL_PREFIX}/input")
 	endif()
 	
 	if(EXISTS "${CMAKE_INSTALL_PREFIX}/dataset.zip")
-		message(STATUS "Unpacking...")
+		message(STATUS "Unpacking (it may take a while)...")
 		execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${CMAKE_INSTALL_PREFIX}/dataset.zip" WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}" OUTPUT_QUIET)
 		message(STATUS "Unpacking done.")
 	endif()
