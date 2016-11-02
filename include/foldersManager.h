@@ -36,19 +36,10 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <direct.h>
-#include <cstring>
-#include <io.h>
-#include <iostream>
-#include <stdio.h>
+//#include <cstring>
+//#include <iostream>
+//#include <stdio.h>
 
-
-/* File types for the "listFiles" function */
-enum fileTypes {
-	FM_ONLY_SUBDIR = 0,
-	FM_ONLY_FILES = 1,
-	FM_BOTH = 2
-};
 
 /** @brief Check if folder exist or not
 
@@ -85,45 +76,6 @@ bool dirExists(const std::string& pathname);
 
 */
 bool makeDir(const std::string& path); 
-
-/** @brief Get the list of files placed in the specified directory
-
-This function get the list of files placed in a specific directory.  
-The list of file names are save in a string vector. Note that "." and ".." are not 
-considered.
-
-@param[in] dir directory on which search the list of files
-@param[out] fileList string vector containing the file names list
-@param[in] fileTypes integer parameter to specify what king of "files" search. Allowed 
-			values are: FM_ONLY_SUBDIR (0) to search only subdirectories, FM_ONLY_FILES (1)
-			to search only file and FM_BOTH (2) to search both subdirectories and files
-@param[in] extension specifies the extension of files to search. The parameter is optional. 
-			For example, to get the list of file names with extension "png" in directory "dir"
-			set extension parameter to ".png"
-
-@return nothing
-*/
-void listFiles(const char* dir, std::vector<std::string>& filesList, const int fileTypes = FM_BOTH, const std::string extension = "");
-
-
-/** @overload
-
-This function get the list of files placed in a specific directory.
-The list of file names are save in a string vector. Note that "." and ".." are not
-considered.
-
-@param[in] dir directory on which search the list of files
-@param[out] fileList string vector containing the file names list
-@param[in] fileTypes integer parameter to specify what king of "files" search. Allowed
-values are: FM_ONLY_SUBDIR (0) to search only subdirectories, FM_ONLY_FILES (1)
-to search only file and FM_BOTH (2) to search both subdirectories and files
-@param[in] extension specifies the extension of files to search. The parameter is optional.
-For example, to get the list of file names with extension "png" in directory "dir"
-set extension parameter to ".png"
-
-@return nothing
-*/
-void listFiles(const std::string& dir, std::vector<std::string>& filesList, const int fileTypes = FM_BOTH, const std::string extension = "");
 
 /** @brief Check if file exist or not
 

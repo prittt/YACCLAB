@@ -10,6 +10,7 @@
 /Release
 /Debug
 build
+bin
 input
 output
 CMakeFiles

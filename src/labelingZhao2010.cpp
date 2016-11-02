@@ -33,7 +33,13 @@ int SBLA(const Mat1b &img, Mat1i &imgOut)
 	int M = img.rows;
 	imgOut = Mat1i(M, N);
 
-	copy(begin(img), end(img), begin(imgOut));
+	// Copy the input image into the output one:
+	//copy(begin(img), end(img), begin(imgOut)); This produce a warning in debug mode
+	for (int r = 0; r < img.rows; ++r){
+		for (int c = 0; c < img.cols; ++c){
+			imgOut(r, c) = img(r, c); 
+		}
+	}
 
 	// Fix for first pixel!
 	int LabelNum = 0;
