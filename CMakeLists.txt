@@ -96,7 +96,7 @@ include_directories (${CMAKE_CURRENT_BINARY_DIR})
 
 # Copy config file in the installation folder and rename it		
 file(COPY "${CMAKE_SOURCE_DIR}/doc/StandardConfigurationFileDoNotModifyItButTheOneInTheInstallationFolder.cfg" DESTINATION ${CMAKE_INSTALL_PREFIX})
-file(RENAME "${CMAKE_INSTALL_PREFIX}/StandardConfigurationFileDoNotModifyItButTheOneInTheInstallationFolder.cfg" "${CMAKE_INSTALL_PREFIX}/config.cfg ")
+file(RENAME "${CMAKE_INSTALL_PREFIX}/StandardConfigurationFileDoNotModifyItButTheOneInTheInstallationFolder.cfg" "${CMAKE_INSTALL_PREFIX}/config.cfg")
 
 # Download and unpack dataset if necessary
 if (NOT EXISTS "${CMAKE_INSTALL_PREFIX}/input")
