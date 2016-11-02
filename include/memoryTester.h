@@ -36,15 +36,13 @@ enum memorydatatype{
 	MD_LABELED_MAT = 1,
 	MD_EQUIVALENCE_VEC = 2,
 
-	//// Threshold to distinguish classical data structures from other
-	//MD_THRESH = 3, // not used
-
 	// Other data structures
 	MD_OTHER = 3,
 
-	// Total number of data structures in the list (note that MD_THRESH value is not considered)
+	// Total number of data structures in the list
 	MD_SIZE = 4, 
 };
+
 
 template <typename T>
 class memMat {
@@ -55,21 +53,21 @@ public:
 
 	memMat(cv::Mat_<T> img){
 		_img = img.clone(); // Deep copy
-		_accesses = Mat1i(img.size(), 0); 
+		_accesses = cv::Mat1i(img.size(), 0); 
 		rows = img.rows; 
 		cols = img.cols; 
 	}
 
 	memMat(cv::Size size){
 		_img = cv::Mat_<T>(size); 
-		_accesses = Mat1i(size, 0);
+		_accesses = cv::Mat1i(size, 0);
 		rows = size.height; 
 		cols = size.width; 
 	}
 
 	memMat(cv::Size size, const T val){
 		_img = cv::Mat_<T>(size, val);
-		_accesses = Mat1i(size, 1);	// The initilization accesses must be counted
+		_accesses = cv::Mat1i(size, 1);	// The initilization accesses must be counted
 		rows = size.height;
 		cols = size.width;
 	}
@@ -103,17 +101,17 @@ class memVector {
 public:
 	memVector(std::vector<T> vec){
 		_vec = vec;  // Deep copy
-		_accesses = vector<int>(vec.size(), 0);
+		_accesses = std::vector<int>(vec.size(), 0);
 	}
 
 	memVector(const size_t size){
-		_vec = vector<T>(size);
-		_accesses = vector<int>(size, 0);
+		_vec = std::vector<T>(size);
+		_accesses = std::vector<int>(size, 0);
 	}
 
 	memVector(const size_t size, const T val){
-		_vec = vector<T>(size, val);
-		_accesses = vector<int>(size, 1); // The initilization accesses must be counted
+		_vec = std::vector<T>(size, val);
+		_accesses = std::vector<int>(size, 1); // The initilization accesses must be counted
 	}
 
 	T& operator[](const int i){
