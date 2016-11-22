@@ -42,7 +42,7 @@ YACCLAB is an open source C++ project which runs and tests CCL algorithms on a c
 
 <p align="justify">To correctly install and run YACCLAB following packages, libraries and utility are needed:</p>
 
-- CMake 2.4.0 or higher (https://cmake.org/download/),
+- CMake 3.0.0 or higher (https://cmake.org/download/),
 - OpenCV 3.0 or higher (http://opencv.org/downloads.html),
 - Gnuplot (http://www.gnuplot.info/), 
 - One of your favourite IDE/compiler: Visual Studio 2013 or higher, Xcode 5.0.1, gcc 4.7 or higher, .. (with C++11 support)
