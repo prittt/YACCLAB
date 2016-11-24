@@ -1,4 +1,4 @@
-## YACCLAB: Yet Another Connected Components Labeling Benchmark
+## YACCLAB: Yet Another Connected Components Labeling Benchmark &nbsp;&nbsp;&nbsp; [![Build Status](https://travis-ci.org/prittt/YACCLAB.svg?branch=master)](https://travis-ci.org/prittt/YACCLAB)
 
 ### Introduction
 <p align="justify"> 
