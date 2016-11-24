@@ -17,7 +17,6 @@ function build_linux(){
 	  exit 1
    fi
    
-   # Branch not tested yet
    if [ ! -d input ]; then
       echo -e "\n\n************************************  CMake was unable to download the dataset: DOWNLOAD FORCED  ************************************" 
 	  curl -L --progress-bar http://imagelab.ing.unimore.it/files/YACCLAB_dataset.zip > dataset.zip
@@ -49,7 +48,6 @@ function build_mac(){
 	  exit 1
    fi
 
-   # Branch not tested yet
    if [ ! -d input ]; then
       echo -e "\n\n************************************  CMake was unable to download the dataset: DOWNLOAD FORCED  ************************************" 
 	  curl -L --progress-bar http://imagelab.ing.unimore.it/files/YACCLAB_dataset.zip > dataset.zip
