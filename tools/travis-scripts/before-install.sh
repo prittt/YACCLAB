@@ -12,50 +12,64 @@ function install_linux_environment()
   echo -e "------------------------------------------> DONE!" 
   
   echo -e "\n\n------------------------------------------> Update apt"
-  sudo apt-get update -y
+  sudo apt-get -qq update -y
   #sudo apt-get upgrade -y #Don't do that
   echo -e "------------------------------------------> DONE!" 
   
   echo -e "\n\n------------------------------------------> Install gcc-4.8:"
-  if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
+  if [ "$CXX" = "g++" ]; then sudo apt-get -qq install g++-4.8; fi
   if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
-  sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
+  sudo update-alternatives --quiet --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
   echo -e "------------------------------------------> DONE!" 
   
-  echo -e "\n\n------------------------------------------> Install OpenCV-3.1.0 and dependent packages:"
-  sudo apt-get install -y build-essential
-  sudo apt-get install -y cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
+  echo -e "\n\n------------------------------------------> Install OpenCV-3.1.0 (only if they weren't cached) and dependent packages:"
+  sudo apt-get -qq -y install build-essential
+  sudo apt-get -qq -y install git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
   # Not necessary dependency:
-  sudo apt-get install -y python-dev python-numpy libtbb2 libtbb-dev libpng-dev libdc1394-22-dev
+  sudo apt-get -qq -y install python-dev python-numpy libtbb2 libtbb-dev libpng-dev libdc1394-22-dev
   #sudo apt-get install -y python-dev python-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev
 
-  # Download v3.1.0 .zip file and extract.
-  curl -L --progress-bar https://github.com/Itseez/opencv/archive/3.1.0.zip > opencv.zip
-  unzip -qq opencv.zip
-  rm opencv.zip
-  cd opencv-3.1.0
+  echo -e "(test if cached):"
+  if [ -d opencv-3.1.0 -a "$(ls -A opencv-3.1.0/)" ]; then
+    echo -e "    OpenCV already installed(cached)"
+  else
+    echo -e "    OpenCV not installed yet, downloading it ... "
+    # Download v3.1.0 .zip file and extract.
+    #curl -L --progress-bar https://github.com/Itseez/opencv/archive/3.1.0.zip > opencv.zip
+	curl -L https://github.com/Itseez/opencv/archive/3.1.0.zip > opencv.zip
+    echo -e "    OpenCV downloaded"
+    unzip -qq opencv.zip
+    rm opencv.zip
+    cd opencv-3.1.0
   
-  # Create a new 'build' folder.
-  mkdir build
-  cd build
+    # Create a new 'build' folder.
+    mkdir build
+    cd build
   
-  # Set build instructions for Ubuntu distro.
-  cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D WITH_FFMPEG=OFF -D WITH_OPENCL=OFF -D WITH_QT=OFF -D WITH_IPP=OFF -D WITH_MATLAB=OFF -D WITH_OPENGL=OFF -D WITH_QT=OFF -D WITH_TIFF=OFF -D BUILD_EXAMPLES=OFF -D BUILD_TESTS=OFF -D BUILD_PERF_TESTS=OFF -D BUILD_opencv_java=OFF -D BUILD_opencv_python2=OFF -D BUILD_opencv_python3=OFF -D WITH_TBB=OFF -D WITH_V4L=ON -D INSTALL_C_EXAMPLES=ON -D INSTALL_PYTHON_EXAMPLES=OFF -D BUILD_EXAMPLES=OFF ..
+    # Create 'install_dir' folder
+	mkdir install_dir
   
-  # Run 'make' with four threads.
-  make -j4
+    # Set build instructions for Ubuntu distro.
+    cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=./install_dir -D WITH_FFMPEG=OFF -D WITH_OPENCL=OFF -D WITH_QT=OFF -D WITH_IPP=OFF -D WITH_MATLAB=OFF -D WITH_OPENGL=OFF -D WITH_QT=OFF -D WITH_TIFF=OFF -D BUILD_EXAMPLES=OFF -D BUILD_TESTS=OFF -D BUILD_PERF_TESTS=OFF -D BUILD_opencv_java=OFF -D BUILD_opencv_python2=OFF -D BUILD_opencv_python3=OFF -D WITH_TBB=OFF -D WITH_V4L=OFF -D INSTALL_C_EXAMPLES=OFF -D INSTALL_PYTHON_EXAMPLES=OFF -D BUILD_EXAMPLES=OFF -D BUILD_SHARE_LIBS=OFF ..
   
-  # Install to OS.
-  sudo make install
+    # Run 'make' with four threads.
+    make -j4
+  
+    # Install to OS.
+    sudo make install
+
+	# We move the following commands out of there in order to export OpenCV configuration variable also when OpenCV libraries were cached
+	# sudo sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
+    # sudo ldconfig
+	
+	echo "OpenCV installed."
+  
+    # Return to the repo "root" folder
+    cd ../../
+  fi
   
   # Add configuration to OpenCV to tell it where the library files are located on the file system (/usr/local/lib)
-  sudo sh -c 'echo "/usr/local/lib" > /etc/ld.so.conf.d/opencv.conf'
-  
-  sudo ldconfig
-  echo "OpenCV installed."
-  
-  # Return to the repo "root" folder
-  cd ../../
+  export LD_LIBRARY_PATH=./opencv-3.1.0/build/install_dir
   echo -e "------------------------------------------> DONE!" 
   
   echo -e "\n\n------------------------------------------> Install Gnuplot and dependent packages"
@@ -65,10 +79,10 @@ function install_linux_environment()
   tar -xzf gnuplot-5.0.0.tar.gz
   rm gnuplot-5.0.0.tar.gz
   cd gnuplot-5.0.0
-  #TODO redirection doesn't work? 
-  ./configure --prefix=/usr/local
-  make -s
-  sudo make install
+  ./configure --prefix=/usr/local > /dev/null
+  # Note that gnuplot build process exit with some warnings (delete redirection to see it)
+  make -s > /dev/null
+  sudo make install > /dev/null
   cd ../../
   gnuplot --version
   echo -e "------------------------------------------> DONE!" 
@@ -80,46 +94,63 @@ function install_osx_environment()
 
   echo -e "\n\n------------------------------------------> Clean and Update brew"
   #Clean brew cache to avoid memory waste
-  brew cleanup
+  brew cleanup > /dev/null
+  #brew cleanup > brew_cleanup.log
   rm -rf "'brew cache'"
   
   #Update brew and packages
-  brew update -y
-  brew upgrade -y
+  brew update -y > /dev/null
+  brew upgrade -y > /dev/null
+  #brew update -y > brew_update.log
+  #brew upgrade -y > brew_upgrade.log
   echo -e "------------------------------------------> DONE!" 
   
   echo -e "\n\n------------------------------------------> Check CMake version"
   cmake --version
   echo -e "------------------------------------------> DONE!" 
 
-  echo -e "\n\n------------------------------------------> Install OpenCV-3.1.0 and dependent packages:"
-  # Download v3.1.0 .zip file and extract.
-  curl -L --progress-bar https://github.com/Itseez/opencv/archive/3.1.0.zip > opencv.zip
-  unzip -qq opencv.zip
-  rm opencv.zip
-  cd opencv-3.1.0
+  echo -e "\n\n------------------------------------------> Install OpenCV-3.1.0 (only if they weren't cached) and dependent packages:"
+
+  echo -e "(test if cached):"
+  if [ -d opencv-3.1.0 -a "$(ls -A opencv-3.1.0/)" ]; then
+    echo -e "    OpenCV already installed(cached)"
+  else
+    echo -e "    OpenCV not installed yet, downloading it ... "
+    # Download v3.1.0 .zip file and extract.
+    #curl -L --progress-bar https://github.com/Itseez/opencv/archive/3.1.0.zip > opencv.zip
+	curl -L https://github.com/Itseez/opencv/archive/3.1.0.zip > opencv.zip
+    echo -e "    OpenCV downloaded"
+	unzip -qq opencv.zip
+    rm opencv.zip
+    cd opencv-3.1.0
+
+    # Create a new 'build' folder.
+    mkdir build
+    cd build
   
-  # Create a new 'build' folder.
-  mkdir build
-  cd build
+    # Create 'install_dir' folder
+	mkdir install_dir
+    
+	# Set build instructions for Ubuntu distro.
+    cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=./install_dir -D WITH_FFMPEG=OFF -D WITH_OPENCL=OFF -D WITH_QT=OFF -D WITH_IPP=OFF -D WITH_MATLAB=OFF -D WITH_OPENGL=OFF -D WITH_TIFF=OFF -D BUILD_EXAMPLES=OFF -D BUILD_TESTS=OFF -D BUILD_PERF_TESTS=OFF -D BUILD_opencv_java=OFF -D BUILD_opencv_python2=OFF -D BUILD_opencv_python3=OFF -D WITH_TBB=OFF -D WITH_CUDA=OFF -D WITH_V4L=OFF -D INSTALL_C_EXAMPLES=OFF -D INSTALL_PYTHON_EXAMPLES=OFF -D BUILD_EXAMPLES=OFF -D BUILD_SHARED_LIBS=OFF ..
   
-  # Set build instructions for Ubuntu distro.
-  cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D WITH_FFMPEG=OFF -D WITH_OPENCL=OFF -D WITH_QT=OFF -D WITH_IPP=OFF -D WITH_MATLAB=OFF -D WITH_OPENGL=OFF -D WITH_QT=OFF -D WITH_TIFF=OFF -D BUILD_EXAMPLES=OFF -D BUILD_TESTS=OFF -D BUILD_PERF_TESTS=OFF -D BUILD_opencv_java=OFF -D BUILD_opencv_python2=OFF -D BUILD_opencv_python3=OFF -D WITH_TBB=OFF -D WITH_CUDA=OFF -D WITH_V4L=ON -D INSTALL_C_EXAMPLES=ON -D INSTALL_PYTHON_EXAMPLES=OFF -D BUILD_EXAMPLES=OFF ..  
+    # Run 'make' with four threads.
+    make -j
   
-  # Run 'make' with four threads.
-  make -j
+    # Install to OS.
+    sudo make install
   
-  # Install to OS.
-  sudo make install
+    echo "OpenCV installed."
   
-  echo "OpenCV installed."
-  
-  # Return to the repo "root" folder
-  cd ../../
-  echo -e "------------------------------------------> DONE!" 
+    # Return to the repo "root" folder
+    cd ../../
+  fi
+  # Add configuration to OpenCV to tell it where the library files are located on the file system (/usr/local/lib). Is this reallyu necessary on OSX?
+  export LD_LIBRARY_PATH=./opencv-3.1.0/build/install_dir
+  echo -e "------------------------------------------> DONE!"
 	
   echo -e "\n\n------------------------------------------> Install Gnuplot and dependent packages:"
-  brew install gnuplot
+  brew install gnuplot > gnuplot_install.log
   gnuplot --version
   echo -e "------------------------------------------> DONE!" 
 	

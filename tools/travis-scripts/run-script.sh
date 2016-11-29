@@ -8,7 +8,7 @@ function build_linux(){
    echo "Building project ..."
 
    mkdir bin
-   cmake -D CMAKE_BUILD_TYPE=Release -G Unix\ Makefiles -Bbin -Hbin/.. 
+   cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_PREFIX_PATH=./opencv-3.1.0/build/ -G Unix\ Makefiles -Bbin -Hbin/.. 
 
    cd bin
    
@@ -19,7 +19,8 @@ function build_linux(){
    
    if [ ! -d input ]; then
       echo -e "\n\n************************************  CMake was unable to download the dataset: DOWNLOAD FORCED  ************************************" 
-	  curl -L --progress-bar http://imagelab.ing.unimore.it/files/YACCLAB_dataset.zip > dataset.zip
+	  #curl -L --progress-bar http://imagelab.ing.unimore.it/files/YACCLAB_dataset.zip > dataset.zip
+	  wget http://imagelab.ing.unimore.it/files/YACCLAB_dataset.zip -O dataset.zip
 	  unzip -qq dataset.zip
 	  rm dataset.zip  
 	  echo -e "***************************************************************  DONE!  *************************************************************\n\n"
@@ -31,7 +32,6 @@ function build_linux(){
  
    make 
    ./YACCLAB
-
 }
 
 function build_mac(){
@@ -39,7 +39,7 @@ function build_mac(){
    echo "Building project ..."
 
    mkdir bin
-   cmake -D CMAKE_BUILD_TYPE=Release -G Xcode -Bbin -Hbin/.. 
+   cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_PREFIX_PATH=./opencv-3.1.0/build/ -G Xcode -Bbin -Hbin/.. 
 
    cd bin
    
@@ -50,7 +50,8 @@ function build_mac(){
 
    if [ ! -d input ]; then
       echo -e "\n\n************************************  CMake was unable to download the dataset: DOWNLOAD FORCED  ************************************" 
-	  curl -L --progress-bar http://imagelab.ing.unimore.it/files/YACCLAB_dataset.zip > dataset.zip
+	  #curl -L --progress-bar http://imagelab.ing.unimore.it/files/YACCLAB_dataset.zip > dataset.zip
+	  wget http://imagelab.ing.unimore.it/files/YACCLAB_dataset.zip -O dataset.zip
 	  unzip -qq dataset.zip
 	  rm dataset.zip  
 	  echo -e "***************************************************************  DONE!  *************************************************************\n\n"
@@ -63,7 +64,6 @@ function build_mac(){
    # xcodebuild -project YACCLAB.xcodeproj -target YACCLAB -configuration Release > 
    xcodebuild -project YACCLAB.xcodeproj -target YACCLAB -configuration Release
    ./Release/YACCLAB
-   
 }
 
 function pass(){
