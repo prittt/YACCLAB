@@ -8,7 +8,8 @@ function build_linux(){
    echo "Building project ..."
 
    mkdir bin
-   cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_PREFIX_PATH=./opencv-3.1.0/build/ -G Unix\ Makefiles -Bbin -Hbin/.. 
+   # The download of the complete YACCLAB dataset is disable in order to reduce the cmake configure time in travis-ci virtual machine
+   cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_PREFIX_PATH=./opencv-3.1.0/build/ -D YACCLAB_DOWNLOAD_DATASET=OFF -G Unix\ Makefiles -Bbin -Hbin/.. 
 
    cd bin
    
@@ -17,13 +18,13 @@ function build_linux(){
 	  exit 1
    fi
    
-   if [ ! -d input ]; then
-      echo -e "\n\n************************************  CMake was unable to download the dataset: DOWNLOAD FORCED  ************************************" 
-	  #curl -L --progress-bar http://imagelab.ing.unimore.it/files/YACCLAB_dataset.zip > dataset.zip
-	  wget http://imagelab.ing.unimore.it/files/YACCLAB_dataset.zip -O dataset.zip
-	  unzip -qq dataset.zip
-	  rm dataset.zip  
-	  echo -e "***************************************************************  DONE!  *************************************************************\n\n"
+   # Download of a reduced version of the YACCLAB dataset
+   echo -e "\n\n********************************************  Download of YACCLAB reduced dataset starts  *******************************************" 
+   #curl -L --progress-bar http://imagelab.ing.unimore.it/files/YACCLAB_dataset.zip > dataset.zip
+   wget http://imagelab.ing.unimore.it/files/YACCLAB_dataset_reduced.zip -O dataset.zip
+   unzip -qq dataset.zip
+   rm dataset.zip  
+   echo -e "***************************************************************  DONE!  *************************************************************\n\n"
    fi
    
    rm config.cfg
@@ -39,7 +40,7 @@ function build_mac(){
    echo "Building project ..."
 
    mkdir bin
-   cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_PREFIX_PATH=./opencv-3.1.0/build/ -G Xcode -Bbin -Hbin/.. 
+   cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_PREFIX_PATH=./opencv-3.1.0/build/ -D YACCLAB_DOWNLOAD_DATASET=OFF -G Xcode -Bbin -Hbin/.. 
 
    cd bin
    
@@ -48,13 +49,13 @@ function build_mac(){
 	  exit 1
    fi
 
-   if [ ! -d input ]; then
-      echo -e "\n\n************************************  CMake was unable to download the dataset: DOWNLOAD FORCED  ************************************" 
-	  #curl -L --progress-bar http://imagelab.ing.unimore.it/files/YACCLAB_dataset.zip > dataset.zip
-	  wget http://imagelab.ing.unimore.it/files/YACCLAB_dataset.zip -O dataset.zip
-	  unzip -qq dataset.zip
-	  rm dataset.zip  
-	  echo -e "***************************************************************  DONE!  *************************************************************\n\n"
+   # Download of a reduced version of the YACCLAB dataset
+   echo -e "\n\n********************************************  Download of YACCLAB reduced dataset starts  *******************************************" 
+   #curl -L --progress-bar http://imagelab.ing.unimore.it/files/YACCLAB_dataset.zip > dataset.zip
+   wget http://imagelab.ing.unimore.it/files/YACCLAB_dataset_reduced.zip -O dataset.zip
+   unzip -qq dataset.zip
+   rm dataset.zip  
+   echo -e "***************************************************************  DONE!  *************************************************************\n\n"
    fi
    
    rm config.cfg
