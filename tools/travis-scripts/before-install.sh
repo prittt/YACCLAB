@@ -29,15 +29,15 @@ function install_linux_environment()
   sudo apt-get -qq -y install python-dev python-numpy libtbb2 libtbb-dev libpng-dev libdc1394-22-dev
   #sudo apt-get install -y python-dev python-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev
 
-  echo -e "(test if cached):"
+  echo -e "(OpenCV cache test):"
   if [ -d opencv-3.1.0 -a "$(ls -A opencv-3.1.0/)" ]; then
-    echo -e "    OpenCV already installed(cached)"
+    echo -e "    OpenCV already installed"
   else
     echo -e "    OpenCV not installed yet, downloading it ... "
     # Download v3.1.0 .zip file and extract.
     #curl -L --progress-bar https://github.com/Itseez/opencv/archive/3.1.0.zip > opencv.zip
 	curl -L https://github.com/Itseez/opencv/archive/3.1.0.zip > opencv.zip
-    echo -e "    OpenCV downloaded"
+    echo -e "    DONE"
     unzip -qq opencv.zip
     rm opencv.zip
     cd opencv-3.1.0
@@ -111,15 +111,15 @@ function install_osx_environment()
 
   echo -e "\n\n------------------------------------------> Install OpenCV-3.1.0 (only if they weren't cached) and dependent packages:"
 
-  echo -e "(test if cached):"
+  echo -e "(OpenCV cache test):"
   if [ -d opencv-3.1.0 -a "$(ls -A opencv-3.1.0/)" ]; then
-    echo -e "    OpenCV already installed(cached)"
+    echo -e "    OpenCV already installed"
   else
     echo -e "    OpenCV not installed yet, downloading it ... "
     # Download v3.1.0 .zip file and extract.
     #curl -L --progress-bar https://github.com/Itseez/opencv/archive/3.1.0.zip > opencv.zip
 	curl -L https://github.com/Itseez/opencv/archive/3.1.0.zip > opencv.zip
-    echo -e "    OpenCV downloaded"
+    echo -e "    DONE"
 	unzip -qq opencv.zip
     rm opencv.zip
     cd opencv-3.1.0
