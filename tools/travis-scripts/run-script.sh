@@ -25,7 +25,6 @@ function build_linux(){
    unzip -qq dataset.zip
    rm dataset.zip  
    echo -e "***************************************************************  DONE!  *************************************************************\n\n"
-   fi
    
    rm config.cfg
    cp ../doc/ConfigurationFileForTravisCiTests.cfg .
@@ -56,7 +55,6 @@ function build_mac(){
    unzip -qq dataset.zip
    rm dataset.zip  
    echo -e "***************************************************************  DONE!  *************************************************************\n\n"
-   fi
    
    rm config.cfg
    cp ../doc/ConfigurationFileForTravisCiTests.cfg .
