@@ -7,6 +7,29 @@ YACCLAB is an open source C++ project which runs and tests CCL algorithms on a c
 
 =======
 
+###Requirements
+
+<p align="justify">To correctly install and run YACCLAB following packages, libraries and utility are needed:</p>
+
+- CMake 3.0.0 or higher (https://cmake.org/download/),
+- OpenCV 3.0 or higher (http://opencv.org/downloads.html),
+- Gnuplot (http://www.gnuplot.info/), 
+- One of your favourite IDE/compiler: Visual Studio 2013 or higher, Xcode 5.0.1, gcc 4.7 or higher, .. (with C++11 support)
+
+Note for gnuplot:
+- on Windows system: be sure add gnuplot to system path if you want YACCLAB automatically generates charts.
+- on MacOS system: 'pdf terminal' seems to be not available due to old version of cairo, 'postscript' one is used.
+
+=======
+
+###Installation
+
+- <p align="justify">Clone the GitHub repository (HTTPS clone URL: https://github.com/prittt/YACCLAB.git) or simply download the full master branch zip file and extract it (e.g YACCLAB folder).</p>
+- <p align="justify">Install software in YACCLAB/build subfolder (suggested) or wherever you want using CMake. Note that CMake should automatically find OpenCV path (if installed), download YACCLAB Dataset and create a project for the selected IDE/compiler.</p>
+- <p align="justify">Set <a href="#conf">configuration file</a> in order to execute desired tests, open the project created at the previous point, compile and run it: the work is done. </p>
+
+=======
+
 ### Datasets
  
 <p align="justify">YACCLAB dataset includes both synthetic and real images. All images are provided in 1 bit per pixel PNG format, with 0 (black) being background and 1 (white) being foreground. The dataset will be automatically downloaded by CMake during the installation process. Images are organized by folders as follows: </p>
@@ -38,28 +61,6 @@ YACCLAB is an open source C++ project which runs and tests CCL algorithms on a c
 
 =======
 
-###Requirements
-
-<p align="justify">To correctly install and run YACCLAB following packages, libraries and utility are needed:</p>
-
-- CMake 3.0.0 or higher (https://cmake.org/download/),
-- OpenCV 3.0 or higher (http://opencv.org/downloads.html),
-- Gnuplot (http://www.gnuplot.info/), 
-- One of your favourite IDE/compiler: Visual Studio 2013 or higher, Xcode 5.0.1, gcc 4.7 or higher, .. (with C++11 support)
-
-Note for gnuplot:
-- on Windows system: be sure add gnuplot to system path if you want YACCLAB automatically generates charts.
-- on MacOS system: 'pdf terminal' seems to be not available due to old version of cairo, 'postscript' one is used.
-
-=======
-
-###Installation
-
-- <p align="justify">Clone the GitHub repository (HTTPS clone URL: https://github.com/prittt/YACCLAB.git) or simply download the full master branch zip file and extract it (e.g YACCLAB folder).</p>
-- <p align="justify">Install software in YACCLAB/build subfolder (suggested) or wherever you want using CMake. Note that CMake should automatically find OpenCV path (if installed), download YACCLAB Dataset and create a project for the selected IDE/compiler.</p>
-- <p align="justify">Set <a href="#conf">configuration file</a> in order to execute desired tests, open the project created at the previous point, compile and run it: the work is done. </p>
-
-=======
 <a name="conf"></a>
 ###Configuration File
 
@@ -135,7 +136,7 @@ In this section we use  acronyms  to  refer  to  the  available  algorithms:
 - CTB is the Configuration-Transition-Based algorithm by He et al. <sup>[7](#CTB)</sup>;  
 - SBLA is the stripe-based algorithm by Zhao et al.<sup>[8](#SBLA)</sup>; 
 - PRED is the Optimized Pixel Prediction by Grana et al. <sup>[9](#PRED)</sup>;
-- NULL labeling is an algorithms that defines a lower bound limit for the execution time of CCL algorithms on a given machine and dataset. As the name suggests, this algorithm does not provide the correct connected components for a given image. It only checks the pixels of that image and sets almost randomly the value of the output. 
+- NULL labeling is an algorithm that defines a lower bound limit for the execution time of CCL algorithms on a given machine and dataset. As the name suggests, this algorithm does not provide the correct connected components for a given image. It only checks the pixels of that image and sets almost randomly the value of the output. 
 
 SAUF and BBDT are the algorithms currently included in OpenCV. 
 
