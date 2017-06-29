@@ -1,0 +1,3 @@
+repository='https://github.com/jbeder/yaml-cpp.git'
+module=''
+tag=''

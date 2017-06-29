@@ -1,0 +1,87 @@
+%YAML:1.0
+---
+# This is YACCLAB configuration file
+# Important notes:
+#	- the escape character in gnuplot is '\\' and it is correctly handle by YACCLAB
+#	- for some algorithms YACCLAB contains both optimized (OPT) and readable version;
+#		you should use optimized version for tests.
+
+# -------------------------------------------------------------------------------------
+# input/output paths
+# -------------------------------------------------------------------------------------
+
+# Folder on which datasets are placed
+input_path: input
+
+# Folder on which result are stored
+output_path: output
+
+# Global flag to customize output (useful to find eventual errors)
+write_n_labels: true
+
+# -------------------------------------------------------------------------------------
+# List of algorithms to test and check (function + name)
+# -------------------------------------------------------------------------------------
+test: [0,1,1]
+# Note: "CCLAlgorithmsFunc" and "CCLAlgorithmsName" must match in 
+# length and order and must not be empty
+algorithms: ["SAUF"]#, "BBDT"]
+
+#CCLAlgoFunc = SAUF_OPT, DiStefanoOPT, BBDT_OPT, CT_OPT, CCIT_OPT, LSL_STD_OPT, CTB_OPT, SBLA_OPT, PRED_OPT, labelingNULL
+#CCLAlgoName = SAUF, DiStefano, BBDT, CT, CCIT, LSL\\_STD, CTB, SBLA, PRED, NULL
+
+
+# -------------------------------------------------------------------------------------
+# List of algorithms on which execute memory test (function + name)
+# -------------------------------------------------------------------------------------
+
+# Note: "CCLMemAlgorithmsFunc" and "CCLMemAlgorithmsName" must match in length and 
+# order and must not be empty
+#MemAlgorithms = SAUF_MEM, DiStefanoMEM, BBDT_MEM, LSL_STD_MEM, PRED_MEM, labelingNULL_MEM
+#CCLMemAlgoName = SAUF, DiStefano, BBDT, LSL\\_STD, PRED, NULL
+
+# -------------------------------------------------------------------------------------
+# Correctness Tests
+# -------------------------------------------------------------------------------------
+
+# Note that perform correctness tests on labelingNULL algorithm does not make sense
+check_8connectivity: true
+
+# List of datasets on which "Correctness Tests" shall be run;
+check_list: ["check", "3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "test_random", "tobacco800"]
+
+# -------------------------------------------------------------------------------------
+# Averages Runtime Tests
+# -------------------------------------------------------------------------------------
+
+at_perform: true
+at_colorLabels: false
+at_testsNumber: 10
+at_saveMiddleTests: true
+
+# List of datasets on which "Averages Runtime Tests" shall be run
+averages_tests: ["fingerprints"]
+#averages_tests = 3dpes, fingerprints, hamlet, medical, mirflickr, tobacco800  
+
+
+# -------------------------------------------------------------------------------------
+# Density Size Tests
+# -------------------------------------------------------------------------------------
+
+ds_perform: true
+ds_colorLabels: false
+ds_testsNumber: 1
+ds_saveMiddleTests: false
+
+# This tests can be performed only on random dataset
+
+# -------------------------------------------------------------------------------------
+# Memory Tests
+# -------------------------------------------------------------------------------------
+
+mt_perform: false
+
+# List of datasets on which "Memory Tests" shall be run
+memory_tests: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "test_random", "tobacco800"]
+
+# This is YACCLAB configuration file

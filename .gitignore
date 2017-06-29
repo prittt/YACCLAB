@@ -1,0 +1,15 @@
+/*.vcxproj
+/*.filters
+/*.sln
+/*.opensdf
+/*.suo
+/*.sdf
+/*.user
+/CMakeCache.txt
+/cmake_install.cmake
+/Release
+/Debug
+build
+bin
+CMakeFiles
+
