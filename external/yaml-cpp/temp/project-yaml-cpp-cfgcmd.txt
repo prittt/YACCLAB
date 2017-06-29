@@ -1,1 +1,0 @@
-cmd='D:/Program Files/CMake/bin/cmake.exe;-DCMAKE_INSTALL_PREFIX:PATH=C:/Users/Michele Cancilla/Desktop/NewYACCLAB/external/yaml-cpp/install;-DCMAKE_BUILD_TYPE=Debug;Release;-DBUILD_SHARED_LIBS=OFF;-DMSVC_SHARED_RT=OFF;-GVisual Studio 15 2017;<SOURCE_DIR><SOURCE_SUBDIR>'
