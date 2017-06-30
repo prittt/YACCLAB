@@ -39,7 +39,10 @@ set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Configs" FORCE)
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE PATH "Install prefix" FORCE)
 
 #Set YACCLAB_dataset download variable
-set(YACCLAB_DOWNLOAD_DATASET OFF CACHE BOOL "If true the YACCLAB dataset will be downloaded automatically") 
+set(YACCLAB_DOWNLOAD_DATASET OFF CACHE BOOL "If flagged the YACCLAB dataset will be automatically downloaded")
+set(YACCLAB_INPUT_DATASETS_PATH "${CMAKE_INSTALL_PREFIX}/input" CACHE PATH "'input' datasets path") 
+set(YACCLAB_OUTPUT_RESULTS_PATH "${CMAKE_INSTALL_PREFIX}/output" CACHE PATH "'output' results path") 
+
 
 if(MSVC)
   set(CMAKE_USE_RELATIVE_PATHS ON CACHE INTERNAL "" FORCE)
@@ -83,7 +86,7 @@ endif()
 # ----------------------------------------------------------------------------
 
 # Save libs and executables in the same place
-set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}" CACHE PATH "Output directory for applications" )
+set(YACCLAB_EXECUTABLE_OUTPUT_PATH "${CMAKE_INSTALL_PREFIX}" CACHE PATH "Output directory for applications" )
 
 # ----------------------------------------------------------------------------
 # Solution folders
@@ -99,7 +102,8 @@ include_directories( "." )
 # OpenCV 
 # --------------------
 
-FIND_PACKAGE(OpenCV REQUIRED core imgcodecs imgproc)
+set(OpenCV_REQUIRED_PACKAGES "core;imgcodecs;imgproc" CACHE STRING "OpenCV packages required by YACCLAB are already set")
+FIND_PACKAGE(OpenCV REQUIRED ${OpenCV_REQUIRED_PACKAGES})
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 
 if(MSVC)
@@ -119,15 +123,16 @@ include_directories("${CMAKE_SOURCE_DIR}/include")
 
 file(GLOB SRCFILES ${SRCFILES} "src/*.cpp" "src/*.c")
 file(GLOB HFILES ${HFILES} "include/*.h" "include/*.hpp")
-	
-set (addExe ${SRCFILES} ${HFILES} "${CMAKE_CURRENT_BINARY_DIR}/config.yaml")
-add_executable(${ProjectName} ${addExe})
-target_link_libraries (${ProjectName}  ${OpenCV_LIBS})
-include_directories (${CMAKE_CURRENT_BINARY_DIR})
 
 # Copy config file in the installation folder and rename it		
-file(COPY "${CMAKE_SOURCE_DIR}/doc/StandardConfigurationFileDoNotModifyItButTheOneInTheInstallationFolder.yaml" DESTINATION ${CMAKE_INSTALL_PREFIX})
-file(RENAME "${CMAKE_INSTALL_PREFIX}/StandardConfigurationFileDoNotModifyItButTheOneInTheInstallationFolder.yaml" "${CMAKE_INSTALL_PREFIX}/config.yaml")
+configure_file("${CMAKE_SOURCE_DIR}/doc/ConfigBase.yaml" "${CMAKE_INSTALL_PREFIX}/Config.yaml")
+
+set (addExe ${SRCFILES} ${HFILES} "${CMAKE_INSTALL_PREFIX}/config.yaml")
+add_executable(${ProjectName} ${addExe})
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${ProjectName})
+target_link_libraries (${ProjectName}  ${OpenCV_LIBS})
+include_directories (${CMAKE_INSTALL_PREFIX})
+
 
 # Download and unpack dataset if necessary
 if(YACCLAB_DOWNLOAD_DATASET)

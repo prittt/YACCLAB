@@ -11,10 +11,10 @@
 # -------------------------------------------------------------------------------------
 
 # Folder on which datasets are placed
-input_path: input
+input_path: ${INPUT}
 
 # Folder on which result are stored
-output_path: output
+output_path: ${OUTPUT}
 
 # Global flag to customize output (useful to find eventual errors)
 write_n_labels: false

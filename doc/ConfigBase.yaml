@@ -11,34 +11,21 @@
 # -------------------------------------------------------------------------------------
 
 # Folder on which datasets are placed
-input_path: input
+input_path: ${YACCLAB_INPUT_DATASETS_PATH}
 
 # Folder on which result are stored
-output_path: output
+output_path: ${YACCLAB_OUTPUT_RESULTS_PATH}
 
 # Global flag to customize output (useful to find eventual errors)
-write_n_labels: true
+write_n_labels: false
 
 # -------------------------------------------------------------------------------------
-# List of algorithms to test and check (function + name)
-# -------------------------------------------------------------------------------------
-test: [0,1,1]
-# Note: "CCLAlgorithmsFunc" and "CCLAlgorithmsName" must match in 
-# length and order and must not be empty
-algorithms: ["SAUF"]#, "BBDT"]
-
-#CCLAlgoFunc = SAUF_OPT, DiStefanoOPT, BBDT_OPT, CT_OPT, CCIT_OPT, LSL_STD_OPT, CTB_OPT, SBLA_OPT, PRED_OPT, labelingNULL
-#CCLAlgoName = SAUF, DiStefano, BBDT, CT, CCIT, LSL\\_STD, CTB, SBLA, PRED, NULL
-
-
-# -------------------------------------------------------------------------------------
-# List of algorithms on which execute memory test (function + name)
+# List of CCL algorithms available in YACCLAB
 # -------------------------------------------------------------------------------------
 
-# Note: "CCLMemAlgorithmsFunc" and "CCLMemAlgorithmsName" must match in length and 
-# order and must not be empty
-#MemAlgorithms = SAUF_MEM, DiStefanoMEM, BBDT_MEM, LSL_STD_MEM, PRED_MEM, labelingNULL_MEM
-#CCLMemAlgoName = SAUF, DiStefano, BBDT, LSL\\_STD, PRED, NULL
+algorithms: ["SAUF"]
+#algorithms: ["SAUF", "BBDT", "DiStefano", "CT", "CCIT", "LSL_STD", "CTB", "SBLA", "PRED", "NULL"]
+
 
 # -------------------------------------------------------------------------------------
 # Correctness Tests
@@ -60,8 +47,7 @@ at_testsNumber: 10
 at_saveMiddleTests: true
 
 # List of datasets on which "Averages Runtime Tests" shall be run
-averages_tests: ["fingerprints"]
-#averages_tests = 3dpes, fingerprints, hamlet, medical, mirflickr, tobacco800  
+averages_tests: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800"]
 
 
 # -------------------------------------------------------------------------------------
@@ -70,7 +56,7 @@ averages_tests: ["fingerprints"]
 
 ds_perform: true
 ds_colorLabels: false
-ds_testsNumber: 1
+ds_testsNumber: 10
 ds_saveMiddleTests: false
 
 # This tests can be performed only on random dataset
