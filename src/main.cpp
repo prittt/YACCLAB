@@ -5,6 +5,7 @@
 #include <vector>
 #include <functional>
 #include <cstdint>
+#include <iomanip>
 
 #include "performanceEvaluator.h"
 #include "labelingAlgorithms.h"

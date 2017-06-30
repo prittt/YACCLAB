@@ -1,5 +1,9 @@
 #include "latexGeneration.h"
+
 #include "utilities.h"
+#include <fstream>
+#include <iostream>
+#include <iomanip>
 
 using namespace cv;
 using namespace std;
