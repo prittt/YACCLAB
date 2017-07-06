@@ -1,3 +1,4 @@
+
 # Copyright(c) 2016 - 2017 Costantino Grana, Federico Bolelli, Lorenzo Baraldi and Roberto Vezzani
 # All rights reserved.
 # 
@@ -29,7 +30,6 @@
 cmake_minimum_required(VERSION 3.0.0)
 
 set (ProjectName "YACCLAB")
-
 project (${ProjectName})
 
 #Suppress creation of ZERO_CHECK
@@ -40,7 +40,7 @@ set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE PATH "Install prefix" FORCE
 
 #Set YACCLAB_dataset download variable
 set(YACCLAB_DOWNLOAD_DATASET OFF CACHE BOOL "If flagged the YACCLAB dataset will be automatically downloaded")
-set(YACCLAB_INPUT_DATASETS_PATH "${CMAKE_INSTALL_PREFIX}/input" CACHE PATH "'input' datasets path") 
+set(YACCLAB_INPUT_DATASET_PATH "${CMAKE_INSTALL_PREFIX}/input" CACHE PATH "'input' dataset path") 
 set(YACCLAB_OUTPUT_RESULTS_PATH "${CMAKE_INSTALL_PREFIX}/output" CACHE PATH "'output' results path") 
 
 
@@ -96,8 +96,6 @@ if(ENABLE_SOLUTION_FOLDERS)
   set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMakeTargets")
 endif()
 
-include_directories( "." )
-
 # --------------------
 # OpenCV 
 # --------------------
@@ -124,37 +122,41 @@ include_directories("${CMAKE_SOURCE_DIR}/include")
 file(GLOB SRCFILES ${SRCFILES} "src/*.cpp" "src/*.c")
 file(GLOB HFILES ${HFILES} "include/*.h" "include/*.hpp")
 
-# Copy config file in the installation folder and rename it		
-configure_file("${CMAKE_SOURCE_DIR}/doc/ConfigBase.yaml" "${CMAKE_INSTALL_PREFIX}/Config.yaml")
+# Set configuration file		
+configure_file("${CMAKE_SOURCE_DIR}/doc/config_base.yaml" "${CMAKE_INSTALL_PREFIX}/config.yaml")
 
 set (addExe ${SRCFILES} ${HFILES} "${CMAKE_INSTALL_PREFIX}/config.yaml")
 add_executable(${ProjectName} ${addExe})
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${ProjectName})
 target_link_libraries (${ProjectName}  ${OpenCV_LIBS})
-include_directories (${CMAKE_INSTALL_PREFIX})
 
-
+# Creation of output directory
+if (NOT EXISTS "${YACCLAB_INPUT_DATASET_PATH}")
+		file(MAKE_DIRECTORY ${YACCLAB_OUTPUT_RESULTS_PATH})
+endif()
+	
 # Download and unpack dataset if necessary
 if(YACCLAB_DOWNLOAD_DATASET)
-	if (NOT EXISTS "${CMAKE_INSTALL_PREFIX}/input")
-		if (NOT EXISTS "${CMAKE_INSTALL_PREFIX}/dataset.zip")
-			message(STATUS "Downloading dataset...")
-			file(DOWNLOAD http://imagelab.ing.unimore.it/files/YACCLAB_dataset_new.zip "${CMAKE_INSTALL_PREFIX}/dataset.zip" STATUS status SHOW_PROGRESS)
-			list( GET status 0 error_code )
-			if( error_code )
-				message(ERROR " Cmake is not able to download the YACCLAB dataset. \nPlease, retry or download it manually and put the 'input' unzipped folder in the installation path:\n'" ${CMAKE_INSTALL_PREFIX} "'. \n(The dataset is available at http://imagelab.ing.unimore.it/files/YACCLAB_dataset.zip).")
-				if(EXISTS "${CMAKE_INSTALL_PREFIX}/dataset.zip")
-					file(REMOVE "${CMAKE_INSTALL_PREFIX}/dataset.zip")
-				endif()
-			else()
-				message(STATUS "Downloading done.")
-			endif()
+	# Creation of input directory
+	if (NOT EXISTS "${YACCLAB_INPUT_DATASET_PATH}")
+		file(MAKE_DIRECTORY ${YACCLAB_INPUT_DATASET_PATH})
+	endif()
+	
+	message(STATUS "Downloading dataset...")
+	file(DOWNLOAD http://imagelab.ing.unimore.it/files/YACCLAB_dataset_new.zip "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip" STATUS status SHOW_PROGRESS)
+	list( GET status 0 error_code )
+	if( error_code )
+		message(ERROR " Cmake is not able to download the YACCLAB dataset. \nPlease, retry or download it manually and put all unzipped dataset directories in the 'input' path:\n'" ${YACCLAB_INPUT_DATASET_PATH} "'. \n(The dataset is available at http://imagelab.ing.unimore.it/files/YACCLAB_dataset_new.zip).")
+		if(EXISTS "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip")
+			file(REMOVE "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip")
 		endif()
+	else()
+		message(STATUS "Downloading done.")
+	endif()
 		
-		if(EXISTS "${CMAKE_INSTALL_PREFIX}/dataset.zip")
+	if(EXISTS "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip")
 			message(STATUS "Unpacking (it may take a while)...")
-			execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${CMAKE_INSTALL_PREFIX}/dataset.zip" WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}" OUTPUT_QUIET)
+			execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip" WORKING_DIRECTORY "${YACCLAB_INPUT_DATASET_PATH}" OUTPUT_QUIET)
 			message(STATUS "Unpacking done.")
-		endif()
 	endif()
 endif()
