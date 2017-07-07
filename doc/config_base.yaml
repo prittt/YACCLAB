@@ -1,0 +1,55 @@
+%YAML:1.2
+---
+# This is YACCLAB configuration file
+# Important notes:
+#	- the escape character in gnuplot is '\\' and it is correctly handled by YACCLAB
+#	- for some algorithms YACCLAB contains both optimized (OPT) and readable version;
+#		you should use optimized version for tests.
+
+# -------------------------------------------------------------------------------------
+# Tests to perform and their number of repetitions
+# -------------------------------------------------------------------------------------
+
+# Kind of tests to execute
+perform: {check_8_Connectivity: false, average: true, density: true, memory: false, average_with_steps: false}
+
+# Number of tests repetitions 
+tests_number: {average: 10, density: 10, average_with_steps: 10}
+
+# -------------------------------------------------------------------------------------
+# List of CCL algorithms to test
+# -------------------------------------------------------------------------------------
+
+algorithms: ["SAUF_UfPC"]
+#algorithms: ["SAUF", "BBDT", "DiStefano", "CT", "CCIT", "LSL_STD", "CTB", "SBLA", "PRED", "NULL"]
+
+# -------------------------------------------------------------------------------------
+# Datasets to use for each test
+# -------------------------------------------------------------------------------------
+
+# Note that perform correctness tests on labeling_NULL algorithm does not make sense
+check_datasets: ["check", "3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "test_random", "tobacco800"]
+
+# List of datasets on which "Average Runtime Tests" shall be run
+average_datasets: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800"]
+
+# List of datasets on which "Memory Tests" shall be run
+memory_datasets: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "test_random", "tobacco800"]
+
+# -------------------------------------------------------------------------------------
+# Additional utility
+# -------------------------------------------------------------------------------------
+
+# Directory for input/output paths
+paths: {input: "${YACCLAB_INPUT_DATASET_PATH}", output: "${YACCLAB_OUTPUT_RESULTS_PATH}"}
+
+# Save the returned number of components in output files
+write_n_labels: false
+
+# Save labeled image
+color_labels: {average: false, density: false}
+
+# Save the results of each run test
+save_middle_tests: {average: false, density: false}
+
+# This is YACCLAB configuration file
