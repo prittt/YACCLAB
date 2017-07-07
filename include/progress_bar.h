@@ -26,9 +26,11 @@
 // OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#pragma once
+#ifndef YACCLAB_PROGRESS_BAR_H_
+#define YACCLAB_PROGRESS_BAR_H_
+
 #include <iostream>
-#include "systemInfo.h"
+#include "system_info.h"
 
 /* This class is useful to display a progress bar in the output console.
 Example of usage:
@@ -44,18 +46,17 @@ Example of usage:
 */
 class ProgressBar {
 public:
-    ProgressBar(const size_t total, const size_t gap = 4, const size_t barWidth = 70)
+    ProgressBar(const size_t total, const size_t gap = 4, const size_t bar_width = 70)
     {
         total_ = total;
         gap_ = gap;
-        barWidth_ = barWidth;
+        barWidth_ = bar_width;
     }
 
     void Start()
     {
         std::cout << "[>";
-        for (size_t i = 0; i < barWidth_ - 1; ++i)
-        {
+        for (size_t i = 0; i < barWidth_ - 1; ++i) {
             std::cout << " ";
         }
         std::cout << "] 0 %\r";
@@ -63,18 +64,15 @@ public:
         prev_ = 0;
     }
 
-    void Display(const size_t progress, const int currentRepeat = -1)
+    void Display(const size_t progress, const int current_repeat = -1)
     {
-        if (progress < total_ && prev_ == (gap_ - 1))
-        {
-            if (currentRepeat > 0)
-            {
-                std::cout << "Test #" << currentRepeat << " ";
+        if (progress < total_ && prev_ == (gap_ - 1)) {
+            if (current_repeat > 0) {
+                std::cout << "Test #" << current_repeat << " ";
             }
             std::cout << "[";
             size_t pos = barWidth_ * progress / total_;
-            for (size_t i = 0; i < barWidth_; ++i)
-            {
+            for (size_t i = 0; i < barWidth_; ++i) {
                 if (i < pos) std::cout << "=";
                 else if (i == pos) std::cout << ">";
                 else std::cout << " ";
@@ -83,21 +81,18 @@ public:
             std::cout.flush();
             prev_ = 0;
         }
-        else
-        {
+        else {
             prev_++;
         }
     }
 
-    void End(const int lastRepeat = -1)
+    void End(const int last_repeat = -1)
     {
-        if (lastRepeat > 0)
-        {
-            std::cout << "Test #" << lastRepeat << " ";
+        if (last_repeat > 0) {
+            std::cout << "Test #" << last_repeat << " ";
         }
         std::cout << "[";
-        for (size_t i = 0; i < barWidth_; ++i)
-        {
+        for (size_t i = 0; i < barWidth_; ++i) {
             std::cout << "=";
         }
         std::cout << "] 100 %\r";
@@ -124,13 +119,13 @@ Example of usage:
 */
 class TitleBar {
 public:
-    TitleBar(const std::string& title, const size_t barWidth = 70, const size_t asterisks = 15)
+    TitleBar(const std::string& title, const size_t bar_width = 70, const size_t asterisks = 15)
     {
         title_ = title;
-        barWidth_ = barWidth;
+        barWidth_ = bar_width;
         asterisks_ = asterisks;
 
-        if ((asterisks_ * 2 + title.size() + 8) > barWidth)
+        if ((asterisks_ * 2 + title.size() + 8) > bar_width)
             barWidth_ = asterisks_ * 2 + title.size() + 8;
     }
 
@@ -160,16 +155,14 @@ private:
 
     void PrintAsterisks()
     {
-        for (size_t i = 0; i < asterisks_; ++i)
-        {
+        for (size_t i = 0; i < asterisks_; ++i) {
             std::cout << "*";
         }
     }
 
     void PrintSpaces(size_t spaces)
     {
-        for (size_t i = 0; i < spaces; ++i)
-        {
+        for (size_t i = 0; i < spaces; ++i) {
             std::cout << " ";
         }
     }
@@ -178,3 +171,5 @@ private:
     size_t barWidth_;
     size_t asterisks_;
 };
+
+#endif // !YACCLAB_PROGRESS_BAR_H_
