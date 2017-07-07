@@ -35,7 +35,7 @@ REGISTER_LABELING(PRED);
 
 void PRED::AllocateMemory()
 {
-    const size_t Plength = upperBound8Conn;
+    const size_t Plength = UPPER_BOUND_8_CONNECTIVITY;
     P = (unsigned *)fastMalloc(sizeof(unsigned) * Plength); //array P for equivalences resolution
     return;
 }
@@ -48,9 +48,9 @@ void PRED::DeallocateMemory()
 
 unsigned PRED::FirstScan()
 {
-    const int w(aImg.cols), h(aImg.rows);
+    const int w(img_.cols), h(img_.rows);
 
-    aImgLabels = cv::Mat1i(aImg.size(), 0);
+    img_labels_ = cv::Mat1i(img_.size(), 0);
 
     //Background
     P[0] = 0;
@@ -63,8 +63,8 @@ unsigned PRED::FirstScan()
 
     {
         // Get rows pointer
-        const uchar* const img_row = aImg.ptr<uchar>(0);
-        unsigned* const imgLabels_row = aImgLabels.ptr<unsigned>(0);
+        const uchar* const img_row = img_.ptr<uchar>(0);
+        unsigned* const imgLabels_row = img_labels_.ptr<unsigned>(0);
 
         int c = -1;
     tree_A0: if (++c >= w) goto break_A0;
@@ -99,10 +99,10 @@ unsigned PRED::FirstScan()
     for (int r = 1; r < h; ++r)
     {
         // Get rows pointer
-        const uchar* const img_row = aImg.ptr<uchar>(r);
-        const uchar* const img_row_prev = (uchar *)(((char *)img_row) - aImg.step.p[0]);
-        unsigned* const imgLabels_row = aImgLabels.ptr<unsigned>(r);
-        unsigned* const imgLabels_row_prev = (unsigned *)(((char *)imgLabels_row) - aImgLabels.step.p[0]);
+        const uchar* const img_row = img_.ptr<uchar>(r);
+        const uchar* const img_row_prev = (uchar *)(((char *)img_row) - img_.step.p[0]);
+        unsigned* const imgLabels_row = img_labels_.ptr<unsigned>(r);
+        unsigned* const imgLabels_row_prev = (unsigned *)(((char *)imgLabels_row) - img_labels_.step.p[0]);
 
         // First column
         int c = 0;
@@ -323,10 +323,10 @@ unsigned PRED::SecondScan(const unsigned& lunique)
     unsigned nLabels = flattenL(P, lunique);
 
     // second scan
-    for (int r_i = 0; r_i < aImgLabels.rows; ++r_i)
+    for (int r_i = 0; r_i < img_labels_.rows; ++r_i)
     {
-        unsigned *b = aImgLabels.ptr<unsigned>(r_i);
-        unsigned *e = b + aImgLabels.cols;
+        unsigned *b = img_labels_.ptr<unsigned>(r_i);
+        unsigned *e = b + img_labels_.cols;
         for (; b != e; ++b)
         {
             *b = P[*b];
@@ -338,10 +338,10 @@ unsigned PRED::SecondScan(const unsigned& lunique)
 
 unsigned PRED::PerformLabeling()
 {
-    const int h = aImg.rows;
-    const int w = aImg.cols;
+    const int h = img_.rows;
+    const int w = img_.cols;
 
-    aImgLabels = Mat1i(aImg.size(), 0);
+    img_labels_ = Mat1i(img_.size(), 0);
 
     P[0] = 0;	//first label is for background pixels
     unsigned lunique = 1;
@@ -353,8 +353,8 @@ unsigned PRED::PerformLabeling()
 
     {
         // Get rows pointer
-        const uchar* const img_row = aImg.ptr<uchar>(0);
-        unsigned* const imgLabels_row = aImgLabels.ptr<unsigned>(0);
+        const uchar* const img_row = img_.ptr<uchar>(0);
+        unsigned* const imgLabels_row = img_labels_.ptr<unsigned>(0);
 
         int c = -1;
     tree_A0: if (++c >= w) goto break_A0;
@@ -389,10 +389,10 @@ unsigned PRED::PerformLabeling()
     for (int r = 1; r < h; ++r)
     {
         // Get rows pointer
-        const uchar* const img_row = aImg.ptr<uchar>(r);
-        const uchar* const img_row_prev = (uchar *)(((char *)img_row) - aImg.step.p[0]);
-        unsigned* const imgLabels_row = aImgLabels.ptr<unsigned>(r);
-        unsigned* const imgLabels_row_prev = (unsigned *)(((char *)imgLabels_row) - aImgLabels.step.p[0]);
+        const uchar* const img_row = img_.ptr<uchar>(r);
+        const uchar* const img_row_prev = (uchar *)(((char *)img_row) - img_.step.p[0]);
+        unsigned* const imgLabels_row = img_labels_.ptr<unsigned>(r);
+        unsigned* const imgLabels_row_prev = (unsigned *)(((char *)imgLabels_row) - img_labels_.step.p[0]);
 
         // First column
         int c = 0;
@@ -611,7 +611,7 @@ unsigned PRED::PerformLabeling()
     // second scan
     for (int r_i = 0; r_i < h; ++r_i)
     {
-        unsigned *b = aImgLabels.ptr<unsigned>(r_i);
+        unsigned *b = img_labels_.ptr<unsigned>(r_i);
         unsigned *e = b + w;
         for (; b != e; ++b)
         {
@@ -624,14 +624,14 @@ unsigned PRED::PerformLabeling()
 
 unsigned PRED::PerformLabelingMem(vector<unsigned long>& accesses)
 {
-    int w(aImg.cols), h(aImg.rows);
+    int w(img_.cols), h(img_.rows);
 
-    memMat<uchar> img(aImg);
-    memMat<int> aImgLabels(aImg.size(), 0); // memset is used
+    memMat<uchar> img(img_);
+    memMat<int> img_labels_(img_.size(), 0); // memset is used
 
                                                   //A quick and dirty upper bound for the maximimum number of labels (only for 8-connectivity).
                                                   //const size_t Plength = (img_origin.rows + 1)*(img_origin.cols + 1) / 4 + 1; // Oversized in some cases
-    const size_t Plength = upperBound8Conn;
+    const size_t Plength = UPPER_BOUND_8_CONNECTIVITY;
 
     //Tree of labels
     memVector<unsigned> P(Plength);
@@ -639,10 +639,10 @@ unsigned PRED::PerformLabelingMem(vector<unsigned long>& accesses)
     P[0] = 0;
     unsigned lunique = 1;
 
-#define condition_x aImg(r,c)>0
-#define condition_p aImg(r-1,c-1)>0
-#define condition_q aImg(r-1,c)>0
-#define condition_r aImg(r-1,c+1)>0
+#define condition_x img_(r,c)>0
+#define condition_p img_(r-1,c-1)>0
+#define condition_q img_(r-1,c)>0
+#define condition_r img_(r-1,c+1)>0
 
     {
         int r = 0;
@@ -651,7 +651,7 @@ unsigned PRED::PerformLabelingMem(vector<unsigned long>& accesses)
         if (condition_x)
         {
             // x = new label
-            aImgLabels(r, c) = lunique;
+            img_labels_(r, c) = lunique;
             P[lunique] = lunique;
             lunique++;
             goto tree_B0;
@@ -664,7 +664,7 @@ unsigned PRED::PerformLabelingMem(vector<unsigned long>& accesses)
     tree_B0: if (++c >= w) goto break_B0;
         if (condition_x)
         {
-            aImgLabels(r, c) = aImgLabels(r, c - 1); // x = s
+            img_labels_(r, c) = img_labels_(r, c - 1); // x = s
             goto tree_B0;
         }
         else
@@ -688,20 +688,20 @@ unsigned PRED::PerformLabelingMem(vector<unsigned long>& accesses)
         {
             if (condition_q)
             {
-                aImgLabels(r, c) = aImgLabels(r - 1, c); // x = q
+                img_labels_(r, c) = img_labels_(r - 1, c); // x = q
                 goto tree_A;
             }
             else
             {
                 if (condition_r)
                 {
-                    aImgLabels(r, c) = aImgLabels(r - 1, c + 1); // x = r
+                    img_labels_(r, c) = img_labels_(r - 1, c + 1); // x = r
                     goto tree_B;
                 }
                 else
                 {
                     // x = new label
-                    aImgLabels(r, c) = lunique;
+                    img_labels_(r, c) = lunique;
                     P[lunique] = lunique;
                     lunique++;
                     goto tree_C;
@@ -719,19 +719,19 @@ unsigned PRED::PerformLabelingMem(vector<unsigned long>& accesses)
         {
             if (condition_q)
             {
-                aImgLabels(r, c) = aImgLabels(r - 1, c); // x = q
+                img_labels_(r, c) = img_labels_(r - 1, c); // x = q
                 goto tree_A;
             }
             else
             {
                 if (condition_r)
                 {
-                    aImgLabels(r, c) = set_union(P, (unsigned)aImgLabels(r - 1, c + 1), (unsigned)aImgLabels(r, c - 1)); // x = r + s
+                    img_labels_(r, c) = set_union(P, (unsigned)img_labels_(r - 1, c + 1), (unsigned)img_labels_(r, c - 1)); // x = r + s
                     goto tree_B;
                 }
                 else
                 {
-                    aImgLabels(r, c) = aImgLabels(r, c - 1); // x = s
+                    img_labels_(r, c) = img_labels_(r, c - 1); // x = s
                     goto tree_C;
                 }
             }
@@ -744,7 +744,7 @@ unsigned PRED::PerformLabelingMem(vector<unsigned long>& accesses)
     tree_B: if (++c >= w - 1) goto break_B;
         if (condition_x)
         {
-            aImgLabels(r, c) = aImgLabels(r - 1, c); // x = q
+            img_labels_(r, c) = img_labels_(r - 1, c); // x = q
             goto tree_A;
         }
         else
@@ -757,12 +757,12 @@ unsigned PRED::PerformLabelingMem(vector<unsigned long>& accesses)
         {
             if (condition_r)
             {
-                aImgLabels(r, c) = set_union(P, (unsigned)aImgLabels(r - 1, c + 1), (unsigned)aImgLabels(r, c - 1)); // x = r + s
+                img_labels_(r, c) = set_union(P, (unsigned)img_labels_(r - 1, c + 1), (unsigned)img_labels_(r, c - 1)); // x = r + s
                 goto tree_B;
             }
             else
             {
-                aImgLabels(r, c) = aImgLabels(r, c - 1); // x = s
+                img_labels_(r, c) = img_labels_(r, c - 1); // x = s
                 goto tree_C;
             }
         }
@@ -776,7 +776,7 @@ unsigned PRED::PerformLabelingMem(vector<unsigned long>& accesses)
         {
             if (condition_q)
             {
-                aImgLabels(r, c) = aImgLabels(r - 1, c); // x = q
+                img_labels_(r, c) = img_labels_(r - 1, c); // x = q
                 goto tree_A;
             }
             else
@@ -785,12 +785,12 @@ unsigned PRED::PerformLabelingMem(vector<unsigned long>& accesses)
                 {
                     if (condition_p)
                     {
-                        aImgLabels(r, c) = set_union(P, (unsigned)aImgLabels(r - 1, c - 1), (unsigned)aImgLabels(r - 1, c + 1)); // x = p + r
+                        img_labels_(r, c) = set_union(P, (unsigned)img_labels_(r - 1, c - 1), (unsigned)img_labels_(r - 1, c + 1)); // x = p + r
                         goto tree_B;
                     }
                     else
                     {
-                        aImgLabels(r, c) = aImgLabels(r - 1, c + 1); // x = r
+                        img_labels_(r, c) = img_labels_(r - 1, c + 1); // x = r
                         goto tree_B;
                     }
                 }
@@ -798,13 +798,13 @@ unsigned PRED::PerformLabelingMem(vector<unsigned long>& accesses)
                 {
                     if (condition_p)
                     {
-                        aImgLabels(r, c) = aImgLabels(r - 1, c - 1); // x = p
+                        img_labels_(r, c) = img_labels_(r - 1, c - 1); // x = p
                         goto tree_C;
                     }
                     else
                     {
                         // x = new label
-                        aImgLabels(r, c) = lunique;
+                        img_labels_(r, c) = lunique;
                         P[lunique] = lunique;
                         lunique++;
                         goto tree_C;
@@ -824,24 +824,24 @@ unsigned PRED::PerformLabelingMem(vector<unsigned long>& accesses)
         {
             if (condition_q)
             {
-                aImgLabels(r, c) = aImgLabels(r - 1, c); // x = q
+                img_labels_(r, c) = img_labels_(r - 1, c); // x = q
             }
             else
             {
-                aImgLabels(r, c) = aImgLabels(r, c - 1); // x = s
+                img_labels_(r, c) = img_labels_(r, c - 1); // x = s
             }
         }
         continue;
     break_B:
         if (condition_x)
         {
-            aImgLabels(r, c) = aImgLabels(r - 1, c); // x = q
+            img_labels_(r, c) = img_labels_(r - 1, c); // x = q
         }
         continue;
     break_C:
         if (condition_x)
         {
-            aImgLabels(r, c) = aImgLabels(r, c - 1); // x = s
+            img_labels_(r, c) = img_labels_(r, c - 1); // x = s
         }
         continue;
     break_D:
@@ -849,18 +849,18 @@ unsigned PRED::PerformLabelingMem(vector<unsigned long>& accesses)
         {
             if (condition_q)
             {
-                aImgLabels(r, c) = aImgLabels(r - 1, c); // x = q
+                img_labels_(r, c) = img_labels_(r - 1, c); // x = q
             }
             else
             {
                 if (condition_p)
                 {
-                    aImgLabels(r, c) = aImgLabels(r - 1, c - 1); // x = p
+                    img_labels_(r, c) = img_labels_(r - 1, c - 1); // x = p
                 }
                 else
                 {
                     // x = new label
-                    aImgLabels(r, c) = lunique;
+                    img_labels_(r, c) = lunique;
                     P[lunique] = lunique;
                     lunique++;
                 }
@@ -872,12 +872,12 @@ unsigned PRED::PerformLabelingMem(vector<unsigned long>& accesses)
         {
             if (condition_q)
             {
-                aImgLabels(r, c) = aImgLabels(r - 1, c); // x = q
+                img_labels_(r, c) = img_labels_(r - 1, c); // x = q
             }
             else
             {
                 // x = new label
-                aImgLabels(r, c) = lunique;
+                img_labels_(r, c) = lunique;
                 P[lunique] = lunique;
                 lunique++;
             }
@@ -892,11 +892,11 @@ unsigned PRED::PerformLabelingMem(vector<unsigned long>& accesses)
     unsigned nLabel = flattenL(P, lunique);
 
     // second scan
-    for (int r_i = 0; r_i < aImgLabels.rows; ++r_i)
+    for (int r_i = 0; r_i < img_labels_.rows; ++r_i)
     {
-        for (int c_i = 0; c_i < aImgLabels.cols; ++c_i)
+        for (int c_i = 0; c_i < img_labels_.cols; ++c_i)
         {
-            aImgLabels(r_i, c_i) = P[aImgLabels(r_i, c_i)];
+            img_labels_(r_i, c_i) = P[img_labels_(r_i, c_i)];
         }
     }
 
@@ -904,10 +904,10 @@ unsigned PRED::PerformLabelingMem(vector<unsigned long>& accesses)
     accesses = vector<unsigned long int>((int)MD_SIZE, 0);
 
     accesses[MD_BINARY_MAT] = (unsigned long int)img.getTotalAcesses();
-    accesses[MD_LABELED_MAT] = (unsigned long int)aImgLabels.getTotalAcesses();
+    accesses[MD_LABELED_MAT] = (unsigned long int)img_labels_.getTotalAcesses();
     accesses[MD_EQUIVALENCE_VEC] = (unsigned long int)P.getTotalAcesses();
 
-    //a = aImgLabels.getImage();
+    //a = img_labels_.getImage();
 
     return nLabel;
 }
