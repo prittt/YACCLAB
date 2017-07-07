@@ -26,11 +26,11 @@
 // OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#pragma once
-//#include <iostream>
-//#include <string>
-//#include <algorithm>
-#include "utilities.h"
+#ifndef YACCLAB_SYSTEM_INFO_H_
+#define YACCLAB_SYSTEM_INFO_H_
+
+#include <iostream>
+#include <string>
 
 #if _WIN32 || _WIN64 || WIN32 || __WIN32__ || __WINDOWS__ || __TOS_WIN__
 #include <intrin.h>
@@ -46,53 +46,57 @@
 #define UNIX
 #include <sys/utsname.h>
 #elif __APPLE__ || __MACH__ || macintosh || Macintosh || (__APPLE__ && __MACH__)
+#include <sys/types.h>
+#include <sys/sysctl.h>
 #define APPLE
 #endif
 
 /*@brief Retrieve system information
 
-Class that retrieves machine information like he cpu
+Class that retrieves machine information like the CPU
 brand name, the OS used, and the architecture employed.
 
 */
-class systemInfo {
-    std::string cpuBrand;
-    std::string build;
-    std::string os;
-    std::pair<std::string, std::string> compiler; //first for compiler name, second for compiler version
-
+class SystemInfo {
 public:
-    systemInfo();
+    std::string cpu_brand_;
+    std::string build_;
+    std::string os_;
+    std::pair<std::string, std::string> compiler_; //first for compiler_ name, second for compiler_ version
+
+    SystemInfo();
 
     // Return the brand and model of the CPU used
-    static std::string getCpuBrand();
+    static std::string GetCpuBrand();
 
     // Return the architecture (x86 or x64) used
-    static std::string getBuild();
+    static std::string GetBuild();
 
     // Return the Operating System used
-    static std::string getOs();
+    static std::string GetOs();
 
-    // Return the compiler used (name and version)
-    static std::pair<std::string, std::string> getCompiler();
+    // Return the compiler_ used (name and version)
+    static std::pair<std::string, std::string> GetCompiler();
 
-    friend std::ostream& operator<< (std::ostream &out, const systemInfo &sInfo);
+    friend std::ostream& operator<< (std::ostream& out, const SystemInfo& sInfo);
 
 private:
 
 #if  defined(WINDOWS)
-    static std::string getWindowsCpuBrand();
+    static std::string GetWindowsCpuBrand();
 
     static bool GetWinMajorMinorVersion(DWORD& major, DWORD& minor);
 
     static std::string GetWindowsVersion();
 
 #elif defined(LINUX) || defined(UNIX)
-    static  std::string getLinuxCpuBrand();
+    static  std::string GetLinuxCpuBrand();
 
 #elif defined(APPLE)
 
-    static std::string getAppleCpuBrand();
+    static std::string GetAppleCpuBrand();
 
 #endif
 };
+
+#endif // !YACCLAB_SYSTEM_INFO_H_
