@@ -27,6 +27,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "labelingGrana2016.h"
+#include "register.h"
 
 using namespace cv;
 using namespace std;
@@ -626,15 +627,15 @@ unsigned PRED::PerformLabelingMem(vector<unsigned long>& accesses)
 {
     int w(img_.cols), h(img_.rows);
 
-    memMat<uchar> img(img_);
-    memMat<int> img_labels_(img_.size(), 0); // memset is used
+    MemMat<uchar> img(img_);
+    MemMat<int> img_labels_(img_.size(), 0); // memset is used
 
                                                   //A quick and dirty upper bound for the maximimum number of labels (only for 8-connectivity).
                                                   //const size_t Plength = (img_origin.rows + 1)*(img_origin.cols + 1) / 4 + 1; // Oversized in some cases
     const size_t Plength = UPPER_BOUND_8_CONNECTIVITY;
 
     //Tree of labels
-    memVector<unsigned> P(Plength);
+    MemVector<unsigned> P(Plength);
     //Background
     P[0] = 0;
     unsigned lunique = 1;
@@ -903,9 +904,9 @@ unsigned PRED::PerformLabelingMem(vector<unsigned long>& accesses)
     // Store total accesses in the output vector 'accesses'
     accesses = vector<unsigned long int>((int)MD_SIZE, 0);
 
-    accesses[MD_BINARY_MAT] = (unsigned long int)img.getTotalAcesses();
-    accesses[MD_LABELED_MAT] = (unsigned long int)img_labels_.getTotalAcesses();
-    accesses[MD_EQUIVALENCE_VEC] = (unsigned long int)P.getTotalAcesses();
+    accesses[MD_BINARY_MAT] = (unsigned long int)img.GetTotalAcesses();
+    accesses[MD_LABELED_MAT] = (unsigned long int)img_labels_.GetTotalAcesses();
+    accesses[MD_EQUIVALENCE_VEC] = (unsigned long int)P.GetTotalAcesses();
 
     //a = img_labels_.getImage();
 

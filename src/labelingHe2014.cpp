@@ -27,6 +27,8 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "labelingHe2014.h"
+#include "register.h"
+
 
 using namespace cv;
 using namespace std;

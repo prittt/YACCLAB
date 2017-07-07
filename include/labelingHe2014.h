@@ -30,7 +30,7 @@
 #include "opencv2/opencv.hpp"
 #include "equivalenceSolverSuzuki.h"
 #include "labeling_algorithms.h"
-#include "memoryTester.h"
+#include "memory_tester.h"
 
 class CTB : public Labeling {
 public:

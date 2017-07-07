@@ -28,6 +28,7 @@
 
 #include <cstdint>
 
+#include <fstream>
 #include <functional>
 #include <iomanip>
 #include <iostream>
@@ -312,7 +313,7 @@ string AverageTest(vector<String>& ccl_algorithms, Mat1d& all_res, const unsigne
             unsigned i = 0;
             // For all the Algorithms in the array
             for (const auto& algo_name : ccl_algorithms) {
-                auto& algorithm = LabelingMapSingleton::GetInstance().data_[algo_name];
+                Labeling* algorithm = LabelingMapSingleton::GetInstance().data_[algo_name];
 
                 // This variable need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
                 unsigned n_labels;

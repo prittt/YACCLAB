@@ -172,7 +172,7 @@ LabelT flattenL(LabelT *P, LabelT length)
 //Find the root of the tree of node i
 template<typename LabelT>
 inline static
-LabelT findRoot(memVector<LabelT> &P, LabelT i)
+LabelT findRoot(MemVector<LabelT> &P, LabelT i)
 {
     LabelT root = i;
     while (P[root] < root) {
@@ -184,7 +184,7 @@ LabelT findRoot(memVector<LabelT> &P, LabelT i)
 //Make all nodes in the path of node i point to root
 template<typename LabelT>
 inline static
-void setRoot(memVector<LabelT> &P, LabelT i, LabelT root)
+void setRoot(MemVector<LabelT> &P, LabelT i, LabelT root)
 {
     while (P[i] < i) {
         LabelT j = P[i];
@@ -197,7 +197,7 @@ void setRoot(memVector<LabelT> &P, LabelT i, LabelT root)
 //Find the root of the tree of the node i and compress the path in the process
 template<typename LabelT>
 inline static
-LabelT find(memVector<LabelT> &P, LabelT i)
+LabelT find(MemVector<LabelT> &P, LabelT i)
 {
     LabelT root = findRoot(P, i);
     setRoot(P, i, root);
@@ -207,7 +207,7 @@ LabelT find(memVector<LabelT> &P, LabelT i)
 //unite the two trees containing nodes i and j and return the new root
 template<typename LabelT>
 inline static
-LabelT set_union(memVector<LabelT> &P, LabelT i, LabelT j)
+LabelT set_union(MemVector<LabelT> &P, LabelT i, LabelT j)
 {
     LabelT root = findRoot(P, i);
     if (i != j) {
@@ -224,7 +224,7 @@ LabelT set_union(memVector<LabelT> &P, LabelT i, LabelT j)
 //Flatten the Union Find tree and relabel the components
 template<typename LabelT>
 inline static
-LabelT flattenL(memVector<LabelT> &P, LabelT length)
+LabelT flattenL(MemVector<LabelT> &P, LabelT length)
 {
     LabelT k = 1;
     for (LabelT i = 1; i < length; ++i) {

@@ -31,7 +31,9 @@
 
 #include "equivalenceSolverSuzuki.h"
 #include "labeling_algorithms.h"
-#include "memoryTester.h"
+#include "memory_tester.h"
+#include "register.h"
+
 
 class LSL_STD : public Labeling {
 public:
