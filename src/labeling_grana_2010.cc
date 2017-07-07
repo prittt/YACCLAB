@@ -26,41 +26,7 @@
 // OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#pragma once
-#include "opencv2/opencv.hpp"
-//#include "memoryTester.h"
-#include "equivalenceSolverSuzuki.h"
-#include "labelingAlgorithms.h"
+#include "labeling_grana_2010.h"
+#include "labels_solver.h"
 
-class BBDT : public labeling {
-public:
-    BBDT() {}
-
-    unsigned PerformLabeling() override;
-
-    unsigned PerformLabelingWithSteps() override
-    {
-        AllocateMemory();
-
-        perf.start("FirstScan");
-        const unsigned lunique = FirstScan();
-        perf.stop("FirstScan");
-
-        perf.start("SecondScan");
-        const unsigned nLabels = SecondScan(lunique);
-        perf.stop("SecondScan");
-
-        DeallocateMemory();
-        return nLabels;
-    }
-
-    unsigned PerformLabelingMem(std::vector<unsigned long int>& accesses) override;
-
-private:
-    unsigned *P;
-
-    void AllocateMemory() override;
-    void DeallocateMemory() override;
-    unsigned FirstScan() override;
-    unsigned SecondScan(const unsigned& lunique) override;
-};
+REGISTER_LABELING_WITH_EQUIVALENCES_SOLVERS(BBDT);
