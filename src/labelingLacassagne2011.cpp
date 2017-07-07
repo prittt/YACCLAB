@@ -37,7 +37,7 @@ REGISTER_LABELING(LSL_STD);
 
 void LSL_STD::AllocateMemory()
 {
-    const size_t Plength = upperBound8Conn;
+    const size_t Plength = UPPER_BOUND_8_CONNECTIVITY;
     P = (unsigned *)fastMalloc(sizeof(unsigned) * Plength); //array P for equivalences resolution
     return;
 }
