@@ -29,10 +29,10 @@
 #pragma once
 #include "opencv2/opencv.hpp"
 #include "equivalenceSolverSuzuki.h"
-#include "labelingAlgorithms.h"
+#include "labeling_algorithms.h"
 #include "memoryTester.h"
 
-class CTB : public labeling {
+class CTB : public Labeling {
 public:
     CTB() {}
 
@@ -42,13 +42,13 @@ public:
     {
         AllocateMemory();
 
-        perf.start("FirstScan");
+        perf_.start("FirstScan");
         const unsigned lunique = FirstScan();
-        perf.stop("FirstScan");
+        perf_.stop("FirstScan");
 
-        perf.start("SecondScan");
+        perf_.start("SecondScan");
         const unsigned nLabels = SecondScan(lunique);
-        perf.stop("SecondScan");
+        perf_.stop("SecondScan");
 
         DeallocateMemory();
         return nLabels;

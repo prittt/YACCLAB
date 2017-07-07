@@ -46,7 +46,7 @@ REGISTER_LABELING(CTB);
 
 void CTB::AllocateMemory()
 {
-    const size_t Plength = upperBound8Conn;
+    const size_t Plength = UPPER_BOUND_8_CONNECTIVITY;
     P = (unsigned *)fastMalloc(sizeof(unsigned) * Plength); //array P for equivalences resolution
     return;
 }
@@ -60,10 +60,10 @@ void CTB::DeallocateMemory()
 
 unsigned CTB::FirstScan()
 {
-    const int h = aImg.rows;
-    const int w = aImg.cols;
+    const int h = img_.rows;
+    const int w = img_.cols;
 
-    aImgLabels = Mat1i(aImg.size(), 0);
+    img_labels_ = Mat1i(img_.size(), 0);
     P[0] = 0;	//first label is for background pixels
     unsigned lunique = 1;
 
@@ -73,12 +73,12 @@ unsigned CTB::FirstScan()
         int prob_fol_state = null;
         int prev_state = null;
         // Get rows pointer
-        const uchar* const img_row = aImg.ptr<uchar>(r);
-        const uchar* const img_row_prev = (uchar *)(((char *)img_row) - aImg.step.p[0]);
-        const uchar* const img_row_fol = (uchar *)(((char *)img_row) + aImg.step.p[0]);
-        unsigned* const imgLabels_row = aImgLabels.ptr<unsigned>(r);
-        unsigned* const imgLabels_row_prev = (unsigned *)(((char *)imgLabels_row) - aImgLabels.step.p[0]);
-        unsigned* const imgLabels_row_fol = (unsigned *)(((char *)imgLabels_row) + aImgLabels.step.p[0]);
+        const uchar* const img_row = img_.ptr<uchar>(r);
+        const uchar* const img_row_prev = (uchar *)(((char *)img_row) - img_.step.p[0]);
+        const uchar* const img_row_fol = (uchar *)(((char *)img_row) + img_.step.p[0]);
+        unsigned* const imgLabels_row = img_labels_.ptr<unsigned>(r);
+        unsigned* const imgLabels_row_prev = (unsigned *)(((char *)imgLabels_row) - img_labels_.step.p[0]);
+        unsigned* const imgLabels_row_fol = (unsigned *)(((char *)imgLabels_row) + img_labels_.step.p[0]);
 
         for (int c = 0; c < w; c += 1)
         {
@@ -758,10 +758,10 @@ unsigned CTB::SecondScan(const unsigned& lunique)
     int nLabels = flattenL(P, lunique);
 
     // second scan
-    for (int r_i = 0; r_i < aImgLabels.rows; ++r_i)
+    for (int r_i = 0; r_i < img_labels_.rows; ++r_i)
     {
-        unsigned *imgLabels_row_start = aImgLabels.ptr<unsigned>(r_i);
-        unsigned *imgLabels_row_end = imgLabels_row_start + aImgLabels.cols;
+        unsigned *imgLabels_row_start = img_labels_.ptr<unsigned>(r_i);
+        unsigned *imgLabels_row_end = imgLabels_row_start + img_labels_.cols;
         unsigned *imgLabels_row = imgLabels_row_start;
         for (int c_i = 0; imgLabels_row != imgLabels_row_end; ++imgLabels_row, ++c_i)
         {
@@ -775,10 +775,10 @@ unsigned CTB::SecondScan(const unsigned& lunique)
 
 unsigned CTB::PerformLabeling()
 {
-    const int h = aImg.rows;
-    const int w = aImg.cols;
+    const int h = img_.rows;
+    const int w = img_.cols;
 
-    aImgLabels = Mat1i(aImg.size(), 0);
+    img_labels_ = Mat1i(img_.size(), 0);
 
     P[0] = 0;	//first label is for background pixels
     unsigned lunique = 1;
@@ -788,12 +788,12 @@ unsigned CTB::PerformLabeling()
         int prob_fol_state = null;
         int prev_state = null;
         // Get rows pointer
-        const uchar* const img_row = aImg.ptr<uchar>(r);
-        const uchar* const img_row_prev = (uchar *)(((char *)img_row) - aImg.step.p[0]);
-        const uchar* const img_row_fol = (uchar *)(((char *)img_row) + aImg.step.p[0]);
-        unsigned* const imgLabels_row = aImgLabels.ptr<unsigned>(r);
-        unsigned* const imgLabels_row_prev = (unsigned *)(((char *)imgLabels_row) - aImgLabels.step.p[0]);
-        unsigned* const imgLabels_row_fol = (unsigned *)(((char *)imgLabels_row) + aImgLabels.step.p[0]);
+        const uchar* const img_row = img_.ptr<uchar>(r);
+        const uchar* const img_row_prev = (uchar *)(((char *)img_row) - img_.step.p[0]);
+        const uchar* const img_row_fol = (uchar *)(((char *)img_row) + img_.step.p[0]);
+        unsigned* const imgLabels_row = img_labels_.ptr<unsigned>(r);
+        unsigned* const imgLabels_row_prev = (unsigned *)(((char *)imgLabels_row) - img_labels_.step.p[0]);
+        unsigned* const imgLabels_row_fol = (unsigned *)(((char *)imgLabels_row) + img_labels_.step.p[0]);
 
         for (int c = 0; c < w; c += 1)
         {
@@ -1468,10 +1468,10 @@ unsigned CTB::PerformLabeling()
     unsigned nLabel = flattenL(P, lunique);
 
     // second scan
-    for (int r_i = 0; r_i < aImgLabels.rows; ++r_i)
+    for (int r_i = 0; r_i < img_labels_.rows; ++r_i)
     {
-        unsigned *imgLabels_row_start = aImgLabels.ptr<unsigned>(r_i);
-        unsigned *imgLabels_row_end = imgLabels_row_start + aImgLabels.cols;
+        unsigned *imgLabels_row_start = img_labels_.ptr<unsigned>(r_i);
+        unsigned *imgLabels_row_end = imgLabels_row_start + img_labels_.cols;
         unsigned *imgLabels_row = imgLabels_row_start;
         for (int c_i = 0; imgLabels_row != imgLabels_row_end; ++imgLabels_row, ++c_i)
         {
