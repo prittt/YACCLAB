@@ -26,14 +26,42 @@
 // OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#pragma once
-#include "labelingAlgorithms.h"
+#ifndef YACCLAB_LABELING_NULL_H_
+#define YACCLAB_LABELING_NULL_H_
 
-class labelingNULL : public labeling {
+#include <opencv2/core.hpp>
+
+#include <vector>
+
+#include "labeling_algorithms.h"
+#include "labels_solver.h"
+#include "memory_tester.h"
+
+class labeling_NULL : public Labeling {
 public:
-    labelingNULL();
-    ~labelingNULL();
-    void AllocateMemory() override {};
-    unsigned PerformLabeling() override;
+    labeling_NULL() {}
+    ~labeling_NULL() {}
+    void AllocateMemory() override {}
     void DeallocateMemory() override {}
+
+    unsigned PerformLabeling() override
+    {
+        img_labels_ = cv::Mat1i(img_.size(), 0);
+
+        for (int r = 0; r < img_labels_.rows; ++r) {
+            // Get rows pointer
+            const uchar* const img_row = img_.ptr<uchar>(r);
+            unsigned* const img_labels_row = img_labels_.ptr<unsigned>(r);
+
+            for (int c = 0; c < img_labels_.cols; ++c) {
+                if (img_row[c] > 0) {
+                    img_labels_row[c] = 1;
+                }
+            }
+        }
+
+        return 0;
+    }
 };
+
+#endif // !YACCLAB_LABELING_NULL_H_

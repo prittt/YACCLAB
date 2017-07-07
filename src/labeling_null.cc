@@ -26,35 +26,8 @@
 // OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "labelingNULL.h"
+#include "labeling_null.h"
+#include "labels_solver.h"
 
-using namespace std;
-using namespace cv;
+REGISTER_LABELING(labeling_NULL);
 
-REGISTER_LABELING(labelingNULL);
-
-labelingNULL::labelingNULL() {}
-
-unsigned labelingNULL::PerformLabeling()
-{
-    aImgLabels = Mat1i(aImg.size(), 0);
-
-    for (int r = 0; r < aImgLabels.rows; ++r)
-    {
-        // Get rows pointer
-        const uchar* const img_row = aImg.ptr<uchar>(r);
-        unsigned* const imgLabels_row = aImgLabels.ptr<unsigned>(r);
-
-        for (int c = 0; c < aImgLabels.cols; ++c)
-        {
-            if (img_row[c] > 0)
-            {
-                imgLabels_row[c] = 1;
-            }
-        }
-    }
-
-    return 0;
-}
-
-labelingNULL::~labelingNULL() {}
