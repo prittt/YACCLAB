@@ -119,7 +119,7 @@ endif()
 
 include_directories("${CMAKE_SOURCE_DIR}/include")
 
-file(GLOB SRCFILES ${SRCFILES} "src/*.cpp" "src/*.c")
+file(GLOB SRCFILES ${SRCFILES} "src/*.cc" "src/*.cpp" "src/*.c")
 file(GLOB HFILES ${HFILES} "include/*.h" "include/*.hpp")
 
 # Set configuration file		
