@@ -5,6 +5,7 @@
 /*.suo
 /*.sdf
 /*.user
+/*.jpg /*.png
 /CMakeCache.txt
 /cmake_install.cmake
 /Release
