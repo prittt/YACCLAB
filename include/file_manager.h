@@ -26,63 +26,69 @@
 // OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#pragma once
+#ifndef YACCLAB_FILE_MANAGER_H_
+#define YACCLAB_FILE_MANAGER_H_
 
 #include <string>
-#include <iostream>
-#include <fstream>
-#include <vector>
-
-#include <sys/types.h>
-#include <sys/stat.h>
-//#include <cstring>
-//#include <iostream>
-//#include <stdio.h>
 
 /** @brief Check if folder exist or not
 
  This function simply check if folder of specified pathname exists or not. If the folder
- exists and it could be accesed the function return true, otherwise false.
+ exists and it could be accessed the function return true, otherwise false.
 
 @param[in] pathname path of the folder to check
 
-@return true if the specified folder exists and could be accesed, false otherwise
+@return true if the specified folder exists and could be accessed, false otherwise
 
 */
-bool dirExists(const char* pathname);
+bool DirExists(const char* pathname);
 
 /** @overload
 
 This function simply check if folder of specified pathname exists or not. If the folder
-exists and it could be accesed the function return true, otherwise false.
+exists and it could be accessed the function return true, otherwise false.
 
-@param[in] pathname path of the folder to check
+@param[in] pathName path of the folder to check
 
-@return true if the specified folder exists and could be accesed, false otherwise
+@return true if the specified folder exists and could be accessed, false otherwise
 
 */
-bool dirExists(const std::string& pathname);
+bool DirExists(const std::string& pathName);
 
 /** @brief Creates a directory if it does not exist
 
- This function check if directory exist and creates it if not. It returns true if the
+ This function checks if directory exist and creates it if not. It returns true if the
  directory exists or creation process end correctly, false otherwise
 
 @param[in] path path of the folder to create
 
-@return true if the specified folder exists and could be accesed, false otherwise
+@return true if the specified folder exists and could be accessed, false otherwise
 
 */
-bool makeDir(const std::string& path);
+bool MakeDir(const std::string& path);
 
 /** @brief Check if file exist or not
 
 This function simply check if file of specified pathname exists or not. If the file
-exists and it could be accesed the function return true, otherwise false.
+exists and it could be accessed the function return true, otherwise false.
 
 @param[in] pathname path of the file to check
 
-@return true if the specified file exists and could be accesed, false otherwise
+@return true if the specified file exists and could be accessed, false otherwise
 
 */
-bool fileExists(const std::string& path);
+bool FileExists(const std::string& path);
+
+/** @brief Standardize path
+
+This function standardize path with '\' if YACCLAB is run on Windows OSs
+or with '/' if it is run on Unix OSs.
+
+@param[in] pathname path to normalize
+
+@return string of the normalized path
+
+*/
+std::string NormalizePath(const std::string& path);
+
+#endif // !YACCLAB_FILE_MANAGER_H_

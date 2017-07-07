@@ -26,21 +26,30 @@
 // OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# include "foldersManager.h"
+#include "file_manager.h"
+
+#include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <vector>
+
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#include "system_info.h"
 
 using namespace std;
 
-bool dirExists(const char* pathname)
+bool DirExists(const char* pathname)
 {
     struct stat info;
-    if (stat(pathname, &info) != 0)
-    {
+    if (stat(pathname, &info) != 0) {
         //printf("cannot access %s\n", pathname);
         return false;
     }
-    else if (info.st_mode & S_IFDIR)
-    {  // S_ISDIR() doesn't exist on my windows
-//printf("%s is a directory\n", pathname);
+    else if (info.st_mode & S_IFDIR) {  // S_ISDIR() doesn't exist on my windows
+        //printf("%s is a directory\n", pathname);
         return true;
     }
 
@@ -48,18 +57,16 @@ bool dirExists(const char* pathname)
     return false;
 }
 
-bool dirExists(const string& pathname)
+bool DirExists(const string& pathName)
 {
     struct stat info;
-    const char* path = pathname.c_str();
-    if (stat(path, &info) != 0)
-    {
+    const char* path = pathName.c_str();
+    if (stat(path, &info) != 0) {
         //printf("cannot access %s\n", pathname);
         return false;
     }
-    else if (info.st_mode & S_IFDIR)
-    {  // S_ISDIR() doesn't exist on my windows
-//printf("%s is a directory\n", pathname);
+    else if (info.st_mode & S_IFDIR) {  // S_ISDIR() doesn't exist on my windows
+        //printf("%s is a directory\n", pathname);
         return true;
     }
 
@@ -67,21 +74,37 @@ bool dirExists(const string& pathname)
     return false;
 }
 
-bool makeDir(const string& path)
+bool MakeDir(const string& path)
 {
-    if (!dirExists(path.c_str()))
-    {
-        if (0 != std::system(("mkdir " + path).c_str()))
-        {
-            cout << "Unable to find/create the output path " + path;
+    string s = "\"" + path + "\"";
+
+#if defined(UNIX) || defined(LINUX) || defined(APPLE)
+    // make it recursive by adding "-p" suffix
+    s += " -p";
+#endif
+
+    if (!DirExists(s)) {
+        if (0 != system(("mkdir " + s).c_str())) {
+            //cerr << "Unable to find/create the output path " + s;
             return false;
         }
     }
     return true;
 }
 
-bool fileExists(const string& path)
+bool FileExists(const string& path)
 {
     ifstream file(path.c_str());
     return file.good();
+}
+
+string NormalizePath(const std::string& path)
+{
+    string s(path);
+#if defined(UNIX) || defined(LINUX) || defined(APPLE)
+    replace(s.begin(), s.end(), '\\', '/');
+#elif defined(WINDOWS)
+    replace(s.begin(), s.end(), '/', '\\');
+#endif
+    return s;
 }
