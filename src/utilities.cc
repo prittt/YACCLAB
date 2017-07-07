@@ -138,19 +138,6 @@ bool CompareMat(const Mat1i& mat_a, const Mat1i& mat_b)
     return cv::countNonZero(diff) == 0;
 }
 
-bool ReadBool(const FileNode& node_list)
-{
-    bool b = false;
-    if (!node_list.empty()) {
-        //The entry is found
-        string s((string)node_list);
-        transform(s.begin(), s.end(), s.begin(), ::tolower);
-        istringstream(s) >> boolalpha >> b;
-    }
-
-    return b;
-}
-
 void HideConsoleCursor()
 {
 #ifdef WINDOWS
@@ -170,9 +157,28 @@ void HideConsoleCursor()
 
 int RedirectCvError(int status, const char* func_name, const char* err_msg, const char* file_name, int line, void*)
 {
-    cerr << "Error: [" << err_msg << "]" << endl;
+    cerror(err_msg);
     return 0;
 }
+
+#define CONSOLE_WIDTH 80 
+
+void cerror(const string& err) 
+{
+	string status_msg = "ERROR: [";
+	size_t num_spaces = max(0, int(CONSOLE_WIDTH - (status_msg.size() + err.size()) + 1) % CONSOLE_WIDTH); // 70 = output console dimension - "[ERROR]: " dimension
+	cerr << status_msg << err << "]" <<  string(num_spaces, ' ') << endl;
+	return;
+}
+
+void cmessage(const string& msg)
+{
+	string status_msg = "MSG: [";
+	size_t num_spaces = max(0, int(CONSOLE_WIDTH - (status_msg.size() + msg.size()) + 1) % CONSOLE_WIDTH); // 70 = output console dimension - "[ERROR]: " dimension
+	cerr << status_msg << msg << "]" << string(num_spaces, ' ') << endl;
+	return;
+}
+
 
 std::string GetGnuplotTitle()
 {
