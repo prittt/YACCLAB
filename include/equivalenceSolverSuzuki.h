@@ -28,10 +28,10 @@
 
 #pragma once
 #include <vector>
-#include "memoryTester.h"
+#include "memory_tester.h"
 
-class UnionFind {
-};
+//class UnionFind {
+//};
 
 // "STANDARD" VERSION
 //Find the root of the tree of node i
@@ -91,24 +91,24 @@ inline static
 LabelT SetUnion(LabelT *P, LabelT i, LabelT j)
 {
     LabelT root(i);
-    while (P[root] < root) {
+    while (P[rooti] < root) {
         root = P[root];
     }
     if (i != j) {
-        LabelT rootj(j);
-        while (P[rootj] < rootj) {
-            rootj = P[rootj];
+        LabelT root_j(j);
+        while (P[root_j] < root_j) {
+            root_j = P[root_j];
         }
-        if (root > rootj) {
-            root = rootj;
+        if (root > root_j) {
+            root = root_j;
         }
         //setRoot(P, j, root);
         while (P[j] < j) {
             LabelT t = P[j];
-            P[j] = root;
+            P[j] = root_j;
             j = t;
         }
-        P[j] = root;
+        P[j] = root_j;
     }
     //setRoot(P, i, root);
     while (P[i] < i) {
