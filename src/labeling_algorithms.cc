@@ -1,6 +1,6 @@
-#include "labelingAlgorithms.h"
+#include "labeling_algorithms.h"
 
-cv::Mat1b labeling::aImg;
+cv::Mat1b Labeling::img_;
 
 LabelingMapSingleton& LabelingMapSingleton::GetInstance()
 {
