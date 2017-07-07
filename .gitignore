@@ -1,16 +1,19 @@
-/*.vcxproj
-/*.filters
-/*.sln
-/*.opensdf
-/*.suo
-/*.sdf
-/*.user
-/*.jpg /*.png
-/CMakeCache.txt
-/cmake_install.cmake
+**/*.vcxproj
+**/*.filters
+**/*.sln
+**/*.opensdf
+**/*.suo
+**/*.sdf
+**/*.user
+
 /Release
 /Debug
-build
-bin
-CMakeFiles
+/[Bb]in*
+/[Bb]uild*
 
+/CMakeCache.txt
+/cmake_install.cmake
+/CMakeFiles
+
+**/*.jpg 
+**/*.png
