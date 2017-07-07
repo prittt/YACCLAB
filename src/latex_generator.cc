@@ -1,20 +1,24 @@
-#include "latexGeneration.h"
+#include "latex_generator.h"
+
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+
+#include <opencv2/core.hpp>
+#include <opencv2/imgproc.hpp>
 
 #include "utilities.h"
-#include <fstream>
-#include <iostream>
-#include <iomanip>
+#include "system_info.h"
 
 using namespace cv;
 using namespace std;
 
 // To generate latex table with average results
-void generateLatexTable(const string& output_path, const string& latex_file, const Mat1d& all_res, const vector<String>& datasetsName, const vector<String>& CCLAlgorithms)
+void GenerateLatexTable(const string& output_path, const string& latex_file, const Mat1d& all_res, const vector<String>& datasets_name, const vector<String>& ccl_algorithms)
 {
     string latex_path = output_path + kPathSeparator + latex_file;
     ofstream is(latex_path);
-    if (!is.is_open())
-    {
+    if (!is.is_open()) {
         cout << "Unable to open/create " + latex_path << endl;
         return;
     }
@@ -30,25 +34,22 @@ void generateLatexTable(const string& output_path, const string& latex_file, con
     is << "\t\\caption{Average Results in ms (Lower is Better)}" << endl;
     is << "\t\\label{tab:table1}" << endl;
     is << "\t\\begin{tabular}{|l|";
-    for (unsigned i = 0; i < CCLAlgorithms.size(); ++i)
+    for (unsigned i = 0; i < ccl_algorithms.size(); ++i)
         is << "S[table-format=2.3]|";
     is << "}" << endl;
     is << "\t\\hline" << endl;
     is << "\t";
-    for (unsigned i = 0; i < CCLAlgorithms.size(); ++i)
-    {
-        //eraseDoubleEscape(datasetsName);
-        //datasetsName.erase(std::remove(datasetsName.begin(), datasetsName.end(), '\\'), datasetsName.end());
-        is << " & {" << CCLAlgorithms[i] << "}"; //Header
+    for (unsigned i = 0; i < ccl_algorithms.size(); ++i) {
+        //EraseDoubleEscape(datasets_name);
+        //datasets_name.erase(std::remove(datasets_name.begin(), datasets_name.end(), '\\'), datasets_name.end());
+        is << " & {" << ccl_algorithms[i] << "}"; //Header
     }
     is << "\\\\" << endl;
     is << "\t\\hline" << endl;
 
-    for (unsigned i = 0; i < datasetsName.size(); ++i)
-    {
-        is << "\t" << datasetsName[i];
-        for (int j = 0; j < all_res.cols; ++j)
-        {
+    for (unsigned i = 0; i < datasets_name.size(); ++i) {
+        is << "\t" << datasets_name[i];
+        for (int j = 0; j < all_res.cols; ++j) {
             is << " & ";
             if (all_res(i, j) != numeric_limits<double>::max())
                 is << all_res(i, j); //Data
@@ -63,13 +64,12 @@ void generateLatexTable(const string& output_path, const string& latex_file, con
 }
 
 // To generate latex table with memory average accesses
-void generateMemoryLatexTable(const string& output_path, const string& latex_file, const Mat1d& accesses, const string& dataset, const vector<String>& CCLMemAlgorithms)
+void GenerateMemoryLatexTable(const string& output_path, const string& latex_file, const Mat1d& accesses, const string& dataset, const vector<String>& ccl_mem_algorithms)
 {
     // TODO handle if folder does not exists
     string latex_path = output_path + kPathSeparator + dataset + kPathSeparator + latex_file;
     ofstream is(latex_path);
-    if (!is.is_open())
-    {
+    if (!is.is_open()) {
         cout << "Unable to open/create " + latex_path << endl;
         return;
     }
@@ -96,18 +96,16 @@ void generateMemoryLatexTable(const string& output_path, const string& latex_fil
     is << "\\\\" << endl;
     is << "\t\\hline" << endl;
 
-    for (unsigned i = 0; i < CCLMemAlgorithms.size(); ++i)
-    {
+    for (unsigned i = 0; i < ccl_mem_algorithms.size(); ++i) {
         // For every algorithm
-        const String& algName = CCLMemAlgorithms[i];
-        //eraseDoubleEscape(algName);
-        is << "\t{" << algName << "}";
+        const String& alg_name = ccl_mem_algorithms[i];
+        //EraseDoubleEscape(alg_name);
+        is << "\t{" << alg_name << "}";
 
         double tot = 0;
 
-        for (int s = 0; s < accesses.cols; ++s)
-        {
-            // For every data structure
+        for (int s = 0; s < accesses.cols; ++s) {
+            // For every data_ structure
             if (accesses(i, s) != 0)
                 is << "\t& " << (accesses(i, s) / 1000000);
             else
@@ -130,21 +128,20 @@ void generateMemoryLatexTable(const string& output_path, const string& latex_fil
     is.close();
 }
 
-void generateLatexCharts(const string& output_path, const string& latex_charts, const string& latex_folder, const vector<String>& datasetsName)
+void GenerateLatexCharts(const string& output_path, const string& latex_charts, const string& latex_folder, const vector<String>& datasets_name)
 {
     string latex_path = output_path + kPathSeparator + latex_folder + kPathSeparator + latex_charts;
     ofstream is(latex_path);
-    if (!is.is_open())
-    {
+    if (!is.is_open()) {
         cout << "Unable to open/create " + latex_path << endl;
         return;
     }
 
-    systemInfo info;
+    SystemInfo info;
     string chartSize{ "0.45" }, chartWidth{ "1" };
 
     // Get information about date and time
-    string datetime = getDatetime();
+    string datetime = GetDatetime();
 
     // fixed number of decimal values
     is << fixed;
@@ -157,7 +154,7 @@ void generateLatexCharts(const string& output_path, const string& latex_charts, 
     is << info << "}" << endl;
 
     //replace the . with _ for filenames
-    pair<string, string> compiler(systemInfo::getCompiler());
+    pair<string, string> compiler(SystemInfo::GetCompiler());
     replace(compiler.first.begin(), compiler.first.end(), '.', '_');
     replace(compiler.second.begin(), compiler.second.end(), '.', '_');
 
@@ -166,12 +163,11 @@ void generateLatexCharts(const string& output_path, const string& latex_charts, 
 
     is << "\t\\centering" << endl;
 
-    for (unsigned i = 0; i < datasetsName.size(); ++i)
-    {
+    for (unsigned i = 0; i < datasets_name.size(); ++i) {
         is << "\t\\begin{subfigure}[b]{" + chartSize + "\\textwidth}" << endl;
-        is << "\t\t\\caption{" << datasetsName[i] + "}" << endl;
+        is << "\t\t\\caption{" << datasets_name[i] + "}" << endl;
         is << "\t\t\\centering" << endl;
-        is << "\t\t\\includegraphics[width=" + chartWidth + "\\textwidth]{\\compilerName " + datasetsName[i] + ".pdf}" << endl;
+        is << "\t\t\\includegraphics[width=" + chartWidth + "\\textwidth]{\\compilerName " + datasets_name[i] + ".pdf}" << endl;
         is << "\t\\end{subfigure}" << endl << endl;
     }
 
