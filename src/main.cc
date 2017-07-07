@@ -47,6 +47,7 @@
 #include "system_info.h"
 #include "latex_generator.h"
 #include "utilities.h"
+#include "config_data.h"
 
 using namespace std;
 using namespace cv;
@@ -1098,7 +1099,7 @@ int main()
     // Redirect cv exceptions
     cvRedirectError(RedirectCvError);
 
-    // Read configuration file
+    // Read yaml configuration file
     const string config_file = "config.yaml";
     FileStorage fs;
     try {
@@ -1109,62 +1110,17 @@ int main()
     }
 
     if (!fs.isOpened()) {
-        cerr << "Failed to open '" << config_file << "'" << endl;
+        cerror("Failed to open '" + config_file + "'");
         return EXIT_FAILURE;
     }
 
-    // Flags to customize output format. False by default.
-    bool perform_check_8_connectivity = ReadBool(fs["perform"]["check_8_connectivity"]),
-        perform_average = ReadBool(fs["perform"]["average"]),
-        perform_density = ReadBool(fs["perform"]["density"]),
-        perform_memory = ReadBool(fs["perform"]["memory"]);
-
-    bool average_color_labels = ReadBool(fs["color_labels"]["average"]),
-        density_color_labels = ReadBool(fs["color_labels"]["density"]),
-        write_n_labels = ReadBool(fs["write_n_labels"]),
-        average_save_middle_tests = ReadBool(fs["save_middle_tests"]["average"]),
-        density_save_middle_tests = ReadBool(fs["save_middle_tests"]["density"]);
-
-    // Number of tests
-    uint8_t average_tests_number = static_cast<int>(fs["tests_number"]["average"]),
-        density_tests_number = static_cast<int>(fs["tests_number"]["density"]);
-
-    string input_txt = "files.txt",             /* Files which contain list of images's name on which ccl_algorithms are tested */
-        gnuplot_script_extension = ".gnuplot",  /* Extension of gnuplot scripts*/
-        colors_folder = "colors",
-        middle_folder = "middle_results",
-        latex_file = "averageResults.tex",
-        latex_charts = "averageCharts.tex",
-        latex_memory_file = "memoryAccesses.tex",
-        output_path = NormalizePath(fs["paths"]["output"]),  /* Folder on which result are stored */
-        input_path = NormalizePath(fs["paths"]["input"]),    /* Folder on which datasets are placed */
-        latex_folder = "latex";
-
-    // List of dataset on which CCLA are checked
-    vector<String> check_datasets(fs["check_datasets"].size());
-
-    // List of dataset on which CCLA are memory checked
-    vector<String> memory_datasets(fs["memory_datasets"].size());
-
-    // Dataset to use for density tests
-    vector<String> density_datasets = { "test_random" };
-
-    // Lists of dataset on which CCLA are tested: one list for every type of test
-    vector<String> average_datasets(fs["average_datasets"].size());
-
-    // Lists of 'STANDARD' algorithms to check and/or test
-    vector<String> ccl_algorithms(fs["algorithms"].size());
-
-    // Read list of parameters from config file
-    read(fs["check_datasets"], check_datasets);
-    read(fs["memory_datasets"], memory_datasets);
-    read(fs["average_datasets"], average_datasets);
-    read(fs["algorithms"], ccl_algorithms);
+	// Load configuration data from yaml and store them to 
+	ConfigData cfg(fs); 
 
     // Release FileStorage
     fs.release();
 
-    if (ccl_algorithms.size() == 0) {
+    if (cfg.ccl_algorithms.size() == 0) {
         cerr << "'Algorithms' field must not be empty" << endl;
         return 1;
     }
@@ -1173,15 +1129,15 @@ int main()
     string datetime = GetDatetime();
     replace(datetime.begin(), datetime.end(), ' ', '_');
     replace(datetime.begin(), datetime.end(), ':', '.');
-    output_path += kPathSeparator + datetime;
+    cfg.output_path += kPathSeparator + datetime;
 
     // Create output directory
-    if (!MakeDir(output_path))
+    if (!MakeDir(cfg.output_path))
         return 1;
 
     //Create a directory with all the charts
-    string latex_path = output_path + kPathSeparator + latex_folder;
-    if ((perform_average || perform_density) && !MakeDir(latex_path)) {
+    string latex_path = cfg.output_path + kPathSeparator + cfg.latex_folder;
+    if ((cfg.perform_average || cfg.perform_density) && !MakeDir(latex_path)) {
         cout << ("Cannot create the directory" + latex_path);
         return 1;
     }
@@ -1190,48 +1146,48 @@ int main()
     HideConsoleCursor();
 
     // Check if algorithms are correct
-    if (perform_check_8_connectivity) {
+    if (cfg.perform_check_8connectivity) {
         //cout << "CHECK ALGORITHMS ON 8-CONNECTIVITY: " << endl;
         TitleBar t_bar("CHECK ALGORITHMS ON 8-CONNECTIVITY");
         t_bar.Start();
-        CheckAlgorithms(ccl_algorithms, check_datasets, input_path, input_txt);
+        CheckAlgorithms(cfg.ccl_algorithms, cfg.check_datasets, cfg.input_path, cfg.input_txt);
         t_bar.End();
     }
 
     // Test Algorithms with different input type and different output format, and show execution result
     // AVERAGES TEST
-    Mat1d all_res(average_datasets.size(), ccl_algorithms.size(), numeric_limits<double>::max()); // We need it to save average results and generate latex table
+    Mat1d all_res(cfg.average_datasets.size(), cfg.ccl_algorithms.size(), numeric_limits<double>::max()); // We need it to save average results and generate latex table
 
-    if (perform_average) {
+    if (cfg.perform_average) {
         //cout << endl << "AVERAGE TESTS: " << endl;
         TitleBar t_bar("AVERAGE TESTS");
         t_bar.Start();
-        if (ccl_algorithms.size() == 0) {
+        if (cfg.ccl_algorithms.size() == 0) {
             cout << "ERROR: no algorithms, average tests skipped" << endl;
         }
         else {
-            for (unsigned i = 0; i < average_datasets.size(); ++i) {
-                cout << "Averages_Test on '" << average_datasets[i] << "': starts" << endl;
-                cout << AverageTest(ccl_algorithms, all_res, i, input_path, average_datasets[i], input_txt, gnuplot_script_extension, output_path, latex_folder, colors_folder, average_save_middle_tests, average_tests_number, middle_folder, write_n_labels, average_color_labels) << endl;
+            for (unsigned i = 0; i < cfg.average_datasets.size(); ++i) {
+                cout << "Averages_Test on '" << cfg.average_datasets[i] << "': starts" << endl;
+                cout << AverageTest(cfg.ccl_algorithms, all_res, i, cfg.input_path, cfg.average_datasets[i], cfg.input_txt, cfg.gnuplot_script_extension, cfg.output_path, cfg.latex_folder, cfg.colors_folder, cfg.average_save_middle_tests, cfg.average_tests_number, cfg.middle_folder, cfg.write_n_labels, cfg.average_color_labels) << endl;
                 //cout << "Averages_Test on '" << average_datasets[i] << "': ends" << endl << endl;
             }
-            GenerateLatexTable(output_path, latex_file, all_res, average_datasets, ccl_algorithms);
+            GenerateLatexTable(cfg.output_path, cfg.latex_file, all_res, cfg.average_datasets, cfg.ccl_algorithms);
         }
         t_bar.End();
     }
 
     // DENSITY_SIZE_TESTS
-    if (perform_density) {
+    if (cfg.perform_density) {
         //cout << endl << "DENSITY_SIZE TESTS: " << endl;
         TitleBar t_bar("DENSITY_SIZE TESTS");
         t_bar.Start();
-        if (ccl_algorithms.size() == 0) {
+        if (cfg.ccl_algorithms.size() == 0) {
             cout << "ERROR: no algorithms, density_size tests skipped" << endl;
         }
         else {
-            for (unsigned i = 0; i < density_datasets.size(); ++i) {
-                cout << "Density_Size_Test on '" << density_datasets[i] << "': starts" << endl;
-                cout << DensitySizeTest(ccl_algorithms, input_path, density_datasets[i], input_txt, gnuplot_script_extension, output_path, latex_folder, colors_folder, density_save_middle_tests, density_tests_number, middle_folder, write_n_labels, density_color_labels) << endl;
+            for (unsigned i = 0; i < cfg.density_datasets.size(); ++i) {
+                cout << "Density_Size_Test on '" << cfg.density_datasets[i] << "': starts" << endl;
+                cout << DensitySizeTest(cfg.ccl_algorithms, cfg.input_path, cfg.density_datasets[i], cfg.input_txt, cfg.gnuplot_script_extension, cfg.output_path, cfg.latex_folder, cfg.colors_folder, cfg.density_save_middle_tests, cfg.density_tests_number, cfg.middle_folder, cfg.write_n_labels, cfg.density_color_labels) << endl;
                 //cout << "Density_Size_Test on '" << density_datasets[i] << "': ends" << endl << endl;
             }
         }
@@ -1239,19 +1195,19 @@ int main()
     }
 
     // GENERATE CHARTS TO INCLUDE IN LATEX
-    if (perform_average) {
-        vector<String> dataset_charts = average_datasets;
+    if (cfg.perform_average) {
+        vector<String> dataset_charts = cfg.average_datasets;
         // Include density tests if they were performed
-        if (perform_density) {
+        if (cfg.perform_density) {
             dataset_charts.push_back("density");
             dataset_charts.push_back("size");
         }
         // Generate the latex file that includes all the generated charts
-        GenerateLatexCharts(output_path, latex_charts, latex_folder, dataset_charts);
+        GenerateLatexCharts(cfg.output_path, cfg.latex_charts, cfg.latex_folder, dataset_charts);
     }
 
     // MEMORY_TESTS
-    if (perform_memory) {
+    if (cfg.perform_memory) {
         Mat1d accesses;
         cout << endl << "MEMORY TESTS: " << endl;
 
@@ -1259,7 +1215,7 @@ int main()
         Labeling::img_ = Mat1b();
         vector<String> ccl_mem_algorithms;
 
-        for (const auto& algo_name : ccl_algorithms) {
+        for (const auto& algo_name : cfg.ccl_algorithms) {
             auto& algorithm = LabelingMapSingleton::GetInstance().data_.at(algo_name);
             try {
                 vector<unsigned long> accesses;
@@ -1272,15 +1228,15 @@ int main()
             }
         }
 
-        if (ccl_algorithms.size() == 0) {
+        if (cfg.ccl_algorithms.size() == 0) {
             cout << "ERROR: no algorithms, memory tests skipped" << endl;
         }
         else {
-            for (unsigned i = 0; i < memory_datasets.size(); ++i) {
-                cout << endl << "Memory_Test on '" << memory_datasets[i] << "': starts" << endl;
-                cout << MemoryTest(ccl_mem_algorithms, accesses, input_path, memory_datasets[i], input_txt, output_path) << endl;
-                cout << "Memory_Test on '" << memory_datasets[i] << "': ends" << endl << endl;
-                GenerateMemoryLatexTable(output_path, latex_memory_file, accesses, memory_datasets[i], ccl_mem_algorithms);
+            for (unsigned i = 0; i < cfg.memory_datasets.size(); ++i) {
+                cout << endl << "Memory_Test on '" << cfg.memory_datasets[i] << "': starts" << endl;
+                cout << MemoryTest(ccl_mem_algorithms, accesses, cfg.input_path, cfg.memory_datasets[i], cfg.input_txt, cfg.output_path) << endl;
+                cout << "Memory_Test on '" << cfg.memory_datasets[i] << "': ends" << endl << endl;
+                GenerateMemoryLatexTable(cfg.output_path, cfg.latex_memory_file, accesses, cfg.memory_datasets[i], ccl_mem_algorithms);
             }
         }
     }
