@@ -30,69 +30,69 @@
 #include "opencv2/opencv.hpp"
 
 class PerformanceEvaluator {
-    struct elapsed {
-        double _last;
-        double _total;
+    struct Elapsed {
+        double last;
+        double total;
 
-        elapsed() : _last(0), _total(0) {}
+        Elapsed() : last(0), total(0) {}
     };
 
 public:
     PerformanceEvaluator()
     {
-        _tickFrequency = cv::getTickFrequency();
+        tick_frequency_ = cv::getTickFrequency();
     }
     void start()
     {
-        _counter._last = (double)cv::getTickCount();
+        counter_.last = (double)cv::getTickCount();
     }
     double stop()
     {
-        double t = cv::getTickCount() - _counter._last;
-        _counter._last = t;
-        _counter._total += t;
-        return _counter._last*1000. / _tickFrequency;
+        double t = cv::getTickCount() - counter_.last;
+        counter_.last = t;
+        counter_.total += t;
+        return counter_.last*1000. / tick_frequency_;
     }
     void reset()
     {
-        _counter._total = 0;
+        counter_.total = 0;
     }
     double last()
     {
-        return _counter._last*1000. / _tickFrequency;
+        return counter_.last*1000. / tick_frequency_;
     }
     double total()
     {
-        return _counter._total*1000. / _tickFrequency;
+        return counter_.total*1000. / tick_frequency_;
     }
 
     void start(const std::string& s)
     {
-        _counters[s]._last = (double)cv::getTickCount();
+        counters_[s].last = (double)cv::getTickCount();
     }
     double stop(const std::string& s)
     {
-        elapsed& e = _counters[s];
-        double t = cv::getTickCount() - e._last;
-        e._last = t;
-        e._total += t;
-        return e._last*1000. / _tickFrequency;
+        Elapsed& e = counters_[s];
+        double t = cv::getTickCount() - e.last;
+        e.last = t;
+        e.total += t;
+        return e.last*1000. / tick_frequency_;
     }
     void reset(const std::string& s)
     {
-        _counters[s]._total = 0;
+        counters_[s].total = 0;
     }
     double last(const std::string& s)
     {
-        return _counters[s]._last*1000. / _tickFrequency;
+        return counters_[s].last*1000. / tick_frequency_;
     }
     double total(const std::string& s)
     {
-        return _counters[s]._total*1000. / _tickFrequency;
+        return counters_[s].total*1000. / tick_frequency_;
     }
 
 private:
-    double _tickFrequency;
-    elapsed _counter;
-    std::map<std::string, elapsed> _counters;
+    double tick_frequency_;
+    Elapsed counter_;
+    std::map<std::string, Elapsed> counters_;
 };
