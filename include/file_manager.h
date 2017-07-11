@@ -31,64 +31,76 @@
 
 #include <string>
 
-/** @brief Check if folder exist or not
+// Class name lowercase because it will be replaced by the c++ filesystem class when it will be completely supported and portable
+namespace filesystem {
+	class path {
+	public:
 
- This function simply check if folder of specified pathname exists or not. If the folder
- exists and it could be accessed the function return true, otherwise false.
+		path() {}
 
-@param[in] pathname path of the folder to check
+		path(const std::string& p) : path() {
+			this->path_ = p;
+			NormalizePath();
+		}
 
-@return true if the specified folder exists and could be accessed, false otherwise
+		path& operator/=(const path& p)
+		{
+			if (p.empty()) {
+				return *this;
+			}
 
-*/
-bool DirExists(const char* pathname);
+			if (this == &p)  // self-append
+			{
+				throw std::invalid_argument("'path' self append not defined");
+				/*path rhs(p);
+				if (!detail::is_directory_separator(rhs.path_[0]))
+					m_append_separator_if_needed();
+				m_pathname += rhs.m_pathname;*/
+			}
+			else
+			{
+				/*if (!detail::is_directory_separator(*p.m_pathname.begin()))
+					m_append_separator_if_needed();
+				m_pathname += p.m_pathname;*/
+				if (p.path_[0] != separator_) {
+					this->path_ += (separator_ + p.path_);
+				}
+				else {
+					this->path_ += p.path_;
+				}
+			}
+			return *this;
+		}
 
-/** @overload
+		path& operator=(const std::string& s) {
+			this->path_ = s;
+			NormalizePath();
+			return *this;
+		}
 
-This function simply check if folder of specified pathname exists or not. If the folder
-exists and it could be accessed the function return true, otherwise false.
+		path& operator=(const path& p) {
+			this->path_ = p.path_;
+			return *this;
+		}
 
-@param[in] pathName path of the folder to check
+		std::string string() const {
+			return this->path_;
+		}
 
-@return true if the specified folder exists and could be accessed, false otherwise
+	private:
 
-*/
-bool DirExists(const std::string& pathName);
+		bool empty() const { return path_.empty(); }
 
-/** @brief Creates a directory if it does not exist
+		void NormalizePath();
 
- This function checks if directory exist and creates it if not. It returns true if the
- directory exists or creation process end correctly, false otherwise
+		std::string path_;
+		static const char separator_;
+	};
 
-@param[in] path path of the folder to create
+	inline path operator/(const path& lhs, const path& rhs) { return path(lhs) /= rhs; }
 
-@return true if the specified folder exists and could be accessed, false otherwise
-
-*/
-bool MakeDir(const std::string& path);
-
-/** @brief Check if file exist or not
-
-This function simply check if file of specified pathname exists or not. If the file
-exists and it could be accessed the function return true, otherwise false.
-
-@param[in] pathname path of the file to check
-
-@return true if the specified file exists and could be accessed, false otherwise
-
-*/
-bool FileExists(const std::string& path);
-
-/** @brief Standardize path
-
-This function standardize path with '\' if YACCLAB is run on Windows OSs
-or with '/' if it is run on Unix OSs.
-
-@param[in] pathname path to normalize
-
-@return string of the normalized path
-
-*/
-std::string NormalizePath(const std::string& path);
+	bool exists(const path& p);
+	bool create_directories(const path& p);
+};
 
 #endif // !YACCLAB_FILE_MANAGER_H_

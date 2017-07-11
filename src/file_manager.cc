@@ -1,4 +1,4 @@
-// Copyright(c) 2016 - 2017 Costantino Grana, Federico Bolelli, Lorenzo Baraldi and Roberto Vezzani
+// Copyright(c) 2016 - 2017 Costantino Grana, Federico Bolelli, Lorenzo Baraldi and Roberto Vezzani, Cancilla Michele
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,81 +30,63 @@
 
 #include <algorithm>
 #include <fstream>
-#include <iostream>
 #include <string>
-#include <vector>
 
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 #include "system_info.h"
 
 using namespace std;
 
-bool DirExists(const char* pathname)
-{
-    struct stat info;
-    if (stat(pathname, &info) != 0) {
-        //printf("cannot access %s\n", pathname);
-        return false;
-    }
-    else if (info.st_mode & S_IFDIR) {  // S_ISDIR() doesn't exist on my windows
-        //printf("%s is a directory\n", pathname);
-        return true;
-    }
-
-    //printf("%s is no directory\n", pathname);
-    return false;
-}
-
-bool DirExists(const string& pathName)
-{
-    struct stat info;
-    const char* path = pathName.c_str();
-    if (stat(path, &info) != 0) {
-        //printf("cannot access %s\n", pathname);
-        return false;
-    }
-    else if (info.st_mode & S_IFDIR) {  // S_ISDIR() doesn't exist on my windows
-        //printf("%s is a directory\n", pathname);
-        return true;
-    }
-
-    //printf("%s is no directory\n", pathname);
-    return false;
-}
-
-bool MakeDir(const string& path)
-{
-    string s = "\"" + path + "\"";
-
-#if defined(UNIX) || defined(LINUX) || defined(APPLE)
-    // make it recursive by adding "-p" suffix
-    s += " -p";
+const char filesystem::path::separator_ =
+#ifdef WINDOWS
+'\\';
+#else
+'/';
 #endif
 
-    if (!DirExists(s)) {
-        if (0 != system(("mkdir " + s).c_str())) {
-            //cerr << "Unable to find/create the output path " + s;
-            return false;
-        }
-    }
-    return true;
+bool filesystem::exists(const path& p) {
+	struct stat info;
+	const char* path = p.string().c_str();
+	if (stat(path, &info) != 0) {
+		//printf("cannot access %s\n", pathname);
+		return false;
+	}
+	else if (info.st_mode & S_IFDIR) {  // S_ISDIR() doesn't exist on my windows
+										//printf("%s is a directory\n", pathname);
+		return true;
+	}
+
+	//printf("%s is no directory\n", pathname);
+	return false;
 }
 
-bool FileExists(const string& path)
-{
-    ifstream file(path.c_str());
-    return file.good();
-}
+bool filesystem::create_directories(const path& p) {
 
-string NormalizePath(const std::string& path)
-{
-    string s(path);
+	string s(p.string());
+
 #if defined(UNIX) || defined(LINUX) || defined(APPLE)
-    replace(s.begin(), s.end(), '\\', '/');
+	// make it recursive by adding "-p" suffix
+	s += " -p";
+#endif
+
+	if (!exists(s)) {
+		if (system(("mkdir \"" + s + "\"").c_str()) != 0) {
+			//cerr << "Unable to find/create the output path " + s;
+			return false;
+		}
+	}
+	return true;
+}
+
+void filesystem::path::NormalizePath() {
+
+#if defined(UNIX) || defined(LINUX) || defined(APPLE)
+	std::replace(path_.begin(), path_.end(), '\\', '/');
 #elif defined(WINDOWS)
-    replace(s.begin(), s.end(), '/', '\\');
+	std::replace(path_.begin(), path_.end(), '/', '\\');
 #endif
-    return s;
+	
+	return;
 }
