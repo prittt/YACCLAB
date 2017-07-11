@@ -4,19 +4,22 @@
 #include <string>
 #include <opencv2/core.hpp>
 
-extern const char kPathSeparator;
+#include "file_manager.h"
+
+//extern const char kPathSeparator;
 extern const std::string kTerminal;
 extern const std::string kTerminalExtension;
 
 // This function is useful to delete eventual carriage return from a string
 // and is especially designed for windows file newline format
-void DeleteCarriageReturn(std::string& s);
+//void DeleteCarriageReturn(std::string& s);
+void RemoveCharacter(std::string& s, const char c);
 
 // This function take a char as input and return the corresponding int value (not ASCII one)
 unsigned ctoi(const char& c);
 
 // This function help us to manage '\' escape character
-void EraseDoubleEscape(std::string& str);
+//void EraseDoubleEscape(std::string& str);
 
 // Get information about date and time
 std::string GetDatetime();
@@ -32,6 +35,8 @@ void NormalizeLabels(cv::Mat1i& img_labels);
 
 // Get binary image given a image's filename;
 bool GetBinaryImage(const std::string& filename, cv::Mat1b& binary_mat);
+bool GetBinaryImage(const filesystem::path& p, cv::Mat1b& binary_mat);
+
 
 // Compare two int matrices element by element
 bool CompareMat(const cv::Mat1i& mat_a, const cv::Mat1i& mat_b);
@@ -42,7 +47,7 @@ bool CompareMat(const cv::Mat1i& mat_a, const cv::Mat1i& mat_b);
 
 @return bool value of field in node_list
 */
-bool ReadBool(const cv::FileNode& node_list);
+//bool ReadBool(const cv::FileNode& node_list);
 
 // Hide blinking cursor from console
 void HideConsoleCursor();
