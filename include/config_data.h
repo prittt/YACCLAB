@@ -5,6 +5,8 @@
 
 #include "file_manager.h"
 
+using namespace filesystem;
+
 struct ConfigData {
 
 	bool perform_check_8connectivity;	// Whether to perform 8-connettivity check or not
@@ -30,9 +32,9 @@ struct ConfigData {
 	std::string latex_file;					// Latex file which will store textual average results
 	std::string latex_memory_file;			// Latex file which will store textual memory results
 	std::string latex_charts;				// Latex file which will store report latex code for charts
-	std::string output_path;				// Path on which results are stored
-	std::string input_path;					// Path on which input datasets are stored
 	std::string latex_folder;				// Folder which will contain all latex output files
+	path output_path;						// Path on which results are stored
+	path input_path;						// Path on which input datasets are stored
 										
 	std::vector<cv::String> check_datasets;		// List of datasets on which check tests will be performed
 	std::vector<cv::String> memory_datasets;	// List of datasets on which memory tests will be perform
@@ -66,9 +68,9 @@ struct ConfigData {
 		latex_file					= "averageResults.tex";
 		latex_charts				= "averageCharts.tex";
 		latex_memory_file			= "memoryAccesses.tex";
-		output_path					= NormalizePath(fs["paths"]["output"]);
-		input_path					= NormalizePath(fs["paths"]["input"]);
 		latex_folder				= "latex";
+		output_path					= path(fs["paths"]["output"]);
+		input_path					= path(fs["paths"]["input"]);
 
 		check_datasets				= std::vector<cv::String>(fs["check_datasets"].size());
 		cv::read(fs["check_datasets"], check_datasets);
