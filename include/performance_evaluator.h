@@ -26,7 +26,9 @@
 // OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#pragma once
+#ifndef YACCLAB_PERFORMANCE_EVALUATOR_H_
+#define YACCLAB_PERFORMANCE_EVALUATOR_H_
+
 #include "opencv2/opencv.hpp"
 
 class PerformanceEvaluator {
@@ -66,14 +68,15 @@ public:
         return counter_.total*1000. / tick_frequency_;
     }
 
-    void start(const std::string& s)
+   /* void start(const std::string& s)
     {
         counters_[s].last = (double)cv::getTickCount();
     }
     double stop(const std::string& s)
     {
+        double tick = static_cast<double>(cv::getTickCount());
         Elapsed& e = counters_[s];
-        double t = cv::getTickCount() - e.last;
+        double t =  - e.last;
         e.last = t;
         e.total += t;
         return e.last*1000. / tick_frequency_;
@@ -89,6 +92,12 @@ public:
     double total(const std::string& s)
     {
         return counters_[s].total*1000. / tick_frequency_;
+    }*/
+
+    void store(const std::string& s, double time /*milliseconds*/)
+    {
+        counters_[s].last = time; 
+        counters_[s].total += time;
     }
 
 private:
@@ -96,3 +105,5 @@ private:
     Elapsed counter_;
     std::map<std::string, Elapsed> counters_;
 };
+
+#endif // !YACCLAB_PERFORMANCE_EVALUATOR_H_
