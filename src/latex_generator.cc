@@ -162,8 +162,6 @@ void GenerateLatexCharts(const filesystem::path& output_path, const string& late
     //replace the . with _ for filenames
     string compiler_name(s_info.compiler_name());
     string compiler_version(s_info.compiler_version());
-
-    std::replace(compiler_name.begin(), compiler_name.end(), '.', '_');
     std::replace(compiler_version.begin(), compiler_version.end(), '.', '_');
 
     //\newcommand{ \compilerName }{MSVC2015}
@@ -201,7 +199,6 @@ string EscapeLatexUnderscore(const string& s)
 
 void LatexGenerator(const map<string, bool>& test_to_perform, const path& latex_path, const string& latex_file, const Mat1d& all_res, const vector<String>& datasets_name, const vector<String>& ccl_algorithms, const vector<String>& ccl_mem_algorithms, const map<string, Mat1d>& accesses)
 {
-    //string latex_path = output_path + kPathSeparator + latex_file;
     path latex = latex_path / path(latex_file);
     ofstream os(latex.string());
     if (!os.is_open()) {
@@ -278,7 +275,6 @@ void LatexGenerator(const map<string, bool>& test_to_perform, const path& latex_
         string compiler_name(s_info.compiler_name());
         string compiler_version(s_info.compiler_version());
         //replace the . with _ for compiler strings
-        std::replace(compiler_name.begin(), compiler_name.end(), '.', '_');
         std::replace(compiler_version.begin(), compiler_version.end(), '.', '_');
 
         //\newcommand{ \compilerName }{MSVC2015}
