@@ -54,7 +54,6 @@ void YacclabTests::CheckAlgorithms() {
 			// To save list of filename on which CLLAlgorithms must be tested
 			vector<pair<string, bool>> filenames;  // first: filename, second: state of filename (find or not)
 			if (!LoadFileList(filenames, isPath)) {
-				cerror
 				continue;
 			}
 
@@ -96,7 +95,7 @@ void YacclabTests::CheckAlgorithms() {
 						try {
 							Mat1i& labeledImgToControl = algorithm->img_labels_;
 
-							nLabelsToControl = 0;// algorithm->PerformLabeling();
+							nLabelsToControl = algorithm->PerformLabeling();
 
 							NormalizeLabels(labeledImgToControl);
 							const auto diff = CompareMat(labeledImgCorrect, labeledImgToControl);
