@@ -58,6 +58,11 @@ void cerror(const std::string& err);
 
 void cmessage(const std::string& msg);
 
+/*
+@brief Return the string title to insert in gnuplot charts
+
+@return string which represents the title
+*/
 std::string GetGnuplotTitle();
 
 #endif // !YACCLAB_UTILITIES_H_

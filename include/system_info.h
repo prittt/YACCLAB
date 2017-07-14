@@ -59,42 +59,46 @@ brand name, the OS used, and the architecture employed.
 */
 class SystemInfo {
 public:
-    std::string cpu_brand_;
-    std::string build_;
-    std::string os_;
-    std::pair<std::string, std::string> compiler_; //first for compiler_ name, second for compiler_ version
-
     SystemInfo();
 
     // Return the brand and model of the CPU used
-    static std::string GetCpuBrand();
+    std::string cpu() { return cpu_; }
 
     // Return the architecture (x86 or x64) used
-    static std::string GetBuild();
+    std::string build() { return build_; }
 
     // Return the Operating System used
-    static std::string GetOs();
+    std::string os() { return os_; }
 
     // Return the compiler_ used (name and version)
-    static std::pair<std::string, std::string> GetCompiler();
-
-    friend std::ostream& operator<< (std::ostream& out, const SystemInfo& sInfo);
+    std::string compiler_name() { return compiler_name_; }
+    std::string compiler_version() { return compiler_version_; }
 
 private:
+    std::string cpu_;
+    std::string build_;
+    std::string os_;
+    std::string compiler_name_;
+    std::string compiler_version_;
+
+    void SetCpuBrand();
+    void SetBuild();
+    void SetOs();
+    void SetCompiler();
 
 #if  defined(WINDOWS)
-    static std::string GetWindowsCpuBrand();
+    std::string GetWindowsCpu();
 
-    static bool GetWinMajorMinorVersion(DWORD& major, DWORD& minor);
+    bool GetWinMajorMinorVersion(DWORD& major, DWORD& minor);
 
-    static std::string GetWindowsVersion();
+    std::string GetWindowsVersion();
 
 #elif defined(LINUX) || defined(UNIX)
-    static  std::string GetLinuxCpuBrand();
+    std::string GetLinuxCpu();
 
 #elif defined(APPLE)
 
-    static std::string GetAppleCpuBrand();
+    std::string GetAppleCpu();
 
 #endif
 };

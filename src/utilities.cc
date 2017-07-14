@@ -31,6 +31,7 @@ unsigned ctoi(const char& c)
 {
 	return ((int)c - 48);
 }
+
 string GetDatetime()
 {
 	time_t rawtime;
@@ -163,7 +164,7 @@ void cmessage(const string& msg)
 
 std::string GetGnuplotTitle()
 {
-	SystemInfo info;
-	string s = "\"{/:Bold CPU}: " + info.GetCpuBrand() + " {/:Bold BUILD}: " + info.GetBuild() + " {/:Bold OS}: " + info.GetOs() + "\" font ', 11'";
+	SystemInfo s_info;
+	string s = "\"{/:Bold CPU}: " + s_info.cpu() + " {/:Bold BUILD}: " + s_info.build() + " {/:Bold OS}: " + s_info.os() + "\" font ', 11'";
 	return s;
 }

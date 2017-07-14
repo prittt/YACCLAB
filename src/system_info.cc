@@ -1,82 +1,76 @@
 #include "system_info.h"
 
+#include <algorithm>
+#include <fstream>
 #include <iostream>
 #include <string>
-#include <algorithm>
 
 using namespace std;
 
 SystemInfo::SystemInfo()
 {
-    cpu_brand_ = GetCpuBrand();
-    build_ = GetBuild();
-    os_ = GetOs();
-    compiler_ = GetCompiler();
+    SetBuild();
+    SetCpuBrand();
+    SetOs();
+    SetCompiler();
 }
 
-string SystemInfo::GetCpuBrand()
+void SystemInfo::SetCpuBrand()
 {
-    string cpu_brand;
 #ifdef WINDOWS
-    cpu_brand = GetWindowsCpuBrand();
+    cpu_ = GetWindowsCpu();
 #elif defined(LINUX) || defined(UNIX)
-    cpu_brand = GetLinuxCpuBrand();
+    cpu_ = GetLinuxCpu();
 #elif defined(APPLE)
-    cpu_brand = GetAppleCpuBrand();
+    cpu_ = GetAppleCpu();
 #else
-    cpu_brand = "CpuUnkwonwn";
+    cpu_ = "cpu_unknown";
 #endif
 
     const char* t = " \t\n\r\f\v";
 
     // Remove heading and trailing spaces in string
-    cpu_brand.erase(0, cpu_brand.find_first_not_of(t));
-    cpu_brand.erase(cpu_brand.find_last_not_of(t) + 1);
+    cpu_.erase(0, cpu_.find_first_not_of(t));
+    cpu_.erase(cpu_.find_last_not_of(t) + 1);
 
     // Delete "CPU" characters from CPUBrandString, if present
     const string pattern = " CPU";
     string::size_type n = pattern.length();
-    for (string::size_type i = cpu_brand.find(pattern); i != string::npos; i = cpu_brand.find(pattern))
-        cpu_brand.erase(i, n);
-
-    return cpu_brand;
+    for (string::size_type i = cpu_.find(pattern); i != string::npos; i = cpu_.find(pattern))
+        cpu_.erase(i, n);
 }
 
-string SystemInfo::GetBuild()
+void SystemInfo::SetBuild()
 {
-    string build;
-
     if (sizeof(void*) == 4)
-        build = "x86";
+        build_ = "x86";
     else if (sizeof(void*) == 8)
-        build = "x64";
+        build_ = "x64";
     else
-        build = "Unkwonwn";
-
-    return build;
+        build_ = "build_unknown";
 }
 
-#if  defined(WINDOWS)
-string SystemInfo::GetWindowsCpuBrand()
+#if defined(WINDOWS)
+string SystemInfo::GetWindowsCpu()
 {
-    int CPUInfo[4] = { -1 };
+    int cpu_info[4] = { -1 };
     unsigned nExIds, i = 0;
-    char CPUBrandString[0x40];
+    char cpu_name[0x40];
     // Get the information associated with each extended ID.
-    __cpuid(CPUInfo, 0x80000000);
-    nExIds = CPUInfo[0];
+    __cpuid(cpu_info, 0x80000000);
+    nExIds = cpu_info[0];
     for (i = 0x80000000; i <= nExIds; ++i) {
-        __cpuid(CPUInfo, i);
+        __cpuid(cpu_info, i);
         // Interpret CPU brand string
         if (i == 0x80000002)
-            memcpy(CPUBrandString, CPUInfo, sizeof(CPUInfo));
+            memcpy(cpu_name, cpu_info, sizeof(cpu_info));
         else if (i == 0x80000003)
-            memcpy(CPUBrandString + 16, CPUInfo, sizeof(CPUInfo));
+            memcpy(cpu_name + 16, cpu_info, sizeof(cpu_info));
         else if (i == 0x80000004)
-            memcpy(CPUBrandString + 32, CPUInfo, sizeof(CPUInfo));
+            memcpy(cpu_name + 32, cpu_info, sizeof(cpu_info));
     }
 
-    return { CPUBrandString };
+    return { cpu_name };
 }
 
 bool SystemInfo::GetWinMajorMinorVersion(DWORD& major, DWORD& minor)
@@ -167,11 +161,11 @@ string SystemInfo::GetWindowsVersion()
         }
     }
 
-    if ((bIsWow64 && GetBuild() == "x86") || (GetBuild() == "x64")) {
+    if ((bIsWow64 && build_ == "x86") || (build_ == "x64")) {
         //64 bit OS and 32 bit built application or 64 bit application
         winver += " 64 bit";
     }
-    else if ((!bIsWow64 && GetBuild() == "x86")) {
+    else if ((!bIsWow64 && build_ == "x86")) {
         //32 bit OS and 32 bit built application
         winver += " 32 bit";
     }
@@ -179,26 +173,25 @@ string SystemInfo::GetWindowsVersion()
     return winver;
 }
 
-#elif defined(LINUX) || defined(UNIX)
-string SystemInfo::GetLinuxCpuBrand()
+#elif defined(LINUX) || defined(UNIX) 
+string SystemInfo::GetLinuxCpu()
 {
     ifstream cpuinfo("/proc/cpuinfo");
     if (!cpuinfo.is_open()) {
-        cout << "errore di apertura del file\n";
-        return "CpuUnkwonwn";
+        return "cpu_unknown";
     }
-    string CPUBrandString;
-    while (getline(cpuinfo, CPUBrandString)) {
-        if (CPUBrandString.substr(0, CPUBrandString.find(":") - 1) == "model name") {
-            CPUBrandString = CPUBrandString.substr(CPUBrandString.find(":") + 2);
+    string cpu_name;
+    while (getline(cpuinfo, cpu_name)) {
+        if (cpu_name.substr(0, cpu_name.find(":") - 1) == "model name") {
+            cpu_name = cpu_name.substr(cpu_name.find(":") + 2);
             break;
         }
     }
-
-    return CPUBrandString;
+    cpuinfo.close();
+    return cpu_name;
 }
 
-string getLinuxOs()
+string GetLinuxOs()
 {
     struct utsname unameData;
     uname(&unameData);
@@ -209,113 +202,104 @@ string getLinuxOs()
         bit = "64 bit";
     else if (bit == "i686")
         bit = "32 bit";
+    else
+        bit = "bit_unknown";
 
     return string(unameData.sysname) + " " + bit;
 }
 #elif defined(APPLE)
-string SystemInfo::GetAppleCpuBrand()
+string SystemInfo::GetAppleCpu()
 {
     // https://developer.apple.com/legacy/library/documentation/Darwin/Reference/ManPages/man3/sysctl.3.html#//apple_ref/doc/man/3/sysctl
-    //http://stackoverflow.com/questions/853798/programmatically-get-processor-details-from-mac-os-x
-    //http://osxdaily.com/2011/07/15/get-cpu-info-via-command-line-in-mac-os-x/
+    // http://stackoverflow.com/questions/853798/programmatically-get-processor-details-from-mac-os-x
+    // http://osxdaily.com/2011/07/15/get-cpu-info-via-command-line-in-mac-os-x/
 
-    string CPU = system("sysctl - n machdep.cpu.brand_string");
-
-    return CPU;
+    string cpu_name = system("sysctl - n machdep.cpu.brand_string");
+    return cpu_name;
 }
 
 #endif
 
-string SystemInfo::GetOs()
+void SystemInfo::SetOs()
 {
-    string Os;
 #if defined(WINDOWS)
-    Os = GetWindowsVersion();
+    os_ = GetWindowsVersion();
 #elif defined(UNIX) || defined(LINUX)
-    Os = getLinuxOs();
+    os_ = GetLinuxOs();
 #elif defined(APPLE)
-    Os = "Mac OSX";
+    os_ = "Mac OSX";
 #else
-    Os = "OsUnkwonwn";
+    os_ = "os_unknown";
 #endif
-    return Os;
 }
 
-pair<string, string> SystemInfo::GetCompiler()
+void SystemInfo::SetCompiler()
 {
-    pair<string, string> compiler;
+    compiler_name_ = "compiler_unknown";
+    compiler_version_ = "";
 
 #if defined(__clang__)
     /* Clang/LLVM. ---------------------------------------------- */
-    compiler.first = "Clang";
-    compiler.second = string(__clang_major__) + "_" + string(__clang_minor__);
+    compiler_name_ = "Clang";
+    compiler_version_ = string(__clang_major__) + "_" + string(__clang_minor__);
 
 #elif defined(__ICC) || defined(__INTEL_COMPILER)
     /* Intel ICC/ICPC. ------------------------------------------ */
-    compiler.first = "IntelC++";
-    compiler.second = string(__INTEL_COMPILER);
+    compiler_name_ = "IntelC++";
+    compiler_version_ = string(__INTEL_COMPILER);
 
 #elif defined(__GNUC__) || defined(__GNUG__)
     /* GNU GCC/G++. --------------------------------------------- */
-    compiler.first = "GCC-G++";
+    compiler_name_ = "GCC-G++";
 
 #ifdef __VERSION__
 
-    compiler.second = "_" + string(__VERSION__);
-    replace(compiler.second.begin(), compiler.second.end(), ' ', '_');
+    compiler_version_ = "_" + string(__VERSION__);
+    replace(compiler.second.begin(), compiler_version_.end(), ' ', '_');
 
 #endif // __VERSION__
 
 #elif defined(__HP_cc) || defined(__HP_aCC)
     /* Hewlett-Packard C/C++. ---------------------------------- */
-    compiler.first = "HP_C++";
+    compiler_name_ = "HP_C++";
 
 #elif defined(__IBMC__) || defined(__IBMCPP__)
     /* IBM XL C/C++. -------------------------------------------- */
-    compiler.first = "IBM_XL_C-C++";
+    compiler_name_ = "IBM_XL_C-C++";
 
 #elif defined(_MSC_VER)
     /* Microsoft Visual Studio. --------------------------------- */
-    compiler.first = "MSVC";
+    compiler_name_ = "MSVC";
     if (_MSC_VER == 1910) //Visual Studio 2017, MSVC++ 15.0
-        compiler.second = "15.0";
+        compiler_version_ = "15.0";
     else if (_MSC_VER == 1900)
-        compiler.second = "14.0";
+        compiler_version_ = "14.0";
     else if (_MSC_VER == 1800)
-        compiler.second = "12.0";
+        compiler_version_ = "12.0";
     else if (_MSC_VER == 1700)
-        compiler.second = "11.0";
+        compiler_version_ = "11.0";
     else if (_MSC_VER == 1600)
-        compiler.second = "10.0";
+        compiler_version_ = "10.0";
     else if (_MSC_VER == 1500)
-        compiler.second = "9.0";
+        compiler_version_ = "9.0";
     else if (_MSC_VER == 1400)
-        compiler.second = "8.0";
+        compiler_version_ = "8.0";
     else if (_MSC_VER == 1310)
-        compiler.second = "7.1";
+        compiler_version_ = "7.1";
     else if (_MSC_VER == 1300)
-        compiler.second = "7.0";
+        compiler_version_ = "7.0";
     else if (_MSC_VER == 1200)
-        compiler.second = "6.0";
+        compiler_version_ = "6.0";
 
-    // else "None"
+     // else "None"
 
 #elif defined(__PGI)
     /* Portland Group PGCC/PGCPP. ------------------------------- */
-    compiler.first = "PGCC-PGCPP";
+    compiler_name_ = "PGCC-PGCPP";
 
 #elif defined(__SUNPRO_C) || defined(__SUNPRO_CC)
     /* Oracle Solaris Studio. ----------------------------------- */
-    compiler.first = "SUNPRO";
+    compiler_name_ = "SUNPRO";
 
 #endif
-    return compiler;
-}
-
-ostream& operator<<(ostream& out, const SystemInfo& sInfo)
-{
-    string str = sInfo.build_ + "\\_" + sInfo.compiler_.first + sInfo.compiler_.second + "\\_" + sInfo.os_;
-    string::iterator end_pos = remove(str.begin(), str.end(), ' ');
-    out << str;
-    return out;
 }
