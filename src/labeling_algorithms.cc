@@ -8,3 +8,8 @@ LabelingMapSingleton& LabelingMapSingleton::GetInstance()
                                             // Instantiated on first use.
     return instance;
 }
+
+Labeling* LabelingMapSingleton::GetLabeling(const std::string& s)
+{
+    return LabelingMapSingleton::GetInstance().data_.at(s);
+}

@@ -43,9 +43,9 @@
 
 class Labeling {
 public:
-    // TODO make this variables private?!?
     static cv::Mat1b img_;
     cv::Mat1i img_labels_;
+    unsigned nlabels_;
     PerformanceEvaluator perf_;
 
     Labeling() {}
@@ -70,6 +70,7 @@ public:
     std::map<std::string, Labeling*> data_;
 
     static LabelingMapSingleton& GetInstance();
+    static Labeling* GetLabeling(const std::string& s);
     LabelingMapSingleton(LabelingMapSingleton const&) = delete;
     void operator=(LabelingMapSingleton const&) = delete;
 
