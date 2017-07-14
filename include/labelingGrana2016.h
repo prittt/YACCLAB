@@ -41,13 +41,13 @@ public:
     {
         AllocateMemory();
 
-        perf_.start("FirstScan");
+        //perf_.start("FirstScan");
         const unsigned lunique = FirstScan();
-        perf_.stop("FirstScan");
+        //perf_.stop("FirstScan");
 
-        perf_.start("SecondScan");
+        //perf_.start("SecondScan");
         const unsigned nLabels = SecondScan(lunique);
-        perf_.stop("SecondScan");
+        //perf_.stop("SecondScan");
 
         DeallocateMemory();
         return nLabels;

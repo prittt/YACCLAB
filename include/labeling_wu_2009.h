@@ -265,21 +265,21 @@ public:
 
     unsigned PerformLabelingWithSteps() override
     {
-        perf_.start("Allocate");
+        //perf_.start("Allocate");
         AllocateMemory();
-        perf_.stop("Allocate");
+        //perf_.stop("Allocate");
 
-        perf_.start("FirstScan");
+        //perf_.start("FirstScan");
         unsigned lunique = FirstScan();
-        perf_.stop("FirstScan");
+        //perf_.stop("FirstScan");
 
-        perf_.start("SecondScan");
+        //perf_.start("SecondScan");
         unsigned n_labels = SecondScan(lunique);
-        perf_.stop("SecondScan");
+        //perf_.stop("SecondScan");
 
-        perf_.start("Deallocate");
+        //perf_.start("Deallocate");
         DeallocateMemory();
-        perf_.stop("Deallocate");
+        //perf_.stop("Deallocate");
 
         return n_labels;
     }
