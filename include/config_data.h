@@ -4,6 +4,7 @@
 #include <opencv2/imgproc.hpp>
 
 #include "file_manager.h"
+#include "utilities.h"
 
 using namespace filesystem;
 
@@ -73,7 +74,7 @@ struct ConfigData {
 		latex_charts				= "averageCharts.tex";
 		latex_memory_file			= "memoryAccesses.tex";
 		
-		output_path					= path(fs["paths"]["output"]);
+        output_path                 = path(fs["paths"]["output"]) / path(GetDatetimeWithoutSpecialChars());
 		input_path					= path(fs["paths"]["input"]);
 		latex_path					= output_path / path("latex");
 
