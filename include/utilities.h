@@ -21,8 +21,14 @@ unsigned ctoi(const char& c);
 // This function help us to manage '\' escape character
 //void EraseDoubleEscape(std::string& str);
 
-// Get information about date and time
+/*@brief Get information about date and time
+
+@param[in] bool if true substitute both ' ' and ':' chars with '_' and '.'
+
+@return string value with datetime stringyfied
+*/
 std::string GetDatetime();
+std::string GetDatetimeWithoutSpecialChars();
 
 // Create a bunch of pseudo random colors from labels indexes and create a
 // color representation for the labels
