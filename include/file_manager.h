@@ -30,6 +30,7 @@
 #define YACCLAB_FILE_MANAGER_H_
 
 #include <string>
+#include <system_error>
 
 // Class name lowercase because it will be replaced by the c++ filesystem class when it will be completely supported and portable
 namespace filesystem {
@@ -87,6 +88,37 @@ namespace filesystem {
 			return this->path_;
 		}
 
+		path parent_path() const {
+			std::size_t found = this->path_.find_last_of(separator_);
+			if (found != std::string::npos) {
+				// Separator found
+				std::string s(this->path_);
+				s = s.substr(0, found);
+				return path(s);
+			}
+			else {
+				return path("");
+			}
+		}
+
+		path stem() const {
+			std::size_t found = this->path_.find_last_of(separator_);
+			if (found != std::string::npos) {
+				// Separator found
+				std::string s(this->path_);
+				s = s.substr(found + 1);
+				
+				found = s.find_last_of('.');
+				if (found != std::string::npos) {
+					s = s.substr(0, found);
+				}
+				return path(s);
+			}
+			else {
+				return path("");
+			}
+		}
+
 	private:
 
 		bool empty() const { return path_.empty(); }
@@ -101,6 +133,7 @@ namespace filesystem {
 
 	bool exists(const path& p);
 	bool create_directories(const path& p);
+	bool create_directories(const path& p, std::error_code& ec);
 };
 
 #endif // !YACCLAB_FILE_MANAGER_H_

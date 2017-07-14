@@ -47,129 +47,11 @@
 #include "progress_bar.h"
 #include "system_info.h"
 #include "utilities.h"
+#include "yacclab_tests.h"
 
 using namespace std;
 using namespace cv;
 
-// To check the correctness of algorithms on datasets specified
-void CheckAlgorithms(vector<String>& ccl_algorithms, const vector<String>& datasets, const path& input_path, const string& input_txt)
-{
-	vector<bool> stats(ccl_algorithms.size(), true); // true if the i-th algorithm is correct, false otherwise
-	vector<string> firstFail(ccl_algorithms.size()); // name of the file on which algorithm fails the first time
-	bool stop = false; // true if all algorithms are incorrect
-	bool checkPerform = false; // true if almost one check was execute
-
-	for (unsigned i = 0; i < datasets.size(); ++i) {
-		// For every dataset in check list
-
-		cout << "Test on " << datasets[i] << " starts: " << endl;
-
-		//string isPath = input_path + kPathSeparator + datasets[i] + kPathSeparator + input_txt;
-		path isPath = input_path / path(datasets[i]) / path(input_txt);
-
-		// Open file
-		ifstream is(isPath.string());
-		if (!is.is_open()) {
-			cout << "Unable to open " + isPath.string() << endl;
-			continue;
-		}
-
-		// To save list of filename on which CLLAlgorithms must be tested
-		vector<pair<string, bool>> filenames;  // first: filename, second: state of filename (find or not)
-		string filename;
-		while (getline(is, filename)) {
-			// To delete eventual carriage return in the file name (especially designed for windows file newline format)
-			size_t found;
-			do {
-				// The while cycle is probably unnecessary
-				found = filename.find("\r");
-				if (found != string::npos)
-					filename.erase(found, 1);
-			} while (found != string::npos);
-			// Add purified file name in the vector
-			filenames.push_back(make_pair(filename, true));
-		}
-		is.close();
-
-		// Number of files
-		int file_number = filenames.size();
-
-		// Count number of lines to display progress bar
-		unsigned currentNumber = 0;
-
-		ProgressBar p_bar(file_number);
-		p_bar.Start();
-
-		// For every file in list
-		for (unsigned file = 0; file < filenames.size() && !stop; ++file) {
-			filename = filenames[file].first;
-
-			//DeleteCarriageReturn(filename);
-			RemoveCharacter(filename, '\r');
-
-			p_bar.Display(currentNumber++);
-
-			path filename_path = input_path / path(datasets[i]) / path(filename);
-			if (!GetBinaryImage(filename_path, Labeling::img_)) {
-				cout << "Unable to check on '" + filename + "', file does not exist" << endl;
-				continue;
-			}
-
-			unsigned nLabelsCorrect, nLabelsToControl;
-
-			// SAUF is the reference (the labels are already normalized)
-			auto& SAUF = LabelingMapSingleton::GetInstance().data_.at("SAUF_RemSp");
-			nLabelsCorrect = SAUF->PerformLabeling();
-
-			Mat1i& labeledImgCorrect = SAUF->img_labels_;
-			//nLabelsCorrect = connectedComponents(binaryImg, labeledImgCorrect, 8, 4, CCL_WU);
-
-			unsigned j = 0;
-			for (const auto& algo_name : ccl_algorithms) {
-				auto& algorithm = LabelingMapSingleton::GetInstance().data_.at(algo_name);
-				checkPerform = true;
-				if (stats[j]) {
-					try {
-						Mat1i& labeledImgToControl = algorithm->img_labels_;
-
-						nLabelsToControl = algorithm->PerformLabeling();
-
-						NormalizeLabels(labeledImgToControl);
-						const auto diff = CompareMat(labeledImgCorrect, labeledImgToControl);
-						if (nLabelsCorrect != nLabelsToControl || !diff) {
-							stats[j] = false;
-							firstFail[j] = filename_path.string();
-							if (adjacent_find(stats.begin(), stats.end(), not_equal_to<int>()) == stats.end()) {
-								stop = true;
-								break;
-							}
-						}
-					}
-					catch (...) {
-						cerr << "errore\n" << endl;
-					}
-				}
-				++j;
-				// For all the Algorithms in the array
-			}
-		}// END WHILE (LIST OF IMAGES)
-		p_bar.End();
-	}// END FOR (LIST OF DATASETS)
-
-	if (checkPerform) {
-		unsigned j = 0;
-		for (const auto& algo_name : ccl_algorithms) {
-			if (stats[j])
-				cout << "\"" << algo_name << "\" is correct!" << endl;
-			else
-				cout << "\"" << algo_name << "\" is not correct, it first fails on " << firstFail[j] << endl;
-			++j;
-		}
-	}
-	else {
-		cout << "Unable to perform check, skipped" << endl;
-	}
-}
 
 //This function take a Mat1d of results and save it on specified outputstream
 void saveBroadOutputResults(const Mat1d& results, const path& oFilename, vector<String>& ccl_algorithms, const bool& write_n_labels, const Mat1i& labels, const vector<pair<string, bool>>& filenames)
@@ -1131,10 +1013,11 @@ string MemoryTest(vector<String>& ccl_mem_algorithms, Mat1d& algoAverageAccesses
 
 int main()
 {
-	cout << "NewYACCLAB\n";
-
 	// Redirect cv exceptions
 	cvRedirectError(RedirectCvError);
+
+	// Hide cursor from console
+	HideConsoleCursor();
 
 	// Read yaml configuration file
 	const string config_file = "config.yaml";
@@ -1158,42 +1041,90 @@ int main()
 	fs.release();
 
 	// Configuration parameters check
-	if (cfg.ccl_algorithms.size() == 0) {
-		cerror("'algorithms' list must be not empty");
+	if (cfg.ccl_algorithms.size() == 0 ) {
+		cerror("There are no values in the 'algorithms' list");
 		return EXIT_FAILURE;
 	}
 
+	if (cfg.perform_average && cfg.average_tests_number < 1) {
+		cmessage("'Average tests' repetitions cannot be less than 1, skipped");
+		cfg.perform_average = false;
+	}
+
+	if (cfg.perform_density && cfg.density_tests_number < 1) {
+		cmessage("'Density tests' repetitions cannot be less than 1, skipped");
+		cfg.perform_density = false;
+	}
+
+	if (cfg.perform_average_ws && cfg.average_ws_tests_number < 1) {
+		cmessage("'Average tests' (with steps) repetitions cannot be less than 1, skipped");
+		cfg.perform_average_ws = false;
+	}
+
+	if ((cfg.perform_check_8connectivity /*|| cfg.perform_check_4connectivity */) && 
+		cfg.check_datasets.size() == 0) {
+		cmessage("There are no datasets specified for 'correctness tests', skipped");
+		cfg.perform_check_8connectivity = false;
+		//cfg.perform_check_4connectivity = false;
+	}
+
+	if ((cfg.perform_average) && cfg.average_datasets.size() == 0) {
+		cmessage("There are no datasets specified for 'average tests', skipped");
+		cfg.perform_average = false;
+	}
+
+	if ((cfg.perform_memory) && cfg.memory_datasets.size() == 0) {
+		cmessage("There are no datasets specified for 'memory tests', skipped");
+		cfg.perform_memory = false;
+	}
+
+	if (!cfg.perform_average && /*!cfg.perform_check_4connectivity &&*/
+		!cfg.perform_check_8connectivity && !cfg.perform_density &&
+		!cfg.perform_memory && !cfg.perform_average_ws) {
+		cerror("There are no tests to perform");
+		return EXIT_FAILURE;
+	}
+
+	// Check datasets
+	vector<String> ds(cfg.memory_datasets);
+	ds.insert(ds.end(), cfg.average_datasets.begin(), cfg.average_datasets.end());
+	ds.insert(ds.end(), cfg.check_datasets.begin(), cfg.check_datasets.end());
+	sort(ds.begin(), ds.end());
+	ds.erase(unique(ds.begin(), ds.end()), ds.end());
+
+	for (auto& x : ds) {
+		path p = cfg.input_path / path(x) / path(cfg.input_txt); 
+	}
+
+
 	// Set and create current output directory
-	string datetime = GetDatetime();
-	std::replace(datetime.begin(), datetime.end(), ' ', '_');
-	std::replace(datetime.begin(), datetime.end(), ':', '.');
-	//cfg.output_path += kPathSeparator + datetime;
-	cfg.output_path /= datetime;
-
-	// Create output directory
-	if (!create_directories(cfg.output_path))
-		return 1;
-
-	//Create a directory with all the charts
-	//string latex_path = cfg.output_path + kPathSeparator + cfg.latex_folder;
-	path latex_path = cfg.output_path / path(cfg.latex_folder);
-	//if ((cfg.perform_average || cfg.perform_density) && !create_directories(latex_path)) {
-	if ((cfg.perform_average || cfg.perform_density) && !create_directories(latex_path)) {
-		cout << ("Cannot create the directory" + latex_path.string());
-		return 1;
+	{
+		string datetime = GetDatetime();
+		std::replace(datetime.begin(), datetime.end(), ' ', '_');
+		std::replace(datetime.begin(), datetime.end(), ':', '.');
+	
+		cfg.output_path /= datetime;
+	
+		error_code ec;
+		if (!create_directories(cfg.output_path, ec)) {
+			cerror("Unable to create output directory '" + cfg.output_path.string() + "' - " + ec.message());
+			return EXIT_FAILURE;
+		}
 	}
 
-	// hide cursor from console
-	HideConsoleCursor();
-
-	// Check if algorithms are correct
-	if (cfg.perform_check_8connectivity) {
-		//cout << "CHECK ALGORITHMS ON 8-CONNECTIVITY: " << endl;
-		TitleBar t_bar("CHECK ALGORITHMS ON 8-CONNECTIVITY");
-		t_bar.Start();
-		CheckAlgorithms(cfg.ccl_algorithms, cfg.check_datasets, cfg.input_path, cfg.input_txt);
-		t_bar.End();
+	// Create the directory for latex reports
+	{
+		error_code ec;
+		if (!create_directories(cfg.latex_path, ec)) {
+			cerror("Unable to create output directory '" + cfg.latex_path.string() + "' - " + ec.message());
+			return EXIT_FAILURE;
+		}
 	}
+
+	YacclabTests yt(cfg); 
+
+	// Check test
+	yt.CheckAlgorithms();
 
 	// Test Algorithms with different input type and different output format, and show execution result
 	// AVERAGES TEST
@@ -1209,7 +1140,7 @@ int main()
 		else {
 			for (unsigned i = 0; i < cfg.average_datasets.size(); ++i) {
 				cout << "Averages_Test on '" << cfg.average_datasets[i] << "': starts" << endl;
-				cout << AverageTest(cfg.ccl_algorithms, all_res, i, cfg.input_path, cfg.average_datasets[i], cfg.input_txt, cfg.gnuplot_script_extension, cfg.output_path, cfg.latex_folder, cfg.colors_folder, cfg.average_save_middle_tests, cfg.average_tests_number, cfg.middle_folder, cfg.write_n_labels, cfg.average_color_labels) << endl;
+				cout << AverageTest(cfg.ccl_algorithms, all_res, i, cfg.input_path, cfg.average_datasets[i], cfg.input_txt, cfg.gnuplot_script_extension, cfg.output_path, cfg.latex_path.stem().string(), cfg.colors_folder, cfg.average_save_middle_tests, cfg.average_tests_number, cfg.middle_folder, cfg.write_n_labels, cfg.average_color_labels) << endl;
 				//cout << "Averages_Test on '" << average_datasets[i] << "': ends" << endl << endl;
 			}
 			//GenerateLatexTable(cfg.output_path, cfg.latex_file, all_res, cfg.average_datasets, cfg.ccl_algorithms);
@@ -1228,7 +1159,7 @@ int main()
 		else {
 			for (unsigned i = 0; i < cfg.density_datasets.size(); ++i) {
 				cout << "Density_Size_Test on '" << cfg.density_datasets[i] << "': starts" << endl;
-				cout << DensitySizeTest(cfg.ccl_algorithms, cfg.input_path, cfg.density_datasets[i], cfg.input_txt, cfg.gnuplot_script_extension, cfg.output_path, cfg.latex_folder, cfg.colors_folder, cfg.density_save_middle_tests, cfg.density_tests_number, cfg.middle_folder, cfg.write_n_labels, cfg.density_color_labels) << endl;
+				cout << DensitySizeTest(cfg.ccl_algorithms, cfg.input_path, cfg.density_datasets[i], cfg.input_txt, cfg.gnuplot_script_extension, cfg.output_path, cfg.latex_path.stem().string(), cfg.colors_folder, cfg.density_save_middle_tests, cfg.density_tests_number, cfg.middle_folder, cfg.write_n_labels, cfg.density_color_labels) << endl;
 				//cout << "Density_Size_Test on '" << density_datasets[i] << "': ends" << endl << endl;
 			}
 		}

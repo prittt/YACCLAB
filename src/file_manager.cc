@@ -80,6 +80,10 @@ bool filesystem::create_directories(const path& p) {
 	return true;
 }
 
+bool filesystem::create_directories(const path& p, error_code& ec) {
+	return filesystem::create_directories(p); 
+}
+
 void filesystem::path::NormalizePath() {
 
 #if defined(UNIX) || defined(LINUX) || defined(APPLE)
@@ -90,3 +94,4 @@ void filesystem::path::NormalizePath() {
 	
 	return;
 }
+

@@ -15,6 +15,7 @@ struct ConfigData {
 	bool perform_average;				// Whether to perform average tests or not
 	bool perform_density;				// Whether to perform density tests or not
 	bool perform_memory;				// Whether to perform memory tests or not
+	bool perform_average_ws;			// Whether to perform average tests with steps or not
 
 	bool average_color_labels;			// If active, labeled image from average tests will be colored and stored
 	bool density_color_labels;			// If active, labeled image from density tests will be colored and stored
@@ -24,6 +25,7 @@ struct ConfigData {
 
 	unsigned average_tests_number;		// Reps of average tests (only the minimum will be considered)
 	unsigned density_tests_number;		// Reps of density tests (only the minimum will be considered)
+	unsigned average_ws_tests_number;	// Reps of average tests with steps (only the minimum will be considered)
 
 	std::string input_txt;					// File of images list
 	std::string gnuplot_script_extension;	// Gnuplot scripts extension
@@ -32,10 +34,10 @@ struct ConfigData {
 	std::string latex_file;					// Latex file which will store textual average results
 	std::string latex_memory_file;			// Latex file which will store textual memory results
 	std::string latex_charts;				// Latex file which will store report latex code for charts
-	std::string latex_folder;				// Folder which will contain all latex output files
 	path output_path;						// Path on which results are stored
 	path input_path;						// Path on which input datasets are stored
-										
+	path latex_path;						// Path on which latex report will be stored
+
 	std::vector<cv::String> check_datasets;		// List of datasets on which check tests will be performed
 	std::vector<cv::String> memory_datasets;	// List of datasets on which memory tests will be perform
 	std::vector<cv::String> density_datasets;	// List of datasets on which density tests will be performed
@@ -49,6 +51,7 @@ struct ConfigData {
 		perform_average				= ReadBool(fs["perform"]["average"]);
 		perform_density				= ReadBool(fs["perform"]["density"]);
 		perform_memory				= ReadBool(fs["perform"]["memory"]);
+		perform_average_ws			= ReadBool(fs["perform"]["average_with_steps"]);
 
 		average_color_labels		= ReadBool(fs["color_labels"]["average"]);
 		density_color_labels		= ReadBool(fs["color_labels"]["density"]);
@@ -60,6 +63,7 @@ struct ConfigData {
 
 		average_tests_number		= static_cast<int>(fs["tests_number"]["average"]);
 		density_tests_number		= static_cast<int>(fs["tests_number"]["density"]);
+		average_ws_tests_number		= static_cast<int>(fs["tests_number"]["average_with_steps"]);
 
 		input_txt					= "files.txt";
 		gnuplot_script_extension	= ".gnuplot";
@@ -68,9 +72,10 @@ struct ConfigData {
 		latex_file					= "averageResults.tex";
 		latex_charts				= "averageCharts.tex";
 		latex_memory_file			= "memoryAccesses.tex";
-		latex_folder				= "latex";
+		
 		output_path					= path(fs["paths"]["output"]);
 		input_path					= path(fs["paths"]["input"]);
+		latex_path					= output_path / path("latex");
 
 		check_datasets				= std::vector<cv::String>(fs["check_datasets"].size());
 		cv::read(fs["check_datasets"], check_datasets);
