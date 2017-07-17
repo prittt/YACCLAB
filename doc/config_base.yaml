@@ -11,7 +11,7 @@
 # -------------------------------------------------------------------------------------
 
 # Kind of tests to execute
-perform: {check_8_Connectivity: false, average: true, density: true, memory: false, average_with_steps: false}
+perform: {check_8connectivity: true, average: true, density: true, memory: true, average_with_steps: true}
 
 # Number of tests repetitions 
 tests_number: {average: 10, density: 10, average_with_steps: 10}
@@ -20,8 +20,7 @@ tests_number: {average: 10, density: 10, average_with_steps: 10}
 # List of CCL algorithms to test
 # -------------------------------------------------------------------------------------
 
-algorithms: ["SAUF_UfPC"]
-#algorithms: ["SAUF", "BBDT", "DiStefano", "CT", "CCIT", "LSL_STD", "CTB", "SBLA", "PRED", "NULL"]
+algorithms: ["SAUF", "BBDT", "DiStefano", "CT", "CCIT", "LSL_STD", "CTB", "SBLA", "PRED", "NULL"]
 
 # -------------------------------------------------------------------------------------
 # Datasets to use for each test
