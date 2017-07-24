@@ -18,11 +18,8 @@ std::string Step(StepType n_step) {
 
     switch (n_step)
     {
-    case ALLOC:
-        return "Alloc";
-        break;
-    case DEALLOC:
-        return "Dealloc";
+    case ALLOC_DEALLOC:
+        return "Alloc Dealloc";
         break;
     case FIRST_SCAN:
         return "First Scan";
@@ -30,8 +27,8 @@ std::string Step(StepType n_step) {
     case SECOND_SCAN:
         return "Second Scan";
         break;
-    case SINGLE_SCAN:
-        return "Single Scan";
+    case ALL_SCANS:
+        return "All Scans";
         break;
     }
 
