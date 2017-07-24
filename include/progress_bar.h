@@ -30,6 +30,7 @@
 #define YACCLAB_PROGRESS_BAR_H_
 
 #include <iostream>
+#include <iomanip>
 #include <string>
 
 #include "system_info.h"
