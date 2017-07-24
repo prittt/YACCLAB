@@ -23,6 +23,10 @@ const string kTerminal = "pdf";
 const string kTerminalExtension = ".pdf";
 #endif
 
+bool CompareLengthCvString(String const& lhs, String const& rhs) {
+	return lhs.size() < rhs.size();
+}
+
 void RemoveCharacter(string& s, const char c)
 {
     s.erase(std::remove(s.begin(), s.end(), c), s.end());
@@ -102,15 +106,15 @@ void NormalizeLabels(Mat1i& img_labels)
 
 bool GetBinaryImage(const string& filename, Mat1b& binary_mat)
 {
-  // Image load
-    Mat image;
+	// Image load
+    Mat1b image;
     image = imread(filename, IMREAD_GRAYSCALE);   // Read the file
 
     // Check if image exist
     if (image.empty())
         return false;
 
-      // Adjust the threshold to actually make it binary
+    // Adjust the threshold to make it binary
     threshold(image, binary_mat, 100, 1, THRESH_BINARY);
 
     return true;
@@ -123,8 +127,8 @@ bool GetBinaryImage(const filesystem::path& p, Mat1b& binary_mat)
 
 bool CompareMat(const Mat1i& mat_a, const Mat1i& mat_b)
 {
-  // Get a matrix with non-zero values at points where the
-  // two matrices have different values
+	// Get a matrix with non-zero values at points where the
+	// two matrices have different values
     cv::Mat diff = mat_a != mat_b;
     // Equal if no elements disagree
     return cv::countNonZero(diff) == 0;

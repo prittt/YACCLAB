@@ -10,6 +10,9 @@
 extern const std::string kTerminal;
 extern const std::string kTerminalExtension;
 
+// To compare lengths of OpenCV String 
+bool CompareLengthCvString(cv::String const& lhs, cv::String const& rhs);
+
 // This function is useful to delete eventual carriage return from a string
 // and is especially designed for windows file newline format
 //void DeleteCarriageReturn(std::string& s);
