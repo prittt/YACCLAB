@@ -3,8 +3,11 @@
 #include <algorithm>
 #include <fstream>
 #include <functional>
+
 #include <iostream>
+#include <iomanip>
 #include <set>
+
 
 #include <opencv2/imgproc.hpp>
 
@@ -52,7 +55,7 @@ void YacclabTests::SaveBroadOutputResults(map<String, Mat1d>& results, const pat
     for (const auto& algo_name : cfg_.ccl_algorithms) {
         const auto& algo = LabelingMapSingleton::GetLabeling(algo_name);
 
-        for (int step_number = StepType::ALLOC; step_number != StepType::ST_SIZE; ++step_number) {
+        for (int step_number = 0; step_number != StepType::ST_SIZE; ++step_number) {
             StepType step = static_cast<StepType>(step_number);
             os << algo_name + "_" << Step(step) << "\t";
         }
@@ -68,7 +71,7 @@ void YacclabTests::SaveBroadOutputResults(map<String, Mat1d>& results, const pat
             for (const auto& algo_name : cfg_.ccl_algorithms) {
                 const auto& algo = LabelingMapSingleton::GetLabeling(algo_name);
 
-                for (int step_number = StepType::ALLOC; step_number != StepType::ST_SIZE; ++step_number) {
+                for (int step_number = 0; step_number != StepType::ST_SIZE; ++step_number) {
                     if (results.at(algo_name)(files, step_number) != numeric_limits<double>::max()) {
                         os << results.at(algo_name)(files, step_number) << "\t";
                     }
@@ -306,7 +309,7 @@ void YacclabTests::AverageTestWithSteps()
                     }
 
                     // Save time results of all the steps
-                    for (int step_number = StepType::ALLOC; step_number != StepType::ST_SIZE; ++step_number) {
+                    for (int step_number = 0; step_number != StepType::ST_SIZE; ++step_number) {
                         string step = Step(static_cast<StepType>(step_number));
 
                         // Find if the current algorithm has the current step
@@ -359,7 +362,7 @@ void YacclabTests::AverageTestWithSteps()
 
         // Write heading string in output stream
         average_os << "#Algorithm" << "\t";
-        for (int step_number = StepType::ALLOC; step_number != StepType::ST_SIZE; ++step_number) {
+        for (int step_number = 0; step_number != StepType::ST_SIZE; ++step_number) {
             StepType step = static_cast<StepType>(step_number);
             average_os << Step(step) << "\t";
         }
@@ -398,7 +401,7 @@ void YacclabTests::AverageTestWithSteps()
                 vector<string>::iterator it = find(algorithm->steps_.begin(), algorithm->steps_.end(), *steps_it++);*/
                 // If the current algorithm has got the current step, save the measured time in file
                 //if (it != algorithm->steps_.end()) {
-            for (int step_number = StepType::ALLOC; step_number != StepType::ST_SIZE; ++step_number) {
+            for (int step_number = 0; step_number != StepType::ST_SIZE; ++step_number) {
                 StepType step = static_cast<StepType>(step_number);
                 if (supp_average[step_number].first > 0.0 && supp_average[step_number].second > 0) {
                     double avg = supp_average[step_number].first / supp_average[step_number].second;
@@ -482,10 +485,10 @@ void YacclabTests::AverageTestWithSteps()
             //script_os << "'" + outputAverageResults + "' using 2:xtic(1), '" << outputAverageResults << "' using ($0 - xw) : ($2 + yw) : (stringcolumn(3)) with labels" << endl << endl;
             //auto steps_it = steps.begin();
 
-            script_os << "'" + output_average_results + "' using 2:xtic(1) title '" << Step(StepType::ALLOC) << "', \\" << endl;
+            script_os << "'" + output_average_results + "' using 2:xtic(1) title '" << Step(static_cast<StepType>(0)) << "', \\" << endl;
             //for (unsigned i = 3; steps_it != steps.end(); ++steps_it, ++i) {
             unsigned i = 3;
-            for (int step_number = StepType::ALLOC + 1; step_number != StepType::ST_SIZE; ++step_number, ++i) {
+            for (int step_number = 0 + 1; step_number != StepType::ST_SIZE; ++step_number, ++i) {
                 StepType step = static_cast<StepType>(step_number);
                 script_os << "'' u " << i << " title '" << Step(step) << "', \\" << endl;
             }
