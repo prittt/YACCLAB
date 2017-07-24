@@ -87,7 +87,7 @@ enum StepType{
     ALLOC_DEALLOC = 0,
     FIRST_SCAN = 1, 
     SECOND_SCAN = 2, 
-    ALL_SCAN = 3,
+    ALL_SCANS = 3,
 
     ST_SIZE = 4,
 };
