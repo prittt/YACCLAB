@@ -1,4 +1,4 @@
-// Copyright(c) 2016 - 2017 Costantino Grana, Federico Bolelli, Lorenzo Baraldi and Roberto Vezzani
+// Copyright(c) 2016 - 2017 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,6 @@
 
 #include <opencv2/core.hpp>
 
-#include <vector>
-
 #include "labeling_algorithms.h"
 #include "labels_solver.h"
 #include "memory_tester.h"
@@ -47,10 +45,10 @@ public:
         const int h = img_.rows;
         const int w = img_.cols;
 
-        img_labels_ = cv::Mat1i(img_.size(),0); // Allocation + Initialization
+        img_labels_ = cv::Mat1i(img_.size(),0); // Allocation + initialization of the output image
 
-        LabelsSolver::Alloc(UPPER_BOUND_8_CONNECTIVITY); // Allocate labels solver's memory
-		LabelsSolver::Setup(); // Initialize labels solver's values
+        LabelsSolver::Alloc(UPPER_BOUND_8_CONNECTIVITY); // Memory allocation of the labels solver
+		LabelsSolver::Setup(); // Labels solver initialization
 
         // Rosenfeld Mask
         // +-+-+-+
@@ -135,7 +133,7 @@ public:
             }
         }
       
-		LabelsSolver::Dealloc();
+		LabelsSolver::Dealloc(); // Memory deallocation of the labels solver
 
 #undef condition_p
 #undef condition_q
@@ -149,22 +147,22 @@ public:
         perf_.start();
 		Alloc();
         perf_.stop();
-		perf_.store("Alloc", perf_.last()); 
+		perf_.store(Step(StepType::ALLOC), perf_.last()); 
 
 		perf_.start();
 		FirstScan();
 		perf_.stop();
-		perf_.store("FirstScan", perf_.last());
+		perf_.store(Step(StepType::FIRST_SCAN), perf_.last());
 
 		perf_.start();
 		SecondScan();
 		perf_.stop();
-		perf_.store("SecondScan", perf_.last());
+		perf_.store(Step(StepType::SECOND_SCAN), perf_.last());
        
 		perf_.start();
 		Dealloc();
 		perf_.stop();
-		perf_.store("Dealloc", perf_.last());
+		perf_.store(Step(StepType::DEALLOC), perf_.last());
     }
 
 	void PerformLabelingMem(std::vector<unsigned long int>& accesses)
@@ -276,12 +274,12 @@ public:
 
 private:
 	void Alloc(){
-		LabelsSolver::Alloc(UPPER_BOUND_8_CONNECTIVITY);
-		img_labels_ = cv::Mat1i(img_.size());
+		LabelsSolver::Alloc(UPPER_BOUND_8_CONNECTIVITY); // Memory allocation of the labels solver
+		img_labels_ = cv::Mat1i(img_.size()); // Memory allocation of the output image
 	}
 	void Dealloc() {
-		LabelsSolver::Dealloc();
-		// no free for img_labels_ because it is required at the end of the algorithm 
+		LabelsSolver::Dealloc(); // Labels solver initialization
+		// No free for img_labels_ because it is required at the end of the algorithm 
 	}
 	void FirstScan() {
 	
@@ -290,7 +288,6 @@ private:
 
 		img_labels_ = cv::Mat1i::zeros(img_.size()); // Initialization
 
-		LabelsSolver::Alloc(UPPER_BOUND_8_CONNECTIVITY);
 		LabelsSolver::Setup();
 
 		// Rosenfeld Mask
