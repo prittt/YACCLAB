@@ -83,12 +83,14 @@ private:
     }
 };
 
-enum StepType{
+enum StepType {
     ALLOC = 1,
     DEALLOC = 2,
-    FIRST_SCAN = 3, 
-    SECOND_SCAN = 4, 
+    FIRST_SCAN = 3,
+    SECOND_SCAN = 4,
     SINGLE_SCAN = 5,
+
+    ST_SIZE = 6,
 };
 
 std::string Step(StepType n_step);

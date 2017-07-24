@@ -1136,6 +1136,10 @@ int main()
 		yt.CheckAlgorithms();
 	}
 
+    if (cfg.perform_average_ws) {
+        yt.AverageTestWithSteps();
+    }
+
     // Test Algorithms with different input type and different output format, and show execution result
     // AVERAGES TEST
     Mat1d all_res(cfg.average_datasets.size(), cfg.ccl_algorithms.size(), numeric_limits<double>::max()); // We need it to save average results and generate latex table
