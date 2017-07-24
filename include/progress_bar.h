@@ -51,34 +51,34 @@ Example of usage:
 class ProgressBar {
 public:
 
-	ProgressBar() {}
+    ProgressBar() {}
 
-    ProgressBar(const size_t n_things_todo, 
-				const size_t gap = 4, 
-				const size_t console_width = 70, 
-				const std::string pre_message = "",
-				const std::string post_message = "")
+    ProgressBar(const size_t n_things_todo,
+        const size_t gap = 4,
+        const size_t console_width = 70,
+        const std::string pre_message = "",
+        const std::string post_message = "")
     {
-		n_things_todo_ = n_things_todo;
-        
-		gap_ = gap;
-		console_width_ = console_width;
-		
-		pre_message_ = pre_message;
-		post_message_ = post_message;
-        
-		bar_width_ = console_width_ - pre_message_.size() - post_message_.size() - 5 /* 100%*/ - 2 /*[]*/;
+        n_things_todo_ = n_things_todo;
+
+        gap_ = gap;
+        console_width_ = console_width;
+
+        pre_message_ = pre_message;
+        post_message_ = post_message;
+
+        bar_width_ = console_width_ - pre_message_.size() - post_message_.size() - 5 /* 100%*/ - 2 /*[]*/;
     }
 
     void Start()
     {
-		std::cout << pre_message_;
+        std::cout << pre_message_;
         std::cout << "[>";
         for (size_t i = 0; i < bar_width_ - 1; ++i) {
             std::cout << " ";
         }
         std::cout << "]   0%";
-		std::cout << post_message_ << "\r";
+        std::cout << post_message_ << "\r";
         std::cout.flush();
         prev_ = 0;
     }
@@ -86,17 +86,17 @@ public:
     void Display(const unsigned progress)
     {
         if (progress < n_things_todo_ && prev_ == (gap_ - 1)) {
-			std::cout << pre_message_;
-			std::cout << "[";
+            std::cout << pre_message_;
+            std::cout << "[";
             size_t pos = bar_width_ * progress / n_things_todo_;
             for (size_t i = 0; i < bar_width_; ++i) {
                 if (i < pos) std::cout << "=";
                 else if (i == pos) std::cout << ">";
                 else std::cout << " ";
             }
-			std::string s = std::to_string(unsigned(progress * 100.0 / n_things_todo_));
-            std::cout << "] " << std::string(3 - s.size(), ' ')<< s <<"%";
-			std::cout << post_message_ << "\r";
+            std::string s = std::to_string(unsigned(progress * 100.0 / n_things_todo_));
+            std::cout << "] " << std::string(3 - s.size(), ' ') << s << "%";
+            std::cout << post_message_ << "\r";
             std::cout.flush();
             prev_ = 0;
         }
@@ -107,26 +107,109 @@ public:
 
     void End()
     {
-		std::cout << pre_message_;
+        std::cout << pre_message_;
         std::cout << "[";
         for (size_t i = 0; i < bar_width_; ++i) {
             std::cout << "=";
         }
         std::cout << "] 100%";
-		std::cout << post_message_;
+        std::cout << post_message_;
         std::cout.flush();
         std::cout << std::endl;
         prev_ = 0;
     }
+
+    ProgressBar(const size_t n_things_todo,
+        const unsigned n_tests /*min 1 - max 999*/,
+        const size_t gap = 4,
+        const size_t console_width = 70,
+        const std::string pre_message = "",
+        const std::string post_message = "")
+    {
+        n_things_todo_ = n_things_todo;
+
+        gap_ = gap;
+        console_width_ = console_width;
+
+        pre_message_ = pre_message;
+        post_message_ = post_message;
+
+        n_tests_ = n_tests;
+        n_tests_length_ = std::to_string(n_tests).length();
+        bar_width_ = console_width_ - pre_message_.size() - post_message_.size() - 5 /* 100%*/ - 2 /*[]*/ - 5 /*Test */ - (n_tests_length_*2 + 1) /*102/999*/ - 3 /* - */;
+    }
+
+    void StartRepeated()
+    {
+        std::cout << pre_message_ << "test " << std::setfill(' ') << std::setw(n_tests_length_) << cur_test_;
+        std::cout << "/" << n_tests_ << " - ";
+        std::cout << "[>";
+        for (size_t i = 0; i < bar_width_ - 1; ++i) {
+            std::cout << " ";
+        }
+        std::cout << "]   0%";
+        std::cout << post_message_ << "\r";
+        std::cout.flush();
+        prev_ = 0;
+    }
+
+    void DisplayRepeated(const unsigned progress)
+    {
+        if (progress < n_things_todo_ && prev_ == (gap_ - 1)) {
+            std::cout << pre_message_ << "test " << std::setfill(' ') << std::setw(n_tests_length_) << cur_test_;
+            std::cout << "/" << n_tests_ << " - ";
+            std::cout << "[";
+            size_t pos = bar_width_ * progress / n_things_todo_;
+            for (size_t i = 0; i < bar_width_; ++i) {
+                if (i < pos) std::cout << "=";
+                else if (i == pos) std::cout << ">";
+                else std::cout << " ";
+            }
+            std::string s = std::to_string(unsigned(progress * 100.0 / n_things_todo_));
+            std::cout << "] " << std::string(3 - s.size(), ' ') << s << "%";
+            std::cout << post_message_ << "\r";
+            std::cout.flush();
+            prev_ = 0;
+        }
+        else {
+            prev_++;
+        }
+    }
+
+    bool EndRepeated()
+    {
+        std::cout << pre_message_ << "test " << std::setfill(' ') << std::setw(n_tests_length_) << cur_test_;
+        std::cout << "/" << n_tests_ << " - ";
+        std::cout << "[";
+        for (size_t i = 0; i < bar_width_; ++i) {
+            std::cout << "=";
+        }
+        std::cout << "] 100%";
+        std::cout << post_message_;
+        std::cout.flush();
+        prev_ = 0;
+        if (cur_test_ == n_tests_) {
+            std::cout << std::endl;
+            return true;
+        }
+        std::cout << "\r";
+        cur_test_++; 
+        return false;
+}
 
 private:
     size_t prev_;
     size_t n_things_todo_;
     size_t gap_;
     size_t bar_width_;
-	size_t console_width_;
-	std::string post_message_;
-	std::string pre_message_;
+    size_t console_width_;
+    std::string post_message_;
+    std::string pre_message_;
+
+    size_t n_tests_;
+    size_t n_tests_length_;
+    unsigned cur_test_ = 1;
+
 };
 
 /* This class is useful to display a title bar in the output console.
@@ -136,121 +219,149 @@ Example of usage:
 class OutputBox {
 public:
 
-	OutputBox(const std::string& title, const size_t bar_width = CONSOLE_WIDTH, const size_t pre_spaces = 2) {
-		pre_spaces_ = pre_spaces;
-		bar_width_ = bar_width > CONSOLE_WIDTH ? CONSOLE_WIDTH : bar_width;
-		bar_width_ -= pre_spaces_;
+    OutputBox(const std::string& title, const size_t bar_width = CONSOLE_WIDTH, const size_t pre_spaces = 2)
+    {
+        pre_spaces_ = pre_spaces;
+        bar_width_ = bar_width > CONSOLE_WIDTH ? CONSOLE_WIDTH : bar_width;
+        bar_width_ -= pre_spaces_;
 
-		if (title.size() > bar_width_ - 4) {
-			title_ = title.substr(0, bar_width_ - 4 - 3) + "...";
-		}
-		else {
-			title_ = title;
-		}
-		transform(title_.begin(), title_.end(), title_.begin(), ::toupper);
+        if (title.size() > bar_width_ - 4) {
+            title_ = title.substr(0, bar_width_ - 4 - 3) + "...";
+        }
+        else {
+            title_ = title;
+        }
+        transform(title_.begin(), title_.end(), title_.begin(), ::toupper);
 
-		std::cout << "\n";
-		PrintSeparatorLine(); 
-		PrintData(title_);
-		PrintSeparatorLine(); 
-	}
+        std::cout << "\n";
+        PrintSeparatorLine();
+        PrintData(title_);
+        PrintSeparatorLine();
+    }
 
-	void StartUnitaryBox(const std::string &dataset_name, const size_t n_things_todo) { 
-		PrintData(dataset_name + ":");
-		std::string complete_pre_message = std::string(pre_spaces_, ' ') + "|  ";
-		pb = ProgressBar(n_things_todo, 4, bar_width_ + pre_spaces_,  complete_pre_message, " |");
-		pb.Start();
-	}
+    void StartUnitaryBox(const std::string &dataset_name, const size_t n_things_todo)
+    {
+        PrintData(dataset_name + ":");
+        std::string complete_pre_message = std::string(pre_spaces_, ' ') + "|  ";
+        pb = ProgressBar(n_things_todo, 4, bar_width_ + pre_spaces_, complete_pre_message, " |");
+        pb.Start();
+    }
 
-	void UpdateUnitaryBox(const size_t progress) {
-		pb.Display(progress);
-	}
+    void UpdateUnitaryBox(const size_t progress)
+    {
+        pb.Display(progress);
+    }
 
-	void Cerror(const std::string& err, const std::string& title = "")
-	{
-		std::string complete_err = "";
-		if (title != "") {
-			PrintData(title + ":");
-			complete_err = " ";
-		}
-		complete_err += "ERROR: [" + err + "]";
-		PrintData(complete_err);
-		PrintSeparatorLine();
+    void StopUnitaryBox()
+    {
+        pb.End();
+        PrintSeparatorLine();
+    }
 
-		/*
-		
-		If the title is specified this function will print:
+    void StartRepeatedBox(const std::string &dataset_name, const size_t n_things_todo, const size_t n_test_todo)
+    {
+        PrintData(dataset_name + ":");
+        std::string complete_pre_message = std::string(pre_spaces_, ' ') + "|  ";
+        pb = ProgressBar(n_things_todo, n_test_todo, 4, bar_width_ + pre_spaces_, complete_pre_message, " |");
+        pb.StartRepeated();
+    }
 
-		| title:                                                                     |
-		|  ERROR: [err]                                                              |
-		+----------------------------------------------------------------------------+
-		
-		otherwise:
+    void UpdateRepeatedBox(const size_t progress)
+    {
+        pb.DisplayRepeated(progress);
+    }
 
-		|  ERROR: [err]                                                              |
-		+----------------------------------------------------------------------------+
-		
-		*/
-	}
+    void StopRepeatedBox()
+    {
+        if (pb.EndRepeated()) {
+            PrintSeparatorLine();
+        }
+    }
 
-	void Cmessage(const std::string& msg)
-	{
-		std::string complete_msg = " MSG: [" + msg + "]";
-		PrintData(complete_msg);
+    void Cerror(const std::string& err, const std::string& title = "")
+    {
+        std::string complete_err = "";
+        if (title != "") {
+            PrintData(title + ":");
+            complete_err = " ";
+        }
+        complete_err += "ERROR: [" + err + "]";
+        PrintData(complete_err);
+        PrintSeparatorLine();
 
-		/*
+        /*
 
-		This function will print:
+        If the title is specified this function will print:
 
-		| MSG: [msg]                                                                  |
-		
-		*/
-	}
+        | title:                                                                     |
+        |  ERROR: [err]                                                              |
+        +----------------------------------------------------------------------------+
 
-	void StopUnitaryBox() {
-		pb.End();
-		PrintSeparatorLine();
-	}
+        otherwise:
 
-	void DisplayReport(const std::string &title, const std::vector<std::string> &messagges) {
-		
-		PrintData(title + ":");
-		for (const auto& x : messagges) {
-			PrintData(" " + x);
-		}
-		PrintSeparatorLine();
-	}
+        |  ERROR: [err]                                                              |
+        +----------------------------------------------------------------------------+
+
+        */
+    }
+
+    void Cmessage(const std::string& msg)
+    {
+        std::string complete_msg = " MSG: [" + msg + "]";
+        PrintData(complete_msg);
+
+        /*
+
+        This function will print:
+
+        | MSG: [msg]                                                                  |
+
+        */
+    }
+
+    void DisplayReport(const std::string &title, const std::vector<std::string> &messagges)
+    {
+
+        PrintData(title + ":");
+        for (const auto& x : messagges) {
+            PrintData(" " + x);
+        }
+        PrintSeparatorLine();
+    }
 
 
 private:
 
-	void PrintSeparatorLine() { 
-		std::cout << std::string(pre_spaces_, ' ') << "+" << std::string(bar_width_ - 2, '-') << "+\n"; 
-	}
+    void PrintSeparatorLine()
+    {
+        std::cout << std::string(pre_spaces_, ' ') << "+" << std::string(bar_width_ - 2, '-') << "+\n";
+    }
 
-	void PrintRawData(const std::string &data) {
-		std::cout << std::string(pre_spaces_, ' ') << "| " << data << std::string(bar_width_ - data.size() - 4, ' ') << " |\n";
-	}
+    void PrintRawData(const std::string &data)
+    {
+        std::cout << std::string(pre_spaces_, ' ') << "| " << data << std::string(bar_width_ - data.size() - 4, ' ') << " |\n";
+    }
 
-	void PrintData(const std::string &data) { 
-		unsigned step = bar_width_ - 4;
-		std::string tab = "    ";
-		for (unsigned i = 0; i < data.length(); i+=step) {
-			if (i == 0) {
-				PrintRawData(data.substr(i, step));
-				i += tab.size();
-				step -= tab.size();
-			}
-			else {
-				PrintRawData(tab + data.substr(i, step));
-			}
-		}
-	}
+    void PrintData(const std::string &data)
+    {
+        unsigned step = bar_width_ - 4;
+        std::string tab = "    ";
+        for (unsigned i = 0; i < data.length(); i += step) {
+            if (i == 0) {
+                PrintRawData(data.substr(i, step));
+                i += tab.size();
+                step -= tab.size();
+            }
+            else {
+                PrintRawData(tab + data.substr(i, step));
+            }
+        }
+    }
 
-	size_t bar_width_;
-	std::string title_;
-	size_t pre_spaces_;
-	ProgressBar pb;
+    size_t bar_width_;
+    std::string title_;
+    size_t pre_spaces_;
+    ProgressBar pb;
 };
 
 #endif // !YACCLAB_PROGRESS_BAR_H_
