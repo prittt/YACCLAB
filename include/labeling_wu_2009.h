@@ -147,7 +147,7 @@ public:
         perf_.start();
 		Alloc();
         perf_.stop();
-		perf_.store(Step(StepType::ALLOC), perf_.last()); 
+        double alloc_timing = perf_.last();
 
 		perf_.start();
 		FirstScan();
@@ -162,7 +162,7 @@ public:
 		perf_.start();
 		Dealloc();
 		perf_.stop();
-		perf_.store(Step(StepType::DEALLOC), perf_.last());
+		perf_.store(Step(StepType::ALLOC_DEALLOC), perf_.last() + alloc_timing);
     }
 
 	void PerformLabelingMem(std::vector<unsigned long int>& accesses)
@@ -278,7 +278,7 @@ private:
 		img_labels_ = cv::Mat1i(img_.size()); // Memory allocation of the output image
 	}
 	void Dealloc() {
-		LabelsSolver::Dealloc(); // Labels solver initialization
+		LabelsSolver::Dealloc();
 		// No free for img_labels_ because it is required at the end of the algorithm 
 	}
 	void FirstScan() {
