@@ -30,7 +30,11 @@
 #define YACCLAB_PROGRESS_BAR_H_
 
 #include <iostream>
+#include <string>
+
 #include "system_info.h"
+
+#define CONSOLE_WIDTH 80
 
 /* This class is useful to display a progress bar in the output console.
 Example of usage:
@@ -46,38 +50,53 @@ Example of usage:
 */
 class ProgressBar {
 public:
-    ProgressBar(const size_t total, const size_t gap = 4, const size_t bar_width = 70)
+
+	ProgressBar() {}
+
+    ProgressBar(const size_t n_things_todo, 
+				const size_t gap = 4, 
+				const size_t console_width = 70, 
+				const std::string pre_message = "",
+				const std::string post_message = "")
     {
-        total_ = total;
-        gap_ = gap;
-        barWidth_ = bar_width;
+		n_things_todo_ = n_things_todo;
+        
+		gap_ = gap;
+		console_width_ = console_width;
+		
+		pre_message_ = pre_message;
+		post_message_ = post_message;
+        
+		bar_width_ = console_width_ - pre_message_.size() - post_message_.size() - 5 /* 100%*/ - 2 /*[]*/;
     }
 
     void Start()
     {
+		std::cout << pre_message_;
         std::cout << "[>";
-        for (size_t i = 0; i < barWidth_ - 1; ++i) {
+        for (size_t i = 0; i < bar_width_ - 1; ++i) {
             std::cout << " ";
         }
-        std::cout << "] 0 %\r";
+        std::cout << "]   0%";
+		std::cout << post_message_ << "\r";
         std::cout.flush();
         prev_ = 0;
     }
 
-    void Display(const size_t progress, const int current_repeat = -1)
+    void Display(const unsigned progress)
     {
-        if (progress < total_ && prev_ == (gap_ - 1)) {
-            if (current_repeat > 0) {
-                std::cout << "Test #" << current_repeat << " ";
-            }
-            std::cout << "[";
-            size_t pos = barWidth_ * progress / total_;
-            for (size_t i = 0; i < barWidth_; ++i) {
+        if (progress < n_things_todo_ && prev_ == (gap_ - 1)) {
+			std::cout << pre_message_;
+			std::cout << "[";
+            size_t pos = bar_width_ * progress / n_things_todo_;
+            for (size_t i = 0; i < bar_width_; ++i) {
                 if (i < pos) std::cout << "=";
                 else if (i == pos) std::cout << ">";
                 else std::cout << " ";
             }
-            std::cout << "] " << size_t(progress * 100.0 / total_) << " %\r";
+			std::string s = std::to_string(unsigned(progress * 100.0 / n_things_todo_));
+            std::cout << "] " << std::string(3 - s.size(), ' ')<< s <<"%";
+			std::cout << post_message_ << "\r";
             std::cout.flush();
             prev_ = 0;
         }
@@ -86,90 +105,179 @@ public:
         }
     }
 
-    void End(const int last_repeat = -1)
+    void End()
     {
-        if (last_repeat > 0) {
-            std::cout << "Test #" << last_repeat << " ";
-        }
+		std::cout << pre_message_;
         std::cout << "[";
-        for (size_t i = 0; i < barWidth_; ++i) {
+        for (size_t i = 0; i < bar_width_; ++i) {
             std::cout << "=";
         }
-        std::cout << "] 100 %\r";
+        std::cout << "] 100%";
+		std::cout << post_message_;
         std::cout.flush();
-        prev_ = 0;
         std::cout << std::endl;
+        prev_ = 0;
     }
 
 private:
     size_t prev_;
-    size_t total_;
+    size_t n_things_todo_;
     size_t gap_;
-    size_t barWidth_;
+    size_t bar_width_;
+	size_t console_width_;
+	std::string post_message_;
+	std::string pre_message_;
 };
 
 /* This class is useful to display a title bar in the output console.
 Example of usage:
-    titleBar t("NAME");
-    t.start();
-
-        // do something
-
-    t.end();
+    TODO
 */
-class TitleBar {
+class OutputBox {
 public:
-    TitleBar(const std::string& title, const size_t bar_width = 70, const size_t asterisks = 15)
-    {
-        title_ = title;
-        barWidth_ = bar_width;
-        asterisks_ = asterisks;
 
-        if ((asterisks_ * 2 + title.size() + 8) > bar_width)
-            barWidth_ = asterisks_ * 2 + title.size() + 8;
-    }
+	OutputBox(const std::string& title, const size_t bar_width = CONSOLE_WIDTH, const size_t pre_spaces = 2) {
+		pre_spaces_ = pre_spaces;
+		bar_width_ = bar_width > CONSOLE_WIDTH ? CONSOLE_WIDTH : bar_width;
+		bar_width_ -= pre_spaces_;
 
-    void Start()
-    {
-        size_t spaces = size_t((barWidth_ - (title_.size() + 6 + asterisks_ * 2)) / 2);
-        PrintAsterisks();
-        PrintSpaces(spaces);
-        std::cout << title_ << " starts ";
-        PrintSpaces(spaces);
-        PrintAsterisks();
-        std::cout << std::endl;
-    }
+		if (title.size() > bar_width_ - 4) {
+			title_ = title.substr(0, bar_width_ - 4 - 3) + "...";
+		}
+		else {
+			title_ = title;
+		}
+		transform(title_.begin(), title_.end(), title_.begin(), ::toupper);
 
-    void End()
-    {
-        size_t spaces = size_t((barWidth_ - (title_.size() + 5 + asterisks_ * 2)) / 2);
-        PrintAsterisks();
-        PrintSpaces(spaces);
-        std::cout << title_ << " ends ";
-        PrintSpaces(spaces);
-        PrintAsterisks();
-        std::cout << std::endl << std::endl;
-    }
+		std::cout << "\n";
+		PrintSeparatorLine(); 
+		PrintData(title_);
+		PrintSeparatorLine(); 
+	}
+
+	void StartUnitaryBox(const std::string &dataset_name, const size_t n_things_todo) { 
+		PrintData(dataset_name + ":");
+		std::string complete_pre_message = std::string(pre_spaces_, ' ') + "|  ";
+		pb = ProgressBar(n_things_todo, 4, bar_width_ + pre_spaces_,  complete_pre_message, " |");
+		pb.Start();
+	}
+
+	void UpdateUnitaryBox(const size_t progress) {
+		pb.Display(progress);
+	}
+
+	void Cerror(const std::string& err, const std::string& title = "")
+	{
+		std::string complete_err = "";
+		if (title != "") {
+			PrintData(title + ":");
+			complete_err = " ";
+		}
+		complete_err += "ERROR: [" + err + "]";
+		PrintData(complete_err);
+		PrintSeparatorLine();
+
+		/*
+		
+		If the title is specified this function will print:
+
+		| title:                                                                     |
+		|  ERROR: [err]                                                              |
+		+----------------------------------------------------------------------------+
+		
+		otherwise:
+
+		|  ERROR: [err]                                                              |
+		+----------------------------------------------------------------------------+
+		
+		*/
+	}
+
+	void Cmessage(const std::string& msg)
+	{
+		std::string complete_msg = " MSG: [" + msg + "]";
+		PrintData(complete_msg);
+
+		/*
+
+		This function will print:
+
+		| MSG: [msg]                                                                  |
+		
+		*/
+	}
+
+	void StopUnitaryBox() {
+		pb.End();
+		PrintSeparatorLine();
+	}
+
+	void DisplayReport(const std::string &title, const std::vector<std::string> &messagges) {
+		
+		PrintData(title + ":");
+		for (const auto& x : messagges) {
+			PrintData(" " + x);
+		}
+		PrintSeparatorLine();
+	}
+
 
 private:
 
-    void PrintAsterisks()
-    {
-        for (size_t i = 0; i < asterisks_; ++i) {
-            std::cout << "*";
-        }
-    }
+	void PrintSeparatorLine() { 
+		std::cout << std::string(pre_spaces_, ' ') << "+" << std::string(bar_width_ - 2, '-') << "+\n"; 
+	}
 
-    void PrintSpaces(size_t spaces)
-    {
-        for (size_t i = 0; i < spaces; ++i) {
-            std::cout << " ";
-        }
-    }
+	void PrintRawData(const std::string &data) {
+		std::cout << std::string(pre_spaces_, ' ') << "| " << data << std::string(bar_width_ - data.size() - 4, ' ') << " |\n";
+	}
 
-    std::string title_;
-    size_t barWidth_;
-    size_t asterisks_;
+	void PrintData(const std::string &data) { 
+		unsigned step = bar_width_ - 4;
+		std::string tab = "    ";
+		for (unsigned i = 0; i < data.length(); i+=step) {
+			if (i == 0) {
+				PrintRawData(data.substr(i, step));
+				i += tab.size();
+				step -= tab.size();
+			}
+			else {
+				PrintRawData(tab + data.substr(i, step));
+			}
+		}
+	}
+
+	size_t bar_width_;
+	std::string title_;
+	size_t pre_spaces_;
+	ProgressBar pb;
 };
 
 #endif // !YACCLAB_PROGRESS_BAR_H_
+
+/*
+
++------------------------------------------------------------------------------+
+| Checking Algorithms on 8-Connectivity                                        |
++------------------------------------------------------------------------------+
+| 3dpes:                                                                       |
+| [=====================================================================] 100% |
++------------------------------------------------------------------------------+
+| tobacco800:                                                                  |
+| [=====================================================================] 100% |
++------------------------------------------------------------------------------+
+| medical:                                                                     |
+| [=====================================================================] 100% |
++------------------------------------------------------------------------------+
+| hamlet:                                                                      |
+| [error]: questo è un messaggio molto molto molto ma molto lungo di prova per |
+|      vedere come fare se non ci stiamo									   |
+| [============================================>                        ]  69% |
+
+
+
+
+
+
+
+*/
