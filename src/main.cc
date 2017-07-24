@@ -1,4 +1,4 @@
-// Copyright(c) 2016 - 2017 Costantino Grana, Federico Bolelli, Lorenzo Baraldi and Roberto Vezzani
+// Copyright(c) 2016 - 2017 Federico Bolelli, Costantino Grana, Cancilla Michele, Lorenzo Baraldi and Roberto Vezzani
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -186,12 +186,12 @@ string AverageTest(vector<String>& ccl_algorithms, Mat1d& all_res, const unsigne
             filename = filenames[file].first;
 
             // Display "progress bar"
-            //if (currentNumber * 100 / file_number != (currentNumber - 1) * 100 / file_number)
-            //{
-            //    cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << file_number << "         \r";
-            //    fflush(stdout);
-            //}
-            p_bar.Display(currentNumber++, test + 1);
+            if (currentNumber * 100 / file_number != (currentNumber - 1) * 100 / file_number)
+            {
+                cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << file_number << "         \r";
+                fflush(stdout);
+            }
+            //p_bar.Display(currentNumber++, test + 1);
 
             Mat1b binaryImg;
             path filename_path = input_path / path(inputFolder) / path(filename);
@@ -214,8 +214,9 @@ string AverageTest(vector<String>& ccl_algorithms, Mat1d& all_res, const unsigne
                 // Perform current algorithm on current image and save result.
 
                 algorithm->perf_.start();
-                n_labels = algorithm->PerformLabeling();
+                algorithm->PerformLabeling();
                 algorithm->perf_.stop();
+				n_labels = algorithm->n_labels_;
 
                 // Save number of labels (we reasonably supposed that labels's number is the same on every #test so only the first time we save it)
                 if (test == 0) {
@@ -245,8 +246,8 @@ string AverageTest(vector<String>& ccl_algorithms, Mat1d& all_res, const unsigne
         } // END FILES FOR.
 
           // To display "progress bar"
-        //cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << file_number << "         \r";
-        //fflush(stdout);
+        cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << file_number << "         \r";
+        fflush(stdout);
 
         // Save middle results if necessary (flag 'average_save_middle_tests' enable)
         if (saveMiddleResults) {
@@ -256,7 +257,7 @@ string AverageTest(vector<String>& ccl_algorithms, Mat1d& all_res, const unsigne
         }
     }// END TESTS FOR
 
-    p_bar.End(n_test);
+    //p_bar.End(n_test);
 
     // To write in a file min results
     saveBroadOutputResults(min_res, osPath, ccl_algorithms, write_n_labels, labels, filenames);
@@ -548,12 +549,12 @@ string DensitySizeTest(vector<String>& ccl_algorithms, const path& input_path, c
             filename = filenames[file].first;
 
             // Display "progress bar"
-            //if (currentNumber * 100 / file_number != (currentNumber - 1) * 100 / file_number)
-            //{
-            //    cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << file_number << "         \r";
-            //    fflush(stdout);
-            //}
-            p_bar.Display(currentNumber++, test + 1);
+            if (currentNumber * 100 / file_number != (currentNumber - 1) * 100 / file_number)
+            {
+                cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << file_number << "         \r";
+                fflush(stdout);
+            }
+            //p_bar.Display(currentNumber++, test + 1);
 
             Mat1b binaryImg;
 
@@ -589,8 +590,9 @@ string DensitySizeTest(vector<String>& ccl_algorithms, const path& input_path, c
                 // Note that "i" represent the current algorithm's position in vectors "suppDensity" and "supp_dimension"
 
                 algorithm->perf_.start();
-                n_labels = algorithm->PerformLabeling();
+                algorithm->PerformLabeling();
                 algorithm->perf_.stop();
+				n_labels = algorithm->n_labels_;
 
                 if (test == 0)
                     labels(file, i) = n_labels;
@@ -616,8 +618,8 @@ string DensitySizeTest(vector<String>& ccl_algorithms, const path& input_path, c
             }// END ALGORTIHMS FOR
         } // END FILES FOR
           // To display "progress bar"
-        /*cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << file_number << "         \r";
-        fflush(stdout);*/
+        cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << file_number << "         \r";
+        fflush(stdout);
 
         // Save middle results if necessary (flag 'average_save_middle_tests' enable)
         if (saveMiddleResults) {
@@ -627,7 +629,7 @@ string DensitySizeTest(vector<String>& ccl_algorithms, const path& input_path, c
         }
     }// END TEST FOR
 
-    p_bar.End(n_test);
+    //p_bar.End(n_test);
 
     // To write in a file min results
     saveBroadOutputResults(min_res, osPath, ccl_algorithms, write_n_labels, labels, filenames);
@@ -985,9 +987,8 @@ string MemoryTest(vector<String>& ccl_mem_algorithms, Mat1d& algoAverageAccesses
 
             // The following data_ structure is used to get the memory access matrices
             vector<unsigned long int> accessesVal; // Rows represents algorithms and columns represent data_ structures
-            unsigned n_labels;
 
-            n_labels = algorithm->PerformLabelingMem(accessesVal);
+            algorithm->PerformLabelingMem(accessesVal);
 
             // For every data_ structure "returned" by the algorithm
             for (size_t a = 0; a < accessesVal.size(); ++a) {
@@ -1013,12 +1014,8 @@ string MemoryTest(vector<String>& ccl_mem_algorithms, Mat1d& algoAverageAccesses
 
 int main()
 {
-    //PerformanceEvaluator pe; 
-
-    //pe.start(); 
-    //Sleep(10000);
-    //pe.stop();
-    //pe.store("prova", pe.last());
+	//auto test = LabelingMapSingleton::GetLabeling("SAUF_UFPC");
+	//test->PerformLabelingWithSteps();
 
     // Redirect cv exceptions
     cvRedirectError(RedirectCvError);
@@ -1115,7 +1112,7 @@ int main()
     for (auto& x : ds) {
         path p = cfg.input_path / path(x) / path(cfg.input_txt);
         if (!exists(p, ec)) {
-            cmessage("There is no dataset " + p.string() + ", skipped");
+            cmessage("There is no dataset (no files.txt available) " + p.string() + ", skipped");
         }
     }
 
@@ -1134,8 +1131,10 @@ int main()
 
     YacclabTests yt(cfg);
 
-    // Check test
-    yt.CheckAlgorithms();
+    // Correctness test
+	if (cfg.perform_check_8connectivity) {
+		yt.CheckAlgorithms();
+	}
 
     // Test Algorithms with different input type and different output format, and show execution result
     // AVERAGES TEST
@@ -1143,8 +1142,7 @@ int main()
 
     if (cfg.perform_average) {
         //cout << endl << "AVERAGE TESTS: " << endl;
-        TitleBar t_bar("AVERAGE TESTS");
-        t_bar.Start();
+        //TitleBar::Display("AVERAGE TESTS");
         if (cfg.ccl_algorithms.size() == 0) {
             cout << "ERROR: no algorithms, average tests skipped" << endl;
         }
@@ -1156,14 +1154,12 @@ int main()
             }
             //GenerateLatexTable(cfg.output_path, cfg.latex_file, all_res, cfg.average_datasets, cfg.ccl_algorithms);
         }
-        t_bar.End();
     }
 
     // DENSITY_SIZE_TESTS
     if (cfg.perform_density) {
         //cout << endl << "DENSITY_SIZE TESTS: " << endl;
-        TitleBar t_bar("DENSITY_SIZE TESTS");
-        t_bar.Start();
+        //TitleBar::Display("DENSITY_SIZE TESTS");
         if (cfg.ccl_algorithms.size() == 0) {
             cout << "ERROR: no algorithms, density_size tests skipped" << endl;
         }
@@ -1174,7 +1170,6 @@ int main()
                 //cout << "Density_Size_Test on '" << density_datasets[i] << "': ends" << endl << endl;
             }
         }
-        t_bar.End();
     }
 
     // GENERATE CHARTS TO INCLUDE IN LATEX
@@ -1219,7 +1214,7 @@ int main()
                 cout << endl << "Memory_Test on '" << cfg.memory_datasets[i] << "': starts" << endl;
                 cout << MemoryTest(ccl_mem_algorithms, accesses[cfg.memory_datasets[i]], cfg.input_path, cfg.memory_datasets[i], cfg.input_txt, cfg.output_path) << endl;
                 cout << "Memory_Test on '" << cfg.memory_datasets[i] << "': ends" << endl << endl;
-                //GenerateMemoryLatexTable(cfg.output_path, cfg.latex_memory_file, accesses[i], cfg.memory_datasets[i], ccl_mem_algorithms);
+                // GenerateMemoryLatexTable(cfg.output_path, cfg.latex_memory_file, accesses[i], cfg.memory_datasets[i], ccl_mem_algorithms);
             }
         }
     }
