@@ -68,10 +68,13 @@ void YacclabTests::SaveBroadOutputResults(map<String, Mat1d>& results, const pat
             for (const auto& algo_name : cfg_.ccl_algorithms) {
                 const auto& algo = LabelingMapSingleton::GetLabeling(algo_name);
 
-                unsigned j = 0;
                 for (int step_number = StepType::ALLOC; step_number != StepType::ST_SIZE; ++step_number) {
-                    os << results.at(algo_name)(files, j) << "\t";
-                    ++j;
+                    if (results.at(algo_name)(files, step_number) != numeric_limits<double>::max()) {
+                        os << results.at(algo_name)(files, step_number) << "\t";
+                    }
+                    else {
+                        os << 0 << "\t";
+                    }
                 }
                 cfg_.write_n_labels ? os << labels(files, i) << "\t" : os << "";
                 ++i;
@@ -214,13 +217,14 @@ void YacclabTests::AverageTestWithSteps()
 
         path dataset_path(cfg_.input_path / path(dataset_name)),
             is_path = dataset_path / path(cfg_.input_txt), // files.txt path
-            output_path = cfg_.output_path / path(dataset_name),
-            output_colored_images = output_path / path(cfg_.colors_folder),
-            output_middle_results = output_path / path(cfg_.middle_folder),
-            average_os_path = output_path / path(output_average_results);
+            current_output_path(cfg_.output_path / path(dataset_name)),
+            output_broad_path = current_output_path / path(dataset_name + complete_results_suffix),
+            output_colored_images = current_output_path / path(cfg_.colors_folder),
+            output_middle_results = current_output_path / path(cfg_.middle_folder),
+            average_os_path = current_output_path / path(output_average_results);
 
-        if (!create_directories(output_path)) {
-            cerror("Averages_Test on '" + dataset_name + "': Unable to find/create the output path " + output_path.string());
+        if (!create_directories(current_output_path)) {
+            cerror("Averages_Test on '" + dataset_name + "': Unable to find/create the output path " + current_output_path.string());
         }
 
         if (cfg_.average_color_labels) {
@@ -236,7 +240,7 @@ void YacclabTests::AverageTestWithSteps()
         }
 
         // For AVERAGES RESULT
-        String average_file_stream((output_path / path(dataset_name + average_results_suffix)).string());
+        String average_file_stream((current_output_path / path(output_average_results)).string());
         ofstream average_os(average_file_stream);
         if (!average_os.is_open())
             cerror("Averages_Test on '" + dataset_name + "': Unable to open " + average_file_stream);
@@ -301,11 +305,16 @@ void YacclabTests::AverageTestWithSteps()
                         labels(file, i) = n_labels;
                     }
 
-                    // Save time results
-                    for (size_t j = 0; j < StepType::ST_SIZE; ++j) {
-                        current_res[algo_name](file, j) = 1;
-                        if (algorithm->perf_.last() < min_res[algo_name](file, j)) {
-                            min_res[algo_name](file, j) = 1;
+                    // Save time results of all the steps
+                    for (int step_number = StepType::ALLOC; step_number != StepType::ST_SIZE; ++step_number) {
+                        string step = Step(static_cast<StepType>(step_number));
+
+                        // Find if the current algorithm has the current step
+                        if (algorithm->perf_.find(step)) {
+                            current_res[algo_name](file, step_number) = algorithm->perf_.get(step);
+                            if (algorithm->perf_.get(step) < min_res[algo_name](file, step_number)) {
+                                min_res[algo_name](file, step_number) = algorithm->perf_.get(step);
+                            }
                         }
                     }
                     // If 'at_colorLabels' is enabled only the first time (test == 0) the output is saved
@@ -339,7 +348,7 @@ void YacclabTests::AverageTestWithSteps()
         /*p_bar.End(n_test);*/
 
         // To write in a file min results
-        SaveBroadOutputResults(min_res, output_path, labels, filenames);
+        SaveBroadOutputResults(min_res, output_broad_path, labels, filenames);
 
         //// Insert all steps in a set of unique elements
         //for (const auto& algo_name : cfg_.ccl_algorithms) {
@@ -421,7 +430,7 @@ void YacclabTests::AverageTestWithSteps()
             std::replace(compiler_version.begin(), compiler_version.end(), '.', '_');
 
             //string scriptos_path = output_path + kPathSeparator + outputFolder + kPathSeparator + gnuplotScript;
-            path script_os_path = output_path / path(dataset_name + cfg_.gnuplot_script_extension);
+            path script_os_path = current_output_path / path(dataset_name + cfg_.gnuplot_script_extension);
 
             ofstream script_os(script_os_path.string());
             if (!script_os.is_open())
@@ -431,7 +440,7 @@ void YacclabTests::AverageTestWithSteps()
             script_os << "# comment fifth line, open gnuplot's teminal, move to script's path and launch 'load " << dataset_name + cfg_.gnuplot_script_extension << "' if you want to run it" << endl << endl;
 
             script_os << "reset" << endl;
-            script_os << "cd '" << output_path.string() << "\'" << endl;
+            script_os << "cd '" << current_output_path.string() << "\'" << endl;
             script_os << "set grid ytic" << endl;
             script_os << "set grid" << endl << endl;
 
@@ -490,9 +499,9 @@ void YacclabTests::AverageTestWithSteps()
                         script_os << "+";
                     }
                 }
-                script_os << ") - ($" << i << "/2)) : ($" << i << "!=0.0 ? sprintf(\"%5.2f\",$" << i << "):'') w labels font 'Tahoma, 11' title '', \\" << endl;
+                script_os << ") - ($" << i << "/2)) : ($" << i << "!=0.0 ? sprintf(\"%8.4f\",$" << i << "):'') w labels font 'Tahoma, 11' title '', \\" << endl;
             }
-            script_os << "'' u ($0) : ($" << i << " + yw) : ($" << i << "!=0.0 ? sprintf(\"%5.2f\",$" << i << "):'') w labels font 'Tahoma' title '', \\" << endl;
+            script_os << "'' u ($0) : ($" << i << " + yw) : ($" << i << "!=0.0 ? sprintf(\"%8.4f\",$" << i << "):'') w labels font 'Tahoma' title '', \\" << endl;
 
             script_os << "# Replot in latex folder" << endl;
             script_os << "set title \"\"" << endl << endl;
@@ -515,7 +524,7 @@ void YacclabTests::AverageTestWithSteps()
             script_os.close();
             // GNUPLOT SCRIPT
         }
-        if (0 != std::system(("gnuplot \"" + (output_path / path(dataset_name + cfg_.gnuplot_script_extension)).string() + "\"").c_str()))
+        if (0 != std::system(("gnuplot \"" + (current_output_path / path(dataset_name + cfg_.gnuplot_script_extension)).string() + "\"").c_str()))
             //return ("Averages_Test on '" + dataset_name + "': Unable to run gnuplot's script");
             cout << "Error";
 

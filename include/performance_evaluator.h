@@ -43,7 +43,7 @@ class PerformanceEvaluator {
 
 public:
     PerformanceEvaluator()
-	{
+    {
         tick_frequency_ = cv::getTickFrequency();
     }
 
@@ -77,14 +77,19 @@ public:
 
     void store(const std::string& s, double time /*milliseconds*/)
     {
-        counters_[s].last = time; 
+        counters_[s].last = time;
         counters_[s].total += time;
     }
 
-	double get(const std::string& s) 
-	{
-		return counters_.at(s).last; 
-	}
+    double get(const std::string& s)
+    {
+        return counters_.at(s).last;
+    }
+
+    bool find(const std::string& s)
+    {
+        return counters_.find(s) != counters_.end();
+    }
 
 private:
     double tick_frequency_;
