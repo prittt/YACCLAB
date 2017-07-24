@@ -26,44 +26,284 @@
 // OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#pragma once
+#ifndef YACCLAB_LABELING_LACASSAGNE_2011_H_
+#define YACCLAB_LABELING_LACASSAGNE_2011_H_
+
+#include <numeric>
+
 #include <opencv2/opencv.hpp>
 
-#include "equivalenceSolverSuzuki.h"
+#include "labels_solver.h"
 #include "labeling_algorithms.h"
 #include "memory_tester.h"
 #include "register.h"
 
+using namespace std;
+using namespace cv;
 
+template <typename LabelsSolver>
 class LSL_STD : public Labeling {
 public:
-    LSL_STD() {}
+    void PerformLabeling() {
 
-    unsigned PerformLabeling() override;
+	    int rows = img_.rows, cols = img_.cols;
+	    
+		// Step 1
+	    Mat1i ER(rows, cols);   // Matrix of relative label (1 label/pixel) 
+		Mat1i RLC(rows, (cols + 1) & ~1); // MISSING in the paper: RLC requires 2 values/run in row, so width must be next multiple of 2
+		int *ner = new int[rows]; //vector<int> ner(rows); // Number of runs 
 
-    //unsigned PerformLabelingWithSteps() override
-    //{
-    //    AllocateMemory();
+		for (int r = 0; r < rows; ++r) {
+	        // Get pointers to rows
+	        const unsigned char* img_r = img_.ptr<unsigned char>(r);
+	        unsigned* ER_r = ER.ptr<unsigned>(r);
+	        unsigned* RLC_r = RLC.ptr<unsigned>(r);
+	        int x0;
+	        int x1 = 0; // Previous value of X
+	        int f = 0;  // Front detection
+	        int b = 0;  // Right border compensation
+	        int er = 0;
+	        for (int c = 0; c < cols; ++c)
+	        {
+	            x0 = img_r[c] > 0;
+	            f = x0 ^ x1;
+	            RLC_r[er] = c - b;
+	            b = b ^ f;
+	            er = er + f;
+	            ER_r[c] = er;
+	            x1 = x0;
+	        }
+	        x0 = 0;
+	        f = x0 ^ x1;
+	        RLC_r[er] = cols - b;
+	        er = er + f;
+	        ner[r] = er;
+	    }
+	
+	    // Step 2
+	    Mat1i ERA(rows, cols + 1, 0); // MISSING in the paper: ERA must have one column more than the input image 
+									  // in order to handle special cases (e.g. lines with chessboard pattern 
+									  // starting with a foreground pixel) 
+	
+		LabelsSolver::Alloc(UPPER_BOUND_8_CONNECTIVITY);
+		LabelsSolver::Setup();
+	
+		// First row
+		{
+			unsigned* ERA_r = ERA.ptr<unsigned>(0);
+			for (int er = 1; er <= ner[0]; er += 2) {
+				ERA_r[er] = LabelsSolver::NewLabel();
+			}
+		}
+	    for (int r = 1; r < rows; ++r)
+	    {
+	        // Get pointers to rows
+	        unsigned* ERA_r = ERA.ptr<unsigned>(r);
+	        const unsigned* ERA_r_prev = (unsigned *)(((char *)ERA_r) - ERA.step.p[0]);
+			const unsigned* ER_r_prev = ER.ptr<unsigned>(r - 1);
+			const unsigned* RLC_r = RLC.ptr<unsigned>(r);
+	        for (int er = 1; er <= ner[r]; er += 2) {
+	            int j0 = RLC_r[er - 1];
+	            int j1 = RLC_r[er];
+	            // Check extension in case of 8-connect algorithm
+	            if (j0 > 0)
+	                j0--;
+	            if (j1 < cols - 1) // WRONG in the paper! "n-1" should be "w-1"
+	                j1++;
+	            int er0 = ER_r_prev[j0];
+	            int er1 = ER_r_prev[j1];
+	            // Check label parity: segments are odd
+	            if (er0 % 2 == 0)
+	                er0++;
+	            if (er1 % 2 == 0)
+	                er1--;
+	            if (er1 >= er0) {
+	                int ea = ERA_r_prev[er0];
+	                int a = LabelsSolver::FindRoot(ea);
+	                for (int erk = er0 + 2; erk <= er1; erk += 2) { // WRONG in the paper! missing "step 2"
+	                    int eak = ERA_r_prev[erk];
+	                    int ak = LabelsSolver::FindRoot(eak);
+	                    // Min extraction and propagation
+	                    if (a < ak)
+							LabelsSolver::UpdateTable(ak, a);
+	                    if (a > ak)
+	                    {
+							LabelsSolver::UpdateTable(a, ak);
+	                        a = ak;
+	                    }
+	                }
+	                ERA_r[er] = a; // The global min
+	            }
+	            else
+	            {
+	                ERA_r[er] = LabelsSolver::NewLabel();
+	            }
+	        }
+	    }
+	
+	    // Step 3
+	    //Mat1i EA(rows, cols);
+	    //for (int r = 0; r < rows; ++r) {
+	    //	for (int c = 0; c < cols; ++c) {
+	    //		EA(r, c) = ERA(r, ER(r, c));
+	    //	}
+	    //}
+	    // Sorry, but we really don't get why this shouldn't be included in the last step
+	
+	    // Step 4
+		n_labels_ = LabelsSolver::Flatten();
+	
+	    // Step 5
+	    img_labels_ = Mat1i(rows, cols);
+	    for (int r = 0; r < rows; ++r)
+	    {
+	        // Get pointers to rows
+	        unsigned* labels_r = img_labels_.ptr<unsigned>(r);
+	        const unsigned* ERA_r = ERA.ptr<unsigned>(r);
+	        const unsigned* ER_r = ER.ptr<unsigned>(r);
+	        for (int c = 0; c < cols; ++c)
+	        {
+	            //labels(r, c) = A[EA(r, c)];
+	            labels_r[c] = LabelsSolver::GetLabel(ERA_r[ER_r[c]]); // This is Step 3 and 5 together
+	        }
+	    }
 
-    //    perf_.start("FirstScan");
-    //    const unsigned lunique = FirstScan();
-    //    perf_.stop("FirstScan");
-
-    //    perf_.start("SecondScan");
-    //    const unsigned nLabels = SecondScan(lunique);
-    //    perf_.stop("SecondScan");
-
-    //    DeallocateMemory();
-    //    return nLabels;
-    //}
-
-    unsigned PerformLabelingMem(std::vector<unsigned long int>& accesses) override;
-
-private:
-    unsigned *P;
-
-    void AllocateMemory() override;
-    void DeallocateMemory() override;
-    //unsigned FirstScan() override;
-    //unsigned SecondScan(const unsigned& lunique) override;
+		delete[] ner;
+		LabelsSolver::Dealloc();
+	}
 };
+
+template <typename LabelsSolver>
+class LSL_RLE : public Labeling {
+public:
+	void PerformLabeling() {
+
+		int rows = img_.rows, cols = img_.cols;
+
+		// Step 1
+		Mat1i ER(rows, cols);  // Matrix of relative label (1 label/pixel)
+		Mat1i RLC(rows, (cols + 1) & ~1); // MISSING in the paper: RLC requires 2 values/run in row, so width must be next multiple of 2
+		int *ner = new int[rows]; //vector<int> ner(rows); // Number of runs 
+		for (int r = 0; r < rows; ++r) {
+			// Get pointers to rows
+			const unsigned char* img_r = img_.ptr<unsigned char>(r);
+			unsigned* ER_r = ER.ptr<unsigned>(r);
+			unsigned* RLC_r = RLC.ptr<unsigned>(r);
+			int x0;
+			int x1 = 0; // Previous value of X
+			int f = 0;  // Front detection
+			int b = 0;  // Right border compensation
+			int er = 0;
+			for (int c = 0; c < cols; ++c)
+			{
+				x0 = img_r[c] > 0;
+				f = x0 ^ x1;
+				if (f) {
+					RLC_r[er] = c - b;
+					b = b ^ 1; //b = b ^ f;
+					er = er + 1; //er = er + f;
+				}
+				ER_r[c] = er;
+				x1 = x0;
+			}
+			x0 = 0;
+			f = x0 ^ x1;
+			RLC_r[er] = cols - b;
+			er = er + f;
+			ner[r] = er;
+		}
+
+		// Step 2
+		Mat1i ERA(rows, cols + 1, 0); // MISSING in the paper: ERA must have one column more than the input image 
+									  // in order to handle special cases (e.g. lines with chessboard pattern 
+									  // starting with a foreground pixel) 
+
+		LabelsSolver::Alloc(UPPER_BOUND_8_CONNECTIVITY);
+		LabelsSolver::Setup();
+
+		// First row
+		{
+			unsigned* ERA_r = ERA.ptr<unsigned>(0);
+			for (int er = 1; er <= ner[0]; er += 2) {
+				ERA_r[er] = LabelsSolver::NewLabel();
+			}
+		}
+		for (int r = 1; r < rows; ++r)
+		{
+			// Get pointers to rows
+			unsigned* ERA_r = ERA.ptr<unsigned>(r);
+			const unsigned* ERA_r_prev = (unsigned *)(((char *)ERA_r) - ERA.step.p[0]);
+			const unsigned* ER_r_prev = ER.ptr<unsigned>(r - 1);
+			const unsigned* RLC_r = RLC.ptr<unsigned>(r);
+			for (int er = 1; er <= ner[r]; er += 2) {
+				int j0 = RLC_r[er - 1];
+				int j1 = RLC_r[er];
+				// Check extension in case of 8-connect algorithm
+				if (j0 > 0)
+					j0--;
+				if (j1 < cols - 1) // WRONG in the paper! "n-1" should be "w-1"
+					j1++;
+				int er0 = ER_r_prev[j0];
+				int er1 = ER_r_prev[j1];
+				// Check label parity: segments are odd
+				if (er0 % 2 == 0)
+					er0++;
+				if (er1 % 2 == 0)
+					er1--;
+				if (er1 >= er0) {
+					int ea = ERA_r_prev[er0];
+					int a = LabelsSolver::FindRoot(ea);
+					for (int erk = er0 + 2; erk <= er1; erk += 2) { // WRONG in the paper! missing "step 2"
+						int eak = ERA_r_prev[erk];
+						int ak = LabelsSolver::FindRoot(eak);
+						// Min extraction and propagation
+						if (a < ak)
+							LabelsSolver::UpdateTable(ak, a);
+						if (a > ak)
+						{
+							LabelsSolver::UpdateTable(a, ak);
+							a = ak;
+						}
+					}
+					ERA_r[er] = a; // The global min
+				}
+				else
+				{
+					ERA_r[er] = LabelsSolver::NewLabel();
+				}
+			}
+		}
+
+		// Step 3
+		//Mat1i EA(rows, cols);
+		//for (int r = 0; r < rows; ++r) {
+		//	for (int c = 0; c < cols; ++c) {
+		//		EA(r, c) = ERA(r, ER(r, c));
+		//	}
+		//}
+		// Sorry, but we really don't get why this shouldn't be included in the last step
+
+		// Step 4
+		n_labels_ = LabelsSolver::Flatten();
+
+		// Step 5
+		img_labels_ = Mat1i(rows, cols);
+		for (int r = 0; r < rows; ++r)
+		{
+			// Get pointers to rows
+			unsigned* labels_r = img_labels_.ptr<unsigned>(r);
+			const unsigned* ERA_r = ERA.ptr<unsigned>(r);
+			const unsigned* ER_r = ER.ptr<unsigned>(r);
+			for (int c = 0; c < cols; ++c)
+			{
+				//labels(r, c) = A[EA(r, c)];
+				labels_r[c] = LabelsSolver::GetLabel(ERA_r[ER_r[c]]); // This is Step 3 and 5 together
+			}
+		}
+
+		delete[] ner;
+		LabelsSolver::Dealloc();
+	}
+};
+
+#endif // !YACCLAB_LABELING_LACASSAGNE_2011_H_
