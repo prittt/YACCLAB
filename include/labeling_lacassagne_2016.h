@@ -36,7 +36,6 @@
 #include "labels_solver.h"
 #include "labeling_algorithms.h"
 #include "memory_tester.h"
-#include "register.h"
 
 using namespace std;
 using namespace cv;
@@ -171,6 +170,36 @@ public:
 		delete[] ner;
 		LabelsSolver::Dealloc();
 	}
+    void PerformLabelingWithSteps()
+    {
+        perf_.start();
+        Alloc();
+        perf_.stop();
+        double alloc_timing = perf_.last();
+
+        perf_.start();
+        AllScans();
+        perf_.stop();
+        perf_.store(Step(StepType::ALL_SCANS), perf_.last());
+
+        perf_.start();
+        Dealloc();
+        perf_.stop();
+        perf_.store(Step(StepType::ALLOC_DEALLOC), perf_.last() + alloc_timing);
+    }
+
+    void PerformLabelingMem(std::vector<unsigned long int>& accesses) {}
+
+private:
+    void Alloc() {
+        LabelsSolver::Alloc(UPPER_BOUND_8_CONNECTIVITY); // Memory allocation of the labels solver
+        img_labels_ = cv::Mat1i(img_.size()); // Memory allocation of the output image
+    }
+    void Dealloc() {
+        LabelsSolver::Dealloc();
+        // No free for img_labels_ because it is required at the end of the algorithm 
+    }
+    void AllScans(); 
 };
 
 template <typename LabelsSolver>

@@ -26,14 +26,11 @@
 // OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "labelingLacassagne2011.h"
-#include <assert.h>
-#include <numeric>
+#include "labeling_lacassagne_2016.h"
 
-using namespace std;
-using namespace cv;
+#include "register.h"
 
-// Light-Speed Labeling is an algorithm that can only use some types of equivalences solver so they must be "manually" specified
+// Light-Speed Labeling is an algorithm that can only use some types of equivalences solver, so they must be "manually" specified
 REGISTER_SOLVER(LSL_RLE, UF)
 REGISTER_SOLVER(LSL_RLE, UF_PC)
 REGISTER_SOLVER(LSL_RLE, TTA)
@@ -41,3 +38,7 @@ REGISTER_SOLVER(LSL_RLE, TTA)
 REGISTER_SOLVER(LSL_STD, UF)
 REGISTER_SOLVER(LSL_STD, UF_PC)
 REGISTER_SOLVER(LSL_STD, TTA)
+
+//REGISTER_SOLVER(LSL_STDZ, UF)
+//REGISTER_SOLVER(LSL_STDZ, UF_PC)
+//REGISTER_SOLVER(LSL_STDZ, TTA)
