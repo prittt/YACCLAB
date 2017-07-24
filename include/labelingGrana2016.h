@@ -28,7 +28,7 @@
 
 #pragma once
 #include "opencv2/opencv.hpp"
-#include "equivalenceSolverSuzuki.h"
+//#include "equivalenceSolverSuzuki.h"
 #include "labeling_algorithms.h"
 
 class PRED : public Labeling{

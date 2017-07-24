@@ -29,5 +29,5 @@
 #include "labeling_null.h"
 #include "labels_solver.h"
 
-REGISTER_LABELING(labeling_NULL);
+//REGISTER_LABELING(labeling_NULL);
 

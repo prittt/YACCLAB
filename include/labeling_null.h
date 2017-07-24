@@ -37,31 +37,31 @@
 #include "labels_solver.h"
 #include "memory_tester.h"
 
-class labeling_NULL : public Labeling {
-public:
-    labeling_NULL() {}
-    ~labeling_NULL() {}
-    void AllocateMemory() override {}
-    void DeallocateMemory() override {}
-
-    unsigned PerformLabeling() override
-    {
-        img_labels_ = cv::Mat1i(img_.size(), 0);
-
-        for (int r = 0; r < img_labels_.rows; ++r) {
-            // Get rows pointer
-            const uchar* const img_row = img_.ptr<uchar>(r);
-            unsigned* const img_labels_row = img_labels_.ptr<unsigned>(r);
-
-            for (int c = 0; c < img_labels_.cols; ++c) {
-                if (img_row[c] > 0) {
-                    img_labels_row[c] = 1;
-                }
-            }
-        }
-
-        return 0;
-    }
-};
+//class labeling_NULL : public Labeling {
+//public:
+//    labeling_NULL() {}
+//    ~labeling_NULL() {}
+//    void AllocateMemory() override {}
+//    void DeallocateMemory() override {}
+//
+//    unsigned PerformLabeling() override
+//    {
+//        img_labels_ = cv::Mat1i(img_.size(), 0);
+//
+//        for (int r = 0; r < img_labels_.rows; ++r) {
+//            // Get rows pointer
+//            const uchar* const img_row = img_.ptr<uchar>(r);
+//            unsigned* const img_labels_row = img_labels_.ptr<unsigned>(r);
+//
+//            for (int c = 0; c < img_labels_.cols; ++c) {
+//                if (img_row[c] > 0) {
+//                    img_labels_row[c] = 1;
+//                }
+//            }
+//        }
+//
+//        return 0;
+//    }
+//};
 
 #endif // !YACCLAB_LABELING_NULL_H_
