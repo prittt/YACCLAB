@@ -42,19 +42,15 @@ class SAUF : public Labeling {
 public:
     SAUF() {}
 
-    unsigned PerformLabeling() override
+    void PerformLabeling()
     {
         const int h = img_.rows;
         const int w = img_.cols;
 
-        img_labels_ = cv::Mat1i(img_.size(), 0);
+        img_labels_ = cv::Mat1i(img_.size(),0); // Allocation + Initialization
 
-        const size_t P_length = UPPER_BOUND_8_CONNECTIVITY;
-        //array P_ for equivalences resolution
-        P_ = (unsigned *)cv::fastMalloc(sizeof(unsigned) * P_length);
-
-        P_[0] = 0;	//first label is for background pixels
-        unsigned lunique = 1;
+        LabelsSolver::Alloc(UPPER_BOUND_8_CONNECTIVITY); // Allocate labels solver's memory
+		LabelsSolver::Setup(); // Initialize labels solver's values
 
         // Rosenfeld Mask
         // +-+-+-+
@@ -63,11 +59,11 @@ public:
         // |s|x|
         // +-+-+
 
-        // first scan
+        // First scan
         for (int r = 0; r < h; ++r) {
             // Get row pointers
-            uchar const * const img_row = img_.ptr<uchar>(r);
-            uchar const * const img_row_prev = (uchar *)(((char *)img_row) - img_.step.p[0]);
+            unsigned char const * const img_row = img_.ptr<unsigned char>(r);
+			unsigned char const * const img_row_prev = (unsigned char *)(((char *)img_row) - img_.step.p[0]);
             unsigned * const  img_labels_row = img_labels_.ptr<unsigned>(r);
             unsigned * const  img_labels_row_prev = (unsigned *)(((char *)img_labels_row) - img_labels_.step.p[0]);
 
@@ -88,13 +84,13 @@ public:
                         if (condition_r) {
                             if (condition_p) {
                                 // x <- merge(p,r)
-                                img_labels_row[c] = ls_.Merge(P_, img_labels_row_prev[c - 1], img_labels_row_prev[c + 1]);
+                                img_labels_row[c] = LabelsSolver::Merge(img_labels_row_prev[c - 1], img_labels_row_prev[c + 1]);
                             }
                             else {
                                 // p = q = 0
                                 if (condition_s) {
                                     // x <- merge(s,r)
-                                    img_labels_row[c] = ls_.Merge(P_, img_labels_row[c - 1], img_labels_row_prev[c + 1]);
+                                    img_labels_row[c] = LabelsSolver::Merge(img_labels_row[c - 1], img_labels_row_prev[c + 1]);
                                 }
                                 else {
                                     // p = q = s = 0
@@ -115,35 +111,31 @@ public:
                                     img_labels_row[c] = img_labels_row[c - 1];
                                 }
                                 else {
-                                    //new label
-                                    img_labels_row[c] = lunique;
-                                    P_[lunique] = lunique;
-                                    lunique = lunique + 1;
+                                    // New label
+									img_labels_row[c] = LabelsSolver::NewLabel();
                                 }
                             }
                         }
                     }
                 }
                 else {
-                    //Nothing to do, x is a background pixel
+                    // Nothing to do, x is a background pixel
                 }
             }
         }
 
-        //second scan
-        unsigned n_labels = ls_.Flatten(P_, lunique);
+        // Second scan
+		n_labels_ = LabelsSolver::Flatten();
 
         for (int r = 0; r < img_labels_.rows; ++r) {
             unsigned * img_row_start = img_labels_.ptr<unsigned>(r);
             unsigned * const img_row_end = img_row_start + img_labels_.cols;
             for (; img_row_start != img_row_end; ++img_row_start) {
-                *img_row_start = P_[*img_row_start];
+                *img_row_start = LabelsSolver::GetLabel(*img_row_start);
             }
         }
-
-        cv::fastFree(P_);
-
-        return n_labels;
+      
+		LabelsSolver::Dealloc();
 
 #undef condition_p
 #undef condition_q
@@ -152,252 +144,239 @@ public:
 #undef condition_x
     }
 
-    unsigned PerformLabelingMem(std::vector<unsigned long int>& accesses) override
+    void PerformLabelingWithSteps() 
     {
-        const int h = img_.rows;
-        const int w = img_.cols;
+        perf_.start();
+		Alloc();
+        perf_.stop();
+		perf_.store("Alloc", perf_.last()); 
 
-        const size_t P_length = UPPER_BOUND_8_CONNECTIVITY;
+		perf_.start();
+		FirstScan();
+		perf_.stop();
+		perf_.store("FirstScan", perf_.last());
 
-        //Data structure for memory test
-        MemMat<uchar> img(img_);
-        MemMat<int> img_labels(img_.size(), 0);
-        MemVector<unsigned> P_(P_length);						 // Vector P_ for equivalences resolution
+		perf_.start();
+		SecondScan();
+		perf_.stop();
+		perf_.store("SecondScan", perf_.last());
+       
+		perf_.start();
+		Dealloc();
+		perf_.stop();
+		perf_.store("Dealloc", perf_.last());
+    }
 
-        P_[0] = 0;	//first label is for background pixels
-        unsigned lunique = 1;
+	void PerformLabelingMem(std::vector<unsigned long int>& accesses)
+	{
+		const int h = img_.rows;
+		const int w = img_.cols;
 
-        //first scan
+		LabelsSolver::MemAlloc(UPPER_BOUND_8_CONNECTIVITY); // Equivalence resolutor
 
-        //Rosenfeld Mask
-        //+-+-+-+
-        //|p|q|r|
-        //+-+-+-+
-        //|s|x|
-        //+-+-+
+		// Data structure for memory test
+		MemMat<unsigned char> img(img_);
+		MemMat<int> img_labels(img_.size(), 0);
 
-        for (int r = 0; r < h; ++r) {
-            for (int c = 0; c < w; ++c) {
+		LabelsSolver::MemSetup(); 
+
+		// First scan
+
+		// Rosenfeld Mask
+		// +-+-+-+
+		// |p|q|r|
+		// +-+-+-+
+		// |s|x|
+		// +-+-+
+
+		for (int r = 0; r < h; ++r) {
+			for (int c = 0; c < w; ++c) {
 #define condition_p c>0 && r>0 && img(r-1 , c-1)>0
 #define condition_q r>0 && img(r-1, c)>0
 #define condition_r c < w - 1 && r > 0 && img(r-1,c+1)>0
 #define condition_s c > 0 && img(r,c-1)>0
 #define condition_x img(r,c)>0
 
-                if (condition_x) {
-                    if (condition_q) {
-                        //x <- q
-                        img_labels(r, c) = img_labels(r - 1, c);
-                    }
-                    else {
-                        //q = 0
-                        if (condition_r) {
-                            if (condition_p) {
-                                //x <- merge(p,r)
-                                img_labels(r, c) = ls_.Merge(P_, (unsigned)img_labels(r - 1, c - 1), (unsigned)img_labels(r - 1, c + 1));
-                            }
-                            else {
-                                //p = q = 0
-                                if (condition_s) {
-                                    //x <- merge(s,r)
-                                    img_labels(r, c) = ls_.Merge(P_, (unsigned)img_labels(r, c - 1), (unsigned)img_labels(r - 1, c + 1));
-                                }
-                                else {
-                                    //p = q = s = 0
-                                    //x <- r
-                                    img_labels(r, c) = img_labels(r - 1, c + 1);
-                                }
-                            }
-                        }
-                        else {
-                            //r = q = 0
-                            if (condition_p) {
-                                //x <- p
-                                img_labels(r, c) = img_labels(r - 1, c - 1);
-                            }
-                            else {
-                                //r = q = p = 0
-                                if (condition_s) {
-                                    img_labels(r, c) = img_labels(r, c - 1);
-                                }
-                                else {
-                                    //new label
-                                    img_labels(r, c) = lunique;
-                                    P_[lunique] = lunique;
-                                    lunique = lunique + 1;
-                                }
-                            }
-                        }
-                    }
-                }
-                else {
-                    //Nothing to do, x is a background pixel
-                }
-            }
-        }
+				if (condition_x) {
+					if (condition_q) {
+						// x <- q
+						img_labels(r, c) = img_labels(r - 1, c);
+					}
+					else {
+						// q = 0
+						if (condition_r) {
+							if (condition_p) {
+								// x <- merge(p,r)
+								img_labels(r, c) = LabelsSolver::MemMerge((unsigned)img_labels(r - 1, c - 1), (unsigned)img_labels(r - 1, c + 1));
+							}
+							else {
+								// p = q = 0
+								if (condition_s) {
+									// x <- merge(s,r)
+									img_labels(r, c) = LabelsSolver::MemMerge((unsigned)img_labels(r, c - 1), (unsigned)img_labels(r - 1, c + 1));
+								}
+								else {
+									// p = q = s = 0
+									// x <- r
+									img_labels(r, c) = img_labels(r - 1, c + 1);
+								}
+							}
+						}
+						else {
+							// r = q = 0
+							if (condition_p) {
+								// x <- p
+								img_labels(r, c) = img_labels(r - 1, c - 1);
+							}
+							else {
+								// r = q = p = 0
+								if (condition_s) {
+									img_labels(r, c) = img_labels(r, c - 1);
+								}
+								else {
+									// New label
+									img_labels(r, c) = LabelsSolver::MemNewLabel();
+								}
+							}
+						}
+					}
+				}
+				else {
+					// Nothing to do, x is a background pixel
+				}
+			}
+		}
 
-        //second scan
-        unsigned n_labels = ls_.Flatten(P_, lunique);
+		// Second scan
+		n_labels_ = LabelsSolver::MemFlatten();
 
-        for (int r = 0; r < h; ++r) {
-            for (int c = 0; c < w; ++c) {
-                img_labels(r, c) = P_[img_labels(r, c)];
-            }
-        }
+		for (int r = 0; r < h; ++r) {
+			for (int c = 0; c < w; ++c) {
+				img_labels(r, c) = LabelsSolver::MemGetLabel(img_labels(r, c));
+			}
+		}
 
-        //Store total accesses in the output vector 'accesses'
-        accesses = std::vector<unsigned long int>((int)MD_SIZE, 0);
+		// Store total accesses in the output vector 'accesses'
+		accesses = std::vector<unsigned long int>((int)MD_SIZE, 0);
 
-        accesses[MD_BINARY_MAT] = (unsigned long int)img.GetTotalAcesses();
-        accesses[MD_LABELED_MAT] = (unsigned long int)img_labels.GetTotalAcesses();
-        accesses[MD_EQUIVALENCE_VEC] = (unsigned long int)P_.GetTotalAcesses();
+		accesses[MD_BINARY_MAT] = (unsigned long int)img.GetTotalAccesses();
+		accesses[MD_LABELED_MAT] = (unsigned long int)img_labels.GetTotalAccesses();
+		accesses[MD_EQUIVALENCE_VEC] = (unsigned long int)LabelsSolver::MemTotalAccesses();
 
-        //a = img_labels.GetImage();
+		img_labels_ = img_labels.GetImage();
 
-        return n_labels;
+		LabelsSolver::MemDealloc();
 
 #undef condition_p
 #undef condition_q
 #undef condition_r
 #undef condition_s
 #undef condition_x
-    }
-
-    unsigned PerformLabelingWithSteps() override
-    {
-        //perf_.start("Allocate");
-        AllocateMemory();
-        //perf_.stop("Allocate");
-
-        //perf_.start("FirstScan");
-        unsigned lunique = FirstScan();
-        //perf_.stop("FirstScan");
-
-        //perf_.start("SecondScan");
-        unsigned n_labels = SecondScan(lunique);
-        //perf_.stop("SecondScan");
-
-        //perf_.start("Deallocate");
-        DeallocateMemory();
-        //perf_.stop("Deallocate");
-
-        return n_labels;
-    }
+	}
 
 private:
-    LabelsSolver ls_;
-    unsigned *P_;
+	void Alloc(){
+		LabelsSolver::Alloc(UPPER_BOUND_8_CONNECTIVITY);
+		img_labels_ = cv::Mat1i(img_.size());
+	}
+	void Dealloc() {
+		LabelsSolver::Dealloc();
+		// no free for img_labels_ because it is required at the end of the algorithm 
+	}
+	void FirstScan() {
+	
+		const int h = img_.rows;
+		const int w = img_.cols;
 
-    void AllocateMemory() override
-    {
-        const size_t P_length = UPPER_BOUND_8_CONNECTIVITY;
-        //array P_ for equivalences resolution
-        P_ = (unsigned *)cv::fastMalloc(sizeof(unsigned) * P_length);
-    }
-    void DeallocateMemory() override
-    {
-        cv::fastFree(P_);
-    }
+		img_labels_ = cv::Mat1i::zeros(img_.size()); // Initialization
 
-    unsigned FirstScan() override
-    {
-        const int h = img_.rows;
-        const int w = img_.cols;
+		LabelsSolver::Alloc(UPPER_BOUND_8_CONNECTIVITY);
+		LabelsSolver::Setup();
 
-        img_labels_ = cv::Mat1i(img_.size(), 0);
-        P_[0] = 0;	//first label is for background pixels
-        unsigned lunique = 1;
+		// Rosenfeld Mask
+		// +-+-+-+
+		// |p|q|r|
+		// +-+-+-+
+		// |s|x|
+		// +-+-+
 
-        // Rosenfeld Mask
-        // +-+-+-+
-        // |p|q|r|
-        // +-+-+-+
-        // |s|x|
-        // +-+-+
+		// First scan
+		for (int r = 0; r < h; ++r) {
+			// Get row pointers
+			unsigned char const * const img_row = img_.ptr<unsigned char>(r);
+			unsigned char const * const img_row_prev = (unsigned char *)(((char *)img_row) - img_.step.p[0]);
+			unsigned * const  img_labels_row = img_labels_.ptr<unsigned>(r);
+			unsigned * const  img_labels_row_prev = (unsigned *)(((char *)img_labels_row) - img_labels_.step.p[0]);
 
-        // first scan
-        for (int r = 0; r < h; ++r) {
-            // Get row pointers
-            uchar const * const img_row = img_.ptr<uchar>(r);
-            uchar const * const img_row_prev = (uchar *)(((char *)img_row) - img_.step.p[0]);
-            unsigned * const  img_labels_row = img_labels_.ptr<unsigned>(r);
-            unsigned * const  img_labels_row_prev = (unsigned *)(((char *)img_labels_row) - img_labels_.step.p[0]);
-
-            for (int c = 0; c < w; ++c) {
+			for (int c = 0; c < w; ++c) {
 #define condition_p c>0 && r>0 && img_row_prev[c - 1]>0
 #define condition_q r>0 && img_row_prev[c]>0
 #define condition_r c < w - 1 && r > 0 && img_row_prev[c + 1] > 0
 #define condition_s c > 0 && img_row[c - 1] > 0
 #define condition_x img_row[c] > 0
 
-                if (condition_x) {
-                    if (condition_q) {
-                        //x <- q
-                        img_labels_row[c] = img_labels_row_prev[c];
-                    }
-                    else {
-                        // q = 0
-                        if (condition_r) {
-                            if (condition_p) {
-                                // x <- merge(p,r)
-                                img_labels_row[c] = ls_.Merge(P_, img_labels_row_prev[c - 1], img_labels_row_prev[c + 1]);
-                            }
-                            else {
-                                // p = q = 0
-                                if (condition_s) {
-                                    // x <- merge(s,r)
-                                    img_labels_row[c] = ls_.Merge(P_, img_labels_row[c - 1], img_labels_row_prev[c + 1]);
-                                }
-                                else {
-                                    // p = q = s = 0
-                                    // x <- r
-                                    img_labels_row[c] = img_labels_row_prev[c + 1];
-                                }
-                            }
-                        }
-                        else {
-                            // r = q = 0
-                            if (condition_p) {
-                                // x <- p
-                                img_labels_row[c] = img_labels_row_prev[c - 1];
-                            }
-                            else {
-                                // r = q = p = 0
-                                if (condition_s) {
-                                    img_labels_row[c] = img_labels_row[c - 1];
-                                }
-                                else {
-                                    //new label
-                                    img_labels_row[c] = lunique;
-                                    P_[lunique] = lunique;
-                                    lunique = lunique + 1;
-                                }
-                            }
-                        }
-                    }
-                }
-                else {
-                    //Nothing to do, x is a background pixel
-                }
-            }
-        }
-
-        return lunique;
-    }
-    unsigned SecondScan(const unsigned& lunique) override
+				if (condition_x) {
+					if (condition_q) {
+						// x <- q
+						img_labels_row[c] = img_labels_row_prev[c];
+					}
+					else {
+						// q = 0
+						if (condition_r) {
+							if (condition_p) {
+								// x <- merge(p,r)
+								img_labels_row[c] = LabelsSolver::Merge(img_labels_row_prev[c - 1], img_labels_row_prev[c + 1]);
+							}
+							else {
+								// p = q = 0
+								if (condition_s) {
+									// x <- merge(s,r)
+									img_labels_row[c] = LabelsSolver::Merge(img_labels_row[c - 1], img_labels_row_prev[c + 1]);
+								}
+								else {
+									// p = q = s = 0
+									// x <- r
+									img_labels_row[c] = img_labels_row_prev[c + 1];
+								}
+							}
+						}
+						else {
+							// r = q = 0
+							if (condition_p) {
+								// x <- p
+								img_labels_row[c] = img_labels_row_prev[c - 1];
+							}
+							else {
+								// r = q = p = 0
+								if (condition_s) {
+									img_labels_row[c] = img_labels_row[c - 1];
+								}
+								else {
+									// New label
+									img_labels_row[c] = LabelsSolver::NewLabel();
+								}
+							}
+						}
+					}
+				}
+				else {
+					// Nothing to do, x is a background pixel (already initialized)
+				}
+			}
+		}
+	
+	}
+    void SecondScan() 
     {
-        unsigned n_labels = ls_.Flatten(P_, lunique);
+		n_labels_ = LabelsSolver::Flatten();
 
-        //second scan
-        for (int r = 0; r < img_labels_.rows; ++r) {
-            unsigned * img_row_start = img_labels_.ptr<unsigned>(r);
-            unsigned * const img_row_end = img_row_start + img_labels_.cols;
-            for (; img_row_start != img_row_end; ++img_row_start) {
-                *img_row_start = P_[*img_row_start];
-            }
-        }
-
-        return n_labels;
+		for (int r = 0; r < img_labels_.rows; ++r) {
+			unsigned * img_row_start = img_labels_.ptr<unsigned>(r);
+			unsigned * const img_row_end = img_row_start + img_labels_.cols;
+			for (; img_row_start != img_row_end; ++img_row_start) {
+				*img_row_start = LabelsSolver::GetLabel(*img_row_start);
+			}
+		}
     }
 };
 
