@@ -38,31 +38,31 @@
 
 #include "performance_evaluator.h"
 
-#define UPPER_BOUND_8_CONNECTIVITY ((size_t)((img_.rows + 1) / 2) * (size_t)((img_.cols + 1) / 2) + 1);
+#define UPPER_BOUND_8_CONNECTIVITY ((size_t)((img_.rows + 1) / 2) * (size_t)((img_.cols + 1) / 2) + 1)
 //#define UPPER_BOUND_4_CONNECTIVITY todo;
 
 class Labeling {
 public:
     static cv::Mat1b img_;
     cv::Mat1i img_labels_;
-    unsigned nlabels_;
+    unsigned n_labels_;
     PerformanceEvaluator perf_;
 
     Labeling() {}
     virtual ~Labeling() = default;
 
-    virtual unsigned PerformLabeling() { throw std::runtime_error("Average Test not implemented"); }
-    virtual unsigned PerformLabelingWithSteps() { throw std::runtime_error("Average Test with Steps not implemented"); }
-    virtual unsigned PerformLabelingMem(std::vector<unsigned long>& accesses) { throw std::runtime_error("Memory Test not implemented"); }
+    virtual void PerformLabeling() { throw std::runtime_error("Average Test not implemented"); }
+    virtual void PerformLabelingWithSteps() { throw std::runtime_error("Average Test with Steps not implemented"); }
+    virtual void PerformLabelingMem(std::vector<unsigned long>& accesses) { throw std::runtime_error("Memory Test not implemented"); }
 
     static void SetImg(const cv::Mat1b& img) { img_ = img.clone(); }
 
 private:
 
-    virtual void AllocateMemory() = 0;
-    virtual void DeallocateMemory() = 0;
-    virtual unsigned FirstScan() { throw std::runtime_error("First Scan not implemented"); }
-    virtual unsigned SecondScan(const unsigned& lunique) { throw std::runtime_error("Second Scan not implemented"); }
+    virtual void Alloc() { throw std::runtime_error("Alloc not implemented"); }
+    virtual void Dealloc() { throw std::runtime_error("Dealloc not implemented"); }
+    virtual void FirstScan() { throw std::runtime_error("First Scan not implemented"); }
+    virtual void SecondScan(const unsigned& lunique) { throw std::runtime_error("Second Scan not implemented"); }
 };
 
 class LabelingMapSingleton {
