@@ -49,6 +49,8 @@ public:
     int rows;
     int cols;
 
+	MemMat() {}
+
     MemMat(cv::Mat_<T> img)
     {
         img_ = img.clone(); // Deep copy
@@ -84,12 +86,12 @@ public:
         return img_.clone();
     }
 
-    cv::Mat1i GetAcessesMat() const
+    cv::Mat1i GetAccessesMat() const
     {
         return accesses_.clone();
     }
 
-    double GetTotalAcesses() const
+    double GetTotalAccesses() const
     {
         return cv::sum(accesses_)[0];
     }
@@ -104,6 +106,8 @@ private:
 template <typename T>
 class MemVector {
 public:
+	MemVector() {}
+
     MemVector(std::vector<T> vec)
     {
         vec_ = vec;  // Deep copy
@@ -133,12 +137,12 @@ public:
         return vec_;
     }
 
-    std::vector<T> GetAcessesVector() const
+    std::vector<T> GetAccessesVector() const
     {
         return accesses_;
     }
 
-    double GetTotalAcesses() const
+    double GetTotalAccesses() const
     {
         double tot = 0;
         for (size_t i = 0; i < accesses_.size(); ++i)
