@@ -52,7 +52,7 @@ void YacclabTests::SaveBroadOutputResults(map<String, Mat1d>& results, const pat
     for (const auto& algo_name : cfg_.ccl_algorithms) {
         const auto& algo = LabelingMapSingleton::GetLabeling(algo_name);
 
-        for (int step_number = StepType::ALLOC; step_number != StepType::ST_SIZE; ++step_number) {
+        for (int step_number = 0; step_number != StepType::ST_SIZE; ++step_number) {
             StepType step = static_cast<StepType>(step_number);
             os << algo_name + "_" << Step(step) << "\t";
         }
@@ -68,7 +68,7 @@ void YacclabTests::SaveBroadOutputResults(map<String, Mat1d>& results, const pat
             for (const auto& algo_name : cfg_.ccl_algorithms) {
                 const auto& algo = LabelingMapSingleton::GetLabeling(algo_name);
 
-                for (int step_number = StepType::ALLOC; step_number != StepType::ST_SIZE; ++step_number) {
+                for (int step_number = 0; step_number != StepType::ST_SIZE; ++step_number) {
                     if (results.at(algo_name)(files, step_number) != numeric_limits<double>::max()) {
                         os << results.at(algo_name)(files, step_number) << "\t";
                     }
@@ -92,7 +92,7 @@ void YacclabTests::CheckPerformLabelingMem() {}
 
 void YacclabTests::CheckAlgorithms()
 {
-// Initialize output message box
+    // Initialize output message box
     OutputBox ob("Checking Algorithms on 8-Connectivity");
 
     vector<bool> stats(cfg_.ccl_algorithms.size(), true);  // True if the i-th algorithm is correct, false otherwise
@@ -205,6 +205,9 @@ void YacclabTests::CheckAlgorithms()
 
 void YacclabTests::AverageTestWithSteps()
 {
+    // Initialize output message box
+    OutputBox ob("Average tests with steps");
+
     string complete_results_suffix = "_results.txt",
         middle_results_suffix = "_run",
         average_results_suffix = "_average.txt";
@@ -252,32 +255,36 @@ void YacclabTests::AverageTestWithSteps()
         }
 
         // Number of files
-        int file_number = filenames.size();
+        int filenames_size = filenames.size();
 
         // To save middle/min and average results;
         //Mat1d min_res(file_number, ccl_algorithms.size(), numeric_limits<double>::max());
         //Mat1d current_res(file_number, ccl_algorithms.size(), numeric_limits<double>::max());
-        Mat1i labels(file_number, cfg_.ccl_algorithms.size(), 0);
+        Mat1i labels(filenames_size, cfg_.ccl_algorithms.size(), 0);
         //vector<pair<double, uint16_t>> supp_average(ccl_algorithms.size(), make_pair(0.0, 0));
 
         map<String, Mat1d> current_res;
         map<String, Mat1d> min_res;
-        //set<string> steps;
+        // If true the i-th step is used by all the algorithms
+        vector<bool> steps_presence(StepType::ST_SIZE, false);
 
         for (const auto& algo_name : cfg_.ccl_algorithms) {
             const auto& algorithm = LabelingMapSingleton::GetLabeling(algo_name);
 
-            current_res[algo_name] = Mat1d(file_number, StepType::ST_SIZE, numeric_limits<double>::max());
-            min_res[algo_name] = Mat1d(file_number, StepType::ST_SIZE, numeric_limits<double>::max());
+            current_res[algo_name] = Mat1d(filenames_size, StepType::ST_SIZE, numeric_limits<double>::max());
+            min_res[algo_name] = Mat1d(filenames_size, StepType::ST_SIZE, numeric_limits<double>::max());
         }
+
+        // Start output message box
+        ob.StartRepeatedBox(dataset_name, filenames_size, cfg_.average_ws_tests_number);
 
         // Test is executed n_test times
         for (unsigned test = 0; test < cfg_.average_ws_tests_number; ++test) {
-            // Count number of lines to display "progress bar"
-            unsigned currentNumber = 0;
-
             // For every file in list
             for (unsigned file = 0; file < filenames.size(); ++file) {
+                // Display output message box
+                ob.UpdateRepeatedBox(file);
+            
                 string filename = filenames[file].first;
                 path filename_path = dataset_path / path(filename);
 
@@ -306,7 +313,7 @@ void YacclabTests::AverageTestWithSteps()
                     }
 
                     // Save time results of all the steps
-                    for (int step_number = StepType::ALLOC; step_number != StepType::ST_SIZE; ++step_number) {
+                    for (int step_number = 0; step_number != StepType::ST_SIZE; ++step_number) {
                         string step = Step(static_cast<StepType>(step_number));
 
                         // Find if the current algorithm has the current step
@@ -332,12 +339,9 @@ void YacclabTests::AverageTestWithSteps()
                     ++i;
                 }// END ALGORITHMS FOR
             } // END FILES FOR.
+            ob.StopRepeatedBox();
 
-              // To display "progress bar"
-              //cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << file_number << "         \r";
-              //fflush(stdout);
-
-              // Save middle results if necessary (flag 'average_save_middle_tests' enable)
+            // Save middle results if necessary (flag 'average_save_middle_tests' enable)
             if (cfg_.average_save_middle_tests) {
                 //string middleOut = middleOutFolder + kPathSeparator + middleFile + "_" + to_string(test) + ".txt";
                 path middleOut = middleOut / path(output_middle_results.string() + "_" + to_string(test) + ".txt");
@@ -359,7 +363,7 @@ void YacclabTests::AverageTestWithSteps()
 
         // Write heading string in output stream
         average_os << "#Algorithm" << "\t";
-        for (int step_number = StepType::ALLOC; step_number != StepType::ST_SIZE; ++step_number) {
+        for (int step_number = 0; step_number != StepType::ST_SIZE; ++step_number) {
             StepType step = static_cast<StepType>(step_number);
             average_os << Step(step) << "\t";
         }
@@ -392,15 +396,11 @@ void YacclabTests::AverageTestWithSteps()
                 average_os << algo_name_double_escaped << "\t";
             }
             double cu_sum(0.0);
-            //set<string>::iterator steps_it = steps.begin();
 
-            /*for (unsigned i = 0; steps_it != steps.end() && i < steps.size();) {
-                vector<string>::iterator it = find(algorithm->steps_.begin(), algorithm->steps_.end(), *steps_it++);*/
-                // If the current algorithm has got the current step, save the measured time in file
-                //if (it != algorithm->steps_.end()) {
-            for (int step_number = StepType::ALLOC; step_number != StepType::ST_SIZE; ++step_number) {
+            for (int step_number = 0; step_number != StepType::ST_SIZE; ++step_number) {
                 StepType step = static_cast<StepType>(step_number);
                 if (supp_average[step_number].first > 0.0 && supp_average[step_number].second > 0) {
+                    steps_presence[step_number] = true;
                     double avg = supp_average[step_number].first / supp_average[step_number].second;
                     cu_sum += avg;
                     average_os << std::fixed << std::setprecision(6) << avg << "\t";
@@ -482,12 +482,16 @@ void YacclabTests::AverageTestWithSteps()
             //script_os << "'" + outputAverageResults + "' using 2:xtic(1), '" << outputAverageResults << "' using ($0 - xw) : ($2 + yw) : (stringcolumn(3)) with labels" << endl << endl;
             //auto steps_it = steps.begin();
 
-            script_os << "'" + output_average_results + "' using 2:xtic(1) title '" << Step(StepType::ALLOC) << "', \\" << endl;
+            script_os << "'" + output_average_results + "' using 2:xtic(1) title '" << Step(static_cast<StepType>(0)) << "', \\" << endl;
             //for (unsigned i = 3; steps_it != steps.end(); ++steps_it, ++i) {
             unsigned i = 3;
-            for (int step_number = StepType::ALLOC + 1; step_number != StepType::ST_SIZE; ++step_number, ++i) {
+            // Start from the second step
+            for (int step_number = 1; step_number != StepType::ST_SIZE; ++step_number, ++i) {
                 StepType step = static_cast<StepType>(step_number);
-                script_os << "'' u " << i << " title '" << Step(step) << "', \\" << endl;
+                // Add the step only if it used by almost an algorithm
+                if (steps_presence[step_number]) {
+                    script_os << "'' u " << i << " title '" << Step(step) << "', \\" << endl;
+                }
             }
             const unsigned start_n = 2;
             i = 2;
