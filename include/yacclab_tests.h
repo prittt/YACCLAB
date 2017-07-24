@@ -8,15 +8,23 @@ class YacclabTests {
 public:
 	YacclabTests(const ConfigData& cfg) : cfg_(cfg) {}
 
-	void CheckAlgorithms();
+	void CheckPerformLabeling();
+	void CheckPerformLabelingWithSteps();
+	void CheckPerformLabelingMem();
+
+	void CheckAlgorithms(); // TODO move private
+
+	void AverageTest();
+
+	//TODO: Check correctness of memory tests also
 
 	//Other test functions
-
 
 private:
 	ConfigData cfg_;
 	
 	bool LoadFileList(std::vector<std::pair<std::string, bool>>& filenames, const filesystem::path& files_path);
+	
 
 };
 
