@@ -67,12 +67,22 @@ public:
         cols = size.width;
     }
 
+    MemMat(size_t rows, size_t cols)
+    {
+        MemMat(cv::Size(cols, rows));
+    }
+
     MemMat(cv::Size size, const T val)
     {
         img_ = cv::Mat_<T>(size, val);
-        accesses_ = cv::Mat1i(size, 1);	// The initilization accesses must be counted
+        accesses_ = cv::Mat1i(size, 1);	// The initialization accesses must be counted
         rows = size.height;
         cols = size.width;
+    }
+
+    MemMat(size_t rows, size_t cols, const T val)
+    {
+        MemMat(cv::Size(cols, rows), val);
     }
 
     T& operator()(const int r, const int c)
