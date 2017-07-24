@@ -29,6 +29,8 @@
 #ifndef YACCLAB_PERFORMANCE_EVALUATOR_H_
 #define YACCLAB_PERFORMANCE_EVALUATOR_H_
 
+#include <map>
+
 #include "opencv2/opencv.hpp"
 
 class PerformanceEvaluator {
@@ -41,13 +43,15 @@ class PerformanceEvaluator {
 
 public:
     PerformanceEvaluator()
-    {
+	{
         tick_frequency_ = cv::getTickFrequency();
     }
+
     void start()
     {
         counter_.last = (double)cv::getTickCount();
     }
+
     double stop()
     {
         double t = cv::getTickCount() - counter_.last;
@@ -55,50 +59,32 @@ public:
         counter_.total += t;
         return counter_.last*1000. / tick_frequency_;
     }
+
     void reset()
     {
         counter_.total = 0;
     }
+
     double last()
     {
         return counter_.last*1000. / tick_frequency_;
     }
+
     double total()
     {
         return counter_.total*1000. / tick_frequency_;
     }
-
-   /* void start(const std::string& s)
-    {
-        counters_[s].last = (double)cv::getTickCount();
-    }
-    double stop(const std::string& s)
-    {
-        double tick = static_cast<double>(cv::getTickCount());
-        Elapsed& e = counters_[s];
-        double t =  - e.last;
-        e.last = t;
-        e.total += t;
-        return e.last*1000. / tick_frequency_;
-    }
-    void reset(const std::string& s)
-    {
-        counters_[s].total = 0;
-    }
-    double last(const std::string& s)
-    {
-        return counters_[s].last*1000. / tick_frequency_;
-    }
-    double total(const std::string& s)
-    {
-        return counters_[s].total*1000. / tick_frequency_;
-    }*/
 
     void store(const std::string& s, double time /*milliseconds*/)
     {
         counters_[s].last = time; 
         counters_[s].total += time;
     }
+
+	double get(const std::string& s) 
+	{
+		return counters_.at(s).last; 
+	}
 
 private:
     double tick_frequency_;
