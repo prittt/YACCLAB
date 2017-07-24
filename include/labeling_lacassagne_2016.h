@@ -329,11 +329,9 @@ private:
         RLC = Mat1i(rows, (cols + 1) & ~1); // MISSING in the paper: RLC requires 2 values/run in row, so width must be next multiple of 2
         ner = new int[rows]; //vector<int> ner(rows); // Number of runs 
 
-        ERA(rows, cols + 1, 0); // MISSING in the paper: ERA must have one column more than the input image 
+        ERA = Mat1i(rows, cols + 1, 0); // MISSING in the paper: ERA must have one column more than the input image 
                                 // in order to handle special cases (e.g. lines with chessboard pattern 
                                 // starting with a foreground pixel) 
-
-        img_labels_ = Mat1i(rows, cols);
     }
     void Dealloc() {
         ERA.release();
