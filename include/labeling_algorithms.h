@@ -83,4 +83,14 @@ private:
     }
 };
 
+enum StepType{
+    ALLOC = 1,
+    DEALLOC = 2,
+    FIRST_SCAN = 3, 
+    SECOND_SCAN = 4, 
+    SINGLE_SCAN = 5,
+};
+
+std::string Step(StepType n_step);
+
 #endif //YACCLAB_LABELING_ALGORITHMS_H_
