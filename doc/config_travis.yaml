@@ -20,7 +20,7 @@ tests_number: {average: 10, density: 10, average_with_steps: 10}
 # List of CCL algorithms to test
 # -------------------------------------------------------------------------------------
 
-algorithms: ["SAUF_UfPC"]
+algorithms: ["SAUF_UF_PC"]
 #algorithms: ["SAUF", "BBDT", "DiStefano", "CT", "CCIT", "LSL_STD", "CTB", "SBLA", "PRED", "NULL"]
 
 # -------------------------------------------------------------------------------------
@@ -32,6 +32,9 @@ check_datasets: ["check", "3dpes", "fingerprints", "hamlet", "medical", "mirflic
 
 # List of datasets on which "Average Runtime Tests" shall be run
 average_datasets: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800"]
+
+# List of datasets on which "Average Runtime Tests With Steps" shall be run
+average_datasets_with_steps: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800"]
 
 # List of datasets on which "Memory Tests" shall be run
 memory_datasets: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "test_random", "tobacco800"]
@@ -50,6 +53,6 @@ write_n_labels: false
 color_labels: {average: false, density: false}
 
 # Save the results of each run test
-save_middle_tests: {average: false, density: false}
+save_middle_tests: {average: false, average_with_steps: false, density: false}
 
 # This is YACCLAB configuration file

@@ -38,12 +38,12 @@ bool YacclabTests::LoadFileList(vector<pair<string, bool>>& filenames, const pat
     return true;
 }
 
-//This function take a Mat1d of results and save it on specified outputstream
-void YacclabTests::SaveBroadOutputResults(map<String, Mat1d>& results, const path& o_filename, const Mat1i& labels, const vector<pair<string, bool>>& filenames)
+// This function take a Mat1d of results and save it in the  specified output-stream
+void YacclabTests::SaveBroadOutputResults(map<String, Mat1d>& results, const string& o_filename, const Mat1i& labels, const vector<pair<string, bool>>& filenames)
 {
-    ofstream os(o_filename.string());
+    ofstream os(o_filename);
     if (!os.is_open()) {
-        cout << "Unable to save middle results" << endl;
+        cerror("Unable to save middle results in '" + o_filename + "'");
         return;
     }
 
@@ -52,14 +52,20 @@ void YacclabTests::SaveBroadOutputResults(map<String, Mat1d>& results, const pat
     for (const auto& algo_name : cfg_.ccl_algorithms) {
         const auto& algo = LabelingMapSingleton::GetLabeling(algo_name);
 
+        // Calculate the max of the columns to find unused steps
+        Mat1d results_reduced(1, results.at(algo_name).cols);
+        cv::reduce(results.at(algo_name), results_reduced, 0, CV_REDUCE_MAX);
+
         for (int step_number = 0; step_number != StepType::ST_SIZE; ++step_number) {
             StepType step = static_cast<StepType>(step_number);
-            os << algo_name + "_" << Step(step) << "\t";
+            double column_value(results_reduced(0, step_number));
+            if (column_value != numeric_limits<double>::max()) {
+                os << algo_name + "_" << Step(step) << "\t";
+            }
         }
-        cfg_.write_n_labels ? os << "\t" << algo_name + "_n_label" : os << "";
+        cfg_.write_n_labels ? os << algo_name + "_n_labels" << "\t" : os << "";
     }
     os << endl;
-    // To set heading file format
 
     for (unsigned files = 0; files < filenames.size(); ++files) {
         if (filenames[files].second) {
@@ -73,7 +79,8 @@ void YacclabTests::SaveBroadOutputResults(map<String, Mat1d>& results, const pat
                         os << results.at(algo_name)(files, step_number) << "\t";
                     }
                     else {
-                        os << 0 << "\t";
+                        // Step not held, skipped
+                        //os << 0 << "\t";
                     }
                 }
                 cfg_.write_n_labels ? os << labels(files, i) << "\t" : os << "";
@@ -109,7 +116,7 @@ void YacclabTests::CheckAlgorithms()
         // Load list of images on which ccl_algorithms must be tested
         vector<pair<string, bool>> filenames;  // first: filename, second: state of filename (find or not)
         if (!LoadFileList(filenames, is_path)) {
-            ob.Cerror("Unable to open '" + cfg_.input_txt + "'", dataset_name);
+            ob.Cerror("Unable to open '" + is_path.string() + "'", dataset_name);
             continue;
         }
 
@@ -206,14 +213,14 @@ void YacclabTests::CheckAlgorithms()
 void YacclabTests::AverageTestWithSteps()
 {
     // Initialize output message box
-    OutputBox ob("Average tests with steps");
+    OutputBox ob("Average Tests With Steps");
 
     string complete_results_suffix = "_results.txt",
         middle_results_suffix = "_run",
         average_results_suffix = "_average.txt";
 
-    for (unsigned d = 0; d < cfg_.average_datasets.size(); ++d) { // For every dataset in the average list
-        String dataset_name(cfg_.average_datasets[d]),
+    for (unsigned d = 0; d < cfg_.average_datasets_ws.size(); ++d) { // For every dataset in the average list
+        String dataset_name(cfg_.average_datasets_ws[d]),
             output_average_results = dataset_name + average_results_suffix,
             output_graph = dataset_name + kTerminalExtension,
             output_graph_bw = dataset_name + "_bw" + kTerminalExtension;
@@ -222,35 +229,36 @@ void YacclabTests::AverageTestWithSteps()
             is_path = dataset_path / path(cfg_.input_txt), // files.txt path
             current_output_path(cfg_.output_path / path(dataset_name)),
             output_broad_path = current_output_path / path(dataset_name + complete_results_suffix),
-            output_colored_images = current_output_path / path(cfg_.colors_folder),
-            output_middle_results = current_output_path / path(cfg_.middle_folder),
+            //output_colored_images_path = current_output_path / path(cfg_.colors_folder),
+            output_middle_results_path = current_output_path / path(cfg_.middle_folder),
             average_os_path = current_output_path / path(output_average_results);
 
         if (!create_directories(current_output_path)) {
-            cerror("Averages_Test on '" + dataset_name + "': Unable to find/create the output path " + current_output_path.string());
+            cerror("Averages Test With Steps on '" + dataset_name + "': Unable to find/create the output path " + current_output_path.string());
         }
 
-        if (cfg_.average_color_labels) {
-            if (!create_directories(output_colored_images)) {
-                cerror("Averages_Test on '" + dataset_name + "': Unable to find/create the output path " + output_colored_images.string());
+        /*if (cfg_.average_color_labels) {
+            if (!create_directories(output_colored_images_path)) {
+                cerror("Averages_Test on '" + dataset_name + "': Unable to find/create the output path " + output_colored_images_path.string());
+            }
+        }*/
+
+        if (cfg_.average_ws_save_middle_tests) {
+            if (!create_directories(output_middle_results_path)) {
+                cerror("Averages Test With Steps on '" + dataset_name + "': Unable to find/create the output path " + output_middle_results_path.string());
             }
         }
 
-        if (cfg_.average_save_middle_tests) {
-            if (!create_directories(output_middle_results)) {
-                cerror("Averages_Test on '" + dataset_name + "': Unable to find/create the output path " + output_middle_results.string());
-            }
+        // For AVERAGES
+        ofstream average_os(average_os_path.string());
+        if (!average_os.is_open()) {
+            cerror("Averages Test With Steps on '" + dataset_name + "': Unable to open " + average_os_path.string());
         }
-
-        // For AVERAGES RESULT
-        String average_file_stream((current_output_path / path(output_average_results)).string());
-        ofstream average_os(average_file_stream);
-        if (!average_os.is_open())
-            cerror("Averages_Test on '" + dataset_name + "': Unable to open " + average_file_stream);
 
         // To save list of filename on which CLLAlgorithms must be tested
         vector<pair<string, bool>> filenames;  // first: filename, second: state of filename (find or not)
         if (!LoadFileList(filenames, is_path)) {
+            ob.Cerror("Unable to open '" + is_path.string() + "'", dataset_name);
             continue;
         }
 
@@ -258,13 +266,10 @@ void YacclabTests::AverageTestWithSteps()
         int filenames_size = filenames.size();
 
         // To save middle/min and average results;
-        //Mat1d min_res(file_number, ccl_algorithms.size(), numeric_limits<double>::max());
-        //Mat1d current_res(file_number, ccl_algorithms.size(), numeric_limits<double>::max());
-        Mat1i labels(filenames_size, cfg_.ccl_algorithms.size(), 0);
-        //vector<pair<double, uint16_t>> supp_average(ccl_algorithms.size(), make_pair(0.0, 0));
-
         map<String, Mat1d> current_res;
         map<String, Mat1d> min_res;
+        Mat1i labels(filenames_size, cfg_.ccl_algorithms.size(), 0);
+
         // If true the i-th step is used by all the algorithms
         vector<bool> steps_presence(StepType::ST_SIZE, false);
 
@@ -284,11 +289,9 @@ void YacclabTests::AverageTestWithSteps()
             for (unsigned file = 0; file < filenames.size(); ++file) {
                 // Display output message box
                 ob.UpdateRepeatedBox(file);
-            
+
                 string filename = filenames[file].first;
                 path filename_path = dataset_path / path(filename);
-
-                Mat1b binaryImg;
 
                 // Read and load image
                 if (!GetBinaryImage(filename_path, Labeling::img_)) {
@@ -300,12 +303,18 @@ void YacclabTests::AverageTestWithSteps()
                 // For all the Algorithms in the array
                 for (const auto& algo_name : cfg_.ccl_algorithms) {
                     Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
+                    unsigned n_labels;
+                    try {
+                        // Perform current algorithm on current image and save result.
+                        algorithm->PerformLabelingWithSteps();
 
-                    // Perform current algorithm on current image and save result.
-                    algorithm->PerformLabelingWithSteps();
-
-                    // This variable need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
-                    unsigned n_labels = algorithm->n_labels_;
+                        // This variable need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
+                        n_labels = algorithm->n_labels_;
+                    }
+                    catch (const runtime_error&) {
+                        ob.Cmessage("'PerformLabelingWithSteps()' method not implemented in '" + algo_name + "'");
+                        continue;
+                    }
 
                     // Save number of labels (we reasonably supposed that labels's number is the same on every #test so only the first time we save it)
                     if (test == 0) {
@@ -324,42 +333,20 @@ void YacclabTests::AverageTestWithSteps()
                             }
                         }
                     }
-                    // If 'at_colorLabels' is enabled only the first time (test == 0) the output is saved
-                    if (cfg_.average_color_labels && test == 0) {
-                        // Remove gnuplot escape character from output filename
-                        /*string alg_name = (*it).second;
-                        alg_name.erase(std::remove(alg_name.begin(), alg_name.end(), '\\'), alg_name.end());*/
-                        Mat3b imgColors;
-
-                        NormalizeLabels(algorithm->img_labels_);
-                        ColorLabels(algorithm->img_labels_, imgColors);
-                        path colored_file_path = output_colored_images / path(filename + "_" + algo_name + ".png");
-                        imwrite(colored_file_path.string(), imgColors);
-                    }
                     ++i;
                 }// END ALGORITHMS FOR
             } // END FILES FOR.
             ob.StopRepeatedBox();
 
-            // Save middle results if necessary (flag 'average_save_middle_tests' enable)
-            if (cfg_.average_save_middle_tests) {
-                //string middleOut = middleOutFolder + kPathSeparator + middleFile + "_" + to_string(test) + ".txt";
-                path middleOut = middleOut / path(output_middle_results.string() + "_" + to_string(test) + ".txt");
-                SaveBroadOutputResults(current_res, middleOut, labels, filenames);
+            // Save middle results if necessary (flag 'average_save_middle_tests' enabled)
+            if (cfg_.average_ws_save_middle_tests) {
+                string output_middle_results_file = (output_middle_results_path / path(dataset_name + middle_results_suffix + "_" + to_string(test) + ".txt")).string();
+                SaveBroadOutputResults(current_res, output_middle_results_file, labels, filenames);
             }
         }// END TESTS FOR
 
-        /*p_bar.End(n_test);*/
-
         // To write in a file min results
-        SaveBroadOutputResults(min_res, output_broad_path, labels, filenames);
-
-        //// Insert all steps in a set of unique elements
-        //for (const auto& algo_name : cfg_.ccl_algorithms) {
-        //    const auto& algorithm = LabelingMapSingleton::GetLabeling(algo_name);
-
-        //    steps.insert(algorithm->steps_.begin(), algorithm->steps_.end());
-        //}
+        SaveBroadOutputResults(min_res, output_broad_path.string(), labels, filenames);
 
         // Write heading string in output stream
         average_os << "#Algorithm" << "\t";
@@ -385,7 +372,7 @@ void YacclabTests::AverageTestWithSteps()
                 }
             }
 
-            // Matrix reduce done, save the results into the average file
+            // Gnuplot requires double-escaped name in presence of underscores
             {
                 string algo_name_double_escaped = algo_name;
                 std::size_t found = algo_name_double_escaped.find_first_of("_");
@@ -397,6 +384,7 @@ void YacclabTests::AverageTestWithSteps()
             }
             double cu_sum(0.0);
 
+            // Matrix reduce done, save the results into the average file
             for (int step_number = 0; step_number != StepType::ST_SIZE; ++step_number) {
                 StepType step = static_cast<StepType>(step_number);
                 if (supp_average[step_number].first > 0.0 && supp_average[step_number].second > 0) {
@@ -429,14 +417,14 @@ void YacclabTests::AverageTestWithSteps()
             //replace the . with _ for compiler strings
             std::replace(compiler_version.begin(), compiler_version.end(), '.', '_');
 
-            //string scriptos_path = output_path + kPathSeparator + outputFolder + kPathSeparator + gnuplotScript;
             path script_os_path = current_output_path / path(dataset_name + cfg_.gnuplot_script_extension);
 
             ofstream script_os(script_os_path.string());
-            if (!script_os.is_open())
-                //return ("Averages_Test on '" + inputFolder + "': Unable to create " + scriptos_path.string());
+            if (!script_os.is_open()) {
+                cerror("Averages Test With Steps on '" + dataset_name + "': Unable to create " + script_os_path.string());
+            }
 
-                script_os << "# This is a gnuplot (http://www.gnuplot.info/) script!" << endl;
+            script_os << "# This is a gnuplot (http://www.gnuplot.info/) script!" << endl;
             script_os << "# comment fifth line, open gnuplot's teminal, move to script's path and launch 'load " << dataset_name + cfg_.gnuplot_script_extension << "' if you want to run it" << endl << endl;
 
             script_os << "reset" << endl;
@@ -457,7 +445,7 @@ void YacclabTests::AverageTestWithSteps()
             script_os << "set style histogram cluster gap 1" << endl;
             script_os << "set style histogram rowstacked" << endl;
             script_os << "set style fill solid 0.25 border -1" << endl;
-            script_os << "set boxwidth 0.3" << endl << endl;
+            script_os << "set boxwidth 0.5" << endl << endl;
 
             script_os << "# Get stats to set labels" << endl;
             script_os << "stats \"" << output_average_results << "\" using 4 nooutput" << endl;
@@ -479,11 +467,8 @@ void YacclabTests::AverageTestWithSteps()
 
             script_os << "# Plot" << endl;
             script_os << "plot \\" << endl;
-            //script_os << "'" + outputAverageResults + "' using 2:xtic(1), '" << outputAverageResults << "' using ($0 - xw) : ($2 + yw) : (stringcolumn(3)) with labels" << endl << endl;
-            //auto steps_it = steps.begin();
 
             script_os << "'" + output_average_results + "' using 2:xtic(1) title '" << Step(static_cast<StepType>(0)) << "', \\" << endl;
-            //for (unsigned i = 3; steps_it != steps.end(); ++steps_it, ++i) {
             unsigned i = 3;
             // Start from the second step
             for (int step_number = 1; step_number != StepType::ST_SIZE; ++step_number, ++i) {
@@ -503,9 +488,9 @@ void YacclabTests::AverageTestWithSteps()
                         script_os << "+";
                     }
                 }
-                script_os << ") - ($" << i << "/2)) : ($" << i << "!=0.0 ? sprintf(\"%8.4f\",$" << i << "):'') w labels font 'Tahoma, 11' title '', \\" << endl;
+                script_os << ") - ($" << i << "/2)) : ($" << i << "!=0.0 ? sprintf(\"%6.3f\",$" << i << "):'') w labels font 'Tahoma, 11' title '', \\" << endl;
             }
-            script_os << "'' u ($0) : ($" << i << " + yw) : ($" << i << "!=0.0 ? sprintf(\"%8.4f\",$" << i << "):'') w labels font 'Tahoma' title '', \\" << endl;
+            script_os << "'' u ($0) : ($" << i << " + yw) : ($" << i << "!=0.0 ? sprintf(\"%6.3f\",$" << i << "):'') w labels font 'Tahoma' title '', \\" << endl;
 
             script_os << "# Replot in latex folder" << endl;
             script_os << "set title \"\"" << endl << endl;
@@ -528,12 +513,9 @@ void YacclabTests::AverageTestWithSteps()
             script_os.close();
             // GNUPLOT SCRIPT
         }
-        if (0 != std::system(("gnuplot \"" + (current_output_path / path(dataset_name + cfg_.gnuplot_script_extension)).string() + "\"").c_str()))
-            //return ("Averages_Test on '" + dataset_name + "': Unable to run gnuplot's script");
-            cout << "Error";
-
-        //return ("Averages_Test on '" + inputFolder + "': successfully done");
-        //return "";
+        if (0 != std::system(("gnuplot \"" + (current_output_path / path(dataset_name + cfg_.gnuplot_script_extension)).string() + "\"").c_str())) {
+            cerror("Averages Test With Steps on '" + dataset_name + "': Unable to run gnuplot's script");
+        }
     }
 }
 
