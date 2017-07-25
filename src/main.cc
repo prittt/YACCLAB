@@ -1014,9 +1014,6 @@ string MemoryTest(vector<String>& ccl_mem_algorithms, Mat1d& algoAverageAccesses
 
 int main()
 {
-	//auto test = LabelingMapSingleton::GetLabeling("SAUF_UFPC");
-	//test->PerformLabelingWithSteps();
-
     // Redirect cv exceptions
     cvRedirectError(RedirectCvError);
 
