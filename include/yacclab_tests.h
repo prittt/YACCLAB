@@ -29,7 +29,7 @@ private:
 	
 	bool LoadFileList(std::vector<std::pair<std::string, bool>>& filenames, const filesystem::path& files_path);
 	
-    void SaveBroadOutputResults(std::map<cv::String, cv::Mat1d>& results, const filesystem::path& o_filename, const cv::Mat1i& labels, const std::vector<std::pair<std::string, bool>>& filenames);
+    void SaveBroadOutputResults(std::map<cv::String, cv::Mat1d>& results, const std::string& o_filename, const cv::Mat1i& labels, const std::vector<std::pair<std::string, bool>>& filenames);
 };
 
 #endif // !YACCLAB_YACCLAB_TESTS_H_
