@@ -9,6 +9,7 @@
 #include <opencv2/imgproc.hpp>
 
 #include "labeling_algorithms.h"
+#include "latex_generator.h"
 #include "utilities.h"
 #include "progress_bar.h"
 
@@ -83,6 +84,37 @@ void YacclabTests::SaveBroadOutputResults(map<String, Mat1d>& results, const str
                         //os << 0 << "\t";
                     }
                 }
+                cfg_.write_n_labels ? os << labels(files, i) << "\t" : os << "";
+                ++i;
+            }
+            os << endl;
+        }
+    }
+}
+
+void YacclabTests::SaveBroadOutputResults(const Mat1d& results, const string& o_filename, const Mat1i& labels, const vector<pair<string, bool>>& filenames)
+{
+    ofstream os(o_filename);
+    if (!os.is_open()) {
+        cout << "Unable to save middle results" << endl;
+        return;
+    }
+
+    // To set heading file format
+    os << "#";
+    for (const auto& algo_name : cfg_.ccl_algorithms) {
+        os << "\t" << algo_name;
+        cfg_.write_n_labels ? os << "\t" << "n_label" : os << "";
+    }
+    os << endl;
+    // To set heading file format
+
+    for (unsigned files = 0; files < filenames.size(); ++files) {
+        if (filenames[files].second) {
+            os << filenames[files].first << "\t";
+            unsigned i = 0;
+            for (const auto& algo_name : cfg_.ccl_algorithms) {
+                os << results(files, i) << "\t";
                 cfg_.write_n_labels ? os << labels(files, i) << "\t" : os << "";
                 ++i;
             }
@@ -210,7 +242,259 @@ void YacclabTests::CheckAlgorithms()
     ob.DisplayReport("Report", messages);
 }
 
-void YacclabTests::AverageTestWithSteps()
+void YacclabTests::AverageTest(cv::Mat1d& average_results)
+{
+// Initialize output message box
+    OutputBox ob("Average Tests");
+
+    string complete_results_suffix = "_results.txt",
+        middle_results_suffix = "_run",
+        average_results_suffix = "_average.txt";
+
+    for (unsigned d = 0; d < cfg_.average_datasets.size(); ++d) { // For every dataset in the average list
+        String dataset_name(cfg_.average_datasets[d]),
+            output_average_results = dataset_name + average_results_suffix,
+            output_graph = dataset_name + kTerminalExtension,
+            output_graph_bw = dataset_name + "_bw" + kTerminalExtension;
+
+        path dataset_path(cfg_.input_path / path(dataset_name)),
+            is_path = dataset_path / path(cfg_.input_txt), // files.txt path
+            current_output_path(cfg_.output_path / path(cfg_.average_folder) / path(dataset_name)),
+            output_broad_path = current_output_path / path(dataset_name + complete_results_suffix),
+            output_colored_images_path = current_output_path / path(cfg_.colors_folder),
+            output_middle_results_path = current_output_path / path(cfg_.middle_folder),
+            average_os_path = current_output_path / path(output_average_results);
+
+        if (!create_directories(current_output_path)) {
+            cerror("Averages Test on '" + dataset_name + "': Unable to find/create the output path " + current_output_path.string());
+        }
+
+        if (cfg_.average_color_labels) {
+            if (!create_directories(output_colored_images_path)) {
+                cerror("Averages_Test on '" + dataset_name + "': Unable to find/create the output path " + output_colored_images_path.string());
+            }
+        }
+
+        if (cfg_.average_ws_save_middle_tests) {
+            if (!create_directories(output_middle_results_path)) {
+                cerror("Averages Test on '" + dataset_name + "': Unable to find/create the output path " + output_middle_results_path.string());
+            }
+        }
+
+        // For AVERAGES
+        ofstream average_os(average_os_path.string());
+        if (!average_os.is_open()) {
+            cerror("Averages Test on '" + dataset_name + "': Unable to open " + average_os_path.string());
+        }
+
+        // To save list of filename on which CLLAlgorithms must be tested
+        vector<pair<string, bool>> filenames;  // first: filename, second: state of filename (find or not)
+        if (!LoadFileList(filenames, is_path)) {
+            ob.Cerror("Unable to open '" + is_path.string() + "'", dataset_name);
+            continue;
+        }
+
+        // Number of files
+        int filenames_size = filenames.size();
+
+        // To save middle/min and average results;
+        Mat1d min_res(filenames_size, cfg_.ccl_algorithms.size(), numeric_limits<double>::max());
+        Mat1d current_res(filenames_size, cfg_.ccl_algorithms.size(), numeric_limits<double>::max());
+        Mat1i labels(filenames_size, cfg_.ccl_algorithms.size(), 0);
+        vector<pair<double, uint16_t>> supp_average(cfg_.ccl_algorithms.size(), make_pair(0.0, 0));
+
+        // Start output message box
+        ob.StartRepeatedBox(dataset_name, filenames_size, cfg_.average_tests_number);
+
+        // Test is executed n_test times
+        for (unsigned test = 0; test < cfg_.average_tests_number; ++test) {
+            // For every file in list
+            for (unsigned file = 0; file < filenames.size(); ++file) {
+                // Display output message box
+                ob.UpdateRepeatedBox(file);
+
+                string filename = filenames[file].first;
+                path filename_path = dataset_path / path(filename);
+
+                // Read and load image
+                if (!GetBinaryImage(filename_path, Labeling::img_)) {
+                    ob.Cmessage("Unable to open '" + filename + "'");
+                    continue;
+                }
+
+                unsigned i = 0;
+                // For all the Algorithms in the array
+                for (const auto& algo_name : cfg_.ccl_algorithms) {
+                    Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
+                    unsigned n_labels;
+
+                    try {
+                        // Perform current algorithm on current image and save result.
+                        algorithm->perf_.start();
+                        algorithm->PerformLabeling();
+                        algorithm->perf_.stop();
+
+                        // This variable need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
+                        n_labels = algorithm->n_labels_;
+                    }
+                    catch (const runtime_error&) {
+                        ob.Cmessage("'PerformLabeling()' method not implemented in '" + algo_name + "'");
+                        continue;
+                    }
+
+                    // Save number of labels (we reasonably supposed that labels's number is the same on every #test so only the first time we save it)
+                    if (test == 0) {
+                        labels(file, i) = n_labels;
+                    }
+
+                    // Save time results
+                    current_res(file, i) = algorithm->perf_.last();
+                    if (algorithm->perf_.last() < min_res(file, i)) {
+                        min_res(file, i) = algorithm->perf_.last();
+                    }
+
+                    // If 'at_colorLabels' is enabled only the first time (test == 0) the output is saved
+                    if (cfg_.average_color_labels && test == 0) {
+                        // Remove gnuplot escape character from output filename
+                        Mat3b imgColors;
+
+                        NormalizeLabels(algorithm->img_labels_);
+                        ColorLabels(algorithm->img_labels_, imgColors);
+                        String colored_image = (output_colored_images_path / path(filename + "_" + algo_name + ".png")).string();
+                        imwrite(colored_image, imgColors);
+                    }
+                    ++i;
+                } // END ALGORITHMS FOR
+            } // END FILES FOR.
+            ob.StopRepeatedBox();
+
+            // Save middle results if necessary (flag 'average_save_middle_tests' enabled)
+            if (cfg_.average_save_middle_tests) {
+                string output_middle_results_file = (output_middle_results_path / path(dataset_name + middle_results_suffix + "_" + to_string(test) + ".txt")).string();
+                SaveBroadOutputResults(current_res, output_middle_results_file, labels, filenames);
+            }
+            // To write in a file min results
+            SaveBroadOutputResults(min_res, output_broad_path.string(), labels, filenames);
+
+            // To calculate average times and write it on the specified file
+            for (int r = 0; r < min_res.rows; ++r) {
+                for (int c = 0; c < min_res.cols; ++c) {
+                    if (min_res(r, c) != numeric_limits<double>::max()) {
+                        supp_average[c].first += min_res(r, c);
+                        supp_average[c].second++;
+                    }
+                }
+            }
+
+            average_os << "#Algorithm" << "\t" << "Average" << "\t" << "Round Average for Graphs" << endl;
+            for (unsigned i = 0; i < cfg_.ccl_algorithms.size(); ++i) {
+                const auto& algo_name = cfg_.ccl_algorithms[i];
+
+                // Gnuplot requires double-escaped name in presence of underscores
+                {
+                    string algo_name_double_escaped = algo_name;
+                    std::size_t found = algo_name_double_escaped.find_first_of("_");
+                    while (found != std::string::npos) {
+                        algo_name_double_escaped.insert(found, "\\\\");
+                        found = algo_name_double_escaped.find_first_of("_", found + 3);
+                    }
+                    average_os << algo_name_double_escaped << "\t";
+                }
+
+                // For all the Algorithms in the array
+                average_results(d, i) = supp_average[i].first / supp_average[i].second;
+                average_os << std::fixed << std::setprecision(8) << supp_average[i].first / supp_average[i].second << "\t";
+                // TODO numberOfDecimalDigitToDisplayInGraph in config?
+                average_os << std::fixed << std::setprecision(2) << supp_average[i].first / supp_average[i].second << endl;
+            }
+        } // END TEST FOR
+
+        // GNUPLOT SCRIPT
+        {
+            SystemInfo s_info;
+            string compiler_name(s_info.compiler_name());
+            string compiler_version(s_info.compiler_version());
+            //replace the . with _ for compiler strings
+            std::replace(compiler_version.begin(), compiler_version.end(), '.', '_');
+
+            path script_os_path = current_output_path / path(dataset_name + cfg_.gnuplot_script_extension);
+
+            ofstream script_os(script_os_path.string());
+            if (!script_os.is_open()) {
+                cerror("Averages Test With Steps on '" + dataset_name + "': Unable to create " + script_os_path.string());
+            }
+
+            script_os << "# This is a gnuplot (http://www.gnuplot.info/) script!" << endl;
+            script_os << "# comment fifth line, open gnuplot's teminal, move to script's path and launch 'load " << dataset_name + cfg_.gnuplot_script_extension << "' if you want to run it" << endl << endl;
+
+            script_os << "reset" << endl;
+            script_os << "cd '" << current_output_path.string() << "\'" << endl;
+            script_os << "set grid ytic" << endl;
+            script_os << "set grid" << endl << endl;
+
+            script_os << "# " << dataset_name << "(COLORS)" << endl;
+            script_os << "set output \"" + output_graph + "\"" << endl;
+
+            script_os << "set title " << GetGnuplotTitle() << endl << endl;
+
+            script_os << "# " << kTerminal << " colors" << endl;
+            script_os << "set terminal " << kTerminal << " enhanced color font ',15'" << endl << endl;
+
+            script_os << "# Graph style" << endl;
+            script_os << "set style data histogram" << endl;
+            script_os << "set style histogram cluster gap 1" << endl;
+            script_os << "set style fill solid 0.25 border -1" << endl;
+            script_os << "set boxwidth 0.9" << endl << endl;
+
+            script_os << "# Get stats to set labels" << endl;
+            script_os << "stats \"" << output_average_results << "\" using 2 nooutput" << endl;
+            script_os << "ymax = STATS_max + (STATS_max/100)*10" << endl;
+            script_os << "xw = 0" << endl;
+            script_os << "yw = (ymax)/22.0" << endl << endl;
+
+            script_os << "# Axes labels" << endl;
+            script_os << "set xtic rotate by -45 scale 0" << endl;
+            script_os << "set ylabel \"Execution Time [ms]\"" << endl << endl;
+
+            script_os << "# Axes range" << endl;
+            script_os << "set yrange[0:ymax]" << endl;
+            script_os << "set xrange[*:*]" << endl << endl;
+
+            script_os << "# Legend" << endl;
+            script_os << "set key off" << endl << endl;
+
+            script_os << "# Plot" << endl;
+            script_os << "plot \\" << endl;
+
+            script_os << "'" + output_average_results + "' using 2:xtic(1), '" << output_average_results << "' using ($0 - xw) : ($2 + yw) : (stringcolumn(3)) with labels" << endl << endl;
+
+            script_os << "# Replot in latex folder" << endl;
+            script_os << "set title \"\"" << endl << endl;
+            script_os << "set output \'" << (cfg_.latex_path / path(compiler_name + compiler_version + "_" + output_graph)).string() << "\'" << endl;
+            script_os << "replot" << endl << endl;
+
+            script_os << "# " << dataset_name << "(BLACK AND WHITE)" << endl;
+            script_os << "set output \"" + output_graph_bw + "\"" << endl;
+
+            script_os << "set title " << GetGnuplotTitle() << endl << endl;
+
+            script_os << "# " << kTerminal << " black and white" << endl;
+            script_os << "set terminal " << kTerminal << " enhanced monochrome dashed font ',15'" << endl << endl;
+
+            script_os << "replot" << endl << endl;
+
+            script_os << "exit gnuplot" << endl;
+
+            average_os.close();
+            script_os.close();
+        } // GNUPLOT SCRIPT
+        if (0 != std::system(("gnuplot \"" + (current_output_path / path(dataset_name + cfg_.gnuplot_script_extension)).string() + "\"").c_str())) {
+            cerror("Averages Test on '" + dataset_name + "': Unable to run gnuplot's script");
+        }
+    } // END DATASET FOR
+}
+
+void YacclabTests::AverageTestWithSteps(Mat1d& average_ws_results)
 {
     // Initialize output message box
     OutputBox ob("Average Tests With Steps");
@@ -227,21 +511,14 @@ void YacclabTests::AverageTestWithSteps()
 
         path dataset_path(cfg_.input_path / path(dataset_name)),
             is_path = dataset_path / path(cfg_.input_txt), // files.txt path
-            current_output_path(cfg_.output_path / path(dataset_name)),
+            current_output_path(cfg_.output_path / path(cfg_.average_ws_folder) / path(dataset_name)),
             output_broad_path = current_output_path / path(dataset_name + complete_results_suffix),
-            //output_colored_images_path = current_output_path / path(cfg_.colors_folder),
             output_middle_results_path = current_output_path / path(cfg_.middle_folder),
             average_os_path = current_output_path / path(output_average_results);
 
         if (!create_directories(current_output_path)) {
             cerror("Averages Test With Steps on '" + dataset_name + "': Unable to find/create the output path " + current_output_path.string());
         }
-
-        /*if (cfg_.average_color_labels) {
-            if (!create_directories(output_colored_images_path)) {
-                cerror("Averages_Test on '" + dataset_name + "': Unable to find/create the output path " + output_colored_images_path.string());
-            }
-        }*/
 
         if (cfg_.average_ws_save_middle_tests) {
             if (!create_directories(output_middle_results_path)) {
@@ -295,7 +572,7 @@ void YacclabTests::AverageTestWithSteps()
 
                 // Read and load image
                 if (!GetBinaryImage(filename_path, Labeling::img_)) {
-                    //ob.Cmessage("Unable to open '" + filename + "'");
+                    ob.Cmessage("Unable to open '" + filename + "'");
                     continue;
                 }
 
@@ -334,7 +611,7 @@ void YacclabTests::AverageTestWithSteps()
                         }
                     }
                     ++i;
-                }// END ALGORITHMS FOR
+                } // END ALGORITHMS FOR
             } // END FILES FOR.
             ob.StopRepeatedBox();
 
@@ -494,7 +771,7 @@ void YacclabTests::AverageTestWithSteps()
 
             script_os << "# Replot in latex folder" << endl;
             script_os << "set title \"\"" << endl << endl;
-            script_os << "set output \'" << (cfg_.latex_path / path(compiler_name + compiler_version + output_graph)).string() << "\'" << endl;
+            script_os << "set output \'" << (cfg_.latex_path / path(compiler_name + compiler_version + "_with_steps_" + output_graph)).string() << "\'" << endl;
             script_os << "replot" << endl << endl;
 
             script_os << "# " << dataset_name << "(BLACK AND WHITE)" << endl;
@@ -519,430 +796,160 @@ void YacclabTests::AverageTestWithSteps()
     }
 }
 
-//void YacclabTests::AverageTest() {
-//	if (cfg_.perform_average) {
-//
-//		string complete_results_suffix = "_results.txt",
-//			middle_results_suffix = "_run",
-//			average_results_suffix = "_average.txt";
-//
-//		for (unsigned d = 0; d < cfg_.average_datasets.size(); ++d) { // For every dataset in the average list
-//
-//			String dataset_name(cfg_.average_datasets[d]);
-//			path dataset_path(cfg_.input_path / path(dataset_name)),
-//				is_path = dataset_path / path(cfg_.input_txt),
-//				output_path = cfg_.output_path / path(dataset_name),
-//				output_colored_images = output_path / path(cfg_.colors_folder),
-//				output_middle_results = output_path / path(cfg_.middle_folder);
-//
-//			if (!create_directories(output_path)) {
-//				cerror("Averages_Test on '" + dataset_name + "': Unable to find/create the output path " + output_path.string());
-//			}
-//
-//			if (cfg_.average_color_labels) {
-//				if (!create_directories(output_colored_images)) {
-//					cerror("Averages_Test on '" + dataset_name + "': Unable to find/create the output path " + output_colored_images.string());
-//				}
-//			}
-//
-//			if (cfg_.average_save_middle_tests) {
-//				if (!create_directories(output_middle_results)) {
-//					cerror("Averages_Test on '" + dataset_name + "': Unable to find/create the output path " + output_middle_results.string());
-//				}
-//			}
-//
-//			// For AVERAGES RESULT
-//			String average_file_stream((output_path / path(dataset_name + "_" + average_results_suffix)).string());
-//			ofstream average_os(average_file_stream);
-//			if (!average_os.is_open())
-//				cerror("Averages_Test on '" + dataset_name + "': Unable to open " + average_file_stream);
-//
-//			// To save list of filename on which CLLAlgorithms must be tested
-//			vector<pair<string, bool>> filenames;  // first: filename, second: state of filename (find or not)
-//			if (!LoadFileList(filenames, is_path)) {
-//				continue;
-//			}
-//
-//			// Number of files
-//			int file_number = filenames.size();
-//
-//			// To save middle/min and average results;
-//			Mat1d min_res(file_number, cfg_.ccl_algorithms.size(), numeric_limits<double>::max());
-//			Mat1d current_res(file_number, cfg_.ccl_algorithms.size(), numeric_limits<double>::max());
-//			Mat1i labels(file_number, cfg_.ccl_algorithms.size(), 0);
-//			vector<pair<double, uint16_t>> supp_average(cfg_.ccl_algorithms.size(), make_pair(0.0, 0));
-//
-//			ProgressBar p_bar(filenames.size());
-//			p_bar.Start();
-//
-//			// Test is executed n_test times
-//			for (unsigned test = 0; test < cfg_.average_tests_number; ++test) {
-//				// Count number of lines to display "progress bar"
-//				unsigned current_number = 0;
-//
-//				// For every file in list
-//				for (unsigned file = 0; file < filenames.size(); ++file) {
-//					string filename = filenames[file].first;
-//					p_bar.Display(current_number++, test + 1);
-//
-//					Mat1b binaryImg;
-//					path filename_path = dataset_path / path(filename);
-//
-//					// Load current image file in img_
-//					if (!GetBinaryImage(filename_path, Labeling::img_)) {
-//						if (filenames[file].second)
-//							cout << "'" + filename + "' does not exist" << endl;
-//						filenames[file].second = false;
-//						continue;
-//					}
-//
-//					unsigned i = 0;
-//					// For all the Algorithms in the array
-//					for (const auto& algo_name : cfg_.ccl_algorithms) {
-//						auto& algorithm = LabelingMapSingleton::GetInstance().data_[algo_name];
-//
-//						// This variable need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
-//						unsigned n_labels;
-//
-//						// Perform current algorithm on current image and save result.
-//
-//						algorithm->perf_.start();
-//						algorithm->PerformLabeling();
-//						algorithm->perf_.stop();
-//						n_labels = algorithm->n_labels_;
-//
-//						// Save number of labels (we reasonably supposed that labels's number is the same on every #test so only the first time we save it)
-//						if (test == 0) {
-//							labels(file, i) = n_labels;
-//						}
-//
-//						// Save time results
-//						current_res(file, i) = algorithm->perf_.last();
-//						if (algorithm->perf_.last() < min_res(file, i)) {
-//							min_res(file, i) = algorithm->perf_.last();
-//						}
-//
-//						// If 'at_colorLabels' is enabled only the first time (test == 0) the output is saved
-//						if (cfg_.average_color_labels && test == 0) {
-//							// Remove gnuplot escape character from output filename
-//							/*string alg_name = (*it).second;
-//							alg_name.erase(std::remove(alg_name.begin(), alg_name.end(), '\\'), alg_name.end());*/
-//							Mat3b imgColors;
-//
-//							NormalizeLabels(algorithm->img_labels_);
-//							ColorLabels(algorithm->img_labels_, imgColors);
-//							String colored_image = (output_colored_images / path(filename + "_" + algo_name + ".png")).string();
-//							imwrite(colored_image, imgColors);
-//						}
-//						++i;
-//					}// END ALGORITHMS FOR
-//				} // END FILES FOR.
-//
-//				p_bar.End(cfg_.average_tests_number);
-//
-//				// To write in a file min results
-//				saveBroadOutputResults(min_res, osPath, ccl_algorithms, write_n_labels, labels, filenames);
-//
-//				// To calculate average times and write it on the specified file
-//				for (int r = 0; r < min_res.rows; ++r) {
-//					for (int c = 0; c < min_res.cols; ++c) {
-//						if (min_res(r, c) != numeric_limits<double>::max()) {
-//							supp_average[c].first += min_res(r, c);
-//							supp_average[c].second++;
-//						}
-//					}
-//				}
-//
-//				averageOs << "#Algorithm" << "\t" << "Average" << "\t" << "Round Average for Graphs" << endl;
-//				for (unsigned i = 0; i < ccl_algorithms.size(); ++i) {
-//					// For all the Algorithms in the array
-//					all_res(algPos, i) = supp_average[i].first / supp_average[i].second;
-//					averageOs << ccl_algorithms[i] << "\t" << supp_average[i].first / supp_average[i].second << "\t";
-//					averageOs << std::fixed << std::setprecision(numberOfDecimalDigitToDisplayInGraph) << supp_average[i].first / supp_average[i].second << endl;
-//				}
-//
-//			}
-//		}
-//
-//
-//		string /*dataset_name = dataset_name,*/
-//			//completeOutputPath = output_path + kPathSeparator + dataset_name,
-//			gnuplotScript = dataset_name + gnuplot_script_extension,
-//			outputBroadResults = dataset_name + "_results.txt",
-//			middleFile = dataset_name + "_run",
-//			outputAverageResults = dataset_name + "_average.txt",
-//			outputGraph = dataset_name + kTerminalExtension,
-//			outputGraphBw = dataset_name + "_bw" + kTerminalExtension;
-//		//middleOutFolder = completeOutputPath + kPathSeparator + middle_folder,
-//		//outColorFolder = output_path + kPathSeparator + dataset_name + kPathSeparator + colors_folder;
-//
-//		path completeOutputPath = output_path / path(dataset_name),
-//			middleOutFolder = completeOutputPath / path(middle_folder),
-//			outColorFolder = output_path / dataset_name / path(colors_folder),
-//			latex_charts_path = output_path / path(latex_folder);
-//
-//		unsigned numberOfDecimalDigitToDisplayInGraph = 2;
-//
-//		// Creation of output path
-//		/*if (!dirExists(completeOutputPath.c_str()))
-//		if (0 != std::system(("mkdir " + completeOutputPath).c_str()))
-//		return ("Averages_Test on '" + dataset_name + "': Unable to find/create the output path " + completeOutputPath);*/
-//		if (!create_directories(completeOutputPath)) {
-//			return ("Averages_Test on '" + dataset_name + "': Unable to find/create the output path " + completeOutputPath.string());
-//		}
-//
-//		if (outputColors) {
-//			// Creation of color output path
-//			/*if (!dirExists(outColorFolder.c_str()))
-//			if (0 != std::system(("mkdir " + outColorFolder).c_str()))
-//			return ("Averages_Test on '" + dataset_name + "': Unable to find/create the output path " + outColorFolder);*/
-//			if (!create_directories(outColorFolder)) {
-//				return ("Averages_Test on '" + dataset_name + "': Unable to find/create the output path " + outColorFolder.string());
-//			}
-//		}
-//
-//		if (saveMiddleResults) {
-//			/*if (!dirExists(middleOutFolder.c_str()))
-//			if (0 != std::system(("mkdir " + middleOutFolder).c_str()))
-//			return ("Averages_Test on '" + dataset_name + "': Unable to find/create the output path " + middleOutFolder);*/
-//			if (!create_directories(middleOutFolder)) {
-//				return ("Averages_Test on '" + dataset_name + "': Unable to find/create the output path " + middleOutFolder.string());
-//			}
-//		}
-//
-//		/*string isPath = input_path + kPathSeparator + dataset_name + kPathSeparator + input_txt,
-//		osPath = output_path + kPathSeparator + dataset_name + kPathSeparator + outputBroadResults,
-//		averageOsPath = output_path + kPathSeparator + dataset_name + kPathSeparator + outputAverageResults;*/
-//		path isPath = input_path / path(dataset_name) / path(input_txt),
-//			osPath = output_path / path(dataset_name) / path(outputBroadResults),
-//			averageOsPath = output_path / path(dataset_name) / path(outputAverageResults);
-//
-//		// For AVERAGES RESULT
-//		ofstream averageOs(averageOsPath.string());
-//		if (!averageOs.is_open())
-//			return ("Averages_Test on '" + dataset_name + "': Unable to open " + averageOsPath.string());
-//		// For LIST OF INPUT IMAGES
-//		ifstream is(isPath.string());
-//		if (!is.is_open())
-//			return ("Averages_Test on '" + dataset_name + "': Unable to open " + isPath.string());
-//
-//		// To save list of filename on which CLLAlgorithms must be tested
-//		vector<pair<string, bool>> filenames;  // first: filename, second: state of filename (find or not)
-//		string filename;
-//		while (getline(is, filename)) {
-//			// To delete eventual carriage return in the file name (especially designed for windows file newline format)
-//			size_t found;
-//			do {
-//				// The while cycle is probably unnecessary
-//				found = filename.find("\r");
-//				if (found != string::npos)
-//					filename.erase(found, 1);
-//			} while (found != string::npos);
-//			// Add purified file name in the vector
-//			filenames.push_back(make_pair(filename, true));
-//		}
-//		is.close();
-//
-//		// Number of files
-//		int file_number = filenames.size();
-//
-//		// To save middle/min and average results;
-//		Mat1d min_res(file_number, ccl_algorithms.size(), numeric_limits<double>::max());
-//		Mat1d current_res(file_number, ccl_algorithms.size(), numeric_limits<double>::max());
-//		Mat1i labels(file_number, ccl_algorithms.size(), 0);
-//		vector<pair<double, uint16_t>> supp_average(ccl_algorithms.size(), make_pair(0.0, 0));
-//
-//		ProgressBar p_bar(file_number);
-//		p_bar.Start();
-//
-//		// Test is executed n_test times
-//		for (unsigned test = 0; test < n_test; ++test) {
-//			// Count number of lines to display "progress bar"
-//			unsigned currentNumber = 0;
-//
-//			// For every file in list
-//			for (unsigned file = 0; file < filenames.size(); ++file) {
-//				filename = filenames[file].first;
-//
-//				// Display "progress bar"
-//				//if (currentNumber * 100 / file_number != (currentNumber - 1) * 100 / file_number)
-//				//{
-//				//    cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << file_number << "         \r";
-//				//    fflush(stdout);
-//				//}
-//				p_bar.Display(currentNumber++, test + 1);
-//
-//				Mat1b binaryImg;
-//				path filename_path = input_path / path(dataset_name) / path(filename);
-//
-//				if (!GetBinaryImage(filename_path, Labeling::img_)) {
-//					if (filenames[file].second)
-//						cout << "'" + filename + "' does not exist" << endl;
-//					filenames[file].second = false;
-//					continue;
-//				}
-//
-//				unsigned i = 0;
-//				// For all the Algorithms in the array
-//				for (const auto& algo_name : ccl_algorithms) {
-//					auto& algorithm = LabelingMapSingleton::GetInstance().data_[algo_name];
-//
-//					// This variable need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
-//					unsigned n_labels;
-//
-//					// Perform current algorithm on current image and save result.
-//
-//					algorithm->perf_.start();
-//					algorithm->PerformLabeling();
-//					algorithm->perf_.stop();
-//					n_labels = algorithm->n_labels_;
-//
-//					// Save number of labels (we reasonably supposed that labels's number is the same on every #test so only the first time we save it)
-//					if (test == 0) {
-//						labels(file, i) = n_labels;
-//					}
-//
-//					// Save time results
-//					current_res(file, i) = algorithm->perf_.last();
-//					if (algorithm->perf_.last() < min_res(file, i)) {
-//						min_res(file, i) = algorithm->perf_.last();
-//					}
-//
-//					// If 'at_colorLabels' is enabled only the first time (test == 0) the output is saved
-//					if (outputColors && test == 0) {
-//						// Remove gnuplot escape character from output filename
-//						/*string alg_name = (*it).second;
-//						alg_name.erase(std::remove(alg_name.begin(), alg_name.end(), '\\'), alg_name.end());*/
-//						Mat3b imgColors;
-//
-//						NormalizeLabels(algorithm->img_labels_);
-//						ColorLabels(algorithm->img_labels_, imgColors);
-//						path colored_file_path = outColorFolder / path(filename + "_" + algo_name + ".png");
-//						imwrite(colored_file_path.string(), imgColors);
-//					}
-//					++i;
-//				}// END ALGORITHMS FOR
-//			} // END FILES FOR.
-//
-//			  // To display "progress bar"
-//			  //cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << file_number << "         \r";
-//			  //fflush(stdout);
-//
-//			  // Save middle results if necessary (flag 'average_save_middle_tests' enable)
-//			if (saveMiddleResults) {
-//				//string middleOut = middleOutFolder + kPathSeparator + middleFile + "_" + to_string(test) + ".txt";
-//				path middleOut = middleOutFolder / path(middleFile + "_" + to_string(test) + ".txt");
-//				saveBroadOutputResults(current_res, middleOut, ccl_algorithms, write_n_labels, labels, filenames);
-//			}
-//		}// END TESTS FOR
-//
-//		p_bar.End(n_test);
-//
-//		// To write in a file min results
-//		saveBroadOutputResults(min_res, osPath, ccl_algorithms, write_n_labels, labels, filenames);
-//
-//		// To calculate average times and write it on the specified file
-//		for (int r = 0; r < min_res.rows; ++r) {
-//			for (int c = 0; c < min_res.cols; ++c) {
-//				if (min_res(r, c) != numeric_limits<double>::max()) {
-//					supp_average[c].first += min_res(r, c);
-//					supp_average[c].second++;
-//				}
-//			}
-//		}
-//
-//		averageOs << "#Algorithm" << "\t" << "Average" << "\t" << "Round Average for Graphs" << endl;
-//		for (unsigned i = 0; i < ccl_algorithms.size(); ++i) {
-//			// For all the Algorithms in the array
-//			all_res(algPos, i) = supp_average[i].first / supp_average[i].second;
-//			averageOs << ccl_algorithms[i] << "\t" << supp_average[i].first / supp_average[i].second << "\t";
-//			averageOs << std::fixed << std::setprecision(numberOfDecimalDigitToDisplayInGraph) << supp_average[i].first / supp_average[i].second << endl;
-//		}
-//
-//		// GNUPLOT SCRIPT
-//
-//		SystemInfo s_info;
-//		string compiler_name(s_info.compiler_name());
-//		string compiler_version(s_info.compiler_version());
-//		//replace the . with _ for compiler strings
-//		std::replace(compiler_version.begin(), compiler_version.end(), '.', '_');
-//
-//		//string scriptos_path = output_path + kPathSeparator + dataset_name + kPathSeparator + gnuplotScript;
-//		path scriptos_path = output_path / path(dataset_name) / path(gnuplotScript);
-//
-//		ofstream scriptOs(scriptos_path.string());
-//		if (!scriptOs.is_open())
-//			return ("Averages_Test on '" + dataset_name + "': Unable to create " + scriptos_path.string());
-//
-//		scriptOs << "# This is a gnuplot (http://www.gnuplot.info/) script!" << endl;
-//		scriptOs << "# comment fifth line, open gnuplot's teminal, move to script's path and launch 'load " << gnuplotScript << "' if you want to run it" << endl << endl;
-//
-//		scriptOs << "reset" << endl;
-//		scriptOs << "cd '" << completeOutputPath.string() << "\'" << endl;
-//		scriptOs << "set grid ytic" << endl;
-//		scriptOs << "set grid" << endl << endl;
-//
-//		scriptOs << "# " << dataset_name << "(COLORS)" << endl;
-//		scriptOs << "set output \"" + outputGraph + "\"" << endl;
-//
-//		scriptOs << "set title " << GetGnuplotTitle() << endl << endl;
-//
-//		scriptOs << "# " << kTerminal << " colors" << endl;
-//		scriptOs << "set terminal " << kTerminal << " enhanced color font ',15'" << endl << endl;
-//
-//		scriptOs << "# Graph style" << endl;
-//		scriptOs << "set style data histogram" << endl;
-//		scriptOs << "set style histogram cluster gap 1" << endl;
-//		scriptOs << "set style fill solid 0.25 border -1" << endl;
-//		scriptOs << "set boxwidth 0.9" << endl << endl;
-//
-//		scriptOs << "# Get stats to set labels" << endl;
-//		scriptOs << "stats \"" << outputAverageResults << "\" using 2 nooutput" << endl;
-//		scriptOs << "ymax = STATS_max + (STATS_max/100)*10" << endl;
-//		scriptOs << "xw = 0" << endl;
-//		scriptOs << "yw = (ymax)/22" << endl << endl;
-//
-//		scriptOs << "# Axes labels" << endl;
-//		scriptOs << "set xtic rotate by -45 scale 0" << endl;
-//		scriptOs << "set ylabel \"Execution Time [ms]\"" << endl << endl;
-//
-//		scriptOs << "# Axes range" << endl;
-//		scriptOs << "set yrange[0:ymax]" << endl;
-//		scriptOs << "set xrange[*:*]" << endl << endl;
-//
-//		scriptOs << "# Legend" << endl;
-//		scriptOs << "set key off" << endl << endl;
-//
-//		scriptOs << "# Plot" << endl;
-//		scriptOs << "plot \\" << endl;
-//		scriptOs << "'" + outputAverageResults + "' using 2:xtic(1), '" << outputAverageResults << "' using ($0 - xw) : ($2 + yw) : (stringcolumn(3)) with labels" << endl << endl;
-//
-//		scriptOs << "# Replot in latex folder" << endl;
-//		scriptOs << "set title \"\"" << endl << endl;
-//		scriptOs << "set output \'" << (latex_charts_path / path(compiler_name + compiler_version + outputGraph)).string() << "\'" << endl;
-//		scriptOs << "replot" << endl << endl;
-//
-//		scriptOs << "# " << dataset_name << "(BLACK AND WHITE)" << endl;
-//		scriptOs << "set output \"" + outputGraphBw + "\"" << endl;
-//
-//		scriptOs << "set title " << GetGnuplotTitle() << endl << endl;
-//
-//		scriptOs << "# " << kTerminal << " black and white" << endl;
-//		scriptOs << "set terminal " << kTerminal << " enhanced monochrome dashed font ',15'" << endl << endl;
-//
-//		scriptOs << "replot" << endl << endl;
-//
-//		scriptOs << "exit gnuplot" << endl;
-//
-//		averageOs.close();
-//		scriptOs.close();
-//		// GNUPLOT SCRIPT
-//
-//		if (0 != std::system(("gnuplot \"" + (completeOutputPath / path(gnuplotScript)).string() + "\"").c_str()))
-//			return ("Averages_Test on '" + dataset_name + "': Unable to run gnuplot's script");
-//
-//		//return ("Averages_Test on '" + dataset_name + "': successfully done");
-//		return "";
-//
-//
-//	}
+void YacclabTests::LatexGenerator()
+{
+    //path latex = cfg_.latex_path / path(cfg_.latex_file);
+    //ofstream os(latex.string());
+    //if (!os.is_open()) {
+    //    cout << "Unable to open/create " + latex.string() << endl;
+    //    return;
+    //}
+
+    //// fixed number of decimal values
+    //os << fixed;
+    //os << setprecision(3);
+
+    //// Document begin
+    //os << "%These file is generated by YACCLAB. Follow our project on GitHub: https://github.com/prittt/YACCLAB" << endl << endl;
+    //os << "\\documentclass{article}" << endl << endl;
+
+    //os << "\\usepackage{siunitx}" << endl;
+    //os << "\\usepackage{graphicx}" << endl;
+    //os << "\\usepackage{subcaption}" << endl << endl;
+    //os << "\\begin{document}" << endl << endl;
+
+    //// Section average results table ------------------------------------------------------------------------------------------
+    //if (cfg_.perform_average) {
+    //    os << "\\section{Average Table Results}" << endl << endl;
+
+    //    os << "\\begin{table}[tbh]" << endl << endl;
+    //    os << "\t\\centering" << endl;
+    //    os << "\t\\caption{Average Results in ms (Lower is better)}" << endl;
+    //    os << "\t\\label{tab:table1}" << endl;
+    //    os << "\t\\begin{tabular}{|l|";
+    //    for (unsigned i = 0; i < cfg_.ccl_algorithms.size(); ++i)
+    //        os << "S[table-format=2.3]|";
+    //    os << "}" << endl;
+    //    os << "\t\\hline" << endl;
+    //    os << "\t";
+    //    for (unsigned i = 0; i < cfg_.ccl_algorithms.size(); ++i) {
+    //        //RemoveCharacter(datasets_name, '\\');
+    //        //datasets_name.erase(std::remove(datasets_name.begin(), datasets_name.end(), '\\'), datasets_name.end());
+    //        os << " & {" << EscapeLatexUnderscore(cfg_.ccl_algorithms[i]) << "}"; //Header
+    //    }
+    //    os << "\\\\" << endl;
+    //    os << "\t\\hline" << endl;
+    //    for (unsigned i = 0; i < cfg_.average_datasets.size(); ++i) {
+    //        os << "\t" << cfg_.average_datasets[i];
+    //        for (int j = 0; j < average_results_.cols; ++j) {
+    //            os << " & ";
+    //            if (average_results_(i, j) != numeric_limits<double>::max())
+    //                os << average_results_(i, j); //Data
+    //        }
+    //        os << "\\\\" << endl;
+    //    }
+    //    os << "\t\\hline" << endl;
+    //    os << "\t\\end{tabular}" << endl << endl;
+    //    os << "\\end{table}" << endl;
+    //}
+
+    //// SECTION AVERAGE CHARTS  ---------------------------------------------------------------------------
+    //if (cfg_.perform_average) {
+    //    SystemInfo s_info;
+    //    string info_to_latex = s_info.build() + "_" + s_info.compiler_name() + s_info.compiler_version() + "_" + s_info.os();
+    //    std::replace(info_to_latex.begin(), info_to_latex.end(), ' ', '_');
+    //    info_to_latex = EscapeLatexUnderscore(info_to_latex);
+
+    //    string chart_size{ "0.45" }, chart_width{ "1" };
+    //    // Get information about date and time
+    //    string datetime = GetDatetime();
+
+    //    os << "\\section{Average and Density Charts}" << endl << endl;
+
+    //    os << "\\begin{figure}[b]" << endl << endl;
+    //    //\newcommand{ \machineName }{x86\_MSVC2015\_Windows10}
+    //    os << "\t\\newcommand{\\machineName}{";
+    //    os << info_to_latex << "}" << endl;
+
+    //    string compiler_name(s_info.compiler_name());
+    //    string compiler_version(s_info.compiler_version());
+    //    //replace the . with _ for compiler strings
+    //    std::replace(compiler_version.begin(), compiler_version.end(), '.', '_');
+
+    //    //\newcommand{ \compilerName }{MSVC2015}
+    //    os << "\t\\newcommand{\\compilerName}{" + compiler_name + compiler_version + "}" << endl;
+
+    //    os << "\t\\centering" << endl;
+
+    //    for (unsigned i = 0; i < cfg_.average_datasets.size(); ++i) {
+    //        os << "\t\\begin{subfigure}[b]{" + chart_size + "\\textwidth}" << endl;
+    //        os << "\t\t\\caption{" << cfg_.average_datasets[i] + "}" << endl;
+    //        os << "\t\t\\centering" << endl;
+    //        os << "\t\t\\includegraphics[width=" + chart_width + "\\textwidth]{\\compilerName " + cfg_.average_datasets[i] + ".pdf}" << endl;
+    //        os << "\t\\end{subfigure}" << endl << endl;
+    //    }
+
+    //    os << "\t\\caption{\\machineName \\enspace " + datetime + "}" << endl << endl;
+    //    os << "\\end{figure}" << endl << endl;
+    //}
+
+    //// Section memory result table ---------------------------------------------------------------------------
+    //if (cfg_.perform_memory) {
+    //    os << "\\section{Memory Accesses tests}" << endl << endl;
+
+    //    for (const auto& dataset : memory_accesses_) {
+    //        const auto& dataset_name = dataset.first;
+    //        const auto& accesses = dataset.second;
+
+    //        os << "\\begin{table}[tbh]" << endl << endl;
+    //        os << "\t\\centering" << endl;
+    //        os << "\t\\caption{Analysis of memory accesses required by connected components computation for '" << dataset_name << "' dataset. The numbers are given in millions of accesses}" << endl;
+    //        os << "\t\\label{tab:table1}" << endl;
+    //        os << "\t\\begin{tabular}{|l|";
+    //        for (int i = 0; i < accesses.cols + 1; ++i)
+    //            os << "S[table-format=2.3]|";
+    //        os << "}" << endl;
+    //        os << "\t\\hline" << endl;
+    //        os << "\t";
+
+    //        // Header
+    //        os << "{Algorithm} & {Binary Image} & {Label Image} & {Equivalence Vector/s}  & {Other} & {Total Accesses}";
+    //        os << "\\\\" << endl;
+    //        os << "\t\\hline" << endl;
+
+    //        size_t ccl_algorithms_size{ accesses.rows };
+
+    //        for (unsigned i = 0; i < ccl_algorithms_size ; ++i) {
+    //            // For every algorithm
+    //            const String& alg_name = ccl_mem_algorithms[i];
+    //            //RemoveCharacter(alg_name, '\\');
+    //            os << "\t{" << alg_name << "}";
+
+    //            double tot = 0;
+
+    //            for (int s = 0; s < accesses.cols; ++s) {
+    //                // For every data_ structure
+    //                if (accesses(i, s) != 0)
+    //                    os << "\t& " << (accesses(i, s) / 1000000);
+    //                else
+    //                    os << "\t& ";
+
+    //                tot += (accesses(i, s) / 1000000);
+    //            }
+    //            // Total Accesses
+    //            os << "\t& " << tot;
+
+    //            // EndLine
+    //            os << "\t\\\\" << endl;
+    //        }
+
+    //        // EndTable
+    //        os << "\t\\hline" << endl;
+    //        os << "\t\\end{tabular}" << endl << endl;
+    //        os << "\\end{table}" << endl;
+    //    }
+    //}
+
+    //os << "\\end{document}";
+    //os.close();
+}
