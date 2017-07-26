@@ -9,8 +9,9 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 
-#include "system_info.h"
 #include "file_manager.h"
+#include "progress_bar.h"
+#include "system_info.h"
 
 using namespace std;
 using namespace cv;
@@ -151,12 +152,6 @@ void HideConsoleCursor()
     return;
 }
 
-int RedirectCvError(int status, const char* func_name, const char* err_msg, const char* file_name, int line, void*)
-{
-    cerror(err_msg);
-    return 0;
-}
-
 #define CONSOLE_WIDTH 80
 
 void cerror(const string& err)
@@ -173,6 +168,12 @@ void cmessage(const string& msg)
     size_t num_spaces = max(0, int(CONSOLE_WIDTH - (status_msg.size() + msg.size()) + 1) % CONSOLE_WIDTH); // 70 = output console dimension - "[ERROR]: " dimension
     cerr << status_msg << msg << "]" << string(num_spaces, ' ') << endl;
     return;
+}
+
+int RedirectCvError(int status, const char* func_name, const char* err_msg, const char* file_name, int line, void*) {
+    OutputBox ob("OpenCV Error"); 
+    ob.Cerror(err_msg); 
+    return 0;
 }
 
 std::string GetGnuplotTitle()
