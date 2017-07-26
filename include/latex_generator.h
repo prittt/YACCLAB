@@ -16,6 +16,8 @@ void GenerateMemoryLatexTable(const filesystem::path& output_path, const std::st
 void GenerateLatexCharts(const filesystem::path& output_path, const std::string& latex_charts, const std::string& latex_folder,
 	const std::vector<cv::String>& datasets_name);
 
+std::string EscapeLatexUnderscore(const std::string& s);
+
 void LatexGenerator(const std::map<std::string, bool>& test_to_perform, const filesystem::path& output_path, const std::string& latex_file,
     const cv::Mat1d& all_res, const std::vector<cv::String>& datasets_name, const std::vector<cv::String>& ccl_algorithms,
 	const std::vector<cv::String>& ccl_mem_algorithms, const std::map<std::string, cv::Mat1d>& accesses);
