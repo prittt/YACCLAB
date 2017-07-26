@@ -186,7 +186,8 @@ string AverageTest(vector<String>& ccl_algorithms, Mat1d& all_res, const unsigne
             filename = filenames[file].first;
 
             // Display "progress bar"
-            if (currentNumber * 100 / file_number != (currentNumber - 1) * 100 / file_number) {
+            if (currentNumber * 100 / file_number != (currentNumber - 1) * 100 / file_number)
+            {
                 cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << file_number << "         \r";
                 fflush(stdout);
             }
@@ -215,7 +216,7 @@ string AverageTest(vector<String>& ccl_algorithms, Mat1d& all_res, const unsigne
                 algorithm->perf_.start();
                 algorithm->PerformLabeling();
                 algorithm->perf_.stop();
-                n_labels = algorithm->n_labels_;
+				n_labels = algorithm->n_labels_;
 
                 // Save number of labels (we reasonably supposed that labels's number is the same on every #test so only the first time we save it)
                 if (test == 0) {
@@ -548,7 +549,8 @@ string DensitySizeTest(vector<String>& ccl_algorithms, const path& input_path, c
             filename = filenames[file].first;
 
             // Display "progress bar"
-            if (currentNumber * 100 / file_number != (currentNumber - 1) * 100 / file_number) {
+            if (currentNumber * 100 / file_number != (currentNumber - 1) * 100 / file_number)
+            {
                 cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << file_number << "         \r";
                 fflush(stdout);
             }
@@ -590,7 +592,7 @@ string DensitySizeTest(vector<String>& ccl_algorithms, const path& input_path, c
                 algorithm->perf_.start();
                 algorithm->PerformLabeling();
                 algorithm->perf_.stop();
-                n_labels = algorithm->n_labels_;
+				n_labels = algorithm->n_labels_;
 
                 if (test == 0)
                     labels(file, i) = n_labels;
@@ -1012,9 +1014,6 @@ string MemoryTest(vector<String>& ccl_mem_algorithms, Mat1d& algoAverageAccesses
 
 int main()
 {
-    //auto test = LabelingMapSingleton::GetLabeling("SAUF_UFPC");
-    //test->PerformLabelingWithSteps();
-
     // Redirect cv exceptions
     cvRedirectError(RedirectCvError);
 
@@ -1060,18 +1059,18 @@ int main()
         }
     }
 
-    if (cfg.perform_average && cfg.average_tests_number < 1) {
-        cmessage("'Average tests' repetitions cannot be less than 1, skipped");
+    if (cfg.perform_average && (cfg.average_tests_number < 1 || cfg.average_tests_number > 999)) {
+        cmessage("'Average tests' repetitions cannot be less than 1 or more than 999, skipped");
         cfg.perform_average = false;
     }
 
-    if (cfg.perform_density && cfg.density_tests_number < 1) {
-        cmessage("'Density tests' repetitions cannot be less than 1, skipped");
+    if (cfg.perform_density && (cfg.density_tests_number < 1 || cfg.density_tests_number > 999)) {
+        cmessage("'Density tests' repetitions cannot be less than 1 or more than 999, skipped");
         cfg.perform_density = false;
     }
 
-    if (cfg.perform_average_ws && cfg.average_ws_tests_number < 1) {
-        cmessage("'Average tests' (with steps) repetitions cannot be less than 1, skipped");
+    if (cfg.perform_average_ws && (cfg.average_ws_tests_number < 1 || cfg.average_ws_tests_number > 999)) {
+        cmessage("'Average tests' (with steps) repetitions cannot be less than 1 or more than 999, skipped");
         cfg.perform_average_ws = false;
     }
 
@@ -1120,48 +1119,43 @@ int main()
         return EXIT_FAILURE;
     }
 
+
     // Create the directory for latex reports
     if (!create_directories(cfg.latex_path, ec)) {
-        cerror("Unable to create output directory '" + cfg.latex_path.string() + "' - " + ec.message());
-        return EXIT_FAILURE;
+            cerror("Unable to create output directory '" + cfg.latex_path.string() + "' - " + ec.message());
+            return EXIT_FAILURE;
     }
 
     YacclabTests yt(cfg);
 
     // Correctness test
-    if (cfg.perform_check_8connectivity) {
-        yt.CheckAlgorithms();
-    }
+	if (cfg.perform_check_8connectivity) {
+		yt.CheckAlgorithms();
+	}
 
-    Mat1d average_results(cfg.average_datasets.size(), cfg.ccl_algorithms.size(), numeric_limits<double>::max()); // We need it to save average results and generate latex table
-    if (cfg.perform_average) {
-        yt.AverageTest(average_results);
-    }
-
-    Mat1d average_ws_results(cfg.average_datasets.size(), cfg.ccl_algorithms.size()*StepType::ST_SIZE, numeric_limits<double>::max()); // We need it to save average results and generate latex table
     if (cfg.perform_average_ws) {
-        yt.AverageTestWithSteps(average_ws_results);
+        yt.AverageTestWithSteps();
     }
 
     // Test Algorithms with different input type and different output format, and show execution result
     // AVERAGES TEST
     Mat1d all_res(cfg.average_datasets.size(), cfg.ccl_algorithms.size(), numeric_limits<double>::max()); // We need it to save average results and generate latex table
 
-    //if (cfg.perform_average) {
-    //    //cout << endl << "AVERAGE TESTS: " << endl;
-    //    //TitleBar::Display("AVERAGE TESTS");
-    //    if (cfg.ccl_algorithms.size() == 0) {
-    //        cout << "ERROR: no algorithms, average tests skipped" << endl;
-    //    }
-    //    else {
-    //        for (unsigned i = 0; i < cfg.average_datasets.size(); ++i) {
-    //            cout << "Averages_Test on '" << cfg.average_datasets[i] << "': starts" << endl;
-    //            cout << AverageTest(cfg.ccl_algorithms, all_res, i, cfg.input_path, cfg.average_datasets[i], cfg.input_txt, cfg.gnuplot_script_extension, cfg.output_path, cfg.latex_path.stem().string(), cfg.colors_folder, cfg.average_save_middle_tests, cfg.average_tests_number, cfg.middle_folder, cfg.write_n_labels, cfg.average_color_labels) << endl;
-    //            //cout << "Averages_Test on '" << average_datasets[i] << "': ends" << endl << endl;
-    //        }
-    //        //GenerateLatexTable(cfg.output_path, cfg.latex_file, all_res, cfg.average_datasets, cfg.ccl_algorithms);
-    //    }
-    //}
+    if (cfg.perform_average) {
+        //cout << endl << "AVERAGE TESTS: " << endl;
+        //TitleBar::Display("AVERAGE TESTS");
+        if (cfg.ccl_algorithms.size() == 0) {
+            cout << "ERROR: no algorithms, average tests skipped" << endl;
+        }
+        else {
+            for (unsigned i = 0; i < cfg.average_datasets.size(); ++i) {
+                cout << "Averages_Test on '" << cfg.average_datasets[i] << "': starts" << endl;
+                cout << AverageTest(cfg.ccl_algorithms, all_res, i, cfg.input_path, cfg.average_datasets[i], cfg.input_txt, cfg.gnuplot_script_extension, cfg.output_path, cfg.latex_path.stem().string(), cfg.colors_folder, cfg.average_save_middle_tests, cfg.average_tests_number, cfg.middle_folder, cfg.write_n_labels, cfg.average_color_labels) << endl;
+                //cout << "Averages_Test on '" << average_datasets[i] << "': ends" << endl << endl;
+            }
+            //GenerateLatexTable(cfg.output_path, cfg.latex_file, all_res, cfg.average_datasets, cfg.ccl_algorithms);
+        }
+    }
 
     // DENSITY_SIZE_TESTS
     if (cfg.perform_density) {
@@ -1231,11 +1225,10 @@ int main()
         { "perform_check_4connectivity", cfg.perform_check_4connectivity },
         { "perform_check_8connectivity", cfg.perform_check_8connectivity },
         { "perform_density", cfg.perform_density },
-        { "perform_memory", cfg.perform_memory },
-        { "perform_average_ws", cfg.perform_average_ws }
+        { "perform_memory", cfg.perform_memory }
     };
 
-    LatexGenerator(test_to_perform, cfg.latex_path, cfg.latex_file, average_results, cfg.average_datasets, cfg.ccl_algorithms, ccl_mem_algorithms, accesses);
+    LatexGenerator(test_to_perform, cfg.latex_path, cfg.latex_file, all_res, cfg.average_datasets, cfg.ccl_algorithms, ccl_mem_algorithms, accesses);
 
     return EXIT_SUCCESS;
 }
