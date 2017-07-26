@@ -1059,18 +1059,18 @@ int main()
         }
     }
 
-    if (cfg.perform_average && cfg.average_tests_number < 1) {
-        cmessage("'Average tests' repetitions cannot be less than 1, skipped");
+    if (cfg.perform_average && (cfg.average_tests_number < 1 || cfg.average_tests_number > 999)) {
+        cmessage("'Average tests' repetitions cannot be less than 1 or more than 999, skipped");
         cfg.perform_average = false;
     }
 
-    if (cfg.perform_density && cfg.density_tests_number < 1) {
-        cmessage("'Density tests' repetitions cannot be less than 1, skipped");
+    if (cfg.perform_density && (cfg.density_tests_number < 1 || cfg.density_tests_number > 999)) {
+        cmessage("'Density tests' repetitions cannot be less than 1 or more than 999, skipped");
         cfg.perform_density = false;
     }
 
-    if (cfg.perform_average_ws && cfg.average_ws_tests_number < 1) {
-        cmessage("'Average tests' (with steps) repetitions cannot be less than 1, skipped");
+    if (cfg.perform_average_ws && (cfg.average_ws_tests_number < 1 || cfg.average_ws_tests_number > 999)) {
+        cmessage("'Average tests' (with steps) repetitions cannot be less than 1 or more than 999, skipped");
         cfg.perform_average_ws = false;
     }
 
