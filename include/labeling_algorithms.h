@@ -1,4 +1,4 @@
-// Copyright(c) 2016 - 2017 Costantino Grana, Federico Bolelli, Lorenzo Baraldi and Roberto Vezzani
+// Copyright(c) 2016 - 2017 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -51,18 +51,15 @@ public:
     Labeling() {}
     virtual ~Labeling() = default;
 
-    virtual void PerformLabeling() { throw std::runtime_error("Average Test not implemented"); }
-    virtual void PerformLabelingWithSteps() { throw std::runtime_error("Average Test with Steps not implemented"); }
-    virtual void PerformLabelingMem(std::vector<unsigned long>& accesses) { throw std::runtime_error("Memory Test not implemented"); }
+    virtual void PerformLabeling() { throw std::runtime_error("'PerformLabeling()' not implemented"); }
+    virtual void PerformLabelingWithSteps() { throw std::runtime_error("'PerformLabelingWithSteps()' not implemented"); }
+    virtual void PerformLabelingMem(std::vector<unsigned long>& accesses) { throw std::runtime_error("'PerformLabelingMem(...)' not implemented"); }
 
     static void SetImg(const cv::Mat1b& img) { img_ = img.clone(); }
 
 private:
-
-    virtual void Alloc() { throw std::runtime_error("Alloc not implemented"); }
-    virtual void Dealloc() { throw std::runtime_error("Dealloc not implemented"); }
-    virtual void FirstScan() { throw std::runtime_error("First Scan not implemented"); }
-    virtual void SecondScan(const unsigned& lunique) { throw std::runtime_error("Second Scan not implemented"); }
+    virtual void Alloc() {}
+    virtual void Dealloc() {}
 };
 
 class LabelingMapSingleton {
