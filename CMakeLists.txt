@@ -121,13 +121,18 @@ include_directories("${CMAKE_SOURCE_DIR}/include")
 
 file(GLOB SRCFILES ${SRCFILES} "src/*.cc" "src/*.cpp" "src/*.c")
 file(GLOB HFILES ${HFILES} "include/*.h" "include/*.hpp")
+file(GLOB INCFILES ${INCFILES} "include/*.inc")
 
 # Set configuration file		
 configure_file("${CMAKE_SOURCE_DIR}/doc/config_base.yaml" "${CMAKE_INSTALL_PREFIX}/config.yaml")
 
-set (addExe ${SRCFILES} ${HFILES} "${CMAKE_INSTALL_PREFIX}/config.yaml")
+source_group("Include Files" FILES ${INCFILES})
+source_group("Header Files" FILES ${HFILES})
+source_group("Source Files" FILES ${SRCFILES})
+
+set (addExe ${SRCFILES} ${HFILES} ${INCFILES} "${CMAKE_INSTALL_PREFIX}/config.yaml")
 add_executable(${ProjectName} ${addExe})
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${ProjectName})
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${ProjectName}) # Set YACCLAB as startup group instead of ALL_BUILD
 target_link_libraries (${ProjectName}  ${OpenCV_LIBS})
 
 # Creation of output directory
