@@ -38,13 +38,15 @@ using namespace filesystem;
 
 struct ConfigData {
 
-    bool perform_check_8connectivity;    // Whether to perform 8-connectivity check or not
-    bool perform_check_4connectivity;    // Whether to perform 8-connectivity check or not (not used and set yet)
-
+    bool perform_correctness;            // Whether to perform correctness tests or not
     bool perform_average;                // Whether to perform average tests or not
     bool perform_density;                // Whether to perform density tests or not
     bool perform_memory;                 // Whether to perform memory tests or not
     bool perform_average_ws;             // Whether to perform average tests with steps or not
+
+    bool perform_check_8connectivity_std;// Whether to perform 8-connectivity test on PerformLabeling() functions
+    bool perform_check_8connectivity_ws; // Whether to perform 8-connectivity test on PerformLabelingWithSteps() functions
+    bool perform_check_8connectivity_mem;// Whether to perform 8-connectivity test on PerformLabelingMem() functions
 
     bool average_color_labels;           // If active, labeled image from average tests will be colored and stored
     bool density_color_labels;           // If active, labeled image from density tests will be colored and stored
@@ -86,11 +88,15 @@ struct ConfigData {
 
     ConfigData(const cv::FileStorage& fs) {
         // Flags to customize output format (false by default)
-        perform_check_8connectivity  = ReadBool(fs["perform"]["check_8connectivity"]);
+        perform_correctness          = ReadBool(fs["perform"]["correctness"]);
         perform_average              = ReadBool(fs["perform"]["average"]);
         perform_density              = ReadBool(fs["perform"]["density"]);
         perform_memory               = ReadBool(fs["perform"]["memory"]);
         perform_average_ws           = ReadBool(fs["perform"]["average_with_steps"]);
+
+        perform_check_8connectivity_std = ReadBool(fs["correctness_tests"]["8connectivity_standard"]);
+        perform_check_8connectivity_ws  = ReadBool(fs["correctness_tests"]["8connectivity_steps"]);
+        perform_check_8connectivity_mem = ReadBool(fs["correctness_tests"]["8connectivity_memory"]);
 
         average_color_labels         = ReadBool(fs["color_labels"]["average"]);
         density_color_labels         = ReadBool(fs["color_labels"]["density"]);
