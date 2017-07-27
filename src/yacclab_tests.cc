@@ -49,7 +49,7 @@ using namespace cv;
 // representing file state.
 bool YacclabTests::LoadFileList(vector<pair<string, bool>>& filenames, const path& files_path)
 {
-// Open files_path (files.txt)
+    // Open files_path (files.txt)
     ifstream is(files_path.string());
     if (!is.is_open()) {
         return false;
@@ -151,124 +151,7 @@ void YacclabTests::SaveBroadOutputResults(const Mat1d& results, const string& o_
     }
 }
 
-void YacclabTests::CheckPerformLabeling() {}
 
-void YacclabTests::CheckPerformLabelingWithSteps() {}
-
-void YacclabTests::CheckPerformLabelingMem() {}
-
-void YacclabTests::CheckAlgorithms()
-{
-    // Initialize output message box
-    OutputBox ob("Checking Algorithms on 8-Connectivity");
-
-    vector<bool> stats(cfg_.ccl_algorithms.size(), true);  // True if the i-th algorithm is correct, false otherwise
-    vector<string> first_fail(cfg_.ccl_algorithms.size());  // Name of the file on which algorithm fails the first time
-    bool stop = false; // True if all algorithms are not correct
-
-    bool correctness_performed = false; // True if at least one check was executed
-
-    for (unsigned i = 0; i < cfg_.check_datasets.size(); ++i) { // For every dataset in the check_datasets list
-        String dataset_name(cfg_.check_datasets[i]);
-        path dataset_path(cfg_.input_path / path(dataset_name));
-        path is_path = dataset_path / path(cfg_.input_txt); // files.txt path
-
-        // Load list of images on which ccl_algorithms must be tested
-        vector<pair<string, bool>> filenames;  // first: filename, second: state of filename (find or not)
-        if (!LoadFileList(filenames, is_path)) {
-            ob.Cerror("Unable to open '" + is_path.string() + "'", dataset_name);
-            continue;
-        }
-
-        // Number of files
-        unsigned filenames_size = filenames.size();
-        // Start output message box
-        ob.StartUnitaryBox(dataset_name, filenames_size);
-
-        for (unsigned file = 0; file < filenames_size && !stop; ++file) { // For each file in list
-            // Display output message box
-            ob.UpdateUnitaryBox(file);
-
-            string filename = filenames[file].first;
-            path filename_path = dataset_path / path(filename);
-
-            // Read and load image
-            if (!GetBinaryImage(filename_path, Labeling::img_)) {
-                ob.Cmessage("Unable to open '" + filename + "'");
-                continue;
-            }
-
-            unsigned n_labels_correct, n_labels_to_control;
-
-            // SAUF is the reference (the labels are already normalized)
-            //auto& sauf = LabelingMapSingleton::GetInstance().data_.at("SAUF_UFPC");
-            //sauf->PerformLabeling();
-            //n_labels_correct = sauf->n_labels_;
-            //Mat1i& labeled_img_correct = sauf->img_labels_;
-
-            // TODO: remove OpenCV connectedComponents and use SAUF above
-            Mat1i labeled_img_correct;
-            n_labels_correct = connectedComponents(Labeling::img_, labeled_img_correct, 8, 4, CCL_WU);
-
-            unsigned j = 0;
-            for (const auto& algo_name : cfg_.ccl_algorithms) {
-                // Retrieve the algorithm
-                Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
-                correctness_performed = true;
-
-                // Perform labeling on current algorithm if it has no previously failed
-                if (stats[j]) {
-                    Mat1i& labeled_img_to_control = algorithm->img_labels_;
-
-                    try {
-                        algorithm->PerformLabeling();
-                        n_labels_to_control = algorithm->n_labels_;
-
-                        NormalizeLabels(labeled_img_to_control);
-                        const auto diff = CompareMat(labeled_img_correct, labeled_img_to_control);
-                        if (n_labels_correct != n_labels_to_control || !diff) {
-                            stats[j] = false;
-                            first_fail[j] = (path(dataset_name) / path(filename)).string();
-
-                            // Stop check test if all the algorithms fail
-                            if (adjacent_find(stats.begin(), stats.end(), not_equal_to<int>()) == stats.end()) {
-                                stop = true;
-                                break;
-                            }
-                        }
-                    }
-                    catch (...) {
-                        ob.Cmessage("'PerformLabeling()' method not implemented in '" + algo_name + "'");
-                    }
-                }
-                ++j;
-            } // For all the Algorithms in the array
-        }// END WHILE (LIST OF IMAGES)
-        ob.StopUnitaryBox();
-    }// END FOR (LIST OF DATASETS)
-
-    // To display report of correctness test
-    vector<string> messages(cfg_.ccl_algorithms.size());
-    unsigned longest_name = max_element(cfg_.ccl_algorithms.begin(), cfg_.ccl_algorithms.end(), CompareLengthCvString)->length();
-
-    unsigned j = 0;
-    for (const auto& algo_name : cfg_.ccl_algorithms) {
-        messages[j] = "'" + algo_name + "'" + string(longest_name - algo_name.size(), '-');
-        if (stats[j]) {
-            if (correctness_performed) {
-                messages[j] += "-> correct!";
-            }
-            else {
-                messages[j] += "-> NOT tested!";
-            }
-        }
-        else {
-            messages[j] += "-> NOT correct, it first fails on '" + first_fail[j] + "'";
-        }
-        ++j;
-    }
-    ob.DisplayReport("Report", messages);
-}
 
 void YacclabTests::AverageTest()
 {

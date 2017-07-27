@@ -1077,11 +1077,10 @@ int main()
         cfg.perform_average_ws = false;
     }
 
-    if ((cfg.perform_check_8connectivity /*|| cfg.perform_check_4connectivity */) &&
+    if ((cfg.perform_correctness) &&
         cfg.check_datasets.size() == 0) {
         ob_setconf.Cwarning("There are no datasets specified for 'correctness tests', skipped");
-        cfg.perform_check_8connectivity = false;
-        //cfg.perform_check_4connectivity = false;
+        cfg.perform_correctness = false;
     }
 
     if ((cfg.perform_average) && cfg.average_datasets.size() == 0) {
@@ -1094,9 +1093,9 @@ int main()
         cfg.perform_memory = false;
     }
 
-    if (!cfg.perform_average && /*!cfg.perform_check_4connectivity &&*/
-        !cfg.perform_check_8connectivity && !cfg.perform_density &&
-        !cfg.perform_memory && !cfg.perform_average_ws) {
+    if (!cfg.perform_average && !cfg.perform_correctness && 
+        !cfg.perform_density && !cfg.perform_memory && 
+        !cfg.perform_average_ws) {
         ob_setconf.Cerror("There are no tests to perform");
         // EXIT_FAILURE;
     }
@@ -1167,8 +1166,18 @@ int main()
     YacclabTests yt(cfg);
 
     // Correctness test
-    if (cfg.perform_check_8connectivity) {
-        yt.CheckAlgorithms();
+    if (cfg.perform_correctness) {
+        if (cfg.perform_check_8connectivity_std) {
+            yt.CheckPerformLabeling();
+        }
+
+        if (cfg.perform_check_8connectivity_ws) {
+            yt.CheckPerformLabelingWithSteps();
+        }
+        
+        if (cfg.perform_check_8connectivity_mem) {
+            yt.CheckPerformLabelingMem();
+        }
     }
 
     if (cfg.perform_average) {
@@ -1261,14 +1270,6 @@ int main()
             }
         }
     }
-
-    map<string, bool> test_to_perform = {
-        { "perform_average", cfg.perform_average },
-        { "perform_check_4connectivity", cfg.perform_check_4connectivity },
-        { "perform_check_8connectivity", cfg.perform_check_8connectivity },
-        { "perform_density", cfg.perform_density },
-        { "perform_memory", cfg.perform_memory }
-    };
 
     //LatexGenerator(test_to_perform, cfg.latex_path, cfg.latex_file, all_res, cfg.average_datasets, cfg.ccl_algorithms, ccl_mem_algorithms, accesses);
     yt.LatexGenerator();
