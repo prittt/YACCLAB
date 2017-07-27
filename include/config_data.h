@@ -44,17 +44,17 @@ struct ConfigData {
     path input_path;                      // Path on which input datasets are stored
     path latex_path;                      // Path on which latex report will be stored
 
-    std::vector<cv::String> check_datasets;         // List of datasets on which check tests will be performed
-    std::vector<cv::String> memory_datasets;        // List of datasets on which memory tests will be perform
-    std::vector<cv::String> density_datasets;       // List of datasets on which density tests will be performed
-    std::vector<cv::String> average_datasets;       // Lists of dataset on which averages tests will be performed
-    std::vector<cv::String> average_datasets_ws;    // Lists of dataset on which averages tests whit steps will be performed
+    std::vector<cv::String> check_datasets;       // List of datasets on which check tests will be performed
+    std::vector<cv::String> memory_datasets;      // List of datasets on which memory tests will be perform
+    std::vector<cv::String> density_datasets;     // List of datasets on which density tests will be performed
+    std::vector<cv::String> average_datasets;     // Lists of dataset on which averages tests will be performed
+    std::vector<cv::String> average_datasets_ws;  // Lists of dataset on which averages tests whit steps will be performed
 
-    std::vector<cv::String> ccl_algorithms;         // Lists of algorithms specified by the user in the config.yaml
+    std::vector<cv::String> ccl_algorithms;       // Lists of algorithms specified by the user in the config.yaml
 
-    std::vector<cv::String> ccl_mem_algorithms;     // List of algorithms which actually support memory tests
-    std::vector<cv::String> ccl_aver_algorithms;    // List of algorithms which actually support average/density tests
-    std::vector<cv::String> ccl_aver_ws_algorithms; // List of algorithms which actually support average with steps tests
+    std::vector<cv::String> ccl_mem_algorithms;        // List of algorithms which actually support memory tests
+    std::vector<cv::String> ccl_average_algorithms;    // List of algorithms which actually support average/density tests
+    std::vector<cv::String> ccl_average_ws_algorithms; // List of algorithms which actually support average with steps tests
 
     ConfigData(const cv::FileStorage& fs) {
         // Flags to customize output format (false by default)
