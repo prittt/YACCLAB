@@ -1,4 +1,4 @@
-// Copyright(c) 2016 - 2017 Federico Bolelli, Costantino Grana, Cancilla Michele, Lorenzo Baraldi and Roberto Vezzani
+// Copyright(c) 2016 - 2017 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -1021,7 +1021,7 @@ int main()
     // To handle filesystem errors
     error_code ec;
 
-    OutputBox setting_conf("Setting Configuration Parameters"); 
+    OutputBox ob_setconf("Setting Configuration Parameters"); 
     // Read yaml configuration file
     const string config_file = "config.yaml";
     FileStorage fs;
@@ -1029,13 +1029,13 @@ int main()
         fs.open(config_file, FileStorage::READ);
     }
     catch (const cv::Exception&) {
-        return EXIT_FAILURE; // Error redirected, 
+        exit(EXIT_FAILURE);  // Error redirected, 
                              // OpenCV redirected function will 
                              // print the error on stdout
     }
 
     if (!fs.isOpened()) {
-        setting_conf.Cerror("Failed to open '" + config_file + "'");
+        ob_setconf.Cerror("Failed to open '" + config_file + "'");
         // EXIT_FAILURE
     }
 
@@ -1045,61 +1045,63 @@ int main()
     // Release FileStorage
     fs.release();
 
-    // Configuration parameters check
-    if (cfg.ccl_algorithms.size() == 0) {
-        setting_conf.Cerror("There are no values in the 'algorithms' list");
-        // EXIT_FAILURE;
-    }
-
     // Check if all the specified algorithms exist
+    unsigned ccl_algorithms_size(cfg.ccl_algorithms.size());
     for (auto& algo_name : cfg.ccl_algorithms) {
         auto& it = LabelingMapSingleton::GetInstance().data_.find(algo_name);
         if (it == LabelingMapSingleton::GetInstance().data_.end()) {
-            // Algorithm not found in the map
-            setting_conf.Cmessage("Unable to find the algorithm '" + algo_name + "'");
+            // Algorithm not found
+            ob_setconf.Cwarning("Unable to find the algorithm '" + algo_name + "'");
+            ccl_algorithms_size--;
         }
     }
 
+    // Configuration parameters check
+    if (ccl_algorithms_size == 0) {
+        ob_setconf.Cerror("There are no valid values in the 'algorithms' list");
+        // EXIT_FAILURE;
+    }
+
     if (cfg.perform_average && (cfg.average_tests_number < 1 || cfg.average_tests_number > 999)) {
-        setting_conf.Cmessage("'Average tests' repetitions cannot be less than 1 or more than 999, skipped");
+        ob_setconf.Cwarning("'Average tests' repetitions cannot be less than 1 or more than 999, skipped");
         cfg.perform_average = false;
     }
 
     if (cfg.perform_density && (cfg.density_tests_number < 1 || cfg.density_tests_number > 999)) {
-        setting_conf.Cmessage("'Density tests' repetitions cannot be less than 1 or more than 999, skipped");
+        ob_setconf.Cwarning("'Density tests' repetitions cannot be less than 1 or more than 999, skipped");
         cfg.perform_density = false;
     }
 
     if (cfg.perform_average_ws && (cfg.average_ws_tests_number < 1 || cfg.average_ws_tests_number > 999)) {
-        setting_conf.Cmessage("'Average tests with steps' repetitions cannot be less than 1 or more than 999, skipped");
+        ob_setconf.Cwarning("'Average tests with steps' repetitions cannot be less than 1 or more than 999, skipped");
         cfg.perform_average_ws = false;
     }
 
     if ((cfg.perform_check_8connectivity /*|| cfg.perform_check_4connectivity */) &&
         cfg.check_datasets.size() == 0) {
-        setting_conf.Cmessage("There are no datasets specified for 'correctness tests', skipped");
+        ob_setconf.Cwarning("There are no datasets specified for 'correctness tests', skipped");
         cfg.perform_check_8connectivity = false;
         //cfg.perform_check_4connectivity = false;
     }
 
     if ((cfg.perform_average) && cfg.average_datasets.size() == 0) {
-        setting_conf.Cmessage("There are no datasets specified for 'average tests', skipped");
+        ob_setconf.Cwarning("There are no datasets specified for 'average tests', skipped");
         cfg.perform_average = false;
     }
 
     if ((cfg.perform_memory) && cfg.memory_datasets.size() == 0) {
-        setting_conf.Cmessage("There are no datasets specified for 'memory tests', skipped");
+        ob_setconf.Cwarning("There are no datasets specified for 'memory tests', skipped");
         cfg.perform_memory = false;
     }
 
     if (!cfg.perform_average && /*!cfg.perform_check_4connectivity &&*/
         !cfg.perform_check_8connectivity && !cfg.perform_density &&
         !cfg.perform_memory && !cfg.perform_average_ws) {
-        setting_conf.Cerror("There are no tests to perform");
+        ob_setconf.Cerror("There are no tests to perform");
         // EXIT_FAILURE;
     }
 
-    // Check methods of the specified algorithms
+    // Check if labeling methods of the specified algorithms exist
     Labeling::img_ = Mat1b(1, 1, static_cast<uchar>(0));
     for (const auto& algo_name : cfg.ccl_algorithms) {
         const auto& algorithm = LabelingMapSingleton::GetLabeling(algo_name);
@@ -1109,7 +1111,7 @@ int main()
                 cfg.ccl_average_algorithms.push_back(algo_name);
             }
             catch (const runtime_error& e) {
-                cmessage(algo_name + ": " + e.what());
+                ob_setconf.Cwarning(algo_name + ": " + e.what());
             }
         }
         if (cfg.perform_average_ws) {
@@ -1118,7 +1120,7 @@ int main()
                 cfg.ccl_average_ws_algorithms.push_back(algo_name);
             }
             catch (const runtime_error& e) {
-                cmessage(algo_name + ": " + e.what());
+                ob_setconf.Cwarning(algo_name + ": " + e.what());
             }
         }
         if (cfg.perform_memory) {
@@ -1127,7 +1129,7 @@ int main()
                 cfg.ccl_mem_algorithms.push_back(algo_name);
             }
             catch (const runtime_error& e) {
-                cmessage(algo_name + ": " + e.what());
+                ob_setconf.Cwarning(algo_name + ": " + e.what());
             }
         }
     }
@@ -1143,21 +1145,24 @@ int main()
     for (auto& x : ds) {
         path p = cfg.input_path / path(x) / path(cfg.input_txt);
         if (!exists(p, ec)) {
-            setting_conf.Cmessage("There is no dataset (no files.txt available) " + p.string() + ", skipped");
+            ob_setconf.Cwarning("There is no dataset (no files.txt available) " + p.string() + ", skipped");
         }
     }
 
     // Set and create current output directory
     if (!create_directories(cfg.output_path, ec)) {
-        setting_conf.Cerror("Unable to create output directory '" + cfg.output_path.string() + "' - " + ec.message());
+        ob_setconf.Cerror("Unable to create output directory '" + cfg.output_path.string() + "' - " + ec.message());
         // EXIT_FAILURE;
     }
 
     // Create the directory for latex reports
     if (!create_directories(cfg.latex_path, ec)) {
-        setting_conf.Cerror("Unable to create output directory '" + cfg.latex_path.string() + "' - " + ec.message());
+        ob_setconf.Cerror("Unable to create output directory '" + cfg.latex_path.string() + "' - " + ec.message());
         // EXIT_FAILURE;
     }
+
+    ob_setconf.Cmessage("Setting Configuration Parameters DONE"); 
+    ob_setconf.CloseBox();
 
     YacclabTests yt(cfg);
 

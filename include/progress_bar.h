@@ -281,6 +281,15 @@ public:
         }
     }
 
+    void DisplayReport(const std::string &title, const std::vector<std::string> &messagges)
+    {
+        PrintData(title + ":");
+        for (const auto& x : messagges) {
+            PrintData(" " + x);
+        }
+        PrintSeparatorLine();
+    }
+
     void Cerror(const std::string& err, const std::string& title = "")
     {
         std::string complete_err = "";
@@ -288,9 +297,10 @@ public:
             PrintData(title + ":");
             complete_err = " ";
         }
-        complete_err += "ERROR: [" + err + "]";
+        complete_err += " ERROR: [" + err + "]";
         PrintData(complete_err);
         PrintSeparatorLine();
+        exit(EXIT_FAILURE);
 
         /*
 
@@ -304,6 +314,20 @@ public:
 
         |  ERROR: [err]                                                              |
         +----------------------------------------------------------------------------+
+
+        */
+    }
+
+    void Cwarning(const std::string& wrn)
+    {
+        std::string complete_wrn = " WARNING: [" + wrn + "]";
+        PrintData(complete_wrn);
+
+        /*
+
+        This function will print:
+
+        | WARNING: [msg]                                                                  |
 
         */
     }
@@ -322,29 +346,19 @@ public:
         */
     }
 
-    void DisplayReport(const std::string &title, const std::vector<std::string> &messagges)
-    {
-
-        PrintData(title + ":");
-        for (const auto& x : messagges) {
-            PrintData(" " + x);
-        }
+    void CloseBox() {
         PrintSeparatorLine();
     }
 
-
 private:
-
     void PrintSeparatorLine()
     {
         std::cout << std::string(pre_spaces_, ' ') << "+" << std::string(bar_width_ - 2, '-') << "+\n";
     }
-
     void PrintRawData(const std::string &data)
     {
         std::cout << std::string(pre_spaces_, ' ') << "| " << data << std::string(bar_width_ - data.size() - 4, ' ') << " |\n";
     }
-
     void PrintData(const std::string &data)
     {
         unsigned step = bar_width_ - 4;
