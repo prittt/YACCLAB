@@ -31,8 +31,6 @@
 
 #include <opencv2/core.hpp>
 
-#include <vector>
-
 #include "labeling_algorithms.h"
 #include "labels_solver.h"
 #include "memory_tester.h"
