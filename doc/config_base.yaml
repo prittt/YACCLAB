@@ -11,7 +11,8 @@
 # -------------------------------------------------------------------------------------
 
 # Kind of tests to execute
-perform: {check_8connectivity: true, average: true, density: true, memory: true, average_with_steps: true}
+perform: {correctness: true, average: true, density: true, memory: true, average_with_steps: true}
+correctness_tests: {8connectivity_standard: true, 8connectivity_steps: true, 8connectivity_memory: true}
 
 # Number of tests repetitions 
 tests_number: {average: 10, density: 10, average_with_steps: 10}
