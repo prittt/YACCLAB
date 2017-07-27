@@ -171,7 +171,7 @@ void cmessage(const string& msg)
 }
 
 int RedirectCvError(int status, const char* func_name, const char* err_msg, const char* file_name, int line, void*) {
-    OutputBox ob("OpenCV Error"); 
+    OutputBox ob; 
     ob.Cerror(err_msg); 
     return 0;
 }
