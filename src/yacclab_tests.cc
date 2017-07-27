@@ -242,14 +242,17 @@ void YacclabTests::CheckAlgorithms()
     ob.DisplayReport("Report", messages);
 }
 
-void YacclabTests::AverageTest(cv::Mat1d& average_results)
+void YacclabTests::AverageTest()
 {
-// Initialize output message box
+    // Initialize output message box
     OutputBox ob("Average Tests");
 
     string complete_results_suffix = "_results.txt",
         middle_results_suffix = "_run",
         average_results_suffix = "_average.txt";
+
+    // Initialize results container
+    average_results_ = cv::Mat1d(cfg_.average_datasets.size(), cfg_.ccl_average_algorithms.size(), std::numeric_limits<double>::max());
 
     for (unsigned d = 0; d < cfg_.average_datasets.size(); ++d) { // For every dataset in the average list
         String dataset_name(cfg_.average_datasets[d]),
@@ -298,10 +301,10 @@ void YacclabTests::AverageTest(cv::Mat1d& average_results)
         int filenames_size = filenames.size();
 
         // To save middle/min and average results;
-        Mat1d min_res(filenames_size, cfg_.ccl_algorithms.size(), numeric_limits<double>::max());
-        Mat1d current_res(filenames_size, cfg_.ccl_algorithms.size(), numeric_limits<double>::max());
-        Mat1i labels(filenames_size, cfg_.ccl_algorithms.size(), 0);
-        vector<pair<double, uint16_t>> supp_average(cfg_.ccl_algorithms.size(), make_pair(0.0, 0));
+        Mat1d min_res(filenames_size, cfg_.ccl_average_algorithms.size(), numeric_limits<double>::max());
+        Mat1d current_res(filenames_size, cfg_.ccl_average_algorithms.size(), numeric_limits<double>::max());
+        Mat1i labels(filenames_size, cfg_.ccl_average_algorithms.size(), 0);
+        vector<pair<double, uint16_t>> supp_average(cfg_.ccl_average_algorithms.size(), make_pair(0.0, 0));
 
         // Start output message box
         ob.StartRepeatedBox(dataset_name, filenames_size, cfg_.average_tests_number);
@@ -324,7 +327,7 @@ void YacclabTests::AverageTest(cv::Mat1d& average_results)
 
                 unsigned i = 0;
                 // For all the Algorithms in the array
-                for (const auto& algo_name : cfg_.ccl_algorithms) {
+                for (const auto& algo_name : cfg_.ccl_average_algorithms) {
                     Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
                     unsigned n_labels;
 
@@ -373,44 +376,45 @@ void YacclabTests::AverageTest(cv::Mat1d& average_results)
                 string output_middle_results_file = (output_middle_results_path / path(dataset_name + middle_results_suffix + "_" + to_string(test) + ".txt")).string();
                 SaveBroadOutputResults(current_res, output_middle_results_file, labels, filenames);
             }
-            // To write in a file min results
-            SaveBroadOutputResults(min_res, output_broad_path.string(), labels, filenames);
-
-            // To calculate average times and write it on the specified file
-            for (int r = 0; r < min_res.rows; ++r) {
-                for (int c = 0; c < min_res.cols; ++c) {
-                    if (min_res(r, c) != numeric_limits<double>::max()) {
-                        supp_average[c].first += min_res(r, c);
-                        supp_average[c].second++;
-                    }
-                }
-            }
-
-            average_os << "#Algorithm" << "\t" << "Average" << "\t" << "Round Average for Graphs" << endl;
-            for (unsigned i = 0; i < cfg_.ccl_algorithms.size(); ++i) {
-                const auto& algo_name = cfg_.ccl_algorithms[i];
-
-                // Gnuplot requires double-escaped name in presence of underscores
-                {
-                    string algo_name_double_escaped = algo_name;
-                    std::size_t found = algo_name_double_escaped.find_first_of("_");
-                    while (found != std::string::npos) {
-                        algo_name_double_escaped.insert(found, "\\\\");
-                        found = algo_name_double_escaped.find_first_of("_", found + 3);
-                    }
-                    average_os << algo_name_double_escaped << "\t";
-                }
-
-                // For all the Algorithms in the array
-                average_results(d, i) = supp_average[i].first / supp_average[i].second;
-                average_os << std::fixed << std::setprecision(8) << supp_average[i].first / supp_average[i].second << "\t";
-                // TODO numberOfDecimalDigitToDisplayInGraph in config?
-                average_os << std::fixed << std::setprecision(2) << supp_average[i].first / supp_average[i].second << endl;
-            }
         } // END TEST FOR
 
-        // GNUPLOT SCRIPT
-        {
+        // To write in a file min results
+        SaveBroadOutputResults(min_res, output_broad_path.string(), labels, filenames);
+
+        // To calculate average times and write it on the specified file
+        for (int r = 0; r < min_res.rows; ++r) {
+            for (int c = 0; c < min_res.cols; ++c) {
+                if (min_res(r, c) != numeric_limits<double>::max()) {
+                    supp_average[c].first += min_res(r, c);
+                    supp_average[c].second++;
+                }
+            }
+        }
+
+        average_os << "#Algorithm" << "\t" << "Average" << "\t" << "Round Average for Graphs" << endl;
+        for (unsigned i = 0; i < cfg_.ccl_average_algorithms.size(); ++i) {
+            // For all the Algorithms in the array
+            const auto& algo_name = cfg_.ccl_average_algorithms[i];
+
+            // Gnuplot requires double-escaped name in presence of underscores
+            {
+                string algo_name_double_escaped = algo_name;
+                std::size_t found = algo_name_double_escaped.find_first_of("_");
+                while (found != std::string::npos) {
+                    algo_name_double_escaped.insert(found, "\\\\");
+                    found = algo_name_double_escaped.find_first_of("_", found + 3);
+                }
+                average_os << algo_name_double_escaped << "\t";
+            }
+
+            // Save all the results
+            average_results_(d, i) = supp_average[i].first / supp_average[i].second;
+            average_os << std::fixed << std::setprecision(8) << supp_average[i].first / supp_average[i].second << "\t";
+            // TODO numberOfDecimalDigitToDisplayInGraph in config?
+            average_os << std::fixed << std::setprecision(2) << supp_average[i].first / supp_average[i].second << endl;
+        }
+
+        { // GNUPLOT SCRIPT
             SystemInfo s_info;
             string compiler_name(s_info.compiler_name());
             string compiler_version(s_info.compiler_version());
@@ -488,13 +492,14 @@ void YacclabTests::AverageTest(cv::Mat1d& average_results)
             average_os.close();
             script_os.close();
         } // GNUPLOT SCRIPT
+
         if (0 != std::system(("gnuplot \"" + (current_output_path / path(dataset_name + cfg_.gnuplot_script_extension)).string() + "\"").c_str())) {
             cerror("Averages Test on '" + dataset_name + "': Unable to run gnuplot's script");
         }
     } // END DATASET FOR
 }
 
-void YacclabTests::AverageTestWithSteps(Mat1d& average_ws_results)
+void YacclabTests::AverageTestWithSteps()
 {
     // Initialize output message box
     OutputBox ob("Average Tests With Steps");
@@ -532,6 +537,9 @@ void YacclabTests::AverageTestWithSteps(Mat1d& average_ws_results)
             cerror("Averages Test With Steps on '" + dataset_name + "': Unable to open " + average_os_path.string());
         }
 
+        // Initialize results container
+        average_ws_results_[dataset_name] = Mat1d(cfg_.ccl_average_ws_algorithms.size(), StepType::ST_SIZE, numeric_limits<double>::max());
+
         // To save list of filename on which CLLAlgorithms must be tested
         vector<pair<string, bool>> filenames;  // first: filename, second: state of filename (find or not)
         if (!LoadFileList(filenames, is_path)) {
@@ -545,14 +553,12 @@ void YacclabTests::AverageTestWithSteps(Mat1d& average_ws_results)
         // To save middle/min and average results;
         map<String, Mat1d> current_res;
         map<String, Mat1d> min_res;
-        Mat1i labels(filenames_size, cfg_.ccl_algorithms.size(), 0);
+        Mat1i labels(filenames_size, cfg_.ccl_average_ws_algorithms.size(), 0);
 
         // If true the i-th step is used by all the algorithms
         vector<bool> steps_presence(StepType::ST_SIZE, false);
 
-        for (const auto& algo_name : cfg_.ccl_algorithms) {
-            const auto& algorithm = LabelingMapSingleton::GetLabeling(algo_name);
-
+        for (const auto& algo_name : cfg_.ccl_average_ws_algorithms) {
             current_res[algo_name] = Mat1d(filenames_size, StepType::ST_SIZE, numeric_limits<double>::max());
             min_res[algo_name] = Mat1d(filenames_size, StepType::ST_SIZE, numeric_limits<double>::max());
         }
@@ -578,7 +584,7 @@ void YacclabTests::AverageTestWithSteps(Mat1d& average_ws_results)
 
                 unsigned i = 0;
                 // For all the Algorithms in the array
-                for (const auto& algo_name : cfg_.ccl_algorithms) {
+                for (const auto& algo_name : cfg_.ccl_average_ws_algorithms) {
                     Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
                     unsigned n_labels;
                     try {
@@ -635,8 +641,8 @@ void YacclabTests::AverageTestWithSteps(Mat1d& average_ws_results)
 
         double max_value(0.0);
         // To calculate average times and write it on the specified file
-        for (const auto& algo_name : cfg_.ccl_algorithms) {
-            const auto& algorithm = LabelingMapSingleton::GetLabeling(algo_name);
+        for (unsigned a = 0; a < cfg_.ccl_average_ws_algorithms.size(); ++a) {
+            const auto& algo_name(cfg_.ccl_average_ws_algorithms[a]);
 
             vector<pair<double, uint16_t>> supp_average(StepType::ST_SIZE, make_pair(0.0, 0));
 
@@ -659,21 +665,22 @@ void YacclabTests::AverageTestWithSteps(Mat1d& average_ws_results)
                 }
                 average_os << algo_name_double_escaped << "\t";
             }
-            double cu_sum(0.0);
+            double cu_sum{ 0.0 };
 
             // Matrix reduce done, save the results into the average file
             for (int step_number = 0; step_number != StepType::ST_SIZE; ++step_number) {
                 StepType step = static_cast<StepType>(step_number);
+                double avg{ 0.0 };
                 if (supp_average[step_number].first > 0.0 && supp_average[step_number].second > 0) {
                     steps_presence[step_number] = true;
-                    double avg = supp_average[step_number].first / supp_average[step_number].second;
+                    avg = supp_average[step_number].first / supp_average[step_number].second;
                     cu_sum += avg;
-                    average_os << std::fixed << std::setprecision(6) << avg << "\t";
                 }
                 else {
                     // The current step is not threated by the current algorithm, write 0
-                    average_os << std::fixed << std::setprecision(6) << 0 << "\t";
                 }
+                average_ws_results_[dataset_name](a, step_number) = avg;
+                average_os << std::fixed << std::setprecision(6) << avg << "\t";
             }
 
             // Keep in memory the max cumulative time measured
@@ -798,158 +805,203 @@ void YacclabTests::AverageTestWithSteps(Mat1d& average_ws_results)
 
 void YacclabTests::LatexGenerator()
 {
-    //path latex = cfg_.latex_path / path(cfg_.latex_file);
-    //ofstream os(latex.string());
-    //if (!os.is_open()) {
-    //    cout << "Unable to open/create " + latex.string() << endl;
-    //    return;
-    //}
+    path latex = cfg_.latex_path / path(cfg_.latex_file);
+    ofstream os(latex.string());
+    if (!os.is_open()) {
+        cout << "Unable to open/create " + latex.string() << endl;
+        return;
+    }
 
-    //// fixed number of decimal values
-    //os << fixed;
-    //os << setprecision(3);
+    // fixed number of decimal values
+    os << fixed;
+    os << setprecision(3);
 
-    //// Document begin
-    //os << "%These file is generated by YACCLAB. Follow our project on GitHub: https://github.com/prittt/YACCLAB" << endl << endl;
-    //os << "\\documentclass{article}" << endl << endl;
+    // Document begin
+    os << "%These file is generated by YACCLAB. Follow our project on GitHub: https://github.com/prittt/YACCLAB" << endl << endl;
+    os << "\\documentclass{article}" << endl << endl;
 
-    //os << "\\usepackage{siunitx}" << endl;
-    //os << "\\usepackage{graphicx}" << endl;
-    //os << "\\usepackage{subcaption}" << endl << endl;
-    //os << "\\begin{document}" << endl << endl;
+    os << "\\usepackage{siunitx}" << endl;
+    os << "\\usepackage{graphicx}" << endl;
+    os << "\\usepackage{subcaption}" << endl << endl;
+    os << "\\title{{ \\huge\\bfseries YACCLAB TESTS}}" << endl;
+    os << "\\author{}" << endl << endl;
+    os << "\\begin{document}" << endl << endl;
+    os << "\\maketitle" << endl << endl;
 
-    //// Section average results table ------------------------------------------------------------------------------------------
-    //if (cfg_.perform_average) {
-    //    os << "\\section{Average Table Results}" << endl << endl;
+    // Section average results table ------------------------------------------------------------------------------------------
+    if (cfg_.perform_average) {
+        os << "\\section{Average Table Results}" << endl << endl;
 
-    //    os << "\\begin{table}[tbh]" << endl << endl;
-    //    os << "\t\\centering" << endl;
-    //    os << "\t\\caption{Average Results in ms (Lower is better)}" << endl;
-    //    os << "\t\\label{tab:table1}" << endl;
-    //    os << "\t\\begin{tabular}{|l|";
-    //    for (unsigned i = 0; i < cfg_.ccl_algorithms.size(); ++i)
-    //        os << "S[table-format=2.3]|";
-    //    os << "}" << endl;
-    //    os << "\t\\hline" << endl;
-    //    os << "\t";
-    //    for (unsigned i = 0; i < cfg_.ccl_algorithms.size(); ++i) {
-    //        //RemoveCharacter(datasets_name, '\\');
-    //        //datasets_name.erase(std::remove(datasets_name.begin(), datasets_name.end(), '\\'), datasets_name.end());
-    //        os << " & {" << EscapeLatexUnderscore(cfg_.ccl_algorithms[i]) << "}"; //Header
-    //    }
-    //    os << "\\\\" << endl;
-    //    os << "\t\\hline" << endl;
-    //    for (unsigned i = 0; i < cfg_.average_datasets.size(); ++i) {
-    //        os << "\t" << cfg_.average_datasets[i];
-    //        for (int j = 0; j < average_results_.cols; ++j) {
-    //            os << " & ";
-    //            if (average_results_(i, j) != numeric_limits<double>::max())
-    //                os << average_results_(i, j); //Data
-    //        }
-    //        os << "\\\\" << endl;
-    //    }
-    //    os << "\t\\hline" << endl;
-    //    os << "\t\\end{tabular}" << endl << endl;
-    //    os << "\\end{table}" << endl;
-    //}
+        os << "\\begin{table}[tbh]" << endl << endl;
+        os << "\t\\centering" << endl;
+        os << "\t\\caption{Average Results in ms (Lower is better)}" << endl;
+        os << "\t\\label{tab:table1}" << endl;
+        os << "\t\\begin{tabular}{|l|";
+        for (unsigned i = 0; i < cfg_.ccl_algorithms.size(); ++i)
+            os << "S[table-format=2.3]|";
+        os << "}" << endl;
+        os << "\t\\hline" << endl;
+        os << "\t";
+        for (unsigned i = 0; i < cfg_.ccl_algorithms.size(); ++i) {
+            //RemoveCharacter(datasets_name, '\\');
+            //datasets_name.erase(std::remove(datasets_name.begin(), datasets_name.end(), '\\'), datasets_name.end());
+            os << " & {" << EscapeLatexUnderscore(cfg_.ccl_algorithms[i]) << "}"; //Header
+        }
+        os << "\\\\" << endl;
+        os << "\t\\hline" << endl;
+        for (unsigned i = 0; i < cfg_.average_datasets.size(); ++i) {
+            os << "\t" << cfg_.average_datasets[i];
+            for (int j = 0; j < average_results_.cols; ++j) {
+                os << " & ";
+                if (average_results_(i, j) != numeric_limits<double>::max())
+                    os << average_results_(i, j); //Data
+            }
+            os << "\\\\" << endl;
+        }
+        os << "\t\\hline" << endl;
+        os << "\t\\end{tabular}" << endl << endl;
+        os << "\\end{table}" << endl;
+    }
+    { // CHARTS SECTION ------------------------------------------------------------------------------------------
+        SystemInfo s_info;
+        string info_to_latex = s_info.build() + "_" + s_info.compiler_name() + s_info.compiler_version() + "_" + s_info.os();
+        std::replace(info_to_latex.begin(), info_to_latex.end(), ' ', '_');
+        info_to_latex = EscapeLatexUnderscore(info_to_latex);
 
-    //// SECTION AVERAGE CHARTS  ---------------------------------------------------------------------------
-    //if (cfg_.perform_average) {
-    //    SystemInfo s_info;
-    //    string info_to_latex = s_info.build() + "_" + s_info.compiler_name() + s_info.compiler_version() + "_" + s_info.os();
-    //    std::replace(info_to_latex.begin(), info_to_latex.end(), ' ', '_');
-    //    info_to_latex = EscapeLatexUnderscore(info_to_latex);
+        string chart_size{ "0.45" }, chart_width{ "1" };
+        // Get information about date and time
+        string datetime = GetDatetime();
 
-    //    string chart_size{ "0.45" }, chart_width{ "1" };
-    //    // Get information about date and time
-    //    string datetime = GetDatetime();
+        string compiler_name(s_info.compiler_name());
+        string compiler_version(s_info.compiler_version());
+        //replace the . with _ for compiler strings
+        std::replace(compiler_version.begin(), compiler_version.end(), '.', '_');
 
-    //    os << "\\section{Average and Density Charts}" << endl << endl;
+        // SECTION AVERAGE CHARTS  ---------------------------------------------------------------------------
+        if (cfg_.perform_average) {
+            os << "\\section{Average Charts}" << endl << endl;
+            os << "\\begin{figure}[tbh]" << endl << endl;
+            // \newcommand{ \machineName }{x86\_MSVC15.0\_Windows\_10\_64\_bit}
+            os << "\t\\newcommand{\\machineName}{";
+            os << info_to_latex << "}" << endl;
+            // \newcommand{\compilerName}{MSVC15_0}
+            os << "\t\\newcommand{\\compilerName}{" + compiler_name + compiler_version + "}" << endl;
+            os << "\t\\centering" << endl;
 
-    //    os << "\\begin{figure}[b]" << endl << endl;
-    //    //\newcommand{ \machineName }{x86\_MSVC2015\_Windows10}
-    //    os << "\t\\newcommand{\\machineName}{";
-    //    os << info_to_latex << "}" << endl;
+            for (unsigned i = 0; i < cfg_.average_datasets.size(); ++i) {
+                os << "\t\\begin{subfigure}[tbh]{" + chart_size + "\\textwidth}" << endl;
+                os << "\t\t\\caption{" << cfg_.average_datasets[i] + "}" << endl;
+                os << "\t\t\\centering" << endl;
+                os << "\t\t\\includegraphics[width=" + chart_width + "\\textwidth]{\\compilerName_" + cfg_.average_datasets[i] + ".pdf}" << endl;
+                os << "\t\\end{subfigure}" << endl << endl;
+            }
+            os << "\t\\caption{\\machineName \\enspace " + datetime + "}" << endl << endl;
+            os << "\\end{figure}" << endl << endl;
+        }
 
-    //    string compiler_name(s_info.compiler_name());
-    //    string compiler_version(s_info.compiler_version());
-    //    //replace the . with _ for compiler strings
-    //    std::replace(compiler_version.begin(), compiler_version.end(), '.', '_');
+        // SECTION AVERAGE WITH STEPS CHARTS  ---------------------------------------------------------------------------
+        if (cfg_.perform_average_ws) {
+            string average_ws_suffix{ "_with_steps_" };
 
-    //    //\newcommand{ \compilerName }{MSVC2015}
-    //    os << "\t\\newcommand{\\compilerName}{" + compiler_name + compiler_version + "}" << endl;
+            os << "\\section{Average With Steps Charts}" << endl << endl;
+            os << "\\begin{figure}[tbh]" << endl << endl;
+            // \newcommand{ \machineName }{x86\_MSVC15.0\_Windows\_10\_64\_bit}
+            os << "\t\\newcommand{\\machineName}{";
+            os << info_to_latex << "}" << endl;
+            // \newcommand{\compilerName}{MSVC15_0}
+            os << "\t\\newcommand{\\compilerName}{" + compiler_name + compiler_version + "}" << endl;
+            os << "\t\\centering" << endl;
+            for (unsigned i = 0; i < cfg_.average_datasets_ws.size(); ++i) {
+                os << "\t\\begin{subfigure}[tbh]{" + chart_size + "\\textwidth}" << endl;
+                os << "\t\t\\caption{" << cfg_.average_datasets_ws[i] + "}" << endl;
+                os << "\t\t\\centering" << endl;
+                os << "\t\t\\includegraphics[width=" + chart_width + "\\textwidth]{\\compilerName_" + average_ws_suffix + cfg_.average_datasets_ws[i] + ".pdf}" << endl;
+                os << "\t\\end{subfigure}" << endl << endl;
+            }
+            os << "\t\\caption{\\machineName \\enspace " + datetime + "}" << endl << endl;
+            os << "\\end{figure}" << endl << endl;
+        }
 
-    //    os << "\t\\centering" << endl;
+        // SECTION DENSITY CHARTS  ---------------------------------------------------------------------------
+        if (cfg_.perform_density) {
+            vector<String> density_datasets{ "density", "size" };
 
-    //    for (unsigned i = 0; i < cfg_.average_datasets.size(); ++i) {
-    //        os << "\t\\begin{subfigure}[b]{" + chart_size + "\\textwidth}" << endl;
-    //        os << "\t\t\\caption{" << cfg_.average_datasets[i] + "}" << endl;
-    //        os << "\t\t\\centering" << endl;
-    //        os << "\t\t\\includegraphics[width=" + chart_width + "\\textwidth]{\\compilerName " + cfg_.average_datasets[i] + ".pdf}" << endl;
-    //        os << "\t\\end{subfigure}" << endl << endl;
-    //    }
+            os << "\\section{Density Charts}" << endl << endl;
+            os << "\\begin{figure}[tbh]" << endl << endl;
+            // \newcommand{ \machineName }{x86\_MSVC15.0\_Windows\_10\_64\_bit}
+            os << "\t\\newcommand{\\machineName}{";
+            os << info_to_latex << "}" << endl;
+            // \newcommand{\compilerName}{MSVC15_0}
+            os << "\t\\newcommand{\\compilerName}{" + compiler_name + compiler_version + "}" << endl;
+            os << "\t\\centering" << endl;
 
-    //    os << "\t\\caption{\\machineName \\enspace " + datetime + "}" << endl << endl;
-    //    os << "\\end{figure}" << endl << endl;
-    //}
+            for (unsigned i = 0; i < density_datasets.size(); ++i) {
+                os << "\t\\begin{subfigure}[tbh]{" + chart_size + "\\textwidth}" << endl;
+                os << "\t\t\\caption{" << density_datasets[i] + "}" << endl;
+                os << "\t\t\\centering" << endl;
+                os << "\t\t\\includegraphics[width=" + chart_width + "\\textwidth]{\\compilerName_" + density_datasets[i] + ".pdf}" << endl;
+                os << "\t\\end{subfigure}" << endl << endl;
+            }
+            os << "\t\\caption{\\machineName \\enspace " + datetime + "}" << endl << endl;
+            os << "\\end{figure}" << endl << endl;
+        }
+    } // END CHARTS SECTION
 
-    //// Section memory result table ---------------------------------------------------------------------------
-    //if (cfg_.perform_memory) {
-    //    os << "\\section{Memory Accesses tests}" << endl << endl;
+    // SECTION MEMORY RESULT TABLE ---------------------------------------------------------------------------
+    if (cfg_.perform_memory) {
+        os << "\\section{Memory Accesses tests}" << endl << endl;
 
-    //    for (const auto& dataset : memory_accesses_) {
-    //        const auto& dataset_name = dataset.first;
-    //        const auto& accesses = dataset.second;
+        for (const auto& dataset : memory_accesses_) {
+            const auto& dataset_name = dataset.first;
+            const auto& accesses = dataset.second;
 
-    //        os << "\\begin{table}[tbh]" << endl << endl;
-    //        os << "\t\\centering" << endl;
-    //        os << "\t\\caption{Analysis of memory accesses required by connected components computation for '" << dataset_name << "' dataset. The numbers are given in millions of accesses}" << endl;
-    //        os << "\t\\label{tab:table1}" << endl;
-    //        os << "\t\\begin{tabular}{|l|";
-    //        for (int i = 0; i < accesses.cols + 1; ++i)
-    //            os << "S[table-format=2.3]|";
-    //        os << "}" << endl;
-    //        os << "\t\\hline" << endl;
-    //        os << "\t";
+            os << "\\begin{table}[tbh]" << endl << endl;
+            os << "\t\\centering" << endl;
+            os << "\t\\caption{Analysis of memory accesses required by connected components computation for '" << dataset_name << "' dataset. The numbers are given in millions of accesses}" << endl;
+            os << "\t\\label{tab:table1}" << endl;
+            os << "\t\\begin{tabular}{|l|";
+            for (int i = 0; i < accesses.cols + 1; ++i)
+                os << "S[table-format=2.3]|";
+            os << "}" << endl;
+            os << "\t\\hline" << endl;
+            os << "\t";
 
-    //        // Header
-    //        os << "{Algorithm} & {Binary Image} & {Label Image} & {Equivalence Vector/s}  & {Other} & {Total Accesses}";
-    //        os << "\\\\" << endl;
-    //        os << "\t\\hline" << endl;
+            // Header
+            os << "{Algorithm} & {Binary Image} & {Label Image} & {Equivalence Vector/s}  & {Other} & {Total Accesses}";
+            os << "\\\\" << endl;
+            os << "\t\\hline" << endl;
 
-    //        size_t ccl_algorithms_size{ accesses.rows };
+            for (unsigned i = 0; i < cfg_.ccl_mem_algorithms.size(); ++i) {
+                // For every algorithm
+                const String& alg_name = cfg_.ccl_mem_algorithms[i];
+                //RemoveCharacter(alg_name, '\\');
+                os << "\t{" << alg_name << "}";
 
-    //        for (unsigned i = 0; i < ccl_algorithms_size ; ++i) {
-    //            // For every algorithm
-    //            const String& alg_name = ccl_mem_algorithms[i];
-    //            //RemoveCharacter(alg_name, '\\');
-    //            os << "\t{" << alg_name << "}";
+                double tot = 0;
 
-    //            double tot = 0;
+                for (int s = 0; s < accesses.cols; ++s) {
+                    // For every data_ structure
+                    if (accesses(i, s) != 0)
+                        os << "\t& " << (accesses(i, s) / 1000000);
+                    else
+                        os << "\t& ";
 
-    //            for (int s = 0; s < accesses.cols; ++s) {
-    //                // For every data_ structure
-    //                if (accesses(i, s) != 0)
-    //                    os << "\t& " << (accesses(i, s) / 1000000);
-    //                else
-    //                    os << "\t& ";
+                    tot += (accesses(i, s) / 1000000);
+                }
+                // Total Accesses
+                os << "\t& " << tot;
 
-    //                tot += (accesses(i, s) / 1000000);
-    //            }
-    //            // Total Accesses
-    //            os << "\t& " << tot;
+                // EndLine
+                os << "\t\\\\" << endl;
+            }
 
-    //            // EndLine
-    //            os << "\t\\\\" << endl;
-    //        }
+            // EndTable
+            os << "\t\\hline" << endl;
+            os << "\t\\end{tabular}" << endl << endl;
+            os << "\\end{table}" << endl;
+        }
+    }
 
-    //        // EndTable
-    //        os << "\t\\hline" << endl;
-    //        os << "\t\\end{tabular}" << endl << endl;
-    //        os << "\\end{table}" << endl;
-    //    }
-    //}
-
-    //os << "\\end{document}";
-    //os.close();
+    os << "\\end{document}";
+    os.close();
 }
