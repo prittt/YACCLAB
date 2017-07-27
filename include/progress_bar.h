@@ -232,7 +232,7 @@ public:
         else {
             title_ = title;
         }
-        transform(title_.begin(), title_.end(), title_.begin(), ::toupper);
+        //transform(title_.begin(), title_.end(), title_.begin(), ::toupper);
 
         if (title_ != "") {
             std::cout << "\n";
@@ -318,16 +318,32 @@ public:
         */
     }
 
-    void Cwarning(const std::string& wrn)
+    void Cwarning(const std::string& wrn, const std::string& title = "")
     {
-        std::string complete_wrn = " WARNING: [" + wrn + "]";
+        std::string complete_wrn = "";
+        if (title != "") {
+            PrintData(title + ":");
+            complete_wrn = " ";
+        }
+
+        complete_wrn += " WARNING: [" + wrn + "]";
         PrintData(complete_wrn);
+
+        if (title != "") {
+            PrintSeparatorLine();
+        }
 
         /*
 
-        This function will print:
+        If the title is specified this function will print:
 
-        | WARNING: [msg]                                                                  |
+        | title:                                                                     |
+        |  WARNING: [wrn]                                                            |
+        +----------------------------------------------------------------------------+
+
+        otherwise:
+
+        |  WARNING: [wrn]                                                            |
 
         */
     }
