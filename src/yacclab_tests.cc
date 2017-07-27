@@ -38,8 +38,8 @@
 
 #include "labeling_algorithms.h"
 #include "latex_generator.h"
-#include "utilities.h"
 #include "progress_bar.h"
+#include "utilities.h"
 
 using namespace std;
 using namespace cv;
@@ -890,6 +890,7 @@ void YacclabTests::LatexGenerator()
         os << "\t\\end{tabular}" << endl << endl;
         os << "\\end{table}" << endl;
     }
+
     { // CHARTS SECTION ------------------------------------------------------------------------------------------
         SystemInfo s_info;
         string info_to_latex = s_info.build() + "_" + s_info.compiler_name() + s_info.compiler_version() + "_" + s_info.os();
