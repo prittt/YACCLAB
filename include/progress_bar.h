@@ -49,6 +49,8 @@ Example of usage:
 
     p.end();
 */
+
+
 class ProgressBar {
 public:
 
@@ -137,7 +139,7 @@ public:
 
         n_tests_ = n_tests;
         n_tests_length_ = std::to_string(n_tests).length();
-        bar_width_ = console_width_ - pre_message_.size() - post_message_.size() - 5 /* 100%*/ - 2 /*[]*/ - 5 /*Test */ - (n_tests_length_*2 + 1) /*102/999*/ - 3 /* - */;
+        bar_width_ = console_width_ - pre_message_.size() - post_message_.size() - 5 /* 100%*/ - 2 /*[]*/ - 5 /*Test */ - (n_tests_length_ * 2 + 1) /*102/999*/ - 3 /* - */;
     }
 
     void StartRepeated()
@@ -194,9 +196,9 @@ public:
             return true;
         }
         std::cout << "\r";
-        cur_test_++; 
+        cur_test_++;
         return false;
-}
+    }
 
 private:
     size_t prev_;
@@ -219,6 +221,8 @@ Example of usage:
 */
 class OutputBox {
 public:
+
+    OutputBox() {}
 
     OutputBox(const std::string& title, const size_t bar_width = CONSOLE_WIDTH, const size_t pre_spaces = 2)
     {
@@ -279,7 +283,17 @@ public:
         }
     }
 
-    void Cerror(const std::string& err, const std::string& title = "")
+    void DisplayReport(const std::string &title, const std::vector<std::string> &messagges)
+    {
+
+        PrintData(title + ":");
+        for (const auto& x : messagges) {
+            PrintData(" " + x);
+        }
+        PrintSeparatorLine();
+    }
+
+    void Cerror(const std::string& err, const std::string& title = "", int err_code = EXIT_FAILURE)
     {
         std::string complete_err = "";
         if (title != "") {
@@ -289,6 +303,7 @@ public:
         complete_err += "ERROR: [" + err + "]";
         PrintData(complete_err);
         PrintSeparatorLine();
+        exit(err_code);
 
         /*
 
@@ -320,29 +335,16 @@ public:
         */
     }
 
-    void DisplayReport(const std::string &title, const std::vector<std::string> &messagges)
-    {
-
-        PrintData(title + ":");
-        for (const auto& x : messagges) {
-            PrintData(" " + x);
-        }
-        PrintSeparatorLine();
-    }
-
-
 private:
 
     void PrintSeparatorLine()
     {
         std::cout << std::string(pre_spaces_, ' ') << "+" << std::string(bar_width_ - 2, '-') << "+\n";
     }
-
     void PrintRawData(const std::string &data)
     {
         std::cout << std::string(pre_spaces_, ' ') << "| " << data << std::string(bar_width_ - data.size() - 4, ' ') << " |\n";
     }
-
     void PrintData(const std::string &data)
     {
         unsigned step = bar_width_ - 4;
