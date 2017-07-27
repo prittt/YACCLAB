@@ -220,7 +220,7 @@ Example of usage:
 class OutputBox {
 public:
 
-    OutputBox(const std::string& title, const size_t bar_width = CONSOLE_WIDTH, const size_t pre_spaces = 2)
+    OutputBox(const std::string& title = "", const size_t bar_width = CONSOLE_WIDTH, const size_t pre_spaces = 2)
     {
         pre_spaces_ = pre_spaces;
         bar_width_ = bar_width > CONSOLE_WIDTH ? CONSOLE_WIDTH : bar_width;
@@ -234,10 +234,12 @@ public:
         }
         transform(title_.begin(), title_.end(), title_.begin(), ::toupper);
 
-        std::cout << "\n";
-        PrintSeparatorLine();
-        PrintData(title_);
-        PrintSeparatorLine();
+        if (title_ != "") {
+            std::cout << "\n";
+            PrintSeparatorLine();
+            PrintData(title_);
+            PrintSeparatorLine();
+        }
     }
 
     void StartUnitaryBox(const std::string &dataset_name, const size_t n_things_todo)
