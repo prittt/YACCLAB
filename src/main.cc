@@ -1045,21 +1045,74 @@ int main()
     // Release FileStorage
     fs.release();
 
+    /*************************************************************************/
+    /*  Configuration parameters check                                       */
+    /*************************************************************************/
+
     // Check if all the specified algorithms exist
-    unsigned ccl_algorithms_size(cfg.ccl_algorithms.size());
     for (auto& algo_name : cfg.ccl_algorithms) {
-        auto& it = LabelingMapSingleton::GetInstance().data_.find(algo_name);
-        if (it == LabelingMapSingleton::GetInstance().data_.end()) {
-            // Algorithm not found
+        if (!LabelingMapSingleton::Exists(algo_name)) {
             ob_setconf.Cwarning("Unable to find the algorithm '" + algo_name + "'");
-            ccl_algorithms_size--;
+        }
+        else {
+            cfg.ccl_existing_algorithms.push_back(algo_name);
         }
     }
 
-    // Configuration parameters check
-    if (ccl_algorithms_size == 0) {
+    if (cfg.ccl_existing_algorithms.size() == 0) {
         ob_setconf.Cerror("There are no valid values in the 'algorithms' list");
         // EXIT_FAILURE;
+    }
+
+    // Check if labeling methods of the specified algorithms exist
+    Labeling::img_ = Mat1b(1, 1, static_cast<uchar>(0));
+    for (const auto& algo_name : cfg.ccl_existing_algorithms) {
+        const auto& algorithm = LabelingMapSingleton::GetLabeling(algo_name);
+        if (cfg.perform_average || cfg.perform_check_8connectivity_std) {
+            try {
+                algorithm->PerformLabeling();
+                cfg.ccl_average_algorithms.push_back(algo_name);
+            }
+            catch (const runtime_error& e) {
+                ob_setconf.Cwarning(algo_name + ": " + e.what());
+            }
+        }
+        if (cfg.perform_average_ws || cfg.perform_check_8connectivity_ws) {
+            try {
+                algorithm->PerformLabelingWithSteps();
+                cfg.ccl_average_ws_algorithms.push_back(algo_name);
+            }
+            catch (const runtime_error& e) {
+                ob_setconf.Cwarning(algo_name + ": " + e.what());
+            }
+        }
+        if (cfg.perform_memory || cfg.perform_check_8connectivity_mem) {
+            try {
+                algorithm->PerformLabelingMem(vector<unsigned long int>{});
+                cfg.ccl_mem_algorithms.push_back(algo_name);
+            }
+            catch (const runtime_error& e) {
+                ob_setconf.Cwarning(algo_name + ": " + e.what());
+            }
+        }
+    }
+
+    if ((cfg.perform_average || cfg.perform_check_8connectivity_std) && cfg.ccl_average_algorithms.size() == 0) {
+        ob_setconf.Cwarning("There are no 'algorithms' with valid 'PerformLabeling()' method, related tests will be skipped");
+        cfg.perform_average = false; 
+        cfg.perform_check_8connectivity_std = false;
+    }
+
+    if ((cfg.perform_average_ws || cfg.perform_check_8connectivity_ws) && cfg.ccl_average_ws_algorithms.size() == 0) {
+        ob_setconf.Cwarning("There are no 'algorithms' with valid 'PerformLabelingWithSteps()' method, related tests will be skipped");
+        cfg.perform_average_ws = false;
+        cfg.perform_check_8connectivity_ws = false;
+    }
+
+    if ((cfg.perform_memory || cfg.perform_check_8connectivity_mem) && cfg.ccl_mem_algorithms.size() == 0) {
+        ob_setconf.Cwarning("There are no 'algorithms' with valid 'PerformLabelingMem()' method, related tests will be skipped");
+        cfg.perform_memory = false;
+        cfg.perform_check_8connectivity_mem = false;
     }
 
     if (cfg.perform_average && (cfg.average_tests_number < 1 || cfg.average_tests_number > 999)) {
@@ -1098,39 +1151,6 @@ int main()
         !cfg.perform_average_ws) {
         ob_setconf.Cerror("There are no tests to perform");
         // EXIT_FAILURE;
-    }
-
-    // Check if labeling methods of the specified algorithms exist
-    Labeling::img_ = Mat1b(1, 1, static_cast<uchar>(0));
-    for (const auto& algo_name : cfg.ccl_algorithms) {
-        const auto& algorithm = LabelingMapSingleton::GetLabeling(algo_name);
-        if (cfg.perform_average) {
-            try {
-                algorithm->PerformLabeling();
-                cfg.ccl_average_algorithms.push_back(algo_name);
-            }
-            catch (const runtime_error& e) {
-                ob_setconf.Cwarning(algo_name + ": " + e.what());
-            }
-        }
-        if (cfg.perform_average_ws) {
-            try {
-                algorithm->PerformLabelingWithSteps();
-                cfg.ccl_average_ws_algorithms.push_back(algo_name);
-            }
-            catch (const runtime_error& e) {
-                ob_setconf.Cwarning(algo_name + ": " + e.what());
-            }
-        }
-        if (cfg.perform_memory) {
-            try {
-                algorithm->PerformLabelingMem(vector<unsigned long>{});
-                cfg.ccl_mem_algorithms.push_back(algo_name);
-            }
-            catch (const runtime_error& e) {
-                ob_setconf.Cwarning(algo_name + ": " + e.what());
-            }
-        }
     }
 
     // Check datasets
@@ -1190,7 +1210,7 @@ int main()
 
     // Test Algorithms with different input type and different output format, and show execution result
     // AVERAGES TEST
-    Mat1d all_res(cfg.average_datasets.size(), cfg.ccl_algorithms.size(), numeric_limits<double>::max()); // We need it to save average results and generate latex table
+    Mat1d all_res(cfg.average_datasets.size(), cfg.ccl_existing_algorithms.size(), numeric_limits<double>::max()); // We need it to save average results and generate latex table
 
     //if (cfg.perform_average) {
     //    //cout << endl << "AVERAGE TESTS: " << endl;
@@ -1212,13 +1232,13 @@ int main()
     if (cfg.perform_density) {
         //cout << endl << "DENSITY_SIZE TESTS: " << endl;
         //TitleBar::Display("DENSITY_SIZE TESTS");
-        if (cfg.ccl_algorithms.size() == 0) {
+        if (cfg.ccl_existing_algorithms.size() == 0) {
             cout << "ERROR: no algorithms, density_size tests skipped" << endl;
         }
         else {
             for (unsigned i = 0; i < cfg.density_datasets.size(); ++i) {
                 cout << "Density_Size_Test on '" << cfg.density_datasets[i] << "': starts" << endl;
-                cout << DensitySizeTest(cfg.ccl_algorithms, cfg.input_path, cfg.density_datasets[i], cfg.input_txt, cfg.gnuplot_script_extension, cfg.output_path, cfg.latex_path.stem().string(), cfg.colors_folder, cfg.density_save_middle_tests, cfg.density_tests_number, cfg.middle_folder, cfg.write_n_labels, cfg.density_color_labels) << endl;
+                cout << DensitySizeTest(cfg.ccl_existing_algorithms, cfg.input_path, cfg.density_datasets[i], cfg.input_txt, cfg.gnuplot_script_extension, cfg.output_path, cfg.latex_path.stem().string(), cfg.colors_folder, cfg.density_save_middle_tests, cfg.density_tests_number, cfg.middle_folder, cfg.write_n_labels, cfg.density_color_labels) << endl;
                 //cout << "Density_Size_Test on '" << density_datasets[i] << "': ends" << endl << endl;
             }
         }
@@ -1245,7 +1265,7 @@ int main()
         //Check which algorithms support Memory Tests
         Labeling::img_ = Mat1b();
 
-        for (const auto& algo_name : cfg.ccl_algorithms) {
+        for (const auto& algo_name : cfg.ccl_existing_algorithms) {
             auto& algorithm = LabelingMapSingleton::GetInstance().data_.at(algo_name);
             try {
                 vector<unsigned long> n_accesses;
@@ -1258,7 +1278,7 @@ int main()
             }
         }
 
-        if (cfg.ccl_algorithms.size() == 0) {
+        if (cfg.ccl_existing_algorithms.size() == 0) {
             cout << "ERROR: no algorithms, memory tests skipped" << endl;
         }
         else {
