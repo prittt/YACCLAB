@@ -123,7 +123,7 @@ private:
                 n_labels_correct = connectedComponents(Labeling::img_, labeled_img_correct, 8, 4, CCL_WU);
 
                 unsigned j = 0;
-                for (const auto& algo_name : cfg_.ccl_algorithms) {
+                for (const auto& algo_name : ccl_algorithms) {
                     Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
 
                     // Perform labeling on current algorithm if it has no previously failed
@@ -154,11 +154,11 @@ private:
         }// END FOR (LIST OF DATASETS)
 
          // To display report of correctness test
-        std::vector<std::string> messages(cfg_.ccl_algorithms.size());
-        unsigned longest_name = max_element(cfg_.ccl_algorithms.begin(), cfg_.ccl_algorithms.end(), CompareLengthCvString)->length();
+        std::vector<std::string> messages(ccl_algorithms.size());
+        unsigned longest_name = max_element(ccl_algorithms.begin(), ccl_algorithms.end(), CompareLengthCvString)->length();
 
         unsigned j = 0;
-        for (const auto& algo_name : cfg_.ccl_algorithms) {
+        for (const auto& algo_name : ccl_algorithms) {
             messages[j] = "'" + algo_name + "'" + std::string(longest_name - algo_name.size(), '-');
             if (stats[j]) {
                   messages[j] += "-> correct!";
