@@ -361,7 +361,11 @@ private:
 				}
 			}
 		}
-	
+#undef condition_p
+#undef condition_q
+#undef condition_r
+#undef condition_s
+#undef condition_x
 	}
     void SecondScan() 
     {
