@@ -100,6 +100,11 @@ public:
 
             // First column
             int c = 0;
+
+            // It is also the last column? If yes skip to the specific 
+            // tree. This is necessary to handle one column vector images
+            if (c == w - 1) goto one_col;
+
             if (CONDITION_X) {
                 if (CONDITION_Q) {
                     imgLabels_row[c] = imgLabels_row_prev[c]; // x = q
@@ -237,6 +242,17 @@ public:
                         // x = new label
                         imgLabels_row[c] = LabelsSolver::NewLabel();
                     }
+                }
+            }
+            continue;
+        one_col:
+            if (CONDITION_X) {
+                if (CONDITION_Q) {
+                    imgLabels_row[c] = imgLabels_row_prev[c]; // x = q
+                }
+                else {
+                    // x = new label
+                    imgLabels_row[c] = LabelsSolver::NewLabel();
                 }
             }
         }//End rows's for
@@ -313,6 +329,15 @@ private:
 #define CONDITION_Q img_row_prev[c]>0
 #define CONDITION_R img_row_prev[c+1]>0
 
+#define ACTION_1 // nothing to do 
+#define ACTION_2 imgLabels_row[c] = LabelsSolver::NewLabel(); // new label
+#define ACTION_3 img_labels(r, c) = img_labels(r - 1, c - 1); // x <- p
+#define ACTION_4 img_labels(r, c) = img_labels(r - 1, c); // x <- q
+#define ACTION_5 img_labels(r, c) = img_labels(r - 1, c + 1); // x <- r
+#define ACTION_6 imgLabels_row[c] = imgLabels_row[c - 1]; // x <- s
+#define ACTION_7 img_labels(r, c) = LabelsSolver::MemMerge((unsigned)img_labels(r - 1, c - 1), (unsigned)img_labels(r - 1, c + 1)); // x <- p + r
+#define ACTION_8 img_labels(r, c) = LabelsSolver::MemMerge((unsigned)img_labels(r, c - 1), (unsigned)img_labels(r - 1, c + 1)); // x <- s + r
+
         {
             // Get rows pointer
             const uchar* const img_row = img_.ptr<uchar>(0);
@@ -321,21 +346,24 @@ private:
             int c = -1;
         tree_A0: if (++c >= w) goto break_A0;
             if (CONDITION_X) {
-                // x = new label
-                imgLabels_row[c] = LabelsSolver::NewLabel();
+                // new label
+                ACTION_2
                 goto tree_B0;
             }
             else {
                 // nothing
+                ACTION_1
                 goto tree_A0;
             }
         tree_B0: if (++c >= w) goto break_B0;
             if (CONDITION_X) {
-                imgLabels_row[c] = imgLabels_row[c - 1]; // x = s
+                // x <- s
+                ACTION_6
                 goto tree_B0;
             }
             else {
                 // nothing
+                ACTION_1
                 goto tree_A0;
             }
         break_A0:
@@ -348,9 +376,10 @@ private:
             const uchar* const img_row_prev = (uchar *)(((char *)img_row) - img_.step.p[0]);
             uint* const imgLabels_row = img_labels_.ptr<uint>(r);
             uint* const imgLabels_row_prev = (uint *)(((char *)imgLabels_row) - img_labels_.step.p[0]);
+        
+            int c = 0; // First column
 
-            // First column
-            int c = 0;
+        /*tree_0:*/ if (c == w - 1) goto break_0;
             if (CONDITION_X) {
                 if (CONDITION_Q) {
                     imgLabels_row[c] = imgLabels_row_prev[c]; // x = q
@@ -488,6 +517,18 @@ private:
                         // x = new label
                         imgLabels_row[c] = LabelsSolver::NewLabel();
                     }
+                }
+            }
+            continue;
+        break_0:
+            // This tree is necessary to handle (only) one column vector images
+            if (CONDITION_X) {
+                if (CONDITION_Q) {
+                    imgLabels_row[c] = imgLabels_row_prev[c]; // x = q
+                }
+                else {
+                    // x = new label
+                    imgLabels_row[c] = LabelsSolver::NewLabel();
                 }
             }
         }//End rows's for
