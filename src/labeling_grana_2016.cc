@@ -26,41 +26,6 @@
 // OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#pragma once
-#include "opencv2/opencv.hpp"
-//#include "equivalenceSolverSuzuki.h"
-#include "labeling_algorithms.h"
+#include "labeling_grana_2016.h"
 
-class PRED : public Labeling{
-public:
-    PRED() {}
-
-    unsigned PerformLabeling() override;
-
-    unsigned PerformLabelingWithSteps() override
-    {
-        AllocateMemory();
-
-        //perf_.start("FirstScan");
-        const unsigned lunique = FirstScan();
-        //perf_.stop("FirstScan");
-
-        //perf_.start("SecondScan");
-        const unsigned nLabels = SecondScan(lunique);
-        //perf_.stop("SecondScan");
-
-        DeallocateMemory();
-        return nLabels;
-    }
-
-    unsigned PerformLabelingMem(std::vector<unsigned long int>& accesses) override;
-
-private:
-    unsigned *P;
-
-    void AllocateMemory() override;
-    void DeallocateMemory() override;
-    unsigned FirstScan() override;
-    unsigned SecondScan(const unsigned& lunique) override;
-};
-
+REGISTER_LABELING_WITH_EQUIVALENCES_SOLVERS(PRED);

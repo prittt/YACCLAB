@@ -26,14 +26,491 @@
 // OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-//#include "labelingGrana2016.h"
-//#include "register.h"
-//
-//using namespace cv;
-//using namespace std;
-//
-//REGISTER_LABELING(PRED);
-//
+#pragma once
+
+#include <opencv2/core.hpp>
+
+#include "labeling_algorithms.h"
+#include "labels_solver.h"
+#include "memory_tester.h"
+
+template <typename LabelsSolver>
+class PRED : public Labeling {
+public:
+    PRED() {}
+
+    void PerformLabeling()
+    {
+        img_labels_ = cv::Mat1i(img_.size(), 0);
+
+        LabelsSolver::Alloc(UPPER_BOUND_8_CONNECTIVITY);
+        LabelsSolver::Setup();
+
+        // Rosenfeld Mask
+        // +-+-+-+
+        // |p|q|r|
+        // +-+-+-+
+        // |s|x|
+        // +-+-+
+
+        // First Scan
+        int w(img_.cols);
+        int h(img_.rows);
+
+#define CONDITION_X img_row[c]>0
+#define CONDITION_P img_row_prev[c-1]>0
+#define CONDITION_Q img_row_prev[c]>0
+#define CONDITION_R img_row_prev[c+1]>0
+
+        {
+            // Get rows pointer
+            const uchar* const img_row = img_.ptr<uchar>(0);
+            uint* const imgLabels_row = img_labels_.ptr<uint>(0);
+
+            int c = -1;
+        tree_A0: if (++c >= w) goto break_A0;
+            if (CONDITION_X) {
+                // x = new label
+                imgLabels_row[c] = LabelsSolver::NewLabel();
+                goto tree_B0;
+            }
+            else {
+                // nothing
+                goto tree_A0;
+            }
+        tree_B0: if (++c >= w) goto break_B0;
+            if (CONDITION_X) {
+                imgLabels_row[c] = imgLabels_row[c - 1]; // x = s
+                goto tree_B0;
+            }
+            else {
+                // nothing
+                goto tree_A0;
+            }
+        break_A0:
+        break_B0:;
+        }
+
+        for (int r = 1; r < h; ++r) {
+            // Get rows pointer
+            const uchar* const img_row = img_.ptr<uchar>(r);
+            const uchar* const img_row_prev = (uchar *)(((char *)img_row) - img_.step.p[0]);
+            uint* const imgLabels_row = img_labels_.ptr<uint>(r);
+            uint* const imgLabels_row_prev = (uint *)(((char *)imgLabels_row) - img_labels_.step.p[0]);
+
+            // First column
+            int c = 0;
+            if (CONDITION_X) {
+                if (CONDITION_Q) {
+                    imgLabels_row[c] = imgLabels_row_prev[c]; // x = q
+                    goto tree_A;
+                }
+                else {
+                    if (CONDITION_R) {
+                        imgLabels_row[c] = imgLabels_row_prev[c + 1]; // x = r
+                        goto tree_B;
+                    }
+                    else {
+                        // x = new label
+                        imgLabels_row[c] = LabelsSolver::NewLabel();
+                        goto tree_C;
+                    }
+                }
+            }
+            else {
+                // nothing
+                goto tree_D;
+            }
+
+        tree_A: if (++c >= w - 1) goto break_A;
+            if (CONDITION_X) {
+                if (CONDITION_Q) {
+                    imgLabels_row[c] = imgLabels_row_prev[c]; // x = q
+                    goto tree_A;
+                }
+                else {
+                    if (CONDITION_R) {
+                        imgLabels_row[c] = LabelsSolver::Merge(imgLabels_row_prev[c + 1], imgLabels_row[c - 1]); // x = r + s
+                        goto tree_B;
+                    }
+                    else {
+                        imgLabels_row[c] = imgLabels_row[c - 1]; // x = s
+                        goto tree_C;
+                    }
+                }
+            }
+            else {
+                // nothing
+                goto tree_D;
+            }
+        tree_B: if (++c >= w - 1) goto break_B;
+            if (CONDITION_X) {
+                imgLabels_row[c] = imgLabels_row_prev[c]; // x = q
+                goto tree_A;
+            }
+            else {
+                // nothing
+                goto tree_D;
+            }
+        tree_C: if (++c >= w - 1) goto break_C;
+            if (CONDITION_X) {
+                if (CONDITION_R) {
+                    imgLabels_row[c] = LabelsSolver::Merge(imgLabels_row_prev[c + 1], imgLabels_row[c - 1]); // x = r + s
+                    goto tree_B;
+                }
+                else {
+                    imgLabels_row[c] = imgLabels_row[c - 1]; // x = s
+                    goto tree_C;
+                }
+            }
+            else {
+                // nothing
+                goto tree_D;
+            }
+        tree_D: if (++c >= w - 1) goto break_D;
+            if (CONDITION_X) {
+                if (CONDITION_Q) {
+                    imgLabels_row[c] = imgLabels_row_prev[c]; // x = q
+                    goto tree_A;
+                }
+                else {
+                    if (CONDITION_R) {
+                        if (CONDITION_P) {
+                            imgLabels_row[c] = LabelsSolver::Merge(imgLabels_row_prev[c - 1], imgLabels_row_prev[c + 1]); // x = p + r
+                            goto tree_B;
+                        }
+                        else {
+                            imgLabels_row[c] = imgLabels_row_prev[c + 1]; // x = r
+                            goto tree_B;
+                        }
+                    }
+                    else {
+                        if (CONDITION_P) {
+                            imgLabels_row[c] = imgLabels_row_prev[c - 1]; // x = p
+                            goto tree_C;
+                        }
+                        else {
+                            // x = new label
+                            imgLabels_row[c] = LabelsSolver::NewLabel();
+                            goto tree_C;
+                        }
+                    }
+                }
+            }
+            else {
+                // nothing
+                goto tree_D;
+            }
+
+
+            // Last column
+        break_A:
+            if (CONDITION_X) {
+                if (CONDITION_Q) {
+                    imgLabels_row[c] = imgLabels_row_prev[c]; // x = q
+                }
+                else {
+                    imgLabels_row[c] = imgLabels_row[c - 1]; // x = s
+                }
+            }
+            continue;
+        break_B:
+            if (CONDITION_X) {
+                imgLabels_row[c] = imgLabels_row_prev[c]; // x = q
+            }
+            continue;
+        break_C:
+            if (CONDITION_X) {
+                imgLabels_row[c] = imgLabels_row[c - 1]; // x = s
+            }
+            continue;
+        break_D:
+            if (CONDITION_X) {
+                if (CONDITION_Q) {
+                    imgLabels_row[c] = imgLabels_row_prev[c]; // x = q
+                }
+                else {
+                    if (CONDITION_P) {
+                        imgLabels_row[c] = imgLabels_row_prev[c - 1]; // x = p
+                    }
+                    else {
+                        // x = new label
+                        imgLabels_row[c] = LabelsSolver::NewLabel();
+                    }
+                }
+            }
+        }//End rows's for
+
+    // Second scan
+        n_labels_ = LabelsSolver::Flatten();
+
+        for (int r_i = 0; r_i < img_labels_.rows; ++r_i) {
+            unsigned int *b = img_labels_.ptr<unsigned int>(r_i);
+            unsigned int *e = b + img_labels_.cols;
+            for (; b != e; ++b) {
+                *b = LabelsSolver::GetLabel(*b);
+            }
+        }
+
+        LabelsSolver::Dealloc();
+
+#undef CONDITION_X
+#undef CONDITION_P
+#undef CONDITION_Q
+#undef CONDITION_R
+    }
+
+    void PerformLabelingWithSteps()
+    {
+        perf_.start();
+        Alloc();
+        perf_.stop();
+        double alloc_timing = perf_.last();
+
+        perf_.start();
+        FirstScan();
+        perf_.stop();
+        perf_.store(Step(StepType::FIRST_SCAN), perf_.last());
+
+        perf_.start();
+        SecondScan();
+        perf_.stop();
+        perf_.store(Step(StepType::SECOND_SCAN), perf_.last());
+
+        perf_.start();
+        Dealloc();
+        perf_.stop();
+        perf_.store(Step(StepType::ALLOC_DEALLOC), perf_.last() + alloc_timing);
+
+    }
+
+    void PerformLabelingMem(std::vector<unsigned long int>& accesses)
+    {
+    }
+
+private:
+    void Alloc()
+    {
+        LabelsSolver::Alloc(UPPER_BOUND_8_CONNECTIVITY); // Memory allocation of the labels solver
+        img_labels_ = cv::Mat1i(img_.size()); // Memory allocation of the output image
+    }
+    void Dealloc()
+    {
+        LabelsSolver::Dealloc();
+        // No free for img_labels_ because it is required at the end of the algorithm 
+    }
+    void FirstScan()
+    {
+        img_labels_ = cv::Mat1i::zeros(img_.size()); // Initialization
+        LabelsSolver::Setup();
+
+        // First Scan
+        int w(img_.cols);
+        int h(img_.rows);
+
+#define CONDITION_X img_row[c]>0
+#define CONDITION_P img_row_prev[c-1]>0
+#define CONDITION_Q img_row_prev[c]>0
+#define CONDITION_R img_row_prev[c+1]>0
+
+        {
+            // Get rows pointer
+            const uchar* const img_row = img_.ptr<uchar>(0);
+            uint* const imgLabels_row = img_labels_.ptr<uint>(0);
+
+            int c = -1;
+        tree_A0: if (++c >= w) goto break_A0;
+            if (CONDITION_X) {
+                // x = new label
+                imgLabels_row[c] = LabelsSolver::NewLabel();
+                goto tree_B0;
+            }
+            else {
+                // nothing
+                goto tree_A0;
+            }
+        tree_B0: if (++c >= w) goto break_B0;
+            if (CONDITION_X) {
+                imgLabels_row[c] = imgLabels_row[c - 1]; // x = s
+                goto tree_B0;
+            }
+            else {
+                // nothing
+                goto tree_A0;
+            }
+        break_A0:
+        break_B0:;
+        }
+
+        for (int r = 1; r < h; ++r) {
+            // Get rows pointer
+            const uchar* const img_row = img_.ptr<uchar>(r);
+            const uchar* const img_row_prev = (uchar *)(((char *)img_row) - img_.step.p[0]);
+            uint* const imgLabels_row = img_labels_.ptr<uint>(r);
+            uint* const imgLabels_row_prev = (uint *)(((char *)imgLabels_row) - img_labels_.step.p[0]);
+
+            // First column
+            int c = 0;
+            if (CONDITION_X) {
+                if (CONDITION_Q) {
+                    imgLabels_row[c] = imgLabels_row_prev[c]; // x = q
+                    goto tree_A;
+                }
+                else {
+                    if (CONDITION_R) {
+                        imgLabels_row[c] = imgLabels_row_prev[c + 1]; // x = r
+                        goto tree_B;
+                    }
+                    else {
+                        // x = new label
+                        imgLabels_row[c] = LabelsSolver::NewLabel();
+                        goto tree_C;
+                    }
+                }
+            }
+            else {
+                // nothing
+                goto tree_D;
+            }
+
+        tree_A: if (++c >= w - 1) goto break_A;
+            if (CONDITION_X) {
+                if (CONDITION_Q) {
+                    imgLabels_row[c] = imgLabels_row_prev[c]; // x = q
+                    goto tree_A;
+                }
+                else {
+                    if (CONDITION_R) {
+                        imgLabels_row[c] = LabelsSolver::Merge(imgLabels_row_prev[c + 1], imgLabels_row[c - 1]); // x = r + s
+                        goto tree_B;
+                    }
+                    else {
+                        imgLabels_row[c] = imgLabels_row[c - 1]; // x = s
+                        goto tree_C;
+                    }
+                }
+            }
+            else {
+                // nothing
+                goto tree_D;
+            }
+        tree_B: if (++c >= w - 1) goto break_B;
+            if (CONDITION_X) {
+                imgLabels_row[c] = imgLabels_row_prev[c]; // x = q
+                goto tree_A;
+            }
+            else {
+                // nothing
+                goto tree_D;
+            }
+        tree_C: if (++c >= w - 1) goto break_C;
+            if (CONDITION_X) {
+                if (CONDITION_R) {
+                    imgLabels_row[c] = LabelsSolver::Merge(imgLabels_row_prev[c + 1], imgLabels_row[c - 1]); // x = r + s
+                    goto tree_B;
+                }
+                else {
+                    imgLabels_row[c] = imgLabels_row[c - 1]; // x = s
+                    goto tree_C;
+                }
+            }
+            else {
+                // nothing
+                goto tree_D;
+            }
+        tree_D: if (++c >= w - 1) goto break_D;
+            if (CONDITION_X) {
+                if (CONDITION_Q) {
+                    imgLabels_row[c] = imgLabels_row_prev[c]; // x = q
+                    goto tree_A;
+                }
+                else {
+                    if (CONDITION_R) {
+                        if (CONDITION_P) {
+                            imgLabels_row[c] = LabelsSolver::Merge(imgLabels_row_prev[c - 1], imgLabels_row_prev[c + 1]); // x = p + r
+                            goto tree_B;
+                        }
+                        else {
+                            imgLabels_row[c] = imgLabels_row_prev[c + 1]; // x = r
+                            goto tree_B;
+                        }
+                    }
+                    else {
+                        if (CONDITION_P) {
+                            imgLabels_row[c] = imgLabels_row_prev[c - 1]; // x = p
+                            goto tree_C;
+                        }
+                        else {
+                            // x = new label
+                            imgLabels_row[c] = LabelsSolver::NewLabel();
+                            goto tree_C;
+                        }
+                    }
+                }
+            }
+            else {
+                // nothing
+                goto tree_D;
+            }
+
+
+            // Last column
+        break_A:
+            if (CONDITION_X) {
+                if (CONDITION_Q) {
+                    imgLabels_row[c] = imgLabels_row_prev[c]; // x = q
+                }
+                else {
+                    imgLabels_row[c] = imgLabels_row[c - 1]; // x = s
+                }
+            }
+            continue;
+        break_B:
+            if (CONDITION_X) {
+                imgLabels_row[c] = imgLabels_row_prev[c]; // x = q
+            }
+            continue;
+        break_C:
+            if (CONDITION_X) {
+                imgLabels_row[c] = imgLabels_row[c - 1]; // x = s
+            }
+            continue;
+        break_D:
+            if (CONDITION_X) {
+                if (CONDITION_Q) {
+                    imgLabels_row[c] = imgLabels_row_prev[c]; // x = q
+                }
+                else {
+                    if (CONDITION_P) {
+                        imgLabels_row[c] = imgLabels_row_prev[c - 1]; // x = p
+                    }
+                    else {
+                        // x = new label
+                        imgLabels_row[c] = LabelsSolver::NewLabel();
+                    }
+                }
+            }
+        }//End rows's for
+#undef CONDITION_X
+#undef CONDITION_P
+#undef CONDITION_Q
+#undef CONDITION_R
+    }
+    void SecondScan()
+    {
+        // Second scan
+        n_labels_ = LabelsSolver::Flatten();
+
+        for (int r_i = 0; r_i < img_labels_.rows; ++r_i) {
+            unsigned int *b = img_labels_.ptr<unsigned int>(r_i);
+            unsigned int *e = b + img_labels_.cols;
+            for (; b != e; ++b) {
+                *b = LabelsSolver::GetLabel(*b);
+            }
+        }
+    }
+};
+
 //void PRED::AllocateMemory()
 //{
 //    const size_t Plength = UPPER_BOUND_8_CONNECTIVITY;
@@ -606,7 +1083,7 @@
 //#undef condition_q
 //#undef condition_r
 //
-//    //second scan
+//     //second scan
 //    unsigned nLabel = flattenL(P, lunique);
 //
 //    // second scan
@@ -630,8 +1107,8 @@
 //    MemMat<uchar> img(img_);
 //    MemMat<int> img_labels_(img_.size(), 0); // memset is used
 //
-//                                                  //A quick and dirty upper bound for the maximimum number of labels (only for 8-connectivity).
-//                                                  //const size_t Plength = (img_origin.rows + 1)*(img_origin.cols + 1) / 4 + 1; // Oversized in some cases
+//                                             //A quick and dirty upper bound for the maximimum number of labels (only for 8-connectivity).
+//                                             //const size_t Plength = (img_origin.rows + 1)*(img_origin.cols + 1) / 4 + 1; // Oversized in some cases
 //    const size_t Plength = UPPER_BOUND_8_CONNECTIVITY;
 //
 //    //Tree of labels
