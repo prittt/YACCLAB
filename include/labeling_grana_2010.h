@@ -379,7 +379,7 @@ public:
     void PerformLabelingWithSteps()
     {
         perf_.start();
-        AllocateMemory();
+        Alloc();
         perf_.stop();
         double alloc_timing = perf_.last();
 
@@ -394,10 +394,9 @@ public:
         perf_.store(Step(StepType::SECOND_SCAN), perf_.last());
 
         perf_.start();
-        DeallocateMemory();
+        Dealloc();
         perf_.stop();
         perf_.store(Step(StepType::ALLOC_DEALLOC), perf_.last() + alloc_timing);
-
     }
 
     void PerformLabelingMem(std::vector<unsigned long int>& accesses)
@@ -598,12 +597,12 @@ public:
 
 private:
 
-    void AllocateMemory()
+    void Alloc()
     {
         LabelsSolver::Alloc(UPPER_BOUND_8_CONNECTIVITY); // Memory allocation of the labels solver
         img_labels_ = cv::Mat1i(img_.size()); // Memory allocation for the output image
     }
-    void DeallocateMemory()
+    void Dealloc()
     {
         LabelsSolver::Dealloc();
         // No free for img_labels_ because it is required at the end of the algorithm 
