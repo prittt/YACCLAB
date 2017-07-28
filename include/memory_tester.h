@@ -67,10 +67,7 @@ public:
         cols = size.width;
     }
 
-    MemMat(size_t rows, size_t cols)
-    {
-        MemMat(cv::Size(cols, rows));
-    }
+    MemMat(size_t rows, size_t cols) : MemMat(cv::Size(cols, rows)) {}
 
     MemMat(cv::Size size, const T val)
     {
@@ -80,10 +77,7 @@ public:
         cols = size.width;
     }
 
-    MemMat(size_t rows, size_t cols, const T val)
-    {
-        MemMat(cv::Size(cols, rows), val);
-    }
+    MemMat(size_t rows, size_t cols, const T val) : MemMat(cv::Size(cols, rows), val) {}
 
     T& operator()(const int r, const int c)
     {
