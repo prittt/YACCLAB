@@ -68,6 +68,7 @@ public:
 
     static LabelingMapSingleton& GetInstance();
     static Labeling* GetLabeling(const std::string& s);
+    static bool Exists(const std::string& s);
     LabelingMapSingleton(LabelingMapSingleton const&) = delete;
     void operator=(LabelingMapSingleton const&) = delete;
 
