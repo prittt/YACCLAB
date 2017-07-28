@@ -105,7 +105,7 @@ public:
 #define CONDITION_S r+1<h && img_row_fol[c]>0
 #define CONDITION_T c+1<w && r+1<h && img_row_fol[c+1]>0
 
-                // Action 1: No action
+// Action 1: No action
 #define ACTION_1 img_labels_row[c] = 0; continue; 
 // Action 2: New label (the block has foreground pixels and is not connected to anything else)
 #define ACTION_2 img_labels_row[c] = LabelsSolver::NewLabel(); continue; 
