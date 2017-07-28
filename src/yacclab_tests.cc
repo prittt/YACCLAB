@@ -33,6 +33,7 @@
 #include <functional>
 #include <iostream>
 #include <set>
+#include <cstdint>
 
 #include <opencv2/imgproc.hpp>
 
