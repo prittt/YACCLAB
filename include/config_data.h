@@ -80,7 +80,8 @@ struct ConfigData {
     std::vector<cv::String> average_datasets;     // Lists of dataset on which averages tests will be performed
     std::vector<cv::String> average_datasets_ws;  // Lists of dataset on which averages tests whit steps will be performed
 
-    std::vector<cv::String> ccl_algorithms;       // Lists of algorithms specified by the user in the config.yaml
+    std::vector<cv::String> ccl_algorithms;          // Lists of algorithms specified by the user in the config.yaml
+    std::vector<cv::String> ccl_existing_algorithms; // Lists of 'ccl_algorithms' actually existing
 
     std::vector<cv::String> ccl_mem_algorithms;        // List of algorithms which actually support memory tests
     std::vector<cv::String> ccl_average_algorithms;    // List of algorithms which actually support average/density tests
