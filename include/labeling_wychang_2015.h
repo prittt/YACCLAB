@@ -65,8 +65,7 @@ public:
     CCIT() {}
 
     void PerformLabeling()
-    {
-        
+    {        
         img_labels_ = cv::Mat1i(img_.size(), 0);
 
         int w = img_labels_.cols;

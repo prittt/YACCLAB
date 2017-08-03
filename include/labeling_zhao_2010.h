@@ -53,8 +53,19 @@ public:
         uchar firstpixel = img_(0, 0);
         if (firstpixel) {
             const_cast<cv::Mat1b&>(img_)(0, 0) = 0;
-            if (img_(0, 1) == 0 && img_(1, 0) == 0 && img_(1, 1) == 0)
-                n_labels_ = 1;
+
+			if (M == 1) {
+				if (N == 1) 
+					n_labels_ = 1;
+				else 
+					n_labels_ = img_(0, 1) == 0;
+			}
+			else {
+				if (N == 1) 
+					n_labels_ = img_(1, 0) == 0;
+				else 
+					n_labels_ = img_(0, 1) == 0 && img_(1, 0) == 0 && img_(1, 1) == 0;
+			}
         }
 
         // Stripe extraction and representation
@@ -169,11 +180,11 @@ public:
         // Fix for first pixel!
         if (firstpixel) {
             const_cast<cv::Mat1b&>(img_)(0, 0) = firstpixel;
-            if (img_labels_(0, 1))
+            if (N > 1 && img_labels_(0, 1))
                 img_labels_(0, 0) = img_labels_(0, 1);
-            else if (img_labels_(1, 0))
+            else if (M > 1 && img_labels_(1, 0))
                 img_labels_(0, 0) = img_labels_(1, 0);
-            else if (img_labels_(1, 1))
+			else if (N > 1 && M > 1 && img_labels_(1, 1))
                 img_labels_(0, 0) = img_labels_(1, 1);
             else
                 img_labels_(0, 0) = 1;
