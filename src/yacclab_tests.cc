@@ -221,6 +221,11 @@ void YacclabTests::AverageTest()
         // Start output message box
         ob.StartRepeatedBox(dataset_name, filenames_size, cfg_.average_tests_number);
 
+		map<String, size_t> algo_pos;
+		for (size_t i = 0; i < cfg_.ccl_average_algorithms.size(); ++i)
+			algo_pos[cfg_.ccl_average_algorithms[i]] = i;
+		auto shuffled_ccl_average_algorithms = cfg_.ccl_average_algorithms;
+
         // Test is executed n_test times
         for (unsigned test = 0; test < cfg_.average_tests_number; ++test) {
             // For every file in list
@@ -237,11 +242,15 @@ void YacclabTests::AverageTest()
                     continue;
                 }
 
-                unsigned i = 0;
+				random_shuffle(begin(shuffled_ccl_average_algorithms), end(shuffled_ccl_average_algorithms));
+
+                //unsigned i = 0;
                 // For all the Algorithms in the array
-                for (const auto& algo_name : cfg_.ccl_average_algorithms) {
+				for (const auto& algo_name : shuffled_ccl_average_algorithms) {
                     Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
                     unsigned n_labels;
+					
+					unsigned i = algo_pos[algo_name];
 
                     try {
                         // Perform current algorithm on current image and save result.
@@ -278,7 +287,7 @@ void YacclabTests::AverageTest()
                         String colored_image = (output_colored_images_path / path(filename + "_" + algo_name + ".png")).string();
                         imwrite(colored_image, imgColors);
                     }
-                    ++i;
+                    //++i;
                 } // END ALGORITHMS FOR
             } // END FILES FOR.
             ob.StopRepeatedBox();
