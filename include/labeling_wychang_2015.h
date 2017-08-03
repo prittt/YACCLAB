@@ -53,8 +53,6 @@
 
 #include <vector>
 
-#include <stdint.h>
-
 #include <opencv2/core.hpp>
 
 #include "labeling_algorithms.h"
