@@ -45,6 +45,7 @@
 #include "memory_tester.h"
 #include "performance_evaluator.h"
 #include "progress_bar.h"
+#include "stream_demultiplexer.h"
 #include "system_info.h"
 #include "utilities.h"
 #include "yacclab_tests.h"
@@ -57,7 +58,7 @@ void saveBroadOutputResults(const Mat1d& results, const path& oFilename, vector<
 {
     ofstream os(oFilename.string());
     if (!os.is_open()) {
-        cout << "Unable to save middle results" << endl;
+        dmux::cout << "Unable to save middle results" << endl;
         return;
     }
 
@@ -187,7 +188,7 @@ string AverageTest(vector<String>& ccl_algorithms, Mat1d& all_res, const unsigne
 
             // Display "progress bar"
             if (currentNumber * 100 / file_number != (currentNumber - 1) * 100 / file_number) {
-                cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << file_number << "         \r";
+                dmux::cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << file_number << "         \r";
                 fflush(stdout);
             }
             //p_bar.Display(currentNumber++, test + 1);
@@ -197,7 +198,7 @@ string AverageTest(vector<String>& ccl_algorithms, Mat1d& all_res, const unsigne
 
             if (!GetBinaryImage(filename_path, Labeling::img_)) {
                 if (filenames[file].second)
-                    cout << "'" + filename + "' does not exist" << endl;
+                    dmux::cout << "'" + filename + "' does not exist" << endl;
                 filenames[file].second = false;
                 continue;
             }
@@ -245,7 +246,7 @@ string AverageTest(vector<String>& ccl_algorithms, Mat1d& all_res, const unsigne
         } // END FILES FOR.
 
           // To display "progress bar"
-        cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << file_number << "         \r";
+        dmux::cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << file_number << "         \r";
         fflush(stdout);
 
         // Save middle results if necessary (flag 'average_save_middle_tests' enable)
@@ -549,7 +550,7 @@ string DensitySizeTest(vector<String>& ccl_algorithms, const path& input_path, c
 
             // Display "progress bar"
             if (currentNumber * 100 / file_number != (currentNumber - 1) * 100 / file_number) {
-                cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << file_number << "         \r";
+                dmux::cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << file_number << "         \r";
                 fflush(stdout);
             }
             //p_bar.Display(currentNumber++, test + 1);
@@ -558,7 +559,7 @@ string DensitySizeTest(vector<String>& ccl_algorithms, const path& input_path, c
 
             if (!GetBinaryImage(input_path / path(inputFolder) / path(filename), Labeling::img_)) {
                 if (filenames[file].second)
-                    cout << "'" + filename + "' does not exist" << endl;
+                    dmux::cout << "'" + filename + "' does not exist" << endl;
                 filenames[file].second = false;
                 continue;
             }
@@ -616,7 +617,7 @@ string DensitySizeTest(vector<String>& ccl_algorithms, const path& input_path, c
             }// END ALGORTIHMS FOR
         } // END FILES FOR
           // To display "progress bar"
-        cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << file_number << "         \r";
+        dmux::cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << file_number << "         \r";
         fflush(stdout);
 
         // Save middle results if necessary (flag 'average_save_middle_tests' enable)
@@ -963,7 +964,7 @@ string MemoryTest(vector<String>& ccl_mem_algorithms, Mat1d& algoAverageAccesses
 
         // Display "progress bar"
         if (currentNumber * 100 / file_number != (currentNumber - 1) * 100 / file_number) {
-            cout << currentNumber << "/" << file_number << "         \r";
+            dmux::cout << currentNumber << "/" << file_number << "         \r";
             fflush(stdout);
         }
         currentNumber++;
@@ -972,7 +973,7 @@ string MemoryTest(vector<String>& ccl_mem_algorithms, Mat1d& algoAverageAccesses
 
         if (!GetBinaryImage(input_path / path(inputFolder) / path(filename), Labeling::img_)) {
             if (filenames[file].second)
-                cout << "'" + filename + "' does not exist" << endl;
+                dmux::cout << "'" + filename + "' does not exist" << endl;
             filenames[file].second = false;
             continue;
         }
@@ -997,7 +998,7 @@ string MemoryTest(vector<String>& ccl_mem_algorithms, Mat1d& algoAverageAccesses
     } // END FILES FOR
 
       // To display "progress bar"
-    cout << currentNumber << "/" << file_number << "         \r";
+    dmux::cout << currentNumber << "/" << file_number << "         \r";
     fflush(stdout);
 
     // To calculate average memory accesses
@@ -1020,6 +1021,13 @@ int main()
 
     // To handle filesystem errors
     error_code ec;
+
+    // Create StreamDemultiplexer object in order
+    // to reverse output on both stdout and log file 
+    ofstream os("log.txt");
+    if (os.is_open()) {
+        dmux::cout.AddStream(os);
+    }
 
     OutputBox ob_setconf("Setting Configuration Parameters"); 
     // Read yaml configuration file
@@ -1213,16 +1221,16 @@ int main()
     Mat1d all_res(cfg.average_datasets.size(), cfg.ccl_existing_algorithms.size(), numeric_limits<double>::max()); // We need it to save average results and generate latex table
 
     //if (cfg.perform_average) {
-    //    //cout << endl << "AVERAGE TESTS: " << endl;
+    //    //dmux::cout << endl << "AVERAGE TESTS: " << endl;
     //    //TitleBar::Display("AVERAGE TESTS");
     //    if (cfg.ccl_algorithms.size() == 0) {
-    //        cout << "ERROR: no algorithms, average tests skipped" << endl;
+    //        dmux::cout << "ERROR: no algorithms, average tests skipped" << endl;
     //    }
     //    else {
     //        for (unsigned i = 0; i < cfg.average_datasets.size(); ++i) {
-    //            cout << "Averages_Test on '" << cfg.average_datasets[i] << "': starts" << endl;
-    //            cout << AverageTest(cfg.ccl_algorithms, all_res, i, cfg.input_path, cfg.average_datasets[i], cfg.input_txt, cfg.gnuplot_script_extension, cfg.output_path, cfg.latex_path.stem().string(), cfg.colors_folder, cfg.average_save_middle_tests, cfg.average_tests_number, cfg.middle_folder, cfg.write_n_labels, cfg.average_color_labels) << endl;
-    //            //cout << "Averages_Test on '" << average_datasets[i] << "': ends" << endl << endl;
+    //            dmux::cout << "Averages_Test on '" << cfg.average_datasets[i] << "': starts" << endl;
+    //            dmux::cout << AverageTest(cfg.ccl_algorithms, all_res, i, cfg.input_path, cfg.average_datasets[i], cfg.input_txt, cfg.gnuplot_script_extension, cfg.output_path, cfg.latex_path.stem().string(), cfg.colors_folder, cfg.average_save_middle_tests, cfg.average_tests_number, cfg.middle_folder, cfg.write_n_labels, cfg.average_color_labels) << endl;
+    //            //dmux::cout << "Averages_Test on '" << average_datasets[i] << "': ends" << endl << endl;
     //        }
     //        //GenerateLatexTable(cfg.output_path, cfg.latex_file, all_res, cfg.average_datasets, cfg.ccl_algorithms);
     //    }
@@ -1230,16 +1238,16 @@ int main()
 
     // DENSITY_SIZE_TESTS
     if (cfg.perform_density) {
-        //cout << endl << "DENSITY_SIZE TESTS: " << endl;
+        //dmux::cout << endl << "DENSITY_SIZE TESTS: " << endl;
         //TitleBar::Display("DENSITY_SIZE TESTS");
         if (cfg.ccl_existing_algorithms.size() == 0) {
-            cout << "ERROR: no algorithms, density_size tests skipped" << endl;
+            dmux::cout << "ERROR: no algorithms, density_size tests skipped" << endl;
         }
         else {
             for (unsigned i = 0; i < cfg.density_datasets.size(); ++i) {
-                cout << "Density_Size_Test on '" << cfg.density_datasets[i] << "': starts" << endl;
-                cout << DensitySizeTest(cfg.ccl_existing_algorithms, cfg.input_path, cfg.density_datasets[i], cfg.input_txt, cfg.gnuplot_script_extension, cfg.output_path, cfg.latex_path.stem().string(), cfg.colors_folder, cfg.density_save_middle_tests, cfg.density_tests_number, cfg.middle_folder, cfg.write_n_labels, cfg.density_color_labels) << endl;
-                //cout << "Density_Size_Test on '" << density_datasets[i] << "': ends" << endl << endl;
+                dmux::cout << "Density_Size_Test on '" << cfg.density_datasets[i] << "': starts" << endl;
+                dmux::cout << DensitySizeTest(cfg.ccl_existing_algorithms, cfg.input_path, cfg.density_datasets[i], cfg.input_txt, cfg.gnuplot_script_extension, cfg.output_path, cfg.latex_path.stem().string(), cfg.colors_folder, cfg.density_save_middle_tests, cfg.density_tests_number, cfg.middle_folder, cfg.write_n_labels, cfg.density_color_labels) << endl;
+                //dmux::cout << "Density_Size_Test on '" << density_datasets[i] << "': ends" << endl << endl;
             }
         }
     }
@@ -1260,7 +1268,7 @@ int main()
     vector<String> ccl_mem_algorithms;
     // MEMORY_TESTS
     if (cfg.perform_memory) {
-        cout << endl << "MEMORY TESTS: " << endl;
+        dmux::cout << endl << "MEMORY TESTS: " << endl;
 
         //Check which algorithms support Memory Tests
         Labeling::img_ = Mat1b();
@@ -1279,13 +1287,13 @@ int main()
         }
 
         if (cfg.ccl_existing_algorithms.size() == 0) {
-            cout << "ERROR: no algorithms, memory tests skipped" << endl;
+            dmux::cout << "ERROR: no algorithms, memory tests skipped" << endl;
         }
         else {
             for (unsigned i = 0; i < cfg.memory_datasets.size(); ++i) {
-                cout << endl << "Memory_Test on '" << cfg.memory_datasets[i] << "': starts" << endl;
-                cout << MemoryTest(ccl_mem_algorithms, accesses[cfg.memory_datasets[i]], cfg.input_path, cfg.memory_datasets[i], cfg.input_txt, cfg.output_path) << endl;
-                cout << "Memory_Test on '" << cfg.memory_datasets[i] << "': ends" << endl << endl;
+                dmux::cout << endl << "Memory_Test on '" << cfg.memory_datasets[i] << "': starts" << endl;
+                dmux::cout << MemoryTest(ccl_mem_algorithms, accesses[cfg.memory_datasets[i]], cfg.input_path, cfg.memory_datasets[i], cfg.input_txt, cfg.output_path) << endl;
+                dmux::cout << "Memory_Test on '" << cfg.memory_datasets[i] << "': ends" << endl << endl;
                 // GenerateMemoryLatexTable(cfg.output_path, cfg.latex_memory_file, accesses[i], cfg.memory_datasets[i], ccl_mem_algorithms);
             }
         }

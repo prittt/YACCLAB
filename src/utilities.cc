@@ -52,6 +52,8 @@ const string kTerminal = "pdf";
 const string kTerminalExtension = ".pdf";
 #endif
 
+StreamDemultiplexer dmux::cout(std::cout);
+
 bool CompareLengthCvString(String const& lhs, String const& rhs) {
 	return lhs.size() < rhs.size();
 }
@@ -199,7 +201,7 @@ void cmessage(const string& msg)
 }
 
 int RedirectCvError(int status, const char* func_name, const char* err_msg, const char* file_name, int line, void*) {
-    OutputBox ob; 
+    OutputBox ob;
     ob.Cerror(err_msg); 
     return 0;
 }

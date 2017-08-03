@@ -51,7 +51,7 @@ void GenerateLatexTable(const path& output_path, const string& latex_file, const
     path latex_path = output_path / path(latex_file);
     ofstream os(latex_path.string());
     if (!os.is_open()) {
-        cout << "Unable to open/create " + latex_path.string() << endl;
+        dmux::cout << "Unable to open/create " + latex_path.string() << endl;
         return;
     }
 
@@ -103,7 +103,7 @@ void GenerateMemoryLatexTable(const path& output_path, const string& latex_file,
     path latex_path = output_path / path(dataset) / path(latex_file);
     ofstream os(latex_path.string());
     if (!os.is_open()) {
-        cout << "Unable to open/create " + latex_path.string() << endl;
+        dmux::cout << "Unable to open/create " + latex_path.string() << endl;
         return;
     }
 
@@ -167,7 +167,7 @@ void GenerateLatexCharts(const filesystem::path& output_path, const string& late
     path latex_path = output_path / path(latex_folder) / path(latex_charts);
     ofstream os(latex_path.string());
     if (!os.is_open()) {
-        cout << "Unable to open/create " + latex_path.string() << endl;
+        dmux::cout << "Unable to open/create " + latex_path.string() << endl;
         return;
     }
 
@@ -230,7 +230,7 @@ void LatexGenerator(const map<string, bool>& test_to_perform, const path& latex_
     path latex = latex_path / path(latex_file);
     ofstream os(latex.string());
     if (!os.is_open()) {
-        cout << "Unable to open/create " + latex.string() << endl;
+        dmux::cout << "Unable to open/create " + latex.string() << endl;
         return;
     }
 

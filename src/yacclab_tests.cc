@@ -125,7 +125,7 @@ void YacclabTests::SaveBroadOutputResults(const Mat1d& results, const string& o_
 {
     ofstream os(o_filename);
     if (!os.is_open()) {
-        cout << "Unable to save middle results" << endl;
+        dmux::cout << "Unable to save middle results" << endl;
         return;
     }
 
@@ -720,7 +720,7 @@ void YacclabTests::LatexGenerator()
     path latex = cfg_.latex_path / path(cfg_.latex_file);
     ofstream os(latex.string());
     if (!os.is_open()) {
-        cout << "Unable to open/create " + latex.string() << endl;
+        dmux::cout << "Unable to open/create " + latex.string() << endl;
         return;
     }
 

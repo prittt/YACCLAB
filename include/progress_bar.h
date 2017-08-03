@@ -29,10 +29,14 @@
 #ifndef YACCLAB_PROGRESS_BAR_H_
 #define YACCLAB_PROGRESS_BAR_H_
 
+#include <fstream>
 #include <iostream>
 #include <iomanip>
+#include <ostream>
 #include <string>
+#include <vector>
 
+#include "file_manager.h"
 #include "system_info.h"
 
 #define CONSOLE_WIDTH 80
@@ -73,32 +77,32 @@ public:
 
     void Start()
     {
-        std::cout << pre_message_;
-        std::cout << "[>";
+        dmux::cout << pre_message_;
+        dmux::cout << "[>";
         for (size_t i = 0; i < bar_width_ - 1; ++i) {
-            std::cout << " ";
+            dmux::cout << " ";
         }
-        std::cout << "]   0%";
-        std::cout << post_message_ << "\r";
-        std::cout.flush();
+        dmux::cout << "]   0%";
+        dmux::cout << post_message_ << "\r";
+        dmux::cout.flush();
         prev_ = 0;
     }
 
     void Display(const unsigned progress)
     {
         if (progress < n_things_todo_ && prev_ == (gap_ - 1)) {
-            std::cout << pre_message_;
-            std::cout << "[";
+            dmux::cout << pre_message_;
+            dmux::cout << "[";
             size_t pos = bar_width_ * progress / n_things_todo_;
             for (size_t i = 0; i < bar_width_; ++i) {
-                if (i < pos) std::cout << "=";
-                else if (i == pos) std::cout << ">";
-                else std::cout << " ";
+                if (i < pos) dmux::cout << "=";
+                else if (i == pos) dmux::cout << ">";
+                else dmux::cout << " ";
             }
             std::string s = std::to_string(unsigned(progress * 100.0 / n_things_todo_));
-            std::cout << "] " << std::string(3 - s.size(), ' ') << s << "%";
-            std::cout << post_message_ << "\r";
-            std::cout.flush();
+            dmux::cout << "] " << std::string(3 - s.size(), ' ') << s << "%";
+            dmux::cout << post_message_ << "\r";
+            dmux::cout.flush();
             prev_ = 0;
         }
         else {
@@ -108,15 +112,15 @@ public:
 
     void End()
     {
-        std::cout << pre_message_;
-        std::cout << "[";
+        dmux::cout << pre_message_;
+        dmux::cout << "[";
         for (size_t i = 0; i < bar_width_; ++i) {
-            std::cout << "=";
+            dmux::cout << "=";
         }
-        std::cout << "] 100%";
-        std::cout << post_message_;
-        std::cout.flush();
-        std::cout << std::endl;
+        dmux::cout << "] 100%";
+        dmux::cout << post_message_;
+        dmux::cout.flush();
+        dmux::cout << std::endl;
         prev_ = 0;
     }
 
@@ -142,34 +146,34 @@ public:
 
     void StartRepeated()
     {
-        std::cout << pre_message_ << "test " << std::setfill(' ') << std::setw(n_tests_length_) << cur_test_;
-        std::cout << "/" << n_tests_ << " - ";
-        std::cout << "[>";
+        dmux::cout << pre_message_ << "test " << std::setfill(' ') << std::setw(n_tests_length_) << cur_test_;
+        dmux::cout << "/" << n_tests_ << " - ";
+        dmux::cout << "[>";
         for (size_t i = 0; i < bar_width_ - 1; ++i) {
-            std::cout << " ";
+            dmux::cout << " ";
         }
-        std::cout << "]   0%";
-        std::cout << post_message_ << "\r";
-        std::cout.flush();
+        dmux::cout << "]   0%";
+        dmux::cout << post_message_ << "\r";
+        dmux::cout.flush();
         prev_ = 0;
     }
 
     void DisplayRepeated(const unsigned progress)
     {
         if (progress < n_things_todo_ && prev_ == (gap_ - 1)) {
-            std::cout << pre_message_ << "test " << std::setfill(' ') << std::setw(n_tests_length_) << cur_test_;
-            std::cout << "/" << n_tests_ << " - ";
-            std::cout << "[";
+            dmux::cout << pre_message_ << "test " << std::setfill(' ') << std::setw(n_tests_length_) << cur_test_;
+            dmux::cout << "/" << n_tests_ << " - ";
+            dmux::cout << "[";
             size_t pos = bar_width_ * progress / n_things_todo_;
             for (size_t i = 0; i < bar_width_; ++i) {
-                if (i < pos) std::cout << "=";
-                else if (i == pos) std::cout << ">";
-                else std::cout << " ";
+                if (i < pos) dmux::cout << "=";
+                else if (i == pos) dmux::cout << ">";
+                else dmux::cout << " ";
             }
             std::string s = std::to_string(unsigned(progress * 100.0 / n_things_todo_));
-            std::cout << "] " << std::string(3 - s.size(), ' ') << s << "%";
-            std::cout << post_message_ << "\r";
-            std::cout.flush();
+            dmux::cout << "] " << std::string(3 - s.size(), ' ') << s << "%";
+            dmux::cout << post_message_ << "\r";
+            dmux::cout.flush();
             prev_ = 0;
         }
         else {
@@ -179,21 +183,21 @@ public:
 
     bool EndRepeated()
     {
-        std::cout << pre_message_ << "test " << std::setfill(' ') << std::setw(n_tests_length_) << cur_test_;
-        std::cout << "/" << n_tests_ << " - ";
-        std::cout << "[";
+        dmux::cout << pre_message_ << "test " << std::setfill(' ') << std::setw(n_tests_length_) << cur_test_;
+        dmux::cout << "/" << n_tests_ << " - ";
+        dmux::cout << "[";
         for (size_t i = 0; i < bar_width_; ++i) {
-            std::cout << "=";
+            dmux::cout << "=";
         }
-        std::cout << "] 100%";
-        std::cout << post_message_;
-        std::cout.flush();
+        dmux::cout << "] 100%";
+        dmux::cout << post_message_;
+        dmux::cout.flush();
         prev_ = 0;
         if (cur_test_ == n_tests_) {
-            std::cout << std::endl;
+            dmux::cout << std::endl;
             return true;
         }
-        std::cout << "\r";
+        dmux::cout << "\r";
         cur_test_++; 
         return false;
 }
@@ -210,8 +214,9 @@ private:
     size_t n_tests_;
     size_t n_tests_length_;
     unsigned cur_test_ = 1;
-
 };
+
+
 
 /* This class is useful to display a title bar in the output console.
 Example of usage:
@@ -220,7 +225,9 @@ Example of usage:
 class OutputBox {
 public:
 
-    OutputBox(const std::string& title = "", const size_t bar_width = CONSOLE_WIDTH, const size_t pre_spaces = 2)
+    OutputBox(const std::string& title = "", 
+        const size_t bar_width = CONSOLE_WIDTH, 
+        const size_t pre_spaces = 2)
     {
         pre_spaces_ = pre_spaces;
         bar_width_ = bar_width > CONSOLE_WIDTH ? CONSOLE_WIDTH : bar_width;
@@ -235,7 +242,7 @@ public:
         //transform(title_.begin(), title_.end(), title_.begin(), ::toupper);
 
         if (title_ != "") {
-            std::cout << "\n";
+            dmux::cout << "\n";
             PrintSeparatorLine();
             PrintData(title_);
             PrintSeparatorLine();
@@ -369,11 +376,11 @@ public:
 private:
     void PrintSeparatorLine()
     {
-        std::cout << std::string(pre_spaces_, ' ') << "+" << std::string(bar_width_ - 2, '-') << "+\n";
+        dmux::cout << std::string(pre_spaces_, ' ') << "+" << std::string(bar_width_ - 2, '-') << "+\n";
     }
     void PrintRawData(const std::string &data)
     {
-        std::cout << std::string(pre_spaces_, ' ') << "| " << data << std::string(bar_width_ - data.size() - 4, ' ') << " |\n";
+        dmux::cout << std::string(pre_spaces_, ' ') << "| " << data << std::string(bar_width_ - data.size() - 4, ' ') << " |\n";
     }
     void PrintData(const std::string &data)
     {

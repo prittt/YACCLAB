@@ -33,10 +33,14 @@
 #include <opencv2/core.hpp>
 
 #include "file_manager.h"
+#include "stream_demultiplexer.h"
 
-//extern const char kPathSeparator;
 extern const std::string kTerminal;
 extern const std::string kTerminalExtension;
+
+namespace dmux {
+    extern class StreamDemultiplexer cout;
+}
 
 // To compare lengths of OpenCV String 
 bool CompareLengthCvString(cv::String const& lhs, cv::String const& rhs);
