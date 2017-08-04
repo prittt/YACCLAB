@@ -1023,8 +1023,9 @@ int main()
     error_code ec;
 
     // Create StreamDemultiplexer object in order
-    // to reverse output on both stdout and log file 
-    ofstream os("log.txt");
+    // to print output on both stdout and log file 
+    string logfile = "log.txt";
+    ofstream os(logfile);
     if (os.is_open()) {
         dmux::cout.AddStream(os);
     }
@@ -1047,7 +1048,7 @@ int main()
         // EXIT_FAILURE
     }
 
-    // Load configuration data from yaml and store them to
+    // Load configuration data from yaml
     ConfigData cfg(fs);
 
     // Release FileStorage
@@ -1299,8 +1300,11 @@ int main()
         }
     }
 
-    //LatexGenerator(test_to_perform, cfg.latex_path, cfg.latex_file, all_res, cfg.average_datasets, cfg.ccl_algorithms, ccl_mem_algorithms, accesses);
+    // LatexGenerator(test_to_perform, cfg.latex_path, cfg.latex_file, all_res, cfg.average_datasets, cfg.ccl_algorithms, ccl_mem_algorithms, accesses);
     yt.LatexGenerator();
 
+    // Copy log file into output folder
+    copy(path(logfile), cfg.output_path / path(logfile), ec);
+ 
     return EXIT_SUCCESS;
 }
