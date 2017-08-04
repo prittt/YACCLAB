@@ -95,8 +95,7 @@ public:
                 ERA_r[er] = LabelsSolver::NewLabel();
             }
         }
-        for (int r = 1; r < rows; ++r)
-        {
+        for (int r = 1; r < rows; ++r) {
             // Get pointers to rows
             unsigned* ERA_r = ERA.ptr<unsigned>(r);
             const unsigned* ERA_r_prev = (unsigned *)(((char *)ERA_r) - ERA.step.p[0]);
@@ -126,16 +125,14 @@ public:
                         // Min extraction and propagation
                         if (a < ak)
                             LabelsSolver::UpdateTable(ak, a);
-                        if (a > ak)
-                        {
+                        if (a > ak) {
                             LabelsSolver::UpdateTable(a, ak);
                             a = ak;
                         }
                     }
                     ERA_r[er] = a; // The global min
                 }
-                else
-                {
+                else {
                     ERA_r[er] = LabelsSolver::NewLabel();
                 }
             }
