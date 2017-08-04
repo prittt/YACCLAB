@@ -213,14 +213,6 @@ public:
 		return P_[index];
 	}
 
-	// Basic functions of the UF_PC solver required only by the Light-Speed Labeling Algorithms:
-	// - "UpdateTable" updates equivalences array without performing "Find" operations and it
-	//		is a simplified version of "SetRoot" function
-	// - "FindRoot" finds the root of the tree of node i (for the other algorithms it is 
-	//		already included in the "Merge" and "Flatten" functions).
-	static void UpdateTable(unsigned e, unsigned r) {
-		P_[e] = r;
-	}
 	/*static void SetRoot(unsigned i, unsigned root)
 	{
 		while (P_[i] < i) {
@@ -230,7 +222,7 @@ public:
 		}
 		P_[i] = root;
 	}*/
-	static unsigned FindRoot(unsigned i)
+	/*static unsigned FindRoot(unsigned i)
 	{
 		// TODO: check if the following while is really necessary. 
 		// Remove it also from "Merge" in case!!
@@ -238,7 +230,7 @@ public:
 			i = P_[i];
 		}
 		return i;
-	}
+	}*/
 
 	static unsigned Merge(unsigned i, unsigned j)
 	{
@@ -310,14 +302,6 @@ public:
 		return mem_P_.GetTotalAccesses();
 	}
 
-	// Basic functions of the UF_PC solver required only by the Light-Speed Labeling Algorithms:
-	// - "MemUpdateTable" updates equivalences array without performing "MemFind" operations and it
-	//		is a simplified version of "MemSetRoot" function
-	// - "MemFindRoot" finds the root of the tree of node i (for the other algorithms it is 
-	//		already included in the "MemMerge" and "MemFlatten" functions).
-	static void MemUpdateTable(unsigned e, unsigned r) {
-		mem_P_[e] = r;
-	}
 	/*static void MemSetRoot(unsigned i, unsigned root)
 	{
 		while (mem_P_[i] < i) {
@@ -327,13 +311,13 @@ public:
 		}
 		mem_P_[i] = root;
 	}*/
-	static unsigned MemFindRoot(unsigned i)
+	/*static unsigned MemFindRoot(unsigned i)
 	{
 		while (mem_P_[i] < i) {
 			i = mem_P_[i];
 		}
 		return i;
-	}
+	}*/
 
 	static unsigned MemMerge(unsigned i, unsigned j)
 	{

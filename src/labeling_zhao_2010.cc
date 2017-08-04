@@ -29,3 +29,4 @@
 #include "labeling_zhao_2010.h"
 
 REGISTER_LABELING(SBLA);
+REGISTER_LABELING(SBLA2);

@@ -95,9 +95,9 @@ struct ConfigData {
         perform_memory               = ReadBool(fs["perform"]["memory"]);
         perform_average_ws           = ReadBool(fs["perform"]["average_with_steps"]);
 
-        perform_check_8connectivity_std = ReadBool(fs["correctness_tests"]["8connectivity_standard"]);
-        perform_check_8connectivity_ws  = ReadBool(fs["correctness_tests"]["8connectivity_steps"]);
-        perform_check_8connectivity_mem = ReadBool(fs["correctness_tests"]["8connectivity_memory"]);
+        perform_check_8connectivity_std = ReadBool(fs["correctness_tests"]["eight_connectivity_standard"]);
+        perform_check_8connectivity_ws  = ReadBool(fs["correctness_tests"]["eight_connectivity_steps"]);
+        perform_check_8connectivity_mem = ReadBool(fs["correctness_tests"]["eight_connectivity_memory"]);
 
         average_color_labels         = ReadBool(fs["color_labels"]["average"]);
         density_color_labels         = ReadBool(fs["color_labels"]["density"]);

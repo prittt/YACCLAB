@@ -11,18 +11,44 @@
 # -------------------------------------------------------------------------------------
 
 # Kind of tests to execute
-perform: {correctness: true, average: true, density: true, memory: true, average_with_steps: true}
-correctness_tests: {8connectivity_standard: true, 8connectivity_steps: true, 8connectivity_memory: true}
+perform: 
+  correctness:        true
+  average:            true 
+  density:            true
+  memory:             true 
+  average_with_steps: true
+
+correctness_tests: 
+  eight_connectivity_standard: true
+  eight_connectivity_steps: true
+  eight_connectivity_memory: true
 
 # Number of tests repetitions 
-tests_number: {average: 10, density: 10, average_with_steps: 10}
+tests_number: 
+  average:            10 
+  density:            10 
+  average_with_steps: 10
 
 # -------------------------------------------------------------------------------------
 # List of CCL algorithms to test
 # -------------------------------------------------------------------------------------
 
-algorithms: ["SAUF_UF_PC"]
-#algorithms: ["SAUF", "BBDT", "DiStefano", "CT", "CCIT", "LSL_STD", "CTB", "SBLA", "PRED", "NULL"]
+algorithms: 
+  - SAUF_RemSP
+  - BBDT_RemSP
+  - CCIT_RemSP
+  - LSL_RLEZ_TTA
+  - CTB_RemSP
+  - PRED_RemSP
+  - DiStefano
+  - CT
+  - SBLA
+  - NULL
+
+# Algoritms which require to specify a labels solver: SAUF, BBDT, CCIT, LSL, CTB, PRED
+# Possible label solvers: UF, UF_PC, RemSP, TTA
+# LSL requires also a version specifier: STD, STDZ, RLE, RLEZ; only UF and TTA can be used with LSL
+# Algoritms which don't require to specify a labels solver: DiStefano, CT, SBLA, NULL
 
 # -------------------------------------------------------------------------------------
 # Datasets to use for each test
@@ -41,7 +67,7 @@ average_datasets_with_steps: ["3dpes", "fingerprints", "hamlet", "medical", "mir
 memory_datasets: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "test_random", "tobacco800"]
 
 # -------------------------------------------------------------------------------------
-# Additional utility
+# Additional utilities
 # -------------------------------------------------------------------------------------
 
 # Directory for input/output paths
