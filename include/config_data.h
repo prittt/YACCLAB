@@ -66,10 +66,12 @@ struct ConfigData {
     std::string latex_file;               // Latex file which will store textual average results
     std::string latex_memory_file;        // Latex file which will store textual memory results
     std::string latex_charts;             // Latex file which will store report latex code for charts
+    std::string memory_file;              // File which will store report textual memory results
     
     std::string average_folder;           // Folder which will store average test results
     std::string average_ws_folder;        // Folder which will store average test with steps results
-    
+    std::string memory_folder;            // Folder which will store memory results
+
     path output_path;                     // Path on which results are stored
     path input_path;                      // Path on which input datasets are stored
     path latex_path;                      // Path on which latex report will be stored
@@ -116,13 +118,15 @@ struct ConfigData {
         gnuplot_script_extension     = ".gnuplot";
         colors_folder                = "colors";
         middle_folder                = "middle_results";
-        latex_file                   = "averageResults.tex";
+        latex_file                   = "yacclab_results.tex";
         latex_charts                 = "averageCharts.tex";
         latex_memory_file            = "memoryAccesses.tex";
+        memory_file                  = "memory_accesses.dat";
 
         average_folder               = "average_tests";
         average_ws_folder            = "average_tests_with_steps";
-        
+        memory_folder                = "memory_test";
+
         output_path                  = path(fs["paths"]["output"]) / path(GetDatetimeWithoutSpecialChars());
         input_path                   = path(fs["paths"]["input"]);
         latex_path                   = output_path / path("latex");
