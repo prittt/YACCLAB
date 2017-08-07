@@ -87,287 +87,6 @@ void saveBroadOutputResults(const Mat1d& results, const path& oFilename, vector<
     }
 }
 
-string AverageTest(vector<String>& ccl_algorithms, Mat1d& all_res, const unsigned& algPos, const filesystem::path& input_path, const string& inputFolder, const string& input_txt, const string& gnuplot_script_extension, filesystem::path& output_path, string& latex_folder, string& colors_folder, const bool& saveMiddleResults, const unsigned& n_test, const string& middle_folder, const bool& write_n_labels = true, const bool& outputColors = true)
-{
-    string outputFolder = inputFolder,
-        //completeOutputPath = output_path + kPathSeparator + outputFolder,
-        gnuplotScript = inputFolder + gnuplot_script_extension,
-        outputBroadResults = inputFolder + "_results.txt",
-        middleFile = inputFolder + "_run",
-        outputAverageResults = inputFolder + "_average.txt",
-        outputGraph = outputFolder + kTerminalExtension,
-        outputGraphBw = outputFolder + "_bw" + kTerminalExtension;
-    //middleOutFolder = completeOutputPath + kPathSeparator + middle_folder,
-    //outColorFolder = output_path + kPathSeparator + outputFolder + kPathSeparator + colors_folder;
-
-    path completeOutputPath = output_path / path(outputFolder),
-        middleOutFolder = completeOutputPath / path(middle_folder),
-        outColorFolder = output_path / outputFolder / path(colors_folder),
-        latex_charts_path = output_path / path(latex_folder);
-
-    unsigned numberOfDecimalDigitToDisplayInGraph = 2;
-
-    // Creation of output path
-    /*if (!dirExists(completeOutputPath.c_str()))
-        if (0 != std::system(("mkdir " + completeOutputPath).c_str()))
-            return ("Averages_Test on '" + inputFolder + "': Unable to find/create the output path " + completeOutputPath);*/
-    if (!create_directories(completeOutputPath)) {
-        return ("Averages_Test on '" + inputFolder + "': Unable to find/create the output path " + completeOutputPath.string());
-    }
-
-    if (outputColors) {
-        // Creation of color output path
-        /*if (!dirExists(outColorFolder.c_str()))
-            if (0 != std::system(("mkdir " + outColorFolder).c_str()))
-                return ("Averages_Test on '" + inputFolder + "': Unable to find/create the output path " + outColorFolder);*/
-        if (!create_directories(outColorFolder)) {
-            return ("Averages_Test on '" + inputFolder + "': Unable to find/create the output path " + outColorFolder.string());
-        }
-    }
-
-    if (saveMiddleResults) {
-        /*if (!dirExists(middleOutFolder.c_str()))
-            if (0 != std::system(("mkdir " + middleOutFolder).c_str()))
-                return ("Averages_Test on '" + inputFolder + "': Unable to find/create the output path " + middleOutFolder);*/
-        if (!create_directories(middleOutFolder)) {
-            return ("Averages_Test on '" + inputFolder + "': Unable to find/create the output path " + middleOutFolder.string());
-        }
-    }
-
-    /*string isPath = input_path + kPathSeparator + inputFolder + kPathSeparator + input_txt,
-        osPath = output_path + kPathSeparator + outputFolder + kPathSeparator + outputBroadResults,
-        averageOsPath = output_path + kPathSeparator + outputFolder + kPathSeparator + outputAverageResults;*/
-    path isPath = input_path / path(inputFolder) / path(input_txt),
-        osPath = output_path / path(outputFolder) / path(outputBroadResults),
-        averageOsPath = output_path / path(outputFolder) / path(outputAverageResults);
-
-    // For AVERAGES RESULT
-    ofstream averageOs(averageOsPath.string());
-    if (!averageOs.is_open())
-        return ("Averages_Test on '" + inputFolder + "': Unable to open " + averageOsPath.string());
-    // For LIST OF INPUT IMAGES
-    ifstream is(isPath.string());
-    if (!is.is_open())
-        return ("Averages_Test on '" + inputFolder + "': Unable to open " + isPath.string());
-
-    // To save list of filename on which CLLAlgorithms must be tested
-    vector<pair<string, bool>> filenames;  // first: filename, second: state of filename (find or not)
-    string filename;
-    while (getline(is, filename)) {
-        // To delete eventual carriage return in the file name (especially designed for windows file newline format)
-        size_t found;
-        do {
-            // The while cycle is probably unnecessary
-            found = filename.find("\r");
-            if (found != string::npos)
-                filename.erase(found, 1);
-        } while (found != string::npos);
-        // Add purified file name in the vector
-        filenames.push_back(make_pair(filename, true));
-    }
-    is.close();
-
-    // Number of files
-    int file_number = filenames.size();
-
-    // To save middle/min and average results;
-    Mat1d min_res(file_number, ccl_algorithms.size(), numeric_limits<double>::max());
-    Mat1d current_res(file_number, ccl_algorithms.size(), numeric_limits<double>::max());
-    Mat1i labels(file_number, ccl_algorithms.size(), 0);
-    vector<pair<double, uint16_t>> supp_average(ccl_algorithms.size(), make_pair(0.0, 0));
-
-    ProgressBar p_bar(file_number);
-    p_bar.Start();
-
-    // Test is executed n_test times
-    for (unsigned test = 0; test < n_test; ++test) {
-        // Count number of lines to display "progress bar"
-        unsigned currentNumber = 0;
-
-        // For every file in list
-        for (unsigned file = 0; file < filenames.size(); ++file) {
-            filename = filenames[file].first;
-
-            // Display "progress bar"
-            if (currentNumber * 100 / file_number != (currentNumber - 1) * 100 / file_number) {
-                dmux::cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << file_number << "         \r";
-                fflush(stdout);
-            }
-            //p_bar.Display(currentNumber++, test + 1);
-
-            Mat1b binaryImg;
-            path filename_path = input_path / path(inputFolder) / path(filename);
-
-            if (!GetBinaryImage(filename_path, Labeling::img_)) {
-                if (filenames[file].second)
-                    dmux::cout << "'" + filename + "' does not exist" << endl;
-                filenames[file].second = false;
-                continue;
-            }
-
-            unsigned i = 0;
-            // For all the Algorithms in the array
-            for (const auto& algo_name : ccl_algorithms) {
-                auto& algorithm = LabelingMapSingleton::GetInstance().data_[algo_name];
-
-                // This variable need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
-                unsigned n_labels;
-
-                // Perform current algorithm on current image and save result.
-
-                algorithm->perf_.start();
-                algorithm->PerformLabeling();
-                algorithm->perf_.stop();
-                n_labels = algorithm->n_labels_;
-
-                // Save number of labels (we reasonably supposed that labels's number is the same on every #test so only the first time we save it)
-                if (test == 0) {
-                    labels(file, i) = n_labels;
-                }
-
-                // Save time results
-                current_res(file, i) = algorithm->perf_.last();
-                if (algorithm->perf_.last() < min_res(file, i)) {
-                    min_res(file, i) = algorithm->perf_.last();
-                }
-
-                // If 'at_colorLabels' is enabled only the first time (test == 0) the output is saved
-                if (outputColors && test == 0) {
-                    // Remove gnuplot escape character from output filename
-                    /*string alg_name = (*it).second;
-                    alg_name.erase(std::remove(alg_name.begin(), alg_name.end(), '\\'), alg_name.end());*/
-                    Mat3b imgColors;
-
-                    NormalizeLabels(algorithm->img_labels_);
-                    ColorLabels(algorithm->img_labels_, imgColors);
-                    path colored_file_path = outColorFolder / path(filename + "_" + algo_name + ".png");
-                    imwrite(colored_file_path.string(), imgColors);
-                }
-                ++i;
-            }// END ALGORITHMS FOR
-        } // END FILES FOR.
-
-          // To display "progress bar"
-        dmux::cout << "Test #" << (test + 1) << ": " << currentNumber << "/" << file_number << "         \r";
-        fflush(stdout);
-
-        // Save middle results if necessary (flag 'average_save_middle_tests' enable)
-        if (saveMiddleResults) {
-            //string middleOut = middleOutFolder + kPathSeparator + middleFile + "_" + to_string(test) + ".txt";
-            path middleOut = middleOutFolder / path(middleFile + "_" + to_string(test) + ".txt");
-            saveBroadOutputResults(current_res, middleOut, ccl_algorithms, write_n_labels, labels, filenames);
-        }
-    }// END TESTS FOR
-
-    //p_bar.End(n_test);
-
-    // To write in a file min results
-    saveBroadOutputResults(min_res, osPath, ccl_algorithms, write_n_labels, labels, filenames);
-
-    // To calculate average times and write it on the specified file
-    for (int r = 0; r < min_res.rows; ++r) {
-        for (int c = 0; c < min_res.cols; ++c) {
-            if (min_res(r, c) != numeric_limits<double>::max()) {
-                supp_average[c].first += min_res(r, c);
-                supp_average[c].second++;
-            }
-        }
-    }
-
-    averageOs << "#Algorithm" << "\t" << "Average" << "\t" << "Round Average for Graphs" << endl;
-    for (unsigned i = 0; i < ccl_algorithms.size(); ++i) {
-        // For all the Algorithms in the array
-        all_res(algPos, i) = supp_average[i].first / supp_average[i].second;
-        averageOs << ccl_algorithms[i] << "\t" << supp_average[i].first / supp_average[i].second << "\t";
-        averageOs << std::fixed << std::setprecision(numberOfDecimalDigitToDisplayInGraph) << supp_average[i].first / supp_average[i].second << endl;
-    }
-
-    // GNUPLOT SCRIPT
-
-    SystemInfo s_info;
-    string compiler_name(s_info.compiler_name());
-    string compiler_version(s_info.compiler_version());
-    //replace the . with _ for compiler strings
-    std::replace(compiler_version.begin(), compiler_version.end(), '.', '_');
-
-    //string scriptos_path = output_path + kPathSeparator + outputFolder + kPathSeparator + gnuplotScript;
-    path scriptos_path = output_path / path(outputFolder) / path(gnuplotScript);
-
-    ofstream scriptOs(scriptos_path.string());
-    if (!scriptOs.is_open())
-        return ("Averages_Test on '" + inputFolder + "': Unable to create " + scriptos_path.string());
-
-    scriptOs << "# This is a gnuplot (http://www.gnuplot.info/) script!" << endl;
-    scriptOs << "# comment fifth line, open gnuplot's teminal, move to script's path and launch 'load " << gnuplotScript << "' if you want to run it" << endl << endl;
-
-    scriptOs << "reset" << endl;
-    scriptOs << "cd '" << completeOutputPath.string() << "\'" << endl;
-    scriptOs << "set grid ytic" << endl;
-    scriptOs << "set grid" << endl << endl;
-
-    scriptOs << "# " << outputFolder << "(COLORS)" << endl;
-    scriptOs << "set output \"" + outputGraph + "\"" << endl;
-
-    scriptOs << "set title " << GetGnuplotTitle() << endl << endl;
-
-    scriptOs << "# " << kTerminal << " colors" << endl;
-    scriptOs << "set terminal " << kTerminal << " enhanced color font ',15'" << endl << endl;
-
-    scriptOs << "# Graph style" << endl;
-    scriptOs << "set style data histogram" << endl;
-    scriptOs << "set style histogram cluster gap 1" << endl;
-    scriptOs << "set style fill solid 0.25 border -1" << endl;
-    scriptOs << "set boxwidth 0.9" << endl << endl;
-
-    scriptOs << "# Get stats to set labels" << endl;
-    scriptOs << "stats \"" << outputAverageResults << "\" using 2 nooutput" << endl;
-    scriptOs << "ymax = STATS_max + (STATS_max/100)*10" << endl;
-    scriptOs << "xw = 0" << endl;
-    scriptOs << "yw = (ymax)/22" << endl << endl;
-
-    scriptOs << "# Axes labels" << endl;
-    scriptOs << "set xtic rotate by -45 scale 0" << endl;
-    scriptOs << "set ylabel \"Execution Time [ms]\"" << endl << endl;
-
-    scriptOs << "# Axes range" << endl;
-    scriptOs << "set yrange[0:ymax]" << endl;
-    scriptOs << "set xrange[*:*]" << endl << endl;
-
-    scriptOs << "# Legend" << endl;
-    scriptOs << "set key off" << endl << endl;
-
-    scriptOs << "# Plot" << endl;
-    scriptOs << "plot \\" << endl;
-    scriptOs << "'" + outputAverageResults + "' using 2:xtic(1), '" << outputAverageResults << "' using ($0 - xw) : ($2 + yw) : (stringcolumn(3)) with labels" << endl << endl;
-
-    scriptOs << "# Replot in latex folder" << endl;
-    scriptOs << "set title \"\"" << endl << endl;
-    scriptOs << "set output \'" << (latex_charts_path / path(compiler_name + compiler_version + outputGraph)).string() << "\'" << endl;
-    scriptOs << "replot" << endl << endl;
-
-    scriptOs << "# " << outputFolder << "(BLACK AND WHITE)" << endl;
-    scriptOs << "set output \"" + outputGraphBw + "\"" << endl;
-
-    scriptOs << "set title " << GetGnuplotTitle() << endl << endl;
-
-    scriptOs << "# " << kTerminal << " black and white" << endl;
-    scriptOs << "set terminal " << kTerminal << " enhanced monochrome dashed font ',15'" << endl << endl;
-
-    scriptOs << "replot" << endl << endl;
-
-    scriptOs << "exit gnuplot" << endl;
-
-    averageOs.close();
-    scriptOs.close();
-    // GNUPLOT SCRIPT
-
-    if (0 != std::system(("gnuplot \"" + (completeOutputPath / path(gnuplotScript)).string() + "\"").c_str()))
-        return ("Averages_Test on '" + inputFolder + "': Unable to run gnuplot's script");
-
-    //return ("Averages_Test on '" + inputFolder + "': successfully done");
-    return "";
-}
-
 string DensitySizeTest(vector<String>& ccl_algorithms, const path& input_path, const string& inputFolder, const string& input_txt, const string& gnuplot_script_extension, path& output_path, string& latex_folder, string& colors_folder, const bool& saveMiddleResults, const unsigned& n_test, const string& middle_folder, const bool& write_n_labels = true, const bool& outputColors = true)
 {
     string outputFolder = inputFolder,
@@ -911,108 +630,6 @@ string DensitySizeTest(vector<String>& ccl_algorithms, const path& input_path, c
     return ("");
 }
 
-string MemoryTest(vector<String>& ccl_mem_algorithms, Mat1d& algoAverageAccesses, const path& input_path, const string& inputFolder, const string& input_txt, path& output_path)
-{
-    string outputFolder = inputFolder;
-    path completeOutputPath = output_path / path(outputFolder);
-
-    unsigned numberOfDecimalDigitToDisplayInGraph = 2;
-
-    // Creation of output path
-    if (!create_directories(completeOutputPath))
-        return ("Memory_Test on '" + inputFolder + "': Unable to find/create the output path " + completeOutputPath.string());
-
-    //string isPath = input_path + kPathSeparator + inputFolder + kPathSeparator + input_txt;
-    path isPath = input_path / path(inputFolder) / path(input_txt);
-
-    // For LIST OF INPUT IMAGES
-    ifstream is(isPath.string());
-    if (!is.is_open())
-        return ("Memory_Test on '" + inputFolder + "': Unable to open " + isPath.string());
-
-    // (TODO move this code into a function)
-    // To save list of filename on which CLLAlgorithms must be tested
-    vector<pair<string, bool>> filenames;  // first: filename, second: state of filename (find or not)
-    string filename;
-    while (getline(is, filename)) {
-        // To delete eventual carriage return in the file name (especially designed for windows file newline format)
-        size_t found;
-        do {
-            // The while cycle is probably unnecessary
-            found = filename.find("\r");
-            if (found != string::npos)
-                filename.erase(found, 1);
-        } while (found != string::npos);
-        // Add purified file name in the vector
-        filenames.push_back(make_pair(filename, true));
-    }
-    is.close();
-    // (TODO move this code into a function)
-
-    // Number of files
-    int file_number = filenames.size();
-
-    // To store average memory accesses (one column for every data_ structure type: col 1 -> BINARY_MAT, col 2 -> LABELED_MAT, col 3 -> EQUIVALENCE_VET, col 0 -> OTHER)
-    algoAverageAccesses = Mat1d(Size(MD_SIZE, ccl_mem_algorithms.size()), 0);
-
-    // Count number of lines to display "progress bar"
-    unsigned currentNumber = 0;
-
-    unsigned totTest = 0; // To count the real number of image on which labeling will be applied
-                      // For every file in list
-
-    for (unsigned file = 0; file < filenames.size(); ++file) {
-        filename = filenames[file].first;
-
-        // Display "progress bar"
-        if (currentNumber * 100 / file_number != (currentNumber - 1) * 100 / file_number) {
-            dmux::cout << currentNumber << "/" << file_number << "         \r";
-            fflush(stdout);
-        }
-        currentNumber++;
-
-        Mat1b binaryImg;
-
-        if (!GetBinaryImage(input_path / path(inputFolder) / path(filename), Labeling::img_)) {
-            if (filenames[file].second)
-                dmux::cout << "'" + filename + "' does not exist" << endl;
-            filenames[file].second = false;
-            continue;
-        }
-
-        totTest++;
-        unsigned i = 0;
-        // For all the Algorithms in the list
-        for (const auto& algo_name : ccl_mem_algorithms) {
-            auto& algorithm = LabelingMapSingleton::GetInstance().data_.at(algo_name);
-
-            // The following data_ structure is used to get the memory access matrices
-            vector<unsigned long int> accessesVal; // Rows represents algorithms and columns represent data_ structures
-
-            algorithm->PerformLabelingMem(accessesVal);
-
-            // For every data_ structure "returned" by the algorithm
-            for (size_t a = 0; a < accessesVal.size(); ++a) {
-                algoAverageAccesses(i, a) += accessesVal[a];
-            }
-            ++i;
-        }// END ALGORITHMS FOR
-    } // END FILES FOR
-
-      // To display "progress bar"
-    dmux::cout << currentNumber << "/" << file_number << "         \r";
-    fflush(stdout);
-
-    // To calculate average memory accesses
-    for (int r = 0; r < algoAverageAccesses.rows; ++r) {
-        for (int c = 0; c < algoAverageAccesses.cols; ++c) {
-            algoAverageAccesses(r, c) /= totTest;
-        }
-    }
-
-    return ("Memory_Test on '" + inputFolder + "': successfuly done");
-}
-
 int main()
 {
     // Redirect cv exceptions
@@ -1072,7 +689,6 @@ int main()
 
     if (cfg.ccl_existing_algorithms.size() == 0) {
         ob_setconf.Cerror("There are no valid values in the 'algorithms' list");
-        // EXIT_FAILURE;
     }
 
     // Check if labeling methods of the specified algorithms exist
@@ -1160,7 +776,6 @@ int main()
         !cfg.perform_density && !cfg.perform_memory && 
         !cfg.perform_average_ws) {
         ob_setconf.Cerror("There are no tests to perform");
-        // EXIT_FAILURE;
     }
 
     // Check datasets
@@ -1181,13 +796,11 @@ int main()
     // Set and create current output directory
     if (!create_directories(cfg.output_path, ec)) {
         ob_setconf.Cerror("Unable to create output directory '" + cfg.output_path.string() + "' - " + ec.message());
-        // EXIT_FAILURE;
     }
 
     // Create the directory for latex reports
     if (!create_directories(cfg.latex_path, ec)) {
         ob_setconf.Cerror("Unable to create output directory '" + cfg.latex_path.string() + "' - " + ec.message());
-        // EXIT_FAILURE;
     }
 
     ob_setconf.Cmessage("Setting Configuration Parameters DONE"); 
@@ -1210,37 +823,26 @@ int main()
         }
     }
 
+    // Average tests
     if (cfg.perform_average) {
         yt.AverageTest();
     }
 
+    // Average with steps tests
     if (cfg.perform_average_ws) {
         yt.AverageTestWithSteps();
     }
 
+    // Density tests
+
+
+    // Granularity tests
+
+
+    // Memory tests
     if (cfg.perform_memory) {
         yt.MemoryTest();
     }
-
-    // Test Algorithms with different input type and different output format, and show execution result
-    // AVERAGES TEST
-    Mat1d all_res(cfg.average_datasets.size(), cfg.ccl_existing_algorithms.size(), numeric_limits<double>::max()); // We need it to save average results and generate latex table
-
-    //if (cfg.perform_average) {
-    //    //dmux::cout << endl << "AVERAGE TESTS: " << endl;
-    //    //TitleBar::Display("AVERAGE TESTS");
-    //    if (cfg.ccl_algorithms.size() == 0) {
-    //        dmux::cout << "ERROR: no algorithms, average tests skipped" << endl;
-    //    }
-    //    else {
-    //        for (unsigned i = 0; i < cfg.average_datasets.size(); ++i) {
-    //            dmux::cout << "Averages_Test on '" << cfg.average_datasets[i] << "': starts" << endl;
-    //            dmux::cout << AverageTest(cfg.ccl_algorithms, all_res, i, cfg.input_path, cfg.average_datasets[i], cfg.input_txt, cfg.gnuplot_script_extension, cfg.output_path, cfg.latex_path.stem().string(), cfg.colors_folder, cfg.average_save_middle_tests, cfg.average_tests_number, cfg.middle_folder, cfg.write_n_labels, cfg.average_color_labels) << endl;
-    //            //dmux::cout << "Averages_Test on '" << average_datasets[i] << "': ends" << endl << endl;
-    //        }
-    //        //GenerateLatexTable(cfg.output_path, cfg.latex_file, all_res, cfg.average_datasets, cfg.ccl_algorithms);
-    //    }
-    //}
 
     // DENSITY_SIZE_TESTS
     if (cfg.perform_density) {
@@ -1258,54 +860,6 @@ int main()
         }
     }
 
-    // GENERATE CHARTS TO INCLUDE IN LATEX
-    if (cfg.perform_average) {
-        vector<String> dataset_charts = cfg.average_datasets;
-        // Include density tests if they were performed
-        if (cfg.perform_density) {
-            dataset_charts.push_back("density");
-            dataset_charts.push_back("size");
-        }
-        // Generate the latex file that includes all the generated charts
-        //GenerateLatexCharts(cfg.output_path, cfg.latex_charts, cfg.latex_folder, dataset_charts);
-    }
-
-    //map<string, Mat1d> accesses;
-    //vector<String> ccl_mem_algorithms;
-    //// MEMORY_TESTS
-    //if (cfg.perform_memory) {
-    //    dmux::cout << endl << "MEMORY TESTS: " << endl;
-
-    //    //Check which algorithms support Memory Tests
-    //    Labeling::img_ = Mat1b();
-
-    //    for (const auto& algo_name : cfg.ccl_existing_algorithms) {
-    //        auto& algorithm = LabelingMapSingleton::GetInstance().data_.at(algo_name);
-    //        try {
-    //            vector<unsigned long> n_accesses;
-    //            algorithm->PerformLabelingMem(n_accesses);
-    //            //The algorithm is added in ccl_mem_algorithms only if it supports Memory Test
-    //            ccl_mem_algorithms.push_back(algo_name);
-    //        }
-    //        catch (const runtime_error& e) {
-    //            cerr << algo_name << ": " << e.what() << endl;
-    //        }
-    //    }
-
-    //    if (cfg.ccl_existing_algorithms.size() == 0) {
-    //        dmux::cout << "ERROR: no algorithms, memory tests skipped" << endl;
-    //    }
-    //    else {
-    //        for (unsigned i = 0; i < cfg.memory_datasets.size(); ++i) {
-    //            dmux::cout << endl << "Memory_Test on '" << cfg.memory_datasets[i] << "': starts" << endl;
-    //            dmux::cout << MemoryTest(ccl_mem_algorithms, accesses[cfg.memory_datasets[i]], cfg.input_path, cfg.memory_datasets[i], cfg.input_txt, cfg.output_path) << endl;
-    //            dmux::cout << "Memory_Test on '" << cfg.memory_datasets[i] << "': ends" << endl << endl;
-    //            // GenerateMemoryLatexTable(cfg.output_path, cfg.latex_memory_file, accesses[i], cfg.memory_datasets[i], ccl_mem_algorithms);
-    //        }
-    //    }
-    //}
-
-    // LatexGenerator(test_to_perform, cfg.latex_path, cfg.latex_file, all_res, cfg.average_datasets, cfg.ccl_algorithms, ccl_mem_algorithms, accesses);
     yt.LatexGenerator();
 
     // Copy log file into output folder
