@@ -58,12 +58,13 @@ public:
     void AverageTest();
     void AverageTestWithSteps();
 
+    void MemoryTest();
     void LatexGenerator();
 private:
     ConfigData cfg_;
     cv::Mat1d average_results_;
     std::map<cv::String, cv::Mat1d> average_ws_results_;
-    std::map<std::string, cv::Mat1d> memory_accesses_;
+    std::map<cv::String, cv::Mat1d> memory_accesses_;
 
     bool LoadFileList(std::vector<std::pair<std::string, bool>>& filenames, const filesystem::path& files_path);
     void SaveBroadOutputResults(std::map<cv::String, cv::Mat1d>& results, const std::string& o_filename, const cv::Mat1i& labels, const std::vector<std::pair<std::string, bool>>& filenames);

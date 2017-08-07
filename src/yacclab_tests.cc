@@ -39,6 +39,7 @@
 
 #include "labeling_algorithms.h"
 #include "latex_generator.h"
+#include "memory_tester.h"
 #include "progress_bar.h"
 #include "utilities.h"
 
@@ -152,8 +153,6 @@ void YacclabTests::SaveBroadOutputResults(const Mat1d& results, const string& o_
     }
 }
 
-
-
 void YacclabTests::AverageTest()
 {
     // Initialize output message box
@@ -221,10 +220,10 @@ void YacclabTests::AverageTest()
         // Start output message box
         ob.StartRepeatedBox(dataset_name, filenames_size, cfg_.average_tests_number);
 
-		map<String, size_t> algo_pos;
-		for (size_t i = 0; i < cfg_.ccl_average_algorithms.size(); ++i)
-			algo_pos[cfg_.ccl_average_algorithms[i]] = i;
-		auto shuffled_ccl_average_algorithms = cfg_.ccl_average_algorithms;
+        map<String, size_t> algo_pos;
+        for (size_t i = 0; i < cfg_.ccl_average_algorithms.size(); ++i)
+            algo_pos[cfg_.ccl_average_algorithms[i]] = i;
+        auto shuffled_ccl_average_algorithms = cfg_.ccl_average_algorithms;
 
         // Test is executed n_test times
         for (unsigned test = 0; test < cfg_.average_tests_number; ++test) {
@@ -242,15 +241,15 @@ void YacclabTests::AverageTest()
                     continue;
                 }
 
-				random_shuffle(begin(shuffled_ccl_average_algorithms), end(shuffled_ccl_average_algorithms));
+                random_shuffle(begin(shuffled_ccl_average_algorithms), end(shuffled_ccl_average_algorithms));
 
                 //unsigned i = 0;
                 // For all the Algorithms in the array
-				for (const auto& algo_name : shuffled_ccl_average_algorithms) {
+                for (const auto& algo_name : shuffled_ccl_average_algorithms) {
                     Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
                     unsigned n_labels;
-					
-					unsigned i = algo_pos[algo_name];
+
+                    unsigned i = algo_pos[algo_name];
 
                     try {
                         // Perform current algorithm on current image and save result.
@@ -724,6 +723,126 @@ void YacclabTests::AverageTestWithSteps()
     }
 }
 
+void YacclabTests::MemoryTest()
+{
+    // Initialize output message box
+    OutputBox ob("Memory Tests");
+
+    path current_output_path(cfg_.output_path / path(cfg_.memory_folder));
+
+    String output_file((current_output_path.string() / path(cfg_.memory_file)).string());
+
+    if (!create_directories(current_output_path)) {
+        cerror("Memory Test: Unable to find/create the output path " + current_output_path.string());
+    }
+
+    // Write MEMORY results
+    ofstream os(output_file);
+    if (!os.is_open()) {
+        cerror("Memory Test: Unable to open " + output_file);
+    }
+
+    os << "Memory Test" << endl << endl;
+
+    for (unsigned d = 0; d < cfg_.memory_datasets.size(); ++d) { // For every dataset in the average list
+        String dataset_name(cfg_.memory_datasets[d]);
+
+        path dataset_path(cfg_.input_path / path(dataset_name)),
+            is_path = dataset_path / path(cfg_.input_txt); // files.txt path
+
+        // To save list of filename on which CLLAlgorithms must be tested
+        vector<pair<string, bool>> filenames;  // first: filename, second: state of filename (find or not)
+        if (!LoadFileList(filenames, is_path)) {
+            ob.Cerror("Unable to open '" + is_path.string() + "'", dataset_name);
+            continue;
+        }
+
+        // Number of files
+        int filenames_size = filenames.size();
+
+        unsigned tot_test = 0; // To count the real number of image on which labeling will be applied for every file in list
+
+        // Initialize results container
+        // To store average memory accesses (one column for every data_ structure type: col 1 -> BINARY_MAT, col 2 -> LABELED_MAT, col 3 -> EQUIVALENCE_VET, col 0 -> OTHER)
+        memory_accesses_[dataset_name] = Mat1d(Size(MD_SIZE, cfg_.ccl_mem_algorithms.size()), 0.0);
+
+        // Start output message box
+        ob.StartUnitaryBox(dataset_name, filenames_size);
+
+        map<String, size_t> algo_pos;
+        for (size_t i = 0; i < cfg_.ccl_mem_algorithms.size(); ++i)
+            algo_pos[cfg_.ccl_mem_algorithms[i]] = i;
+        auto shuffled_ccl_mem_algorithms = cfg_.ccl_mem_algorithms;
+
+        // For every file in list
+        for (unsigned file = 0; file < filenames.size(); ++file) {
+            // Display output message box
+            ob.UpdateUnitaryBox(file);
+
+            string filename = filenames[file].first;
+            path filename_path = dataset_path / path(filename);
+
+            // Read and load image
+            if (!GetBinaryImage(filename_path, Labeling::img_)) {
+                ob.Cmessage("Unable to open '" + filename + "'");
+                continue;
+            }
+
+            random_shuffle(begin(shuffled_ccl_mem_algorithms), end(shuffled_ccl_mem_algorithms));
+            ++tot_test;
+
+            // For all the Algorithms in the array
+            for (const auto& algo_name : shuffled_ccl_mem_algorithms) {
+                Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
+                unsigned i = algo_pos[algo_name];
+                try {
+                // The following data_ structure is used to get the memory access matrices
+                    vector<unsigned long int> accesses; // Rows represents algorithms and columns represent data_ structures
+
+                    algorithm->PerformLabelingMem(accesses);
+
+                    // For every data_ structure "returned" by the algorithm
+                    for (size_t a = 0; a < accesses.size(); ++a) {
+                        memory_accesses_[dataset_name](i, a) += accesses[a];
+                    }
+                }
+                catch (const runtime_error&) {
+                    ob.Cmessage("'PerformLabeling()' method not implemented in '" + algo_name + "'");
+                    continue;
+                }
+            }
+        }
+        ob.StopUnitaryBox();
+
+        // To calculate average memory accesses
+        for (int r = 0; r < memory_accesses_[dataset_name].rows; ++r) {
+            for (int c = 0; c < memory_accesses_[dataset_name].cols; ++c) {
+                memory_accesses_[dataset_name](r, c) /= tot_test;
+            }
+        }
+
+        os << "#" << dataset_name << endl;
+        os << "Algorithm\tBinary Image\tLabel Image\tEquivalence Vector/s\tOther\tTotal Accesses" << endl;
+
+        for (auto a = 0; a < cfg_.ccl_mem_algorithms.size(); ++a) {
+            double total_accesses{ 0.0 };
+            os << cfg_.ccl_mem_algorithms[a] << '\t';
+            for (size_t col = 0; col < memory_accesses_[dataset_name].cols; ++col) {
+                os << std::fixed << std::setprecision(0) << memory_accesses_[dataset_name](a, col);
+                os << '\t';
+                total_accesses += memory_accesses_[dataset_name](a, col);
+            }
+
+            os << total_accesses;
+            os << endl;
+        }
+
+        os << endl << endl;;
+    }
+
+    os.close();
+}
+
 void YacclabTests::LatexGenerator()
 {
     path latex = cfg_.latex_path / path(cfg_.latex_file);
@@ -743,8 +862,12 @@ void YacclabTests::LatexGenerator()
 
     os << "\\usepackage{siunitx}" << endl;
     os << "\\usepackage{graphicx}" << endl;
-    os << "\\usepackage{subcaption}" << endl << endl;
+    os << "\\usepackage{subcaption}" << endl;
+    os << "\\usepackage[top = 1in, bottom = 1in, left = 1in, right = 1in]{geometry}" << endl << endl;
+
+  
     os << "\\title{{ \\huge\\bfseries YACCLAB TESTS}}" << endl;
+    os << "\\date{" + GetDatetime() + "}" << endl;
     os << "\\author{}" << endl << endl;
     os << "\\begin{document}" << endl << endl;
     os << "\\maketitle" << endl << endl;
@@ -880,7 +1003,7 @@ void YacclabTests::LatexGenerator()
             os << "\\begin{table}[tbh]" << endl << endl;
             os << "\t\\centering" << endl;
             os << "\t\\caption{Analysis of memory accesses required by connected components computation for '" << dataset_name << "' dataset. The numbers are given in millions of accesses}" << endl;
-            os << "\t\\label{tab:table1}" << endl;
+            os << "\t\\label{tab:table\_" + EscapeLatexUnderscore(dataset_name) + "}" << endl;
             os << "\t\\begin{tabular}{|l|";
             for (int i = 0; i < accesses.cols + 1; ++i)
                 os << "S[table-format=2.3]|";
@@ -894,8 +1017,8 @@ void YacclabTests::LatexGenerator()
             os << "\t\\hline" << endl;
 
             for (unsigned i = 0; i < cfg_.ccl_mem_algorithms.size(); ++i) {
-                // For every algorithm
-                const String& alg_name = cfg_.ccl_mem_algorithms[i];
+                // For every algorithm escape the underscore
+                const String& alg_name = EscapeLatexUnderscore(cfg_.ccl_mem_algorithms[i]);
                 //RemoveCharacter(alg_name, '\\');
                 os << "\t{" << alg_name << "}";
 
@@ -903,10 +1026,8 @@ void YacclabTests::LatexGenerator()
 
                 for (int s = 0; s < accesses.cols; ++s) {
                     // For every data_ structure
-                    if (accesses(i, s) != 0)
-                        os << "\t& " << (accesses(i, s) / 1000000);
-                    else
-                        os << "\t& ";
+
+                    os << "\t& " << (accesses(i, s) / 1000000);
 
                     tot += (accesses(i, s) / 1000000);
                 }

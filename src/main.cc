@@ -26,6 +26,8 @@
 // OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#define _CRT_SECURE_NO_WARNINGS //To suppress 'fopen' opencv warning/bug 
+
 #include <cstdint>
 
 #include <fstream>
@@ -1216,6 +1218,10 @@ int main()
         yt.AverageTestWithSteps();
     }
 
+    if (cfg.perform_memory) {
+        yt.MemoryTest();
+    }
+
     // Test Algorithms with different input type and different output format, and show execution result
     // AVERAGES TEST
     Mat1d all_res(cfg.average_datasets.size(), cfg.ccl_existing_algorithms.size(), numeric_limits<double>::max()); // We need it to save average results and generate latex table
@@ -1264,45 +1270,46 @@ int main()
         //GenerateLatexCharts(cfg.output_path, cfg.latex_charts, cfg.latex_folder, dataset_charts);
     }
 
-    map<string, Mat1d> accesses;
-    vector<String> ccl_mem_algorithms;
-    // MEMORY_TESTS
-    if (cfg.perform_memory) {
-        dmux::cout << endl << "MEMORY TESTS: " << endl;
+    //map<string, Mat1d> accesses;
+    //vector<String> ccl_mem_algorithms;
+    //// MEMORY_TESTS
+    //if (cfg.perform_memory) {
+    //    dmux::cout << endl << "MEMORY TESTS: " << endl;
 
-        //Check which algorithms support Memory Tests
-        Labeling::img_ = Mat1b();
+    //    //Check which algorithms support Memory Tests
+    //    Labeling::img_ = Mat1b();
 
-        for (const auto& algo_name : cfg.ccl_existing_algorithms) {
-            auto& algorithm = LabelingMapSingleton::GetInstance().data_.at(algo_name);
-            try {
-                vector<unsigned long> n_accesses;
-                algorithm->PerformLabelingMem(n_accesses);
-                //The algorithm is added in ccl_mem_algorithms only if it supports Memory Test
-                ccl_mem_algorithms.push_back(algo_name);
-            }
-            catch (const runtime_error& e) {
-                cerr << algo_name << ": " << e.what() << endl;
-            }
-        }
+    //    for (const auto& algo_name : cfg.ccl_existing_algorithms) {
+    //        auto& algorithm = LabelingMapSingleton::GetInstance().data_.at(algo_name);
+    //        try {
+    //            vector<unsigned long> n_accesses;
+    //            algorithm->PerformLabelingMem(n_accesses);
+    //            //The algorithm is added in ccl_mem_algorithms only if it supports Memory Test
+    //            ccl_mem_algorithms.push_back(algo_name);
+    //        }
+    //        catch (const runtime_error& e) {
+    //            cerr << algo_name << ": " << e.what() << endl;
+    //        }
+    //    }
 
-        if (cfg.ccl_existing_algorithms.size() == 0) {
-            dmux::cout << "ERROR: no algorithms, memory tests skipped" << endl;
-        }
-        else {
-            for (unsigned i = 0; i < cfg.memory_datasets.size(); ++i) {
-                dmux::cout << endl << "Memory_Test on '" << cfg.memory_datasets[i] << "': starts" << endl;
-                dmux::cout << MemoryTest(ccl_mem_algorithms, accesses[cfg.memory_datasets[i]], cfg.input_path, cfg.memory_datasets[i], cfg.input_txt, cfg.output_path) << endl;
-                dmux::cout << "Memory_Test on '" << cfg.memory_datasets[i] << "': ends" << endl << endl;
-                // GenerateMemoryLatexTable(cfg.output_path, cfg.latex_memory_file, accesses[i], cfg.memory_datasets[i], ccl_mem_algorithms);
-            }
-        }
-    }
+    //    if (cfg.ccl_existing_algorithms.size() == 0) {
+    //        dmux::cout << "ERROR: no algorithms, memory tests skipped" << endl;
+    //    }
+    //    else {
+    //        for (unsigned i = 0; i < cfg.memory_datasets.size(); ++i) {
+    //            dmux::cout << endl << "Memory_Test on '" << cfg.memory_datasets[i] << "': starts" << endl;
+    //            dmux::cout << MemoryTest(ccl_mem_algorithms, accesses[cfg.memory_datasets[i]], cfg.input_path, cfg.memory_datasets[i], cfg.input_txt, cfg.output_path) << endl;
+    //            dmux::cout << "Memory_Test on '" << cfg.memory_datasets[i] << "': ends" << endl << endl;
+    //            // GenerateMemoryLatexTable(cfg.output_path, cfg.latex_memory_file, accesses[i], cfg.memory_datasets[i], ccl_mem_algorithms);
+    //        }
+    //    }
+    //}
 
     // LatexGenerator(test_to_perform, cfg.latex_path, cfg.latex_file, all_res, cfg.average_datasets, cfg.ccl_algorithms, ccl_mem_algorithms, accesses);
     yt.LatexGenerator();
 
     // Copy log file into output folder
+    dmux::cout.flush();
     copy(path(logfile), cfg.output_path / path(logfile), ec);
  
     return EXIT_SUCCESS;
