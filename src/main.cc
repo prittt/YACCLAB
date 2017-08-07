@@ -1076,7 +1076,7 @@ int main()
     Labeling::img_ = Mat1b(1, 1, static_cast<uchar>(0));
     for (const auto& algo_name : cfg.ccl_existing_algorithms) {
         const auto& algorithm = LabelingMapSingleton::GetLabeling(algo_name);
-        if (cfg.perform_average || cfg.perform_check_8connectivity_std) {
+        if (cfg.perform_average || (cfg.perform_correctness && cfg.perform_check_8connectivity_std)) {
             try {
                 algorithm->PerformLabeling();
                 cfg.ccl_average_algorithms.push_back(algo_name);
@@ -1085,7 +1085,7 @@ int main()
                 ob_setconf.Cwarning(algo_name + ": " + e.what());
             }
         }
-        if (cfg.perform_average_ws || cfg.perform_check_8connectivity_ws) {
+        if (cfg.perform_average_ws || (cfg.perform_correctness && cfg.perform_check_8connectivity_ws)) {
             try {
                 algorithm->PerformLabelingWithSteps();
                 cfg.ccl_average_ws_algorithms.push_back(algo_name);
@@ -1094,7 +1094,7 @@ int main()
                 ob_setconf.Cwarning(algo_name + ": " + e.what());
             }
         }
-        if (cfg.perform_memory || cfg.perform_check_8connectivity_mem) {
+        if (cfg.perform_memory || (cfg.perform_correctness && cfg.perform_check_8connectivity_mem)) {
             try {
                 algorithm->PerformLabelingMem(vector<unsigned long int>{});
                 cfg.ccl_mem_algorithms.push_back(algo_name);
@@ -1105,19 +1105,19 @@ int main()
         }
     }
 
-    if ((cfg.perform_average || cfg.perform_check_8connectivity_std) && cfg.ccl_average_algorithms.size() == 0) {
+    if ((cfg.perform_average || (cfg.perform_correctness && cfg.perform_check_8connectivity_std)) && cfg.ccl_average_algorithms.size() == 0) {
         ob_setconf.Cwarning("There are no 'algorithms' with valid 'PerformLabeling()' method, related tests will be skipped");
         cfg.perform_average = false; 
         cfg.perform_check_8connectivity_std = false;
     }
 
-    if ((cfg.perform_average_ws || cfg.perform_check_8connectivity_ws) && cfg.ccl_average_ws_algorithms.size() == 0) {
+    if ((cfg.perform_average_ws || (cfg.perform_correctness && cfg.perform_check_8connectivity_ws)) && cfg.ccl_average_ws_algorithms.size() == 0) {
         ob_setconf.Cwarning("There are no 'algorithms' with valid 'PerformLabelingWithSteps()' method, related tests will be skipped");
         cfg.perform_average_ws = false;
         cfg.perform_check_8connectivity_ws = false;
     }
 
-    if ((cfg.perform_memory || cfg.perform_check_8connectivity_mem) && cfg.ccl_mem_algorithms.size() == 0) {
+    if ((cfg.perform_memory || (cfg.perform_correctness && cfg.perform_check_8connectivity_mem)) && cfg.ccl_mem_algorithms.size() == 0) {
         ob_setconf.Cwarning("There are no 'algorithms' with valid 'PerformLabelingMem()' method, related tests will be skipped");
         cfg.perform_memory = false;
         cfg.perform_check_8connectivity_mem = false;
@@ -1138,8 +1138,7 @@ int main()
         cfg.perform_average_ws = false;
     }
 
-    if ((cfg.perform_correctness) &&
-        cfg.check_datasets.size() == 0) {
+    if ((cfg.perform_correctness) && cfg.check_datasets.size() == 0) {
         ob_setconf.Cwarning("There are no datasets specified for 'correctness tests', skipped");
         cfg.perform_correctness = false;
     }
