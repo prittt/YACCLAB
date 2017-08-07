@@ -824,10 +824,10 @@ void YacclabTests::MemoryTest()
         os << "#" << dataset_name << endl;
         os << "Algorithm\tBinary Image\tLabel Image\tEquivalence Vector/s\tOther\tTotal Accesses" << endl;
 
-        for (auto a = 0; a < cfg_.ccl_mem_algorithms.size(); ++a) {
+        for (size_t a = 0; a < cfg_.ccl_mem_algorithms.size(); ++a) {
             double total_accesses{ 0.0 };
             os << cfg_.ccl_mem_algorithms[a] << '\t';
-            for (size_t col = 0; col < memory_accesses_[dataset_name].cols; ++col) {
+            for (int col = 0; col < memory_accesses_[dataset_name].cols; ++col) {
                 os << std::fixed << std::setprecision(0) << memory_accesses_[dataset_name](a, col);
                 os << '\t';
                 total_accesses += memory_accesses_[dataset_name](a, col);
@@ -1003,7 +1003,7 @@ void YacclabTests::LatexGenerator()
             os << "\\begin{table}[tbh]" << endl << endl;
             os << "\t\\centering" << endl;
             os << "\t\\caption{Analysis of memory accesses required by connected components computation for '" << dataset_name << "' dataset. The numbers are given in millions of accesses}" << endl;
-            os << "\t\\label{tab:table\_" + EscapeLatexUnderscore(dataset_name) + "}" << endl;
+            os << "\t\\label{tab:table\\_" << EscapeLatexUnderscore(dataset_name) << "}" << endl;
             os << "\t\\begin{tabular}{|l|";
             for (int i = 0; i < accesses.cols + 1; ++i)
                 os << "S[table-format=2.3]|";
