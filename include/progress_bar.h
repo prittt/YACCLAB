@@ -91,18 +91,18 @@ public:
     void Display(const unsigned progress)
     {
         if (progress < n_things_todo_ && prev_ == (gap_ - 1)) {
-            dmux::cout << pre_message_;
-            dmux::cout << "[";
+            std::cout << pre_message_;
+            std::cout << "[";
             size_t pos = bar_width_ * progress / n_things_todo_;
             for (size_t i = 0; i < bar_width_; ++i) {
-                if (i < pos) dmux::cout << "=";
-                else if (i == pos) dmux::cout << ">";
-                else dmux::cout << " ";
+                if (i < pos) std::cout << "=";
+                else if (i == pos) std::cout << ">";
+                else std::cout << " ";
             }
             std::string s = std::to_string(unsigned(progress * 100.0 / n_things_todo_));
-            dmux::cout << "] " << std::string(3 - s.size(), ' ') << s << "%";
-            dmux::cout << post_message_ << "\r";
-            dmux::cout.flush();
+            std::cout << "] " << std::string(3 - s.size(), ' ') << s << "%";
+            std::cout << post_message_ << "\r";
+            std::cout.flush();
             prev_ = 0;
         }
         else {
@@ -161,19 +161,19 @@ public:
     void DisplayRepeated(const unsigned progress)
     {
         if (progress < n_things_todo_ && prev_ == (gap_ - 1)) {
-            dmux::cout << pre_message_ << "test " << std::setfill(' ') << std::setw(n_tests_length_) << cur_test_;
-            dmux::cout << "/" << n_tests_ << " - ";
-            dmux::cout << "[";
+            std::cout << pre_message_ << "test " << std::setfill(' ') << std::setw(n_tests_length_) << cur_test_;
+            std::cout << "/" << n_tests_ << " - ";
+            std::cout << "[";
             size_t pos = bar_width_ * progress / n_things_todo_;
             for (size_t i = 0; i < bar_width_; ++i) {
-                if (i < pos) dmux::cout << "=";
-                else if (i == pos) dmux::cout << ">";
-                else dmux::cout << " ";
+                if (i < pos) std::cout << "=";
+                else if (i == pos) std::cout << ">";
+                else std::cout << " ";
             }
             std::string s = std::to_string(unsigned(progress * 100.0 / n_things_todo_));
-            dmux::cout << "] " << std::string(3 - s.size(), ' ') << s << "%";
-            dmux::cout << post_message_ << "\r";
-            dmux::cout.flush();
+            std::cout << "] " << std::string(3 - s.size(), ' ') << s << "%";
+            std::cout << post_message_ << "\r";
+            std::cout.flush();
             prev_ = 0;
         }
         else {
