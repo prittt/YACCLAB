@@ -32,22 +32,18 @@
 #include "register.h"
 #include "memory_tester.h"
 
-// Union-find (UF) as in:	
-// Parallel Light Speed Labeling: an effecient connected component algorithm for labeling and analysis on multi - core processors
-// Laurent Cabaret, Lionel Lacassagne, Daniel Etiemble
+// Union-find (UF)
 class UF {
 // Maximum number of labels (included background) = 2^(sizeof(unsigned) x 8)
 public:
 	static void Alloc(unsigned max_length) {
 		P_ = new unsigned[max_length];
-		A_ = new unsigned[max_length];
 	}
 	static void Dealloc() {
 		delete[] P_;
-		delete[] A_;
 	}
 	static void Setup() {
-		A_[0] = P_[0] = 0;// First label is for background pixels
+		P_[0] = 0;// First label is for background pixels
 		length_ = 1;
 	}
 	static unsigned NewLabel() {
@@ -55,7 +51,7 @@ public:
 		return length_++;
 	}
 	static unsigned GetLabel(unsigned index) {
-		return A_[index];
+		return P_[index];
 	}
 
 	// Basic functions of the UF solver required only by the Light-Speed Labeling Algorithms:
@@ -92,16 +88,11 @@ public:
 	{
 		unsigned k = 1;
 		for (unsigned i = 1; i < length_; ++i) {
-			unsigned r = i;
-			// FindRoot(i)
-			while (P_[r] < r) {
-				r = P_[r];
-			}
-			if (r < i) {
-				A_[i] = A_[r];
+			if (P_[i] < i) {
+				P_[i] = P_[P_[i]];
 			}
 			else {
-				A_[i] = k;
+				P_[i] = k;
 				k = k + 1;
 			}
 		}
@@ -113,11 +104,10 @@ public:
 	static void MemAlloc(unsigned max_length)
 	{
 		mem_P_ = MemVector<unsigned>(max_length);
-		mem_A_ = MemVector<unsigned>(max_length);
 	}
 	static void MemDealloc() {}
 	static void MemSetup() {
-		mem_A_[0] = mem_P_[0] = 0;	 // First label is for background pixels
+		mem_P_[0] = 0;	 // First label is for background pixels
 		length_ = 1;
 	}
 	static unsigned MemNewLabel() {
@@ -125,11 +115,11 @@ public:
 		return length_++;
 	}
 	static unsigned MemGetLabel(unsigned index) {
-		return mem_A_[index];
+		return mem_P_[index];
 	}
 
 	static double MemTotalAccesses() {
-		return mem_P_.GetTotalAccesses() + mem_A_.GetTotalAccesses();
+		return mem_P_.GetTotalAccesses();
 	}
 
 	// Basic functions of the UF solver required only by the Light-Speed Labeling Algorithms:
@@ -162,37 +152,30 @@ public:
 			return mem_P_[j] = i;
 		return mem_P_[i] = j;
 	}
-	static unsigned MemFlatten()
-	{
-		unsigned k = 1;
-		for (unsigned i = 1; i < length_; ++i) {
-			unsigned r = i;
-			// FindRoot(i)
-			while (mem_P_[r] < r) {
-				r = mem_P_[r];
-			}
-			if (r < i) {
-				mem_A_[i] = mem_A_[r];
-			}
-			else {
-				mem_A_[i] = k;
-				k = k + 1;
-			}
-		}
-		return k;
-	}
+    static unsigned MemFlatten()
+    {
+        unsigned k = 1;
+        for (unsigned i = 1; i < length_; ++i) {
+            if (mem_P_[i] < i) {
+                mem_P_[i] = mem_P_[mem_P_[i]];
+            }
+            else {
+                mem_P_[i] = k;
+                k = k + 1;
+            }
+        }
+        return k;
+    }
 private:
 	static unsigned *P_;
-	static unsigned *A_;
 	static unsigned length_;
 	static MemVector<unsigned> mem_P_;
-	static MemVector<unsigned> mem_A_;
 };
 
 // Union-Find (UF) with path compression (PC) as in:
 // Two Strategies to Speed up Connected Component Labeling Algorithms
 // Kesheng Wu, Ekow Otoo, Kenji Suzuki
-class UF_PC {
+class UFPC {
 // Maximum number of labels (included background) = 2^(sizeof(unsigned) x 8)
 public:
 	static void Alloc(unsigned max_length) {
@@ -599,7 +582,6 @@ public:
 	}
 	static unsigned Flatten()
 	{
-		// In order to renumber and count the labels: is it really necessary? 
 		unsigned cur_label = 1;
 		for (unsigned k = 1; k < length_; k++) {
 			if (rtable_[k] == k) {
@@ -730,7 +712,7 @@ private:
 
 #define REGISTER_LABELING_WITH_EQUIVALENCES_SOLVERS(algorithm) \
     REGISTER_SOLVER(algorithm, UF) \
-	REGISTER_SOLVER(algorithm, UF_PC) \
+	REGISTER_SOLVER(algorithm, UFPC) \
     REGISTER_SOLVER(algorithm, RemSP) \
 	REGISTER_SOLVER(algorithm, TTA) \
 

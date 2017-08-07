@@ -30,15 +30,13 @@
 
 // Union-Find (UF):
 unsigned *UF::P_;
-unsigned *UF::A_;
 unsigned UF::length_;
 MemVector<unsigned> UF::mem_P_;
-MemVector<unsigned> UF::mem_A_;
 
 // Union-Find (UF) with path compression (PC):
-unsigned *UF_PC::P_;
-unsigned UF_PC::length_;
-MemVector<unsigned> UF_PC::mem_P_;
+unsigned *UFPC::P_;
+unsigned UFPC::length_;
+MemVector<unsigned> UFPC::mem_P_;
 
 // Interleaved Rem algorithm with SPlicing (SP):
 unsigned *RemSP::P_;

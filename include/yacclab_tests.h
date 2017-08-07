@@ -121,7 +121,7 @@ private:
 
                 // TODO: remove OpenCV connectedComponents and use SAUF above
                 cv::Mat1i labeled_img_correct;
-                n_labels_correct = connectedComponents(Labeling::img_, labeled_img_correct, 8, 4, CCL_WU);
+                n_labels_correct = connectedComponents(Labeling::img_, labeled_img_correct/*, 8, 4, CCL_WU*/);
 
                 unsigned j = 0;
                 for (const auto& algo_name : ccl_algorithms) {

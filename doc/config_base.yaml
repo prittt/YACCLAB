@@ -46,7 +46,7 @@ algorithms:
   - NULL
 
 # Algoritms which require to specify a labels solver: SAUF, BBDT, CCIT, LSL, CTB, PRED
-# Possible label solvers: UF, UF_PC, RemSP, TTA
+# Possible label solvers: UF, UFPC, RemSP, TTA
 # LSL requires also a version specifier: STD, STDZ, RLE, RLEZ; only UF and TTA can be used with LSL
 # Algoritms which don't require to specify a labels solver: DiStefano, CT, SBLA, NULL
 
