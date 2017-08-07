@@ -100,3 +100,22 @@ void filesystem::path::NormalizePath() {
 	return;
 }
 
+void filesystem::copy(const path& from, const path& to) {
+    if (!filesystem::exists(from)) {
+        return;
+    }
+
+    if (!filesystem::exists(to)) {
+        if (filesystem::create_directories(to.parent_path())) {
+            ifstream src(from.string());
+            ofstream dst(to.string());
+
+            dst << src.rdbuf();
+        }
+    }
+}
+
+void filesystem::copy(const path& from, const path& to, error_code& ec) {
+    filesystem::copy(from, to);
+}
+

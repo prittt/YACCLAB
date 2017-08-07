@@ -136,6 +136,9 @@ namespace filesystem {
 
 	bool create_directories(const path& p);
 	bool create_directories(const path& p, std::error_code& ec);
+
+    void copy(const path& from, const path& to);
+    void copy(const path& from, const path& to, std::error_code& ec);
 };
 
 #endif // !YACCLAB_FILE_MANAGER_H_

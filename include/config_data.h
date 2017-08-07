@@ -73,7 +73,6 @@ struct ConfigData {
     path output_path;                     // Path on which results are stored
     path input_path;                      // Path on which input datasets are stored
     path latex_path;                      // Path on which latex report will be stored
-    path logfile_path;                    // Path on output log file
 
     std::vector<cv::String> check_datasets;       // List of datasets on which check tests will be performed
     std::vector<cv::String> memory_datasets;      // List of datasets on which memory tests will be perform
@@ -96,9 +95,9 @@ struct ConfigData {
         perform_memory               = ReadBool(fs["perform"]["memory"]);
         perform_average_ws           = ReadBool(fs["perform"]["average_with_steps"]);
 
-        perform_check_8connectivity_std = ReadBool(fs["correctness_tests"]["8connectivity_standard"]);
-        perform_check_8connectivity_ws  = ReadBool(fs["correctness_tests"]["8connectivity_steps"]);
-        perform_check_8connectivity_mem = ReadBool(fs["correctness_tests"]["8connectivity_memory"]);
+        perform_check_8connectivity_std = ReadBool(fs["correctness_tests"]["eight_connectivity_standard"]);
+        perform_check_8connectivity_ws  = ReadBool(fs["correctness_tests"]["eight_connectivity_steps"]);
+        perform_check_8connectivity_mem = ReadBool(fs["correctness_tests"]["eight_connectivity_memory"]);
 
         average_color_labels         = ReadBool(fs["color_labels"]["average"]);
         density_color_labels         = ReadBool(fs["color_labels"]["density"]);
@@ -127,7 +126,6 @@ struct ConfigData {
         output_path                  = path(fs["paths"]["output"]) / path(GetDatetimeWithoutSpecialChars());
         input_path                   = path(fs["paths"]["input"]);
         latex_path                   = output_path / path("latex");
-        logfile_path                 = output_path / path("log.txt");
 
         check_datasets               = std::vector<cv::String>(fs["check_datasets"].size());
         cv::read(fs["check_datasets"], check_datasets);

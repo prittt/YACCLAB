@@ -1,21 +1,20 @@
-
-# Copyright(c) 2016 - 2017 Costantino Grana, Federico Bolelli, Lorenzo Baraldi and Roberto Vezzani
+# Copyright(c) 2016 - 2017 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met :
-# 
+#
 # *Redistributions of source code must retain the above copyright notice, this
 # list of conditions and the following disclaimer.
-# 
+#
 # * Redistributions in binary form must reproduce the above copyright notice,
 # this list of conditions and the following disclaimer in the documentation
 # and / or other materials provided with the distribution.
-# 
+#
 # * Neither the name of YACCLAB nor the names of its
 # contributors may be used to endorse or promote products derived from
 # this software without specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 # AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 # IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -147,21 +146,26 @@ if(YACCLAB_DOWNLOAD_DATASET)
 		file(MAKE_DIRECTORY ${YACCLAB_INPUT_DATASET_PATH})
 	endif()
 	
-	message(STATUS "Downloading dataset...")
-	file(DOWNLOAD http://imagelab.ing.unimore.it/files/YACCLAB_dataset_new.zip "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip" STATUS status SHOW_PROGRESS)
-	list( GET status 0 error_code )
-	if( error_code )
-		message(ERROR " Cmake is not able to download the YACCLAB dataset. \nPlease, retry or download it manually and put all unzipped dataset directories in the 'input' path:\n'" ${YACCLAB_INPUT_DATASET_PATH} "'. \n(The dataset is available at http://imagelab.ing.unimore.it/files/YACCLAB_dataset_new.zip).")
-		if(EXISTS "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip")
-			file(REMOVE "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip")
-		endif()
+	if (EXISTS "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip")
+		message(STATUS "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip already exists, download skipped!")
 	else()
-		message(STATUS "Downloading done.")
-	endif()
+		message(STATUS "Downloading dataset...")
+		file(DOWNLOAD http://imagelab.ing.unimore.it/files/YACCLAB_dataset_new.zip "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip" STATUS status SHOW_PROGRESS)
+		list( GET status 0 error_code )
+		if( error_code )
+			message(ERROR " Cmake is not able to download the YACCLAB dataset. \nPlease, retry or download it manually and put all unzipped dataset directories in the 'input' path:\n'" ${YACCLAB_INPUT_DATASET_PATH} "'. \n(The dataset is available at http://imagelab.ing.unimore.it/files/YACCLAB_dataset_new.zip).")
+			if(EXISTS "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip")
+				file(REMOVE "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip")
+			endif()
+		else()
+			message(STATUS "Downloading done.")
+		endif()
 		
-	if(EXISTS "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip")
+		if(EXISTS "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip")
 			message(STATUS "Unpacking (it may take a while)...")
 			execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip" WORKING_DIRECTORY "${YACCLAB_INPUT_DATASET_PATH}" OUTPUT_QUIET)
 			message(STATUS "Unpacking done.")
+		endif()
 	endif()
+	
 endif()
