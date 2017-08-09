@@ -26,7 +26,7 @@
 // OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#define _CRT_SECURE_NO_WARNINGS //To suppress 'fopen' opencv warning/bug 
+#define _CRT_SECURE_NO_WARNINGS //To suppress 'fopen' opencv warning/bug
 
 #include <cstdint>
 
@@ -549,6 +549,7 @@ string DensitySizeTest(vector<String>& ccl_algorithms, const path& input_path, c
         }
         scriptOs << "\"" + outputDensityNormalizedResult + "\" using 1:" << i << " with linespoints title \"" + *it + "\"" << endl << endl;
 
+
         scriptOs << "# NORMALIZED DENSITY GRAPH (BLACK AND WHITE)" << endl << endl;
 
         scriptOs << "set output \"" + outputNormalizationDensityGraphBw + "\"" << endl;
@@ -602,8 +603,7 @@ string DensitySizeTest(vector<String>& ccl_algorithms, const path& input_path, c
         scriptOs << "\"" + outputSizeResult + "\" using 1:" << i << " with linespoints title \"" + *it + "\"" << endl << endl;
 
         scriptOs << "# Replot in latex folder" << endl;
-        scriptOs << "set title \"\"" << endl << endl;
-
+        scriptOs << "set title \"\"" << endl;
         scriptOs << "set output \'" << (latex_charts_path / path(compiler_name + compiler_version + outputSizeGraph)).string() << "\'" << endl;
         scriptOs << "replot" << endl << endl;
 
@@ -642,14 +642,14 @@ int main()
     error_code ec;
 
     // Create StreamDemultiplexer object in order
-    // to print output on both stdout and log file 
+    // to print output on both stdout and log file
     string logfile = "log.txt";
     ofstream os(logfile);
     if (os.is_open()) {
         dmux::cout.AddStream(os);
     }
 
-    OutputBox ob_setconf("Setting Configuration Parameters"); 
+    OutputBox ob_setconf("Setting Configuration Parameters");
     // Read yaml configuration file
     const string config_file = "config.yaml";
     FileStorage fs;
@@ -657,8 +657,8 @@ int main()
         fs.open(config_file, FileStorage::READ);
     }
     catch (const cv::Exception&) {
-        exit(EXIT_FAILURE);  // Error redirected, 
-                             // OpenCV redirected function will 
+        exit(EXIT_FAILURE);  // Error redirected,
+                             // OpenCV redirected function will
                              // print the error on stdout
     }
 
@@ -695,7 +695,7 @@ int main()
     Labeling::img_ = Mat1b(1, 1, static_cast<uchar>(0));
     for (const auto& algo_name : cfg.ccl_existing_algorithms) {
         const auto& algorithm = LabelingMapSingleton::GetLabeling(algo_name);
-        if (cfg.perform_average || (cfg.perform_correctness && cfg.perform_check_8connectivity_std)) {
+        if (cfg.perform_average || cfg.perform_density || (cfg.perform_correctness && cfg.perform_check_8connectivity_std)) {
             try {
                 algorithm->PerformLabeling();
                 cfg.ccl_average_algorithms.push_back(algo_name);
@@ -726,7 +726,7 @@ int main()
 
     if ((cfg.perform_average || (cfg.perform_correctness && cfg.perform_check_8connectivity_std)) && cfg.ccl_average_algorithms.size() == 0) {
         ob_setconf.Cwarning("There are no 'algorithms' with valid 'PerformLabeling()' method, related tests will be skipped");
-        cfg.perform_average = false; 
+        cfg.perform_average = false;
         cfg.perform_check_8connectivity_std = false;
     }
 
@@ -772,8 +772,8 @@ int main()
         cfg.perform_memory = false;
     }
 
-    if (!cfg.perform_average && !cfg.perform_correctness && 
-        !cfg.perform_density && !cfg.perform_memory && 
+    if (!cfg.perform_average && !cfg.perform_correctness &&
+        !cfg.perform_density && !cfg.perform_memory &&
         !cfg.perform_average_ws) {
         ob_setconf.Cerror("There are no tests to perform");
     }
@@ -803,7 +803,7 @@ int main()
         ob_setconf.Cerror("Unable to create output directory '" + cfg.latex_path.string() + "' - " + ec.message());
     }
 
-    ob_setconf.Cmessage("Setting Configuration Parameters DONE"); 
+    ob_setconf.Cmessage("Setting Configuration Parameters DONE");
     ob_setconf.CloseBox();
 
     YacclabTests yt(cfg);
@@ -817,7 +817,7 @@ int main()
         if (cfg.perform_check_8connectivity_ws) {
             yt.CheckPerformLabelingWithSteps();
         }
-        
+
         if (cfg.perform_check_8connectivity_mem) {
             yt.CheckPerformLabelingMem();
         }
@@ -834,37 +834,39 @@ int main()
     }
 
     // Density tests
-
+    if (cfg.perform_density) {
+        yt.DensityTest();
+    }
 
     // Granularity tests
-
 
     // Memory tests
     if (cfg.perform_memory) {
         yt.MemoryTest();
     }
 
-    // DENSITY_SIZE_TESTS
-    if (cfg.perform_density) {
-        //dmux::cout << endl << "DENSITY_SIZE TESTS: " << endl;
-        //TitleBar::Display("DENSITY_SIZE TESTS");
-        if (cfg.ccl_existing_algorithms.size() == 0) {
-            dmux::cout << "ERROR: no algorithms, density_size tests skipped" << endl;
-        }
-        else {
-            for (unsigned i = 0; i < cfg.density_datasets.size(); ++i) {
-                dmux::cout << "Density_Size_Test on '" << cfg.density_datasets[i] << "': starts" << endl;
-                dmux::cout << DensitySizeTest(cfg.ccl_existing_algorithms, cfg.input_path, cfg.density_datasets[i], cfg.input_txt, cfg.gnuplot_script_extension, cfg.output_path, cfg.latex_path.stem().string(), cfg.colors_folder, cfg.density_save_middle_tests, cfg.density_tests_number, cfg.middle_folder, cfg.write_n_labels, cfg.density_color_labels) << endl;
-                //dmux::cout << "Density_Size_Test on '" << density_datasets[i] << "': ends" << endl << endl;
-            }
-        }
-    }
-
+    // Latex Generator
     yt.LatexGenerator();
+
+    // DENSITY_SIZE_TESTS
+    //if (cfg.perform_density) {
+    //    //dmux::cout << endl << "DENSITY_SIZE TESTS: " << endl;
+    //    //TitleBar::Display("DENSITY_SIZE TESTS");
+    //    if (cfg.ccl_existing_algorithms.size() == 0) {
+    //        dmux::cout << "ERROR: no algorithms, density_size tests skipped" << endl;
+    //    }
+    //    else {
+    //        for (unsigned i = 0; i < cfg.density_datasets.size(); ++i) {
+    //            dmux::cout << "Density_Size_Test on '" << cfg.density_datasets[i] << "': starts" << endl;
+    //            dmux::cout << DensitySizeTest(cfg.ccl_existing_algorithms, cfg.input_path, cfg.density_datasets[i], cfg.input_txt, cfg.gnuplot_script_extension, cfg.output_path, cfg.latex_path.stem().string(), cfg.colors_folder, cfg.density_save_middle_tests, cfg.density_tests_number, cfg.middle_folder, cfg.write_n_labels, cfg.density_color_labels) << endl;
+    //            //dmux::cout << "Density_Size_Test on '" << density_datasets[i] << "': ends" << endl << endl;
+    //        }
+    //    }
+    //}
 
     // Copy log file into output folder
     dmux::cout.flush();
     copy(path(logfile), cfg.output_path / path(logfile), ec);
- 
+
     return EXIT_SUCCESS;
 }
