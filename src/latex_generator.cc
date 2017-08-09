@@ -211,20 +211,6 @@ void GenerateLatexCharts(const filesystem::path& output_path, const string& late
     os.close();
 }
 
-string EscapeLatexUnderscore(const string& s)
-{
-    string s_escaped;
-    unsigned i = 0;
-    for (const char& c : s) {
-        if (c == '_' && i > 0 && s[i - 1] != '\\') {
-            s_escaped += '\\';
-        }
-        s_escaped += c;
-        ++i;
-    }
-    return s_escaped;
-}
-
 void LatexGenerator(const map<string, bool>& test_to_perform, const path& latex_path, const string& latex_file, const Mat1d& all_res, const vector<String>& datasets_name, const vector<String>& ccl_algorithms, const vector<String>& ccl_mem_algorithms, const map<string, Mat1d>& accesses)
 {
     path latex = latex_path / path(latex_file);
@@ -264,7 +250,7 @@ void LatexGenerator(const map<string, bool>& test_to_perform, const path& latex_
         for (unsigned i = 0; i < ccl_algorithms.size(); ++i) {
             //RemoveCharacter(datasets_name, '\\');
             //datasets_name.erase(std::remove(datasets_name.begin(), datasets_name.end(), '\\'), datasets_name.end());
-            os << " & {" << EscapeLatexUnderscore(ccl_algorithms[i]) << "}"; //Header
+            os << " & {" << EscapeUnderscore(ccl_algorithms[i]) << "}"; //Header
         }
         os << "\\\\" << endl;
         os << "\t\\hline" << endl;
@@ -287,7 +273,7 @@ void LatexGenerator(const map<string, bool>& test_to_perform, const path& latex_
         SystemInfo s_info;
         string info_to_latex = s_info.build() + "_" + s_info.compiler_name() + s_info.compiler_version() + "_" + s_info.os();
         std::replace(info_to_latex.begin(), info_to_latex.end(), ' ', '_');
-        info_to_latex = EscapeLatexUnderscore(info_to_latex);
+        info_to_latex = EscapeUnderscore(info_to_latex);
 
         string chart_size{ "0.45" }, chart_width{ "1" };
         // Get information about date and time

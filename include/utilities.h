@@ -106,4 +106,8 @@ void cmessage(const std::string& msg);
 */
 std::string GetGnuplotTitle();
 
+std::string EscapeUnderscore(const std::string& s);
+std::string DoubleEscapeUnderscore(const std::string& s);
+
+
 #endif // !YACCLAB_UTILITIES_H_
