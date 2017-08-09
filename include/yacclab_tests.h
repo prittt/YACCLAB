@@ -42,39 +42,42 @@ class YacclabTests {
 public:
     YacclabTests(const ConfigData& cfg) : cfg_(cfg) {}
 
-    void CheckPerformLabeling() {
+    void CheckPerformLabeling()
+    {
         std::string title = "Checking Correctness of 'PerformLabeling()' (8-Connectivity)";
         CheckAlgorithms(title, cfg_.ccl_average_algorithms, &Labeling::PerformLabeling);
     }
-    void CheckPerformLabelingWithSteps() {
+    void CheckPerformLabelingWithSteps()
+    {
         std::string title = "Checking Correctness of 'PerformLabelingWithSteps()' (8-Connectivity)";
         CheckAlgorithms(title, cfg_.ccl_average_ws_algorithms, &Labeling::PerformLabelingWithSteps);
     }
-    void CheckPerformLabelingMem() {
+    void CheckPerformLabelingMem()
+    {
         std::string title = "Checking Correctness of 'PerformLabelingMem()' (8-Connectivity)";
         CheckAlgorithms(title, cfg_.ccl_mem_algorithms, &Labeling::PerformLabelingMem, std::vector<unsigned long int>());
     }
 
     void AverageTest();
     void AverageTestWithSteps();
-
+    void DensityTest();
     void MemoryTest();
     void LatexGenerator();
+
 private:
     ConfigData cfg_;
     cv::Mat1d average_results_;
-    std::map<cv::String, cv::Mat1d> average_ws_results_;
-    std::map<cv::String, cv::Mat1d> memory_accesses_;
+    cv::Mat1d density_results_;
+    std::map<cv::String, cv::Mat1d> average_ws_results_; // String for dataset_name, Mat1d for steps results
+    std::map<cv::String, cv::Mat1d> memory_accesses_; // String for dataset_name, Mat1d for memory accesses
 
     bool LoadFileList(std::vector<std::pair<std::string, bool>>& filenames, const filesystem::path& files_path);
     void SaveBroadOutputResults(std::map<cv::String, cv::Mat1d>& results, const std::string& o_filename, const cv::Mat1i& labels, const std::vector<std::pair<std::string, bool>>& filenames);
     void SaveBroadOutputResults(const cv::Mat1d& results, const std::string& o_filename, const cv::Mat1i& labels, const std::vector<std::pair<std::string, bool>>& filenames);
-    
+    void SaveAverageWithStepsResults(std::string& os_name, bool rounded);
+
     template <typename FnP, typename... Args>
-    void CheckAlgorithms(const std::string& title, 
-                        const std::vector<cv::String>& ccl_algorithms,
-                        const FnP func,
-                        Args&&... args)
+    void CheckAlgorithms(const std::string& title, const std::vector<cv::String>& ccl_algorithms, const FnP func, Args&&... args)
     {
         OutputBox ob(title);
 
@@ -99,7 +102,6 @@ private:
             ob.StartUnitaryBox(dataset_name, filenames_size);
 
             for (unsigned file = 0; file < filenames_size && !stop; ++file) { // For each file in list
-                                                                        
                 ob.UpdateUnitaryBox(file);
 
                 std::string filename = filenames[file].first;
@@ -146,7 +148,6 @@ private:
                                 break;
                             }
                         }
-
                     }
                     ++j;
                 } // For all the Algorithms in the array
@@ -162,7 +163,7 @@ private:
         for (const auto& algo_name : ccl_algorithms) {
             messages[j] = "'" + algo_name + "'" + std::string(longest_name - algo_name.size(), '-');
             if (stats[j]) {
-                  messages[j] += "-> correct!";
+                messages[j] += "-> correct!";
             }
             else {
                 messages[j] += "-> NOT correct, it first fails on '" + first_fail[j] + "'";
@@ -171,7 +172,6 @@ private:
         }
         ob.DisplayReport("Report", messages);
     }
-
 };
 
 #endif // !YACCLAB_YACCLAB_TESTS_H_
