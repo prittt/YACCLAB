@@ -54,8 +54,9 @@ const string kTerminalExtension = ".pdf";
 
 StreamDemultiplexer dmux::cout(std::cout);
 
-bool CompareLengthCvString(String const& lhs, String const& rhs) {
-	return lhs.size() < rhs.size();
+bool CompareLengthCvString(String const& lhs, String const& rhs)
+{
+    return lhs.size() < rhs.size();
 }
 
 void RemoveCharacter(string& s, const char c)
@@ -137,7 +138,7 @@ void NormalizeLabels(Mat1i& img_labels)
 
 bool GetBinaryImage(const string& filename, Mat1b& binary_mat)
 {
-	// Image load
+    // Image load
     Mat1b image;
     image = imread(filename, IMREAD_GRAYSCALE);   // Read the file
 
@@ -158,8 +159,8 @@ bool GetBinaryImage(const filesystem::path& p, Mat1b& binary_mat)
 
 bool CompareMat(const Mat1i& mat_a, const Mat1i& mat_b)
 {
-	// Get a matrix with non-zero values at points where the
-	// two matrices have different values
+    // Get a matrix with non-zero values at points where the
+    // two matrices have different values
     cv::Mat diff = mat_a != mat_b;
     // Equal if no elements disagree
     return cv::countNonZero(diff) == 0;
@@ -200,9 +201,10 @@ void cmessage(const string& msg)
     return;
 }
 
-int RedirectCvError(int status, const char* func_name, const char* err_msg, const char* file_name, int line, void*) {
+int RedirectCvError(int status, const char* func_name, const char* err_msg, const char* file_name, int line, void*)
+{
     OutputBox ob;
-    ob.Cerror(err_msg); 
+    ob.Cerror(err_msg);
     return 0;
 }
 
@@ -211,4 +213,30 @@ std::string GetGnuplotTitle()
     SystemInfo s_info;
     string s = "\"{/:Bold CPU}: " + s_info.cpu() + " {/:Bold BUILD}: " + s_info.build() + " {/:Bold OS}: " + s_info.os() + "\" font ', 11'";
     return s;
+}
+
+string EscapeUnderscore(const string& s)
+{
+    string s_escaped;
+    unsigned i = 0;
+    for (const char& c : s) {
+        if (c == '_' && i > 0 && s[i - 1] != '\\') {
+            s_escaped += '\\';
+        }
+        s_escaped += c;
+        ++i;
+    }
+    return s_escaped;
+}
+
+// Gnuplot requires double-escaped name when underscores are encountered
+string DoubleEscapeUnderscore(const string& s)
+{
+    string s_escaped{ s };
+    size_t found = s_escaped.find_first_of("_");
+    while (found != std::string::npos) {
+        s_escaped.insert(found, "\\\\");
+        found = s_escaped.find_first_of("_", found + 3);
+    }
+    return s_escaped;
 }

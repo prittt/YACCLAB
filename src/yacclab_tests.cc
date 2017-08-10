@@ -153,6 +153,66 @@ void YacclabTests::SaveBroadOutputResults(const Mat1d& results, const string& o_
     }
 }
 
+// To calculate average times and write it on the specified file
+void YacclabTests::SaveAverageWithStepsResults(std::string& os_name, bool rounded)
+{
+    ofstream os(os_name);
+    if (!os.is_open()) {
+        dmux::cout << "Unable to save average results" << endl;
+        return;
+    }
+
+    // Write heading string in output stream
+    os << "#Algorithm" << "\t";
+    for (int step_number = 0; step_number != StepType::ST_SIZE; ++step_number) {
+        StepType step = static_cast<StepType>(step_number);
+        os << Step(step) << "\t";
+    }
+    os << "Total" << endl;
+
+    for (auto const& elem : average_ws_results_) {
+        const auto& dataset_name{ elem.first };
+        const auto& results{ elem.second };
+
+        for (int r = 0; r < results.rows; ++r) {
+            auto& algo_name{ cfg_.ccl_average_ws_algorithms[r] };
+            double cumulative_sum{ 0.0 };
+
+            // Gnuplot requires double-escaped name when underscores are encountered
+            //{
+            //    string algo_name_double_escaped{ algo_name };
+            //    std::size_t found = algo_name_double_escaped.find_first_of("_");
+            //    while (found != std::string::npos) {
+            //        algo_name_double_escaped.insert(found, "\\\\");
+            //        found = algo_name_double_escaped.find_first_of("_", found + 3);
+            //    }
+            //    os << algo_name_double_escaped << "\t";
+            //}
+            os << DoubleEscapeUnderscore(string(algo_name)) << '\t';
+
+            for (int c = 0; c < results.cols; ++c) {
+                if (rounded) {
+                    cumulative_sum += floor(results(r, c) * 100.00 + 0.5) / 100.00;
+                    os << std::fixed << std::setprecision(2) << results(r, c) << "\t";
+                }
+                else {
+                    cumulative_sum += results(r, c);
+                    os << std::fixed << std::setprecision(8) << results(r, c) << "\t";
+                }
+            }
+            // Write cumulative_sum as total
+            if (rounded) {
+                os << std::fixed << std::setprecision(2) << cumulative_sum;
+            }
+            else {
+                os << std::fixed << std::setprecision(8) << cumulative_sum;
+            }
+            os << '\n';
+        }
+    }
+    os.close();
+}
+
 void YacclabTests::AverageTest()
 {
     // Initialize output message box
@@ -243,12 +303,10 @@ void YacclabTests::AverageTest()
 
                 random_shuffle(begin(shuffled_ccl_average_algorithms), end(shuffled_ccl_average_algorithms));
 
-                //unsigned i = 0;
                 // For all the Algorithms in the array
                 for (const auto& algo_name : shuffled_ccl_average_algorithms) {
                     Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
                     unsigned n_labels;
-
                     unsigned i = algo_pos[algo_name];
 
                     try {
@@ -286,7 +344,6 @@ void YacclabTests::AverageTest()
                         String colored_image = (output_colored_images_path / path(filename + "_" + algo_name + ".png")).string();
                         imwrite(colored_image, imgColors);
                     }
-                    //++i;
                 } // END ALGORITHMS FOR
             } // END FILES FOR.
             ob.StopRepeatedBox();
@@ -371,7 +428,7 @@ void YacclabTests::AverageTest()
             script_os << "set boxwidth 0.9" << endl << endl;
 
             script_os << "# Get stats to set labels" << endl;
-            script_os << "stats \"" << output_average_results << "\" using 2 nooutput" << endl;
+            script_os << "stats \"" << output_average_results << "\" using 3 nooutput" << endl;
             script_os << "ymax = STATS_max + (STATS_max/100)*10" << endl;
             script_os << "xw = 0" << endl;
             script_os << "yw = (ymax)/22.0" << endl << endl;
@@ -390,7 +447,7 @@ void YacclabTests::AverageTest()
             script_os << "# Plot" << endl;
             script_os << "plot \\" << endl;
 
-            script_os << "'" + output_average_results + "' using 2:xtic(1), '" << output_average_results << "' using ($0 - xw) : ($2 + yw) : (stringcolumn(3)) with labels" << endl << endl;
+            script_os << "'" + output_average_results + "' using 3:xtic(1), '" << output_average_results << "' using ($0 - xw) : ($3 + yw) : (stringcolumn(3)) with labels" << endl << endl;
 
             script_os << "# Replot in latex folder" << endl;
             script_os << "set title \"\"" << endl << endl;
@@ -426,11 +483,13 @@ void YacclabTests::AverageTestWithSteps()
 
     string complete_results_suffix = "_results.txt",
         middle_results_suffix = "_run",
-        average_results_suffix = "_average.txt";
+        average_results_suffix = "_average.txt",
+        average_results_rounded_suffix = "_average_rounded.txt";
 
     for (unsigned d = 0; d < cfg_.average_datasets_ws.size(); ++d) { // For every dataset in the average list
         String dataset_name(cfg_.average_datasets_ws[d]),
             output_average_results = dataset_name + average_results_suffix,
+            output_average_results_rounded = dataset_name + average_results_rounded_suffix,
             output_graph = dataset_name + kTerminalExtension,
             output_graph_bw = dataset_name + "_bw" + kTerminalExtension;
 
@@ -439,7 +498,8 @@ void YacclabTests::AverageTestWithSteps()
             current_output_path(cfg_.output_path / path(cfg_.average_ws_folder) / path(dataset_name)),
             output_broad_path = current_output_path / path(dataset_name + complete_results_suffix),
             output_middle_results_path = current_output_path / path(cfg_.middle_folder),
-            average_os_path = current_output_path / path(output_average_results);
+            average_os_path = current_output_path / path(output_average_results),
+            average_rounded_os_path = current_output_path / path(output_average_results_rounded);
 
         if (!create_directories(current_output_path)) {
             cerror("Averages Test With Steps on '" + dataset_name + "': Unable to find/create the output path " + current_output_path.string());
@@ -449,12 +509,6 @@ void YacclabTests::AverageTestWithSteps()
             if (!create_directories(output_middle_results_path)) {
                 cerror("Averages Test With Steps on '" + dataset_name + "': Unable to find/create the output path " + output_middle_results_path.string());
             }
-        }
-
-        // For AVERAGES
-        ofstream average_os(average_os_path.string());
-        if (!average_os.is_open()) {
-            cerror("Averages Test With Steps on '" + dataset_name + "': Unable to open " + average_os_path.string());
         }
 
         // Initialize results container
@@ -475,9 +529,6 @@ void YacclabTests::AverageTestWithSteps()
         map<String, Mat1d> min_res;
         Mat1i labels(filenames_size, cfg_.ccl_average_ws_algorithms.size(), 0);
 
-        // If true the i-th step is used by all the algorithms
-        vector<bool> steps_presence(StepType::ST_SIZE, false);
-
         for (const auto& algo_name : cfg_.ccl_average_ws_algorithms) {
             current_res[algo_name] = Mat1d(filenames_size, StepType::ST_SIZE, numeric_limits<double>::max());
             min_res[algo_name] = Mat1d(filenames_size, StepType::ST_SIZE, numeric_limits<double>::max());
@@ -485,6 +536,11 @@ void YacclabTests::AverageTestWithSteps()
 
         // Start output message box
         ob.StartRepeatedBox(dataset_name, filenames_size, cfg_.average_ws_tests_number);
+
+        map<String, size_t> algo_pos;
+        for (size_t i = 0; i < cfg_.ccl_average_ws_algorithms.size(); ++i)
+            algo_pos[cfg_.ccl_average_ws_algorithms[i]] = i;
+        auto shuffled_ccl_average_ws_algorithms = cfg_.ccl_average_ws_algorithms;
 
         // Test is executed n_test times
         for (unsigned test = 0; test < cfg_.average_ws_tests_number; ++test) {
@@ -502,11 +558,14 @@ void YacclabTests::AverageTestWithSteps()
                     continue;
                 }
 
-                unsigned i = 0;
+                random_shuffle(begin(shuffled_ccl_average_ws_algorithms), end(shuffled_ccl_average_ws_algorithms));
+
                 // For all the Algorithms in the array
-                for (const auto& algo_name : cfg_.ccl_average_ws_algorithms) {
+                for (const auto& algo_name : shuffled_ccl_average_ws_algorithms) {
                     Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
                     unsigned n_labels;
+                    unsigned i = algo_pos[algo_name];
+
                     try {
                         // Perform current algorithm on current image and save result.
                         algorithm->PerformLabelingWithSteps();
@@ -551,19 +610,12 @@ void YacclabTests::AverageTestWithSteps()
         // To write in a file min results
         SaveBroadOutputResults(min_res, output_broad_path.string(), labels, filenames);
 
-        // Write heading string in output stream
-        average_os << "#Algorithm" << "\t";
-        for (int step_number = 0; step_number != StepType::ST_SIZE; ++step_number) {
-            StepType step = static_cast<StepType>(step_number);
-            average_os << Step(step) << "\t";
-        }
-        average_os << "Total" << endl;
+        // If true the i-th step is used by all the algorithms
+        vector<bool> steps_presence(StepType::ST_SIZE, false);
 
-        double max_value(0.0);
         // To calculate average times and write it on the specified file
         for (unsigned a = 0; a < cfg_.ccl_average_ws_algorithms.size(); ++a) {
             const auto& algo_name(cfg_.ccl_average_ws_algorithms[a]);
-
             vector<pair<double, uint16_t>> supp_average(StepType::ST_SIZE, make_pair(0.0, 0));
 
             for (int r = 0; r < min_res.at(algo_name).rows; ++r) {
@@ -575,18 +627,6 @@ void YacclabTests::AverageTestWithSteps()
                 }
             }
 
-            // Gnuplot requires double-escaped name in presence of underscores
-            {
-                string algo_name_double_escaped = algo_name;
-                std::size_t found = algo_name_double_escaped.find_first_of("_");
-                while (found != std::string::npos) {
-                    algo_name_double_escaped.insert(found, "\\\\");
-                    found = algo_name_double_escaped.find_first_of("_", found + 3);
-                }
-                average_os << algo_name_double_escaped << "\t";
-            }
-            double cu_sum{ 0.0 };
-
             // Matrix reduce done, save the results into the average file
             for (int step_number = 0; step_number != StepType::ST_SIZE; ++step_number) {
                 StepType step = static_cast<StepType>(step_number);
@@ -594,24 +634,17 @@ void YacclabTests::AverageTestWithSteps()
                 if (supp_average[step_number].first > 0.0 && supp_average[step_number].second > 0) {
                     steps_presence[step_number] = true;
                     avg = supp_average[step_number].first / supp_average[step_number].second;
-                    cu_sum += avg;
                 }
                 else {
                     // The current step is not threated by the current algorithm, write 0
                 }
                 average_ws_results_[dataset_name](a, step_number) = avg;
-                average_os << std::fixed << std::setprecision(6) << avg << "\t";
             }
-
-            // Keep in memory the max cumulative time measured
-            if (cu_sum > max_value) {
-                max_value = cu_sum;
-            }
-
-            // Write the total time at the end of the line
-            average_os << cu_sum << endl;
-            supp_average.clear();
         }
+
+        // Write the results stored in average_ws_results_ in file
+        SaveAverageWithStepsResults(average_os_path.string(), false);
+        SaveAverageWithStepsResults(average_rounded_os_path.string(), true);
 
         // GNUPLOT SCRIPT
         {
@@ -649,12 +682,11 @@ void YacclabTests::AverageTestWithSteps()
             script_os << "set style histogram cluster gap 1" << endl;
             script_os << "set style histogram rowstacked" << endl;
             script_os << "set style fill solid 0.25 border -1" << endl;
-            script_os << "set boxwidth 0.5" << endl << endl;
+            script_os << "set boxwidth 0.3" << endl << endl;
 
             script_os << "# Get stats to set labels" << endl;
-            script_os << "stats \"" << output_average_results << "\" using 4 nooutput" << endl;
-            //script_os << "ymax = STATS_max + (STATS_max/100)*10" << endl;
-            script_os << "ymax = " << max_value << "+" << max_value << "/10.0" << endl;
+            script_os << "stats \"" << output_average_results_rounded << "\" using 6 nooutput" << endl;
+            script_os << "ymax = STATS_max + (STATS_max/100)*10" << endl;
             script_os << "xw = 0" << endl;
             script_os << "yw = (ymax)/22.0" << endl << endl;
 
@@ -667,12 +699,12 @@ void YacclabTests::AverageTestWithSteps()
             script_os << "set xrange[*:*]" << endl << endl;
 
             script_os << "# Legend" << endl;
-            script_os << "set key left top nobox font ', 8'" << endl << endl;
+            script_os << "set key outside left font ', 8'" << endl << endl;
 
             script_os << "# Plot" << endl;
             script_os << "plot \\" << endl;
 
-            script_os << "'" + output_average_results + "' using 2:xtic(1) title '" << Step(static_cast<StepType>(0)) << "', \\" << endl;
+            script_os << "'" + output_average_results_rounded + "' using 2:xtic(1) title '" << Step(static_cast<StepType>(0)) << "', \\" << endl;
             unsigned i = 3;
             // Start from the second step
             for (int step_number = 1; step_number != StepType::ST_SIZE; ++step_number, ++i) {
@@ -692,9 +724,9 @@ void YacclabTests::AverageTestWithSteps()
                         script_os << "+";
                     }
                 }
-                script_os << ") - ($" << i << "/2)) : ($" << i << "!=0.0 ? sprintf(\"%6.3f\",$" << i << "):'') w labels font 'Tahoma, 11' title '', \\" << endl;
+                script_os << ") - ($" << i << "/2)) : ($" << i << "!=0.0 ? sprintf(\"%4.2f\",$" << i << "):'') w labels font 'Tahoma, 8' title '', \\" << endl;
             }
-            script_os << "'' u ($0) : ($" << i << " + yw) : ($" << i << "!=0.0 ? sprintf(\"%6.3f\",$" << i << "):'') w labels font 'Tahoma' title '', \\" << endl;
+            script_os << "'' u ($0) : ($" << i << " + yw) : ($" << i << "!=0.0 ? sprintf(\"%4.2f\",$" << i << "):'') w labels font 'Tahoma' title '', \\" << endl;
 
             script_os << "# Replot in latex folder" << endl;
             script_os << "set title \"\"" << endl << endl;
@@ -713,12 +745,490 @@ void YacclabTests::AverageTestWithSteps()
 
             script_os << "exit gnuplot" << endl;
 
-            average_os.close();
+            script_os.close();
+        } // End GNUPLOT SCRIPT
+        if (0 != std::system(("gnuplot \"" + (current_output_path / path(dataset_name + cfg_.gnuplot_script_extension)).string() + "\"").c_str())) {
+            cerror("Averages Test With Steps on '" + dataset_name + "': Unable to run gnuplot's script");
+        }
+    }
+}
+
+void YacclabTests::DensityTest()
+{
+    // Initialize output message box
+    OutputBox ob("Density Test");
+
+    string complete_results_suffix = "_results.txt",
+        middle_results_suffix = "_run",
+        density_results_suffix = "_density.txt",
+        normalized_density_results_suffix = "_normalized_density.txt",
+        size_results_suffix = "_size.txt",
+        null_results_suffix = "_null_results.txt";
+
+    // Initialize results container
+    density_results_ = cv::Mat1d(cfg_.density_datasets.size(), cfg_.ccl_average_algorithms.size(), std::numeric_limits<double>::max());
+
+    for (unsigned d = 0; d < cfg_.density_datasets.size(); ++d) { // For every dataset in the density list
+        String dataset_name(cfg_.density_datasets[d]),
+            output_density_results = dataset_name + density_results_suffix,
+            output_normalized_density_results = dataset_name + normalized_density_results_suffix,
+            output_size_results = dataset_name + size_results_suffix,
+            output_density_graph = dataset_name + "_density" + kTerminalExtension,
+            output_density_bw_graph = dataset_name + "_density_bw" + kTerminalExtension,
+            output_normalized_density_graph = dataset_name + "_normalized_density" + kTerminalExtension,
+            output_normalized_density_bw_graph = dataset_name + "_normalized_density_bw" + kTerminalExtension,
+            output_size_graph = dataset_name + "_size" + kTerminalExtension,
+            output_size_bw_graph = dataset_name + "_size_bw" + kTerminalExtension,
+            output_null = dataset_name + null_results_suffix;
+
+        path dataset_path(cfg_.input_path / path(dataset_name)),
+            is_path = dataset_path / path(cfg_.input_txt), // files.txt path
+            current_output_path(cfg_.output_path / path(cfg_.density_folder) / path(dataset_name)),
+            output_broad_path = current_output_path / path(dataset_name + complete_results_suffix),
+            output_colored_images_path = current_output_path / path(cfg_.colors_folder),
+            output_middle_results_path = current_output_path / path(cfg_.middle_folder),
+            density_os_path = current_output_path / path(output_density_results),
+            normalize_density_os_path = current_output_path / path(output_normalized_density_results),
+            size_os_path = current_output_path / path(output_size_results),
+            null_os_path = current_output_path / path(output_null);
+
+        if (!create_directories(current_output_path)) {
+            cerror("Density Test on '" + dataset_name + "': Unable to find/create the output path " + current_output_path.string());
+        }
+
+        if (cfg_.density_color_labels) {
+            if (!create_directories(output_colored_images_path)) {
+                cerror("Density Test on '" + dataset_name + "': Unable to find/create the output path " + output_colored_images_path.string());
+            }
+        }
+
+        if (cfg_.density_save_middle_tests) {
+            if (!create_directories(output_middle_results_path)) {
+                cerror("Density Test on '" + dataset_name + "': Unable to find/create the output path " + output_middle_results_path.string());
+            }
+        }
+
+        // To save list of filename on which CLLAlgorithms must be tested
+        vector<pair<string, bool>> filenames;  // first: filename, second: state of filename (find or not)
+        if (!LoadFileList(filenames, is_path)) {
+            ob.Cerror("Unable to open '" + is_path.string() + "'", dataset_name);
+            continue;
+        }
+
+        // Number of files
+        int filenames_size = filenames.size();
+
+        // To save middle/min and average results;
+        Mat1d min_res(filenames_size, cfg_.ccl_average_algorithms.size(), numeric_limits<double>::max());
+        Mat1d current_res(filenames_size, cfg_.ccl_average_algorithms.size(), numeric_limits<double>::max());
+        Mat1i labels(filenames_size, cfg_.ccl_average_algorithms.size(), 0);
+        vector<pair<double, uint16_t>> supp_average(cfg_.ccl_average_algorithms.size(), make_pair(0.0, 0));
+
+        // To save labeling labeling_NULL results
+        vector<double> null_labeling_results(filenames_size, numeric_limits<double>::max());
+
+        uint8_t density = 9 /*[0.1,0.9]*/, size = 8 /*[32,64,128,256,512,1024,2048,4096]*/;
+
+        using vvp = vector<vector<pair<double, uint16_t>>>;
+        vvp supp_density(cfg_.ccl_average_algorithms.size(), vector<pair<double, uint16_t>>(density, make_pair(0, 0)));
+        vvp supp_normalized_density(cfg_.ccl_average_algorithms.size(), vector<pair<double, uint16_t>>(density, make_pair(0, 0)));
+        vvp supp_size(cfg_.ccl_average_algorithms.size(), vector<pair<double, uint16_t>>(size, make_pair(0, 0)));
+
+        // Start output message box
+        ob.StartRepeatedBox(dataset_name, filenames_size, cfg_.density_tests_number);
+
+        map<String, size_t> algo_pos;
+        for (size_t i = 0; i < cfg_.ccl_average_algorithms.size(); ++i)
+            algo_pos[cfg_.ccl_average_algorithms[i]] = i;
+        auto shuffled_ccl_average_algorithms = cfg_.ccl_average_algorithms;
+
+        // Test is executed n_test times
+        for (unsigned test = 0; test < cfg_.density_tests_number; ++test) {
+            // For every file in list
+            for (unsigned file = 0; file < filenames.size(); ++file) {
+                // Display output message box
+                ob.UpdateRepeatedBox(file);
+
+                string filename = filenames[file].first;
+                path filename_path = dataset_path / path(filename);
+
+                // Read and load image
+                if (!GetBinaryImage(filename_path, Labeling::img_)) {
+                    ob.Cmessage("Unable to open '" + filename + "'");
+                    continue;
+                }
+
+                random_shuffle(begin(shuffled_ccl_average_algorithms), end(shuffled_ccl_average_algorithms));
+
+                // One time for every test and for every image we execute the labeling_NULL labeling and get the minimum
+                Labeling *labeling_NULL = LabelingMapSingleton::GetInstance().data_.at("labeling_NULL");
+                labeling_NULL->perf_.start();
+                labeling_NULL->PerformLabeling();
+                labeling_NULL->perf_.stop();
+
+                if (labeling_NULL->perf_.last() < null_labeling_results[file]) {
+                    null_labeling_results[file] = labeling_NULL->perf_.last();
+                }
+
+                // For all the Algorithms in the array
+                for (const auto& algo_name : shuffled_ccl_average_algorithms) {
+                    Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
+                    unsigned n_labels;
+                    unsigned i = algo_pos[algo_name];
+
+                    try {
+                        // Perform current algorithm on current image and save result.
+                        algorithm->perf_.start();
+                        algorithm->PerformLabeling();
+                        algorithm->perf_.stop();
+
+                        // This variable need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
+                        n_labels = algorithm->n_labels_;
+                    }
+                    catch (const runtime_error&) {
+                        ob.Cmessage("'PerformLabeling()' method not implemented in '" + algo_name + "'");
+                        continue;
+                    }
+
+                    // Save number of labels (we reasonably supposed that labels's number is the same on every #test so only the first time we save it)
+                    if (test == 0) {
+                        labels(file, i) = n_labels;
+                    }
+
+                    // Save time results
+                    current_res(file, i) = algorithm->perf_.last();
+                    if (algorithm->perf_.last() < min_res(file, i)) {
+                        min_res(file, i) = algorithm->perf_.last();
+                    }
+
+                    // If 'at_colorLabels' is enabled only the first time (test == 0) the output is saved
+                    if (cfg_.density_color_labels && test == 0) {
+                        // Remove gnuplot escape character from output filename
+                        Mat3b imgColors;
+
+                        NormalizeLabels(algorithm->img_labels_);
+                        ColorLabels(algorithm->img_labels_, imgColors);
+                        String colored_image = (output_colored_images_path / path(filename + "_" + algo_name + ".png")).string();
+                        imwrite(colored_image, imgColors);
+                    }
+                } // END ALGORITHMS FOR
+            } // END FILES FOR.
+            ob.StopRepeatedBox();
+
+            // Save middle results if necessary (flag 'density_save_middle_tests' enabled)
+            if (cfg_.density_save_middle_tests) {
+                string output_middle_results_file = (output_middle_results_path / path(dataset_name + middle_results_suffix + "_" + to_string(test) + ".txt")).string();
+                SaveBroadOutputResults(current_res, output_middle_results_file, labels, filenames);
+            }
+        } // END TEST FOR
+
+        // To write in a file min results
+        SaveBroadOutputResults(min_res, output_broad_path.string(), labels, filenames);
+
+        // To sum min results, in the correct manner, before make average
+        for (unsigned files = 0; files < filenames.size(); ++files) {
+            // Note that files correspond to min_res rows
+            for (int c = 0; c < min_res.cols; ++c) {
+                // Add current time to "supp_density" and "supp_size" in the correct position
+                if (isdigit(filenames[files].first[0]) && isdigit(filenames[files].first[1]) && isdigit(filenames[files].first[2]) && filenames[files].second) {
+                    if (min_res(files, c) != numeric_limits<double>::max()) { // superfluous test?
+                                                                              // For density graph
+                        supp_density[c][ctoi(filenames[files].first[1])].first += min_res(files, c);
+                        supp_density[c][ctoi(filenames[files].first[1])].second++;
+
+                        // For normalized density graph
+                        supp_normalized_density[c][ctoi(filenames[files].first[1])].first += (min_res(files, c)) / (null_labeling_results[files]);
+                        supp_normalized_density[c][ctoi(filenames[files].first[1])].second++;
+
+                        // For dimension graph
+                        supp_size[c][ctoi(filenames[files].first[0])].first += min_res(files, c);
+                        supp_size[c][ctoi(filenames[files].first[0])].second++;
+                    }
+                }
+                // Add current time to "supp_density" and "supp_size" in the correct position
+            }
+        }
+
+        // To calculate average times
+        vector<vector<long double>> density_average(cfg_.ccl_average_algorithms.size(), vector<long double>(density));
+        vector<vector<long double>> size_average(cfg_.ccl_average_algorithms.size(), vector<long double>(size));
+        vector<vector<long double>> density_normalized_average(cfg_.ccl_average_algorithms.size(), vector<long double>(density));
+
+        for (unsigned i = 0; i < cfg_.ccl_average_algorithms.size(); ++i) {
+            // For all algorithms
+            for (unsigned j = 0; j < density_average[i].size(); ++j) {
+                // For all density and normalized density
+                if (supp_density[i][j].second != 0) {
+                    density_average[i][j] = supp_density[i][j].first / supp_density[i][j].second;
+                    density_normalized_average[i][j] = supp_normalized_density[i][j].first / supp_normalized_density[i][j].second;
+                }
+                else {
+                    // If there is no element with this density characteristic the average value is set to zero
+                    density_average[i][j] = 0.0;
+                    density_normalized_average[i][j] = 0.0;
+                }
+            }
+            for (unsigned j = 0; j < size_average[i].size(); ++j) {
+                // For all size
+                if (supp_size[i][j].second != 0)
+                    size_average[i][j] = supp_size[i][j].first / supp_size[i][j].second;
+                else
+                    size_average[i][j] = 0.0;  // If there is no element with this size characteristic the average value is set to zero
+            }
+        }
+
+        // For DENSITY RESULT
+        ofstream density_os(density_os_path.string());
+        if (!density_os.is_open()) {
+            cerror("Density Test on '" + dataset_name + "': Unable to open " + density_os_path.string());
+        }
+
+        // For DENSITY NORMALIZED RESULT
+        ofstream density_normalized_os(normalize_density_os_path.string());
+        if (!density_normalized_os.is_open()) {
+            cerror("Density Test on '" + dataset_name + "': Unable to open " + normalize_density_os_path.string());
+        }
+
+        // For SIZE RESULT
+        ofstream size_os(size_os_path.string());
+        if (!size_os.is_open()) {
+            cerror("Density Test on '" + dataset_name + "': Unable to open " + size_os_path.string());
+        }
+
+        // For LIST OF INPUT IMAGES
+        ifstream is(is_path.string());
+        if (!is.is_open()) {
+            cerror("Density Test on '" + dataset_name + "': Unable to open " + is_path.string());
+        }
+
+        // For labeling_NULL LABELING RESULTS
+        ofstream null_os(null_os_path.string());
+        if (!null_os.is_open()) {
+            cerror("Density Test on '" + dataset_name + "': Unable to create " + null_os_path.string());
+        }
+
+        // To write density result on specified file
+        for (unsigned i = 0; i < density; ++i) {
+            // For every density
+            if (density_average[0][i] == 0.0) { // Check it only for the first algorithm (it is the same for the others)
+                density_os << "#"; // It means that there is no element with this density characteristic
+                density_normalized_os << "#"; // It means that there is no element with this density characteristic
+            }
+            density_os << ((float)(i + 1) / 10) << "\t"; //Density value
+            density_normalized_os << ((float)(i + 1) / 10) << "\t"; //Density value
+            for (unsigned j = 0; j < density_average.size(); ++j) {
+                // For every algorithm
+                density_os << density_average[j][i] << "\t";
+                density_normalized_os << density_normalized_average[j][i] << "\t";
+            }
+            density_os << endl; // End of current line (current density)
+            density_normalized_os << endl; // End of current line (current density)
+        }
+        // To set sizes's label
+        vector <pair<unsigned, double>> supp_size_labels(size, make_pair(0, 0));
+
+        // To write size result on specified file
+        for (unsigned i = 0; i < size; ++i) {
+            // For every size
+            if (size_average[0][i] == 0.0) // Check it only for the first algorithm (it is the same for the others)
+                size_os << "#"; // It means that there is no element with this size characteristic
+            supp_size_labels[i].first = (int)(pow(2, i + 5));
+            supp_size_labels[i].second = size_average[0][i];
+            size_os << (int)pow(supp_size_labels[i].first, 2) << "\t"; //Size value
+            for (unsigned j = 0; j < size_average.size(); ++j) {
+                // For every algorithms
+                size_os << size_average[j][i] << "\t";
+            }
+            size_os << endl; // End of current line (current size)
+        }
+
+        // To write labeling_NULL result on specified file
+        for (unsigned i = 0; i < filenames.size(); ++i) {
+            null_os << filenames[i].first << "\t" << null_labeling_results[i] << endl;
+        }
+
+        // GNUPLOT SCRIPT
+        {
+            SystemInfo s_info;
+            string compiler_name(s_info.compiler_name());
+            string compiler_version(s_info.compiler_version());
+            //replace the . with _ for compiler strings
+            std::replace(compiler_version.begin(), compiler_version.end(), '.', '_');
+
+            path script_os_path = current_output_path / path(dataset_name + cfg_.gnuplot_script_extension);
+
+            ofstream script_os(script_os_path.string());
+            if (!script_os.is_open()) {
+                cerror("Density Test With Steps on '" + dataset_name + "': Unable to create " + script_os_path.string());
+            }
+
+            script_os << "# This is a gnuplot (http://www.gnuplot.info/) script!" << endl;
+            script_os << "# comment fifth line, open gnuplot's terminal, move to script's path and launch 'load "
+                << dataset_name + cfg_.gnuplot_script_extension << "' if you want to run it" << endl << endl;
+
+            script_os << "reset" << endl;
+            script_os << "cd '" << current_output_path.string() << "\'" << endl;
+            script_os << "set grid" << endl << endl;
+
+            // DENSITY
+            script_os << "# DENSITY GRAPH (COLORS)" << endl << endl;
+
+            script_os << "set output \"" + output_density_graph + "\"" << endl;
+            script_os << "set title " << GetGnuplotTitle() << endl << endl;
+
+            script_os << "# " << kTerminal << " colors" << endl;
+            script_os << "set terminal " << kTerminal << " enhanced color font ',15'" << endl << endl;
+
+            script_os << "# Axes labels" << endl;
+            script_os << "set xlabel \"Density\"" << endl;
+            script_os << "set ylabel \"Execution Time [ms]\"" << endl << endl;
+
+            script_os << "# Axes range" << endl;
+            script_os << "set xrange [0:1]" << endl;
+            script_os << "set yrange [*:*]" << endl;
+            script_os << "set logscale y" << endl << endl;
+
+            script_os << "# Legend" << endl;
+            script_os << "set key left top nobox spacing 2 font ', 8'" << endl << endl;
+
+            script_os << "# Plot" << endl;
+            script_os << "plot \\" << endl;
+            vector<String>::iterator it; // I need it after the cycle
+            unsigned i = 2;
+            for (it = cfg_.ccl_average_algorithms.begin(); it != (cfg_.ccl_average_algorithms.end() - 1); ++it, ++i) {
+                script_os << "\"" + output_density_results + "\" using 1:" << i << " with linespoints title \"" + DoubleEscapeUnderscore(string(*it)) + "\" , \\" << endl;
+            }
+            script_os << "\"" + output_density_results + "\" using 1:" << i << " with linespoints title \"" + DoubleEscapeUnderscore(string(*it)) + "\"" << endl << endl;
+
+            script_os << "# Replot in latex folder" << endl;
+            script_os << "set title \"\"" << endl << endl;
+
+            script_os << "set output \'" << (cfg_.latex_path / path(compiler_name + compiler_version + output_density_graph)).string() << "\'" << endl;
+            script_os << "replot" << endl << endl;
+
+            script_os << "# DENSITY GRAPH (BLACK AND WHITE)" << endl << endl;
+
+            script_os << "set output \"" + output_density_bw_graph + "\"" << endl;
+            script_os << "set title " << GetGnuplotTitle() << endl << endl;
+
+            script_os << "# " << kTerminal << " black and white" << endl;
+            script_os << "set terminal " << kTerminal << " enhanced monochrome dashed font ',15'" << endl << endl;
+
+            script_os << "replot" << endl << endl;
+
+            // DENSITY NORMALIZED
+            script_os << "#NORMALIZED DENSITY GRAPH (COLORS)" << endl << endl;
+
+            script_os << "set output \"" + output_normalized_density_graph + "\"" << endl;
+            script_os << "set title " << GetGnuplotTitle() << endl << endl;
+
+            script_os << "# " << kTerminal << " colors" << endl;
+            script_os << "set terminal " << kTerminal << " enhanced color font ',15'" << endl << endl;
+
+            script_os << "# Axes labels" << endl;
+            script_os << "set xlabel \"Density\"" << endl;
+            script_os << "set ylabel \"Normalized Execution Time [ms]\"" << endl << endl;
+
+            script_os << "# Axes range" << endl;
+            script_os << "set xrange [0:1]" << endl;
+            script_os << "set yrange [*:*]" << endl;
+            script_os << "set logscale y" << endl << endl;
+
+            script_os << "# Legend" << endl;
+            script_os << "set key left top nobox spacing 2 font ', 8'" << endl << endl;
+
+            script_os << "# Plot" << endl;
+            script_os << "plot \\" << endl;
+            //vector<pair<CCLPointer, string>>::iterator it; // I need it after the cycle
+            //unsigned i = 2;
+            i = 2;
+            for (it = cfg_.ccl_average_algorithms.begin(); it != (cfg_.ccl_average_algorithms.end() - 1); ++it, ++i) {
+                script_os << "\"" + output_normalized_density_results + "\" using 1:" << i << " with linespoints title \"" + DoubleEscapeUnderscore(string(*it)) + "\" , \\" << endl;
+            }
+            script_os << "\"" + output_normalized_density_results + "\" using 1:" << i << " with linespoints title \"" + DoubleEscapeUnderscore(string(*it)) + "\"" << endl << endl;
+
+            script_os << "# Replot in latex folder" << endl;
+            script_os << "set title \"\"" << endl;
+            script_os << "set output \'" << (cfg_.latex_path / path(compiler_name + compiler_version + output_size_graph)).string() << "\'" << endl;
+            script_os << "replot" << endl << endl;
+
+            script_os << "# NORMALIZED DENSITY GRAPH (BLACK AND WHITE)" << endl << endl;
+
+            script_os << "set output \"" + output_normalized_density_bw_graph + "\"" << endl;
+            script_os << "set title " << GetGnuplotTitle() << endl << endl;
+
+            script_os << "# " << kTerminal << " black and white" << endl;
+            script_os << "set terminal " << kTerminal << " enhanced monochrome dashed font ',15'" << endl << endl;
+
+            script_os << "replot" << endl << endl;
+
+            // SIZE
+            script_os << "# SIZE GRAPH (COLORS)" << endl << endl;
+
+            script_os << "set output \"" + output_size_graph + "\"" << endl;
+            script_os << "set title " << GetGnuplotTitle() << endl << endl;
+
+            script_os << "# " << kTerminal << " colors" << endl;
+            script_os << "set terminal " << kTerminal << " enhanced color font ',15'" << endl << endl;
+
+            script_os << "# Axes labels" << endl;
+            script_os << "set xlabel \"Pixels\"" << endl;
+            script_os << "set ylabel \"Execution Time [ms]\"" << endl << endl;
+
+            script_os << "# Axes range" << endl;
+            script_os << "set format x \"10^{%L}\"" << endl;
+            script_os << "set xrange [100:100000000]" << endl;
+            script_os << "set yrange [*:*]" << endl;
+            script_os << "set logscale xy 10" << endl << endl;
+
+            script_os << "# Legend" << endl;
+            script_os << "set key left top nobox spacing 2 font ', 8'" << endl;
+
+            script_os << "# Plot" << endl;
+            //// Set Labels
+            //for (unsigned i=0; i < supp_size_labels.size(); ++i){
+            //	if (supp_size_labels[i].second != 0){
+            //		script_os << "set label " << i+1 << " \"" << supp_size_labels[i].first << "x" << supp_size_labels[i].first << "\" at " << pow(supp_size_labels[i].first,2) << "," << supp_size_labels[i].second << endl;
+            //	}
+            //	else{
+            //		// It means that there is no element with this size characteristic so this label is not necessary
+            //	}
+            //}
+            //// Set Labels
+            script_os << "plot \\" << endl;
+            //vector<pair<CCLPointer, string>>::iterator it; // I need it after the cycle
+            //unsigned i = 2;
+            i = 2;
+            for (it = cfg_.ccl_average_algorithms.begin(); it != (cfg_.ccl_average_algorithms.end() - 1); ++it, ++i) {
+                script_os << "\"" + output_size_results + "\" using 1:" << i << " with linespoints title \"" + DoubleEscapeUnderscore(string(*it)) + "\" , \\" << endl;
+            }
+            script_os << "\"" + output_size_results + "\" using 1:" << i << " with linespoints title \"" + DoubleEscapeUnderscore(string(*it)) + "\"" << endl << endl;
+
+            script_os << "# Replot in latex folder" << endl;
+            script_os << "set title \"\"" << endl;
+            script_os << "set output \'" << (cfg_.latex_path / path(compiler_name + compiler_version + output_size_graph)).string() << "\'" << endl;
+            script_os << "replot" << endl << endl;
+
+            script_os << "# SIZE (BLACK AND WHITE)" << endl << endl;
+
+            script_os << "set output \"" + output_size_bw_graph + "\"" << endl;
+            script_os << "set title " << GetGnuplotTitle() << endl << endl;
+
+            script_os << "# " << kTerminal << " black and white" << endl;
+            script_os << "set terminal " << kTerminal << " enhanced monochrome dashed font ',15'" << endl << endl;
+
+            script_os << "replot" << endl << endl;
+
+            script_os << "exit gnuplot" << endl;
+
+            density_os.close();
+            size_os.close();
             script_os.close();
             // GNUPLOT SCRIPT
         }
+
         if (0 != std::system(("gnuplot \"" + (current_output_path / path(dataset_name + cfg_.gnuplot_script_extension)).string() + "\"").c_str())) {
-            cerror("Averages Test With Steps on '" + dataset_name + "': Unable to run gnuplot's script");
+            cerror("Density Test on '" + dataset_name + "': Unable to run gnuplot's script");
         }
     }
 }
@@ -741,7 +1251,6 @@ void YacclabTests::MemoryTest()
     if (!os.is_open()) {
         cerror("Memory Test: Unable to open " + output_file);
     }
-
     os << "Memory Test" << endl << endl;
 
     for (unsigned d = 0; d < cfg_.memory_datasets.size(); ++d) { // For every dataset in the average list
@@ -769,11 +1278,6 @@ void YacclabTests::MemoryTest()
         // Start output message box
         ob.StartUnitaryBox(dataset_name, filenames_size);
 
-        map<String, size_t> algo_pos;
-        for (size_t i = 0; i < cfg_.ccl_mem_algorithms.size(); ++i)
-            algo_pos[cfg_.ccl_mem_algorithms[i]] = i;
-        auto shuffled_ccl_mem_algorithms = cfg_.ccl_mem_algorithms;
-
         // For every file in list
         for (unsigned file = 0; file < filenames.size(); ++file) {
             // Display output message box
@@ -788,15 +1292,14 @@ void YacclabTests::MemoryTest()
                 continue;
             }
 
-            random_shuffle(begin(shuffled_ccl_mem_algorithms), end(shuffled_ccl_mem_algorithms));
             ++tot_test;
 
             // For all the Algorithms in the array
-            for (const auto& algo_name : shuffled_ccl_mem_algorithms) {
+            unsigned i = 0;
+            for (const auto& algo_name : cfg_.ccl_mem_algorithms) {
                 Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
-                unsigned i = algo_pos[algo_name];
                 try {
-                // The following data_ structure is used to get the memory access matrices
+                    // The following data_ structure is used to get the memory access matrices
                     vector<unsigned long int> accesses; // Rows represents algorithms and columns represent data_ structures
 
                     algorithm->PerformLabelingMem(accesses);
@@ -810,6 +1313,7 @@ void YacclabTests::MemoryTest()
                     ob.Cmessage("'PerformLabeling()' method not implemented in '" + algo_name + "'");
                     continue;
                 }
+                ++i;
             }
         }
         ob.StopUnitaryBox();
@@ -865,7 +1369,6 @@ void YacclabTests::LatexGenerator()
     os << "\\usepackage{subcaption}" << endl;
     os << "\\usepackage[top = 1in, bottom = 1in, left = 1in, right = 1in]{geometry}" << endl << endl;
 
-  
     os << "\\title{{ \\huge\\bfseries YACCLAB TESTS}}" << endl;
     os << "\\date{" + GetDatetime() + "}" << endl;
     os << "\\author{}" << endl << endl;
@@ -889,7 +1392,7 @@ void YacclabTests::LatexGenerator()
         for (unsigned i = 0; i < cfg_.ccl_algorithms.size(); ++i) {
             //RemoveCharacter(datasets_name, '\\');
             //datasets_name.erase(std::remove(datasets_name.begin(), datasets_name.end(), '\\'), datasets_name.end());
-            os << " & {" << EscapeLatexUnderscore(cfg_.ccl_algorithms[i]) << "}"; //Header
+            os << " & {" << EscapeUnderscore(cfg_.ccl_algorithms[i]) << "}"; //Header
         }
         os << "\\\\" << endl;
         os << "\t\\hline" << endl;
@@ -911,7 +1414,7 @@ void YacclabTests::LatexGenerator()
         SystemInfo s_info;
         string info_to_latex = s_info.build() + "_" + s_info.compiler_name() + s_info.compiler_version() + "_" + s_info.os();
         std::replace(info_to_latex.begin(), info_to_latex.end(), ' ', '_');
-        info_to_latex = EscapeLatexUnderscore(info_to_latex);
+        info_to_latex = EscapeUnderscore(info_to_latex);
 
         string chart_size{ "0.45" }, chart_width{ "1" };
         // Get information about date and time
@@ -1003,7 +1506,7 @@ void YacclabTests::LatexGenerator()
             os << "\\begin{table}[tbh]" << endl << endl;
             os << "\t\\centering" << endl;
             os << "\t\\caption{Analysis of memory accesses required by connected components computation for '" << dataset_name << "' dataset. The numbers are given in millions of accesses}" << endl;
-            os << "\t\\label{tab:table\\_" << EscapeLatexUnderscore(dataset_name) << "}" << endl;
+            os << "\t\\label{tab:table\\_" << EscapeUnderscore(dataset_name) << "}" << endl;
             os << "\t\\begin{tabular}{|l|";
             for (int i = 0; i < accesses.cols + 1; ++i)
                 os << "S[table-format=2.3]|";
@@ -1018,7 +1521,7 @@ void YacclabTests::LatexGenerator()
 
             for (unsigned i = 0; i < cfg_.ccl_mem_algorithms.size(); ++i) {
                 // For every algorithm escape the underscore
-                const String& alg_name = EscapeLatexUnderscore(cfg_.ccl_mem_algorithms[i]);
+                const String& alg_name = EscapeUnderscore(cfg_.ccl_mem_algorithms[i]);
                 //RemoveCharacter(alg_name, '\\');
                 os << "\t{" << alg_name << "}";
 

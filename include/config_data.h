@@ -70,6 +70,7 @@ struct ConfigData {
     
     std::string average_folder;           // Folder which will store average test results
     std::string average_ws_folder;        // Folder which will store average test with steps results
+    std::string density_folder;           // Folder which will store density results
     std::string memory_folder;            // Folder which will store memory results
 
     path output_path;                     // Path on which results are stored
@@ -125,7 +126,8 @@ struct ConfigData {
 
         average_folder               = "average_tests";
         average_ws_folder            = "average_tests_with_steps";
-        memory_folder                = "memory_test";
+        density_folder               = "density_tests";
+        memory_folder                = "memory_tests";
 
         output_path                  = path(fs["paths"]["output"]) / path(GetDatetimeWithoutSpecialChars());
         input_path                   = path(fs["paths"]["input"]);
