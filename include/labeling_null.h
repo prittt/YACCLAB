@@ -48,9 +48,7 @@ public:
             unsigned* const img_labels_row = img_labels_.ptr<unsigned>(r);
 
             for (int c = 0; c < img_labels_.cols; ++c) {
-                if (img_row[c] > 0) {
-                    img_labels_row[c] = 1;
-                }
+                    img_labels_row[c] = img_row[c];
             }
         }
     }
