@@ -85,6 +85,12 @@ public:
         return img_.template ptr<T>(r)[c];
     }
 
+    T& operator()(const int x)
+    {
+        accesses_(x)++; // Count access
+        return img_(x);
+    }
+
     cv::Mat_<T> GetImage() const
     {
         return img_.clone();
