@@ -122,6 +122,8 @@ file(GLOB SRCFILES ${SRCFILES} "src/*.cc" "src/*.cpp" "src/*.c")
 file(GLOB HFILES ${HFILES} "include/*.h" "include/*.hpp")
 file(GLOB INCFILES ${INCFILES} "include/*.inc")
 
+add_definitions(-D_CRT_SECURE_NO_WARNINGS) #To suppress 'fopen' opencv warning/bug  
+
 # Set configuration file		
 configure_file("${CMAKE_SOURCE_DIR}/doc/config_base.yaml" "${CMAKE_INSTALL_PREFIX}/config.yaml")
 
