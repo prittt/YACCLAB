@@ -283,7 +283,7 @@ void SystemInfo::SetCompiler()
 #ifdef __VERSION__
 
     compiler_version_ = "_" + string(__VERSION__);
-    replace(compiler.second.begin(), compiler_version_.end(), ' ', '_');
+    replace(compiler_version_.begin(), compiler_version_.end(), ' ', '_');
 
 #endif // __VERSION__
 

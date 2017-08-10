@@ -40,7 +40,6 @@
 #include "labeling_algorithms.h"
 #include "latex_generator.h"
 #include "memory_tester.h"
-#include "progress_bar.h"
 #include "utilities.h"
 
 using namespace std;
@@ -154,7 +153,7 @@ void YacclabTests::SaveBroadOutputResults(const Mat1d& results, const string& o_
 }
 
 // To calculate average times and write it on the specified file
-void YacclabTests::SaveAverageWithStepsResults(std::string& os_name, bool rounded)
+void YacclabTests::SaveAverageWithStepsResults(const std::string& os_name, bool rounded)
 {
     ofstream os(os_name);
     if (!os.is_open()) {
