@@ -138,7 +138,7 @@ int main()
         }
         if (cfg.perform_memory || (cfg.perform_correctness && cfg.perform_check_8connectivity_mem)) {
             try {
-				vector<unsigned long int> temp;
+                vector<unsigned long int> temp;
                 algorithm->PerformLabelingMem(temp);
                 cfg.ccl_mem_algorithms.push_back(algo_name);
             }
@@ -217,14 +217,16 @@ int main()
         }
     }
 
+    if (cfg.perform_average || cfg.perform_average_ws || cfg.perform_density || cfg.perform_memory /*|| cfg.perform_granularity*/) {
     // Set and create current output directory
-    if (!create_directories(cfg.output_path, ec)) {
-        ob_setconf.Cerror("Unable to create output directory '" + cfg.output_path.string() + "' - " + ec.message());
-    }
+        if (!create_directories(cfg.output_path, ec)) {
+            ob_setconf.Cerror("Unable to create output directory '" + cfg.output_path.string() + "' - " + ec.message());
+        }
 
-    // Create the directory for latex reports
-    if (!create_directories(cfg.latex_path, ec)) {
-        ob_setconf.Cerror("Unable to create output directory '" + cfg.latex_path.string() + "' - " + ec.message());
+        // Create the directory for latex reports
+        if (!create_directories(cfg.latex_path, ec)) {
+            ob_setconf.Cerror("Unable to create output directory '" + cfg.latex_path.string() + "' - " + ec.message());
+        }
     }
 
     ob_setconf.Cmessage("Setting Configuration Parameters DONE");
@@ -270,7 +272,9 @@ int main()
     }
 
     // Latex Generator
-    yt.LatexGenerator();
+    if (cfg.perform_average || cfg.perform_average_ws || cfg.perform_density || cfg.perform_memory /*|| cfg.perform_granularity*/) {
+        yt.LatexGenerator();
+    }
 
     // Copy log file into output folder
     dmux::cout.flush();
