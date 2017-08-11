@@ -72,9 +72,9 @@ private:
     std::map<cv::String, cv::Mat1d> memory_accesses_; // String for dataset_name, Mat1d for memory accesses
 
     bool LoadFileList(std::vector<std::pair<std::string, bool>>& filenames, const filesystem::path& files_path);
-    void SaveBroadOutputResults(std::map<cv::String, cv::Mat1d>& results, const std::string& o_filename, const cv::Mat1i& labels, const std::vector<std::pair<std::string, bool>>& filenames);
-    void SaveBroadOutputResults(const cv::Mat1d& results, const std::string& o_filename, const cv::Mat1i& labels, const std::vector<std::pair<std::string, bool>>& filenames);
-    void SaveAverageWithStepsResults(std::string& os_name, bool rounded);
+    bool SaveBroadOutputResults(std::map<cv::String, cv::Mat1d>& results, const std::string& o_filename, const cv::Mat1i& labels, const std::vector<std::pair<std::string, bool>>& filenames, const std::vector<cv::String>& ccl_algorithms);
+    bool SaveBroadOutputResults(const cv::Mat1d& results, const std::string& o_filename, const cv::Mat1i& labels, const std::vector<std::pair<std::string, bool>>& filenames, const std::vector<cv::String>& ccl_algorithms);
+    void SaveAverageWithStepsResults(const std::string& os_name, const cv::String& dataset_name, bool rounded);
 
     template <typename FnP, typename... Args>
     void CheckAlgorithms(const std::string& title, const std::vector<cv::String>& ccl_algorithms, const FnP func, Args&&... args)
