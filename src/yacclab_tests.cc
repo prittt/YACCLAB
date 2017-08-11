@@ -1207,6 +1207,7 @@ void YacclabTests::MemoryTest()
         ob.Cwarning("Unable to open '" + output_file + "', memory tests skipped");
         return;
     }
+    os << "#Average number of accesses" << '\n';
 
     for (unsigned d = 0; d < cfg_.memory_datasets.size(); ++d) { // For every dataset in the average list
         String dataset_name(cfg_.memory_datasets[d]);
@@ -1446,6 +1447,7 @@ void YacclabTests::LatexGenerator()
     // SECTION MEMORY RESULT TABLE ---------------------------------------------------------------------------
     if (cfg_.perform_memory) {
         os << "\\section{Memory Accesses tests}" << '\n' << '\n';
+        os << "Analysis of memory accesses required by connected components computation. The numbers are given in millions of accesses." << '\n';
 
         for (const auto& dataset : memory_accesses_) {
             const auto& dataset_name = dataset.first;
@@ -1453,7 +1455,7 @@ void YacclabTests::LatexGenerator()
 
             os << "\\begin{table}[tbh]" << '\n' << '\n';
             os << "\t\\centering" << '\n';
-            os << "\t\\caption{Analysis of memory accesses required by connected components computation for '" << dataset_name << "' dataset. The numbers are given in millions of accesses}" << '\n';
+            os << "\t\\caption{Memory accesses on ``" << dataset_name << "'' dataset " << '\n';
             os << "\t\\label{tab:table_" << dataset_name << "}" << '\n';
             os << "\t\\begin{tabular}{|l|";
             for (int i = 0; i < accesses.cols + 1; ++i)
