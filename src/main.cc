@@ -138,7 +138,8 @@ int main()
         }
         if (cfg.perform_memory || (cfg.perform_correctness && cfg.perform_check_8connectivity_mem)) {
             try {
-                algorithm->PerformLabelingMem(vector<unsigned long int>{});
+				vector<unsigned long int> temp;
+                algorithm->PerformLabelingMem(temp);
                 cfg.ccl_mem_algorithms.push_back(algo_name);
             }
             catch (const runtime_error& e) {

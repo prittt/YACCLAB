@@ -28,15 +28,16 @@
 
 #ifndef YACCLAB_YACCLAB_TESTS_H_
 #define YACCLAB_YACCLAB_TESTS_H_
-#include "file_manager.h"
 
 #include <map>
+#include <utility>
 
 #include <opencv2/imgproc.hpp>
 
 #include "config_data.h"
 #include "file_manager.h"
 #include "labeling_algorithms.h"
+#include "progress_bar.h"
 
 class YacclabTests {
 public:
@@ -55,7 +56,8 @@ public:
     void CheckPerformLabelingMem()
     {
         std::string title = "Checking Correctness of 'PerformLabelingMem()' (8-Connectivity)";
-        CheckAlgorithms(title, cfg_.ccl_mem_algorithms, &Labeling::PerformLabelingMem, std::vector<unsigned long int>());
+        std::vector<unsigned long int> unused;
+        CheckAlgorithms(title, cfg_.ccl_mem_algorithms, &Labeling::PerformLabelingMem, unused);
     }
 
     void AverageTest();
@@ -86,12 +88,12 @@ private:
         bool stop = false; // True if all the algorithms are not correct
 
         for (unsigned i = 0; i < cfg_.check_datasets.size(); ++i) { // For every dataset in the check_datasets list
-            String dataset_name(cfg_.check_datasets[i]);
+            cv::String dataset_name(cfg_.check_datasets[i]);
             path dataset_path(cfg_.input_path / path(dataset_name));
             path is_path = dataset_path / path(cfg_.input_txt); // files.txt path
 
             // Load list of images on which ccl_algorithms must be tested
-            std::vector<pair<std::string, bool>> filenames; // first: filename, second: state of filename (find or not)
+            std::vector<std::pair<std::string, bool>> filenames; // first: filename, second: state of filename (find or not)
             if (!LoadFileList(filenames, is_path)) {
                 ob.Cwarning("Unable to open '" + is_path.string(), dataset_name);
                 continue;
@@ -123,7 +125,7 @@ private:
 
                 // TODO: remove OpenCV connectedComponents and use SAUF above
                 cv::Mat1i labeled_img_correct;
-                n_labels_correct = connectedComponents(Labeling::img_, labeled_img_correct, 8, 4, CCL_WU);
+                n_labels_correct = cv::connectedComponents(Labeling::img_, labeled_img_correct, 8, 4, cv::CCL_WU);
 
                 unsigned j = 0;
                 for (const auto& algo_name : ccl_algorithms) {
@@ -133,7 +135,7 @@ private:
                     if (stats[j]) {
                         cv::Mat1i& labeled_img_to_control = algorithm->img_labels_;
 
-                        (algorithm->*func)(forward<Args>(args)...);
+                        (algorithm->*func)(std::forward<Args>(args)...);
                         n_labels_to_control = algorithm->n_labels_;
 
                         NormalizeLabels(labeled_img_to_control);
@@ -143,7 +145,7 @@ private:
                             first_fail[j] = (path(dataset_name) / path(filename)).string();
 
                             // Stop check test if all the algorithms fail
-                            if (adjacent_find(stats.begin(), stats.end(), not_equal_to<int>()) == stats.end()) {
+                            if (adjacent_find(stats.begin(), stats.end(), std::not_equal_to<int>()) == stats.end()) {
                                 stop = true;
                                 break;
                             }

@@ -40,7 +40,6 @@
 #include "labeling_algorithms.h"
 #include "latex_generator.h"
 #include "memory_tester.h"
-#include "progress_bar.h"
 #include "utilities.h"
 
 using namespace std;

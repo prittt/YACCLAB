@@ -815,4 +815,4 @@ private:
     }
 };
 
-#endif YACCLA_LABELING_ZHAO_2010_H_
+#endif // YACCLAB_LABELING_ZHAO_2010_H_
