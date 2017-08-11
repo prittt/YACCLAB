@@ -95,10 +95,6 @@ void HideConsoleCursor();
 
 int RedirectCvError(int status, const char* func_name, const char* err_msg, const char* file_name, int line, void*);
 
-void cerror(const std::string& err);
-
-void cmessage(const std::string& msg);
-
 /*
 @brief Return the string title to insert in gnuplot charts
 
