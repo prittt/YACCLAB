@@ -122,7 +122,7 @@ struct ConfigData {
         latex_file                   = "yacclab_results.tex";
         latex_charts                 = "averageCharts.tex";
         latex_memory_file            = "memoryAccesses.tex";
-        memory_file                  = "memory_accesses.dat";
+        memory_file                  = "memory_accesses.txt";
 
         average_folder               = "average_tests";
         average_ws_folder            = "average_tests_with_steps";
