@@ -40,7 +40,7 @@ public:
 
     void PerformLabeling()
     {
-        img_labels_ = cv::Mat1i(img_.size(), 0);
+        img_labels_ = cv::Mat1i(img_.size());
 
         for (int r = 0; r < img_labels_.rows; ++r) {
             // Get rows pointer
@@ -49,6 +49,64 @@ public:
 
             for (int c = 0; c < img_labels_.cols; ++c) {
                     img_labels_row[c] = img_row[c];
+            }
+        }
+    }
+
+    void PerformLabelingWithSteps()
+    {
+        perf_.start();
+        Alloc();
+        perf_.stop();
+        double alloc_timing = perf_.last();
+
+        perf_.start();
+        AllScans();
+        perf_.stop();
+        perf_.store(Step(StepType::ALL_SCANS), perf_.last());
+
+        perf_.start();
+        Dealloc();
+        perf_.stop();
+        perf_.store(Step(StepType::ALLOC_DEALLOC), perf_.last() + alloc_timing);
+    }
+
+    void PerformLabelingMem(std::vector<unsigned long int>& accesses)
+    {
+        MemMat<uchar> img(img_);
+        MemMat<int> img_labels(img_.size());
+
+        for (int r = 0; r < img_labels.rows; ++r) {
+            for (int c = 0; c < img_labels.cols; ++c) {
+                img_labels(r, c) = img(r, c);
+            }
+        }
+
+        // Store total accesses in the output vector 'accesses'
+        accesses = std::vector<unsigned long int>((int)MD_SIZE, 0);
+
+        accesses[MD_BINARY_MAT] = (unsigned long int)img.GetTotalAccesses();
+        accesses[MD_LABELED_MAT] = (unsigned long int)img_labels.GetTotalAccesses();
+    }
+
+private:
+    void Alloc()
+    {
+        img_labels_ = cv::Mat1i(img_.size());
+    }
+    void Dealloc()
+    {
+        // No free for img_labels_ because it is required at the end of the algorithm 
+    }
+    void AllScans()
+    {
+        for (int r = 0; r < img_labels_.rows; ++r) {
+            // Get rows pointer
+            const uchar* const img_row = img_.ptr<uchar>(r);
+            unsigned* const img_labels_row = img_labels_.ptr<unsigned>(r);
+
+            for (int c = 0; c < img_labels_.cols; ++c) {
+                img_labels_row[c] = img_row[c];
             }
         }
     }

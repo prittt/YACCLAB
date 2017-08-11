@@ -171,10 +171,10 @@ void YacclabTests::SaveAverageWithStepsResults(const string& os_name, const Stri
     }
     os << "Total" << '\n';
 
-    const auto& results{ average_ws_results_.at(dataset_name) };
+    const auto& results = average_ws_results_.at(dataset_name);
 
     for (int r = 0; r < results.rows; ++r) {
-        const auto& algo_name{ cfg_.ccl_average_ws_algorithms[r] };
+        const auto& algo_name = cfg_.ccl_average_ws_algorithms[r];
         double cumulative_sum{ 0.0 };
 
         // Gnuplot requires double-escaped name when underscores are encountered
