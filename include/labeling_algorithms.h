@@ -55,11 +55,12 @@ public:
     virtual void PerformLabelingWithSteps() { throw std::runtime_error("'PerformLabelingWithSteps()' not implemented"); }
     virtual void PerformLabelingMem(std::vector<unsigned long>& accesses) { throw std::runtime_error("'PerformLabelingMem(...)' not implemented"); }
 
-    static void SetImg(const cv::Mat1b& img) { img_ = img.clone(); }
+    virtual void FreeLabelingData() { img_labels_.release(); }
+    //static void SetImg(const cv::Mat1b& img) { img_ = img.clone(); }
 
-private:
-    virtual void Alloc() {}
-    virtual void Dealloc() {}
+//private:
+//    virtual void Alloc() {}
+//    virtual void Dealloc() {}
 };
 
 class LabelingMapSingleton {

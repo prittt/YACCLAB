@@ -343,6 +343,7 @@ void YacclabTests::AverageTest()
                         String colored_image = (output_colored_images_path / path(filename + "_" + algo_name + ".png")).string();
                         imwrite(colored_image, imgColors);
                     }
+                    algorithm->FreeLabelingData();
                 } // END ALGORITHMS FOR
             } // END FILES FOR.
             ob.StopRepeatedBox();
@@ -600,7 +601,7 @@ void YacclabTests::AverageTestWithSteps()
                             }
                         }
                     }
-                    ++i;
+                    algorithm->FreeLabelingData();
                 } // END ALGORITHMS FOR
             } // END FILES FOR.
             ob.StopRepeatedBox();
@@ -930,6 +931,7 @@ void YacclabTests::DensityTest()
                         String colored_image = (output_colored_images_path / path(filename + "_" + algo_name + ".png")).string();
                         imwrite(colored_image, imgColors);
                     }
+                    algorithm->FreeLabelingData();
                 } // END ALGORITHMS FOR
             } // END FILES FOR.
             ob.StopRepeatedBox();
@@ -1262,6 +1264,7 @@ void YacclabTests::MemoryTest()
                 for (size_t a = 0; a < accesses.size(); ++a) {
                     memory_accesses_[dataset_name](i, a) += accesses[a];
                 }
+                algorithm->FreeLabelingData();
             }
         }
         ob.StopUnitaryBox();

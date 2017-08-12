@@ -150,6 +150,7 @@ private:
                                 break;
                             }
                         }
+                        algorithm->FreeLabelingData();
                     }
                     ++j;
                 } // For all the Algorithms in the array
