@@ -65,15 +65,18 @@ public:
     void DensityTest();
     void MemoryTest();
     void LatexGenerator();
+    void GranularityTest();
 
 private:
     ConfigData cfg_;
     cv::Mat1d average_results_;
     cv::Mat1d density_results_;
+    std::map<cv::String, cv::Mat> granularity_results_;
     std::map<cv::String, cv::Mat1d> average_ws_results_; // String for dataset_name, Mat1d for steps results
     std::map<cv::String, cv::Mat1d> memory_accesses_; // String for dataset_name, Mat1d for memory accesses
 
     bool LoadFileList(std::vector<std::pair<std::string, bool>>& filenames, const filesystem::path& files_path);
+    bool CheckFileList(const filesystem::path& base_path, std::vector<std::pair<std::string, bool>>& filenames);
     bool SaveBroadOutputResults(std::map<cv::String, cv::Mat1d>& results, const std::string& o_filename, const cv::Mat1i& labels, const std::vector<std::pair<std::string, bool>>& filenames, const std::vector<cv::String>& ccl_algorithms);
     bool SaveBroadOutputResults(const cv::Mat1d& results, const std::string& o_filename, const cv::Mat1i& labels, const std::vector<std::pair<std::string, bool>>& filenames, const std::vector<cv::String>& ccl_algorithms);
     void SaveAverageWithStepsResults(const std::string& os_name, const cv::String& dataset_name, bool rounded);

@@ -68,6 +68,22 @@ bool YacclabTests::LoadFileList(vector<pair<string, bool>>& filenames, const pat
     return true;
 }
 
+// Check if all the files in a list of pair (filename, state) exists and set the state of every file
+// opportunely. The function returns true if all the files exist, false otherwise.
+bool YacclabTests::CheckFileList(const path& base_path, vector<pair<string, bool>>& filenames)
+{
+    bool ret = true;
+    for (size_t i = 0; i < filenames.size(); ++i) {
+        error_code ec;
+        filenames[i].second = filesystem::exists(base_path / path(filenames[i].first), ec);
+        if (!filenames[i].second) {
+            ret = false;
+        }
+    }
+    return ret;
+}
+
+
 // This function take a Mat1d of results and save it in the  specified output-stream
 bool YacclabTests::SaveBroadOutputResults(map<String, Mat1d>& results, const string& o_filename, const Mat1i& labels, const vector<pair<string, bool>>& filenames, const std::vector<cv::String>& ccl_algorithms)
 {
@@ -829,7 +845,6 @@ void YacclabTests::DensityTest()
         Mat1d min_res(filenames_size, cfg_.ccl_average_algorithms.size(), numeric_limits<double>::max());
         Mat1d current_res(filenames_size, cfg_.ccl_average_algorithms.size(), numeric_limits<double>::max());
         Mat1i labels(filenames_size, cfg_.ccl_average_algorithms.size(), 0);
-        vector<pair<double, uint16_t>> supp_average(cfg_.ccl_average_algorithms.size(), make_pair(0.0, 0));
 
         /*
         Note that number of random_images is less than 800, this is why the second element of the
@@ -1185,6 +1200,286 @@ void YacclabTests::DensityTest()
         if (0 != std::system(("gnuplot \"" + (current_output_path / path(dataset_name + cfg_.gnuplot_script_extension)).string() + "\"").c_str())) {
             ob.Cmessage("Density Test on '" + dataset_name + "': Unable to run gnuplot's script");
             // TODO
+        }
+    }
+}
+
+void YacclabTests::GranularityTest()
+{
+    OutputBox ob("Granularity Tests");
+
+    string complete_results_suffix = "_results.txt",
+        middle_results_suffix = "_run",
+        granularity_results_suffix = "_granularity";
+
+    ofstream txt("gd.txt");
+
+    for (unsigned d = 0; d < cfg_.granularity_datasets.size(); ++d) { // For every dataset in the granularity list
+
+        String dataset_name(cfg_.granularity_datasets[d]),
+            output_granularity_results = dataset_name + granularity_results_suffix,
+            output_granularity_graph = dataset_name + "_granularity" + kTerminalExtension,
+            output_granularity_bw_graph = dataset_name + "_granularity_bw" + kTerminalExtension;
+
+        path dataset_path(cfg_.input_path / path("granularity") / path(dataset_name)),
+            is_path = dataset_path / path(cfg_.input_txt), // files.txt path
+            current_output_path(cfg_.output_path / path(cfg_.granularity_folder) / path(dataset_name)),
+            output_broad_path = current_output_path / path(dataset_name + complete_results_suffix),
+            output_middle_results_path = current_output_path / path(cfg_.middle_folder),
+            granularity_os_path = current_output_path / path(output_granularity_results);
+
+        if (!create_directories(current_output_path)) {
+            ob.Cwarning("Unable to find/create the output path '" + current_output_path.string() + ", skipped", dataset_name);
+            continue;
+        }
+
+        if (cfg_.granularity_save_middle_tests) {
+            if (!create_directories(output_middle_results_path)) {
+                ob.Cwarning("Unable to find/create the output path '" + output_middle_results_path.string() + "', middle results won't be saved", dataset_name);
+            }
+        }
+
+        // To save list of filename on which CLLAlgorithms must be tested
+        vector<pair<string, bool>> filenames;  // first: filename, second: state of filename (find or not)
+        if (!LoadFileList(filenames, is_path)) {
+            ob.Cwarning("Unable to open '" + is_path.string() + "', skipped", dataset_name);
+            continue;
+        }
+        if (!CheckFileList(dataset_path, filenames)) {
+            ob.Cwarning("Missing some files, skipped", dataset_name);
+            continue;
+        }
+        
+        // Number of files
+        int filenames_size = filenames.size();
+
+        uint8_t density = 101; // For granularity tests density ranges from 0 to 100 with step 1
+        uint8_t granularity = 16; // For granularity tests granularity ranges from 1 to 16 with step 1
+
+        // Initialize results container
+        granularity_results_[dataset_name] = cv::Mat(cv::Size(cfg_.ccl_average_algorithms.size(), density), CV_64FC(granularity), cv::Scalar(0)); // To store minimum values 
+        vector<vector<double>> real_densities(granularity, vector<double>(density)); 
+        Mat1d min_res(filenames_size, cfg_.ccl_average_algorithms.size(), numeric_limits<double>::max());
+        Mat1d current_res(filenames_size, cfg_.ccl_average_algorithms.size(), numeric_limits<double>::max()); // To store current result
+        Mat1i labels(filenames_size, cfg_.ccl_average_algorithms.size(), 0); // To count number of labels for every image and algorithm 
+
+        // Start output message box
+        ob.StartRepeatedBox(dataset_name, filenames_size, cfg_.granularity_tests_number);
+
+        map<String, size_t> algo_pos;
+        for (size_t i = 0; i < cfg_.ccl_average_algorithms.size(); ++i)
+            algo_pos[cfg_.ccl_average_algorithms[i]] = i;
+        auto shuffled_ccl_average_algorithms = cfg_.ccl_average_algorithms;
+
+        // Test is executed n_test times
+        for (unsigned test = 0; test < cfg_.granularity_tests_number; ++test) {
+            // For every file in list
+            for (unsigned file = 0; file < filenames.size(); ++file) {
+                // Display output message box
+                ob.UpdateRepeatedBox(file);
+
+                string filename = filenames[file].first;
+                path filename_path = dataset_path / path(filename);
+
+                // Read and load image
+                if (!GetBinaryImage(filename_path, Labeling::img_)) {
+                    ob.Cwarning("Unable to open '" + filename + "', granularity results/charts will miss some data");
+                    continue;
+                }
+
+                int cur_granularity = stoi(filename.substr(0, 2));
+                int cur_density = stoi(filename.substr(2, 3));
+
+                int nonzero = countNonZero(Labeling::img_);
+                real_densities[cur_granularity-1][cur_density] = 100.0 * nonzero / (Labeling::img_.rows*Labeling::img_.cols);
+                random_shuffle(begin(shuffled_ccl_average_algorithms), end(shuffled_ccl_average_algorithms));
+
+                for (const auto& algo_name : shuffled_ccl_average_algorithms) {
+                    Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
+                    unsigned n_labels;
+                    unsigned i = algo_pos[algo_name];
+
+                    // Perform current algorithm on current image and save result.
+                    algorithm->perf_.start();
+                    algorithm->PerformLabeling();
+                    algorithm->perf_.stop();
+
+                    n_labels = algorithm->n_labels_;
+
+                    // Save number of found labels
+                    if (test == 0) {
+                        labels(file, i) = n_labels;
+                    }
+
+                    // Save time results
+                    current_res(file, i) = algorithm->perf_.last();
+
+                    if (algorithm->perf_.last() < min_res(file, i)) {
+                        min_res(file, i) = algorithm->perf_.last();
+                    }
+                    algorithm->FreeLabelingData();
+                } // END ALGORITHMS FOR
+            } // END FILES FOR.
+            ob.StopRepeatedBox();
+
+            // Save middle results if necessary
+            if (cfg_.granularity_save_middle_tests) {
+                string output_middle_results_file = (output_middle_results_path / path(dataset_name + middle_results_suffix + "_" + to_string(test) + ".txt")).string();
+                SaveBroadOutputResults(current_res, output_middle_results_file, labels, filenames, cfg_.ccl_average_algorithms);
+            }
+        } // END TEST FOR
+
+        // To write the min results into a file
+        SaveBroadOutputResults(min_res, output_broad_path.string(), labels, filenames, cfg_.ccl_average_algorithms);
+
+        for (int r = 0; r < min_res.rows; ++r) {
+            if (filenames[r].second) {
+
+                string cur_filename = filenames[r].first;
+                int cur_granularity = stoi(cur_filename.substr(0, 2));
+                int cur_density = stoi(cur_filename.substr(2, 3));
+                
+                for (int c = 0; c < min_res.cols; ++c) {
+                    granularity_results_[dataset_name].at<Vec<double, 16>>(cur_density, c)[cur_granularity - 1] += min_res(r,c);
+                }
+            }
+            else {
+                throw;
+            }
+        }
+        
+        // For SCRIPT which runs multiple times the gnuplot script
+        string main_script = (current_output_path / path("main_script" + cfg_.system_script_extension)).string();
+        ofstream main_script_os(main_script);
+        if (!main_script_os.is_open()) {
+            ob.Cwarning("Unable to open " + main_script, dataset_name);
+            return;
+        }
+
+        // Write into the main script
+        main_script_os <<
+#ifdef WINDOWS
+            "@echo off";
+#elif LINUX || UNIX || APPLE
+            "#!/bin/sh";
+#endif
+        main_script_os << '\n';
+        main_script_os << "cd \"" << current_output_path.string() << "\"" << '\n';
+
+        // To write granularity results on specified file
+        for (unsigned g = 1; g <= granularity; ++g) {
+
+            // For GRANULARITY RESULT
+            string cur_granularity_os = granularity_os_path.string() + "_" + to_string(g) + ".txt";
+            ofstream granularity_os(cur_granularity_os);
+            if (!granularity_os.is_open()) {
+                ob.Cwarning("Unable to open " + cur_granularity_os, dataset_name);
+                continue;
+            }
+
+            granularity_os << "# density" << '\t';
+            for (const auto& algo : cfg_.ccl_average_algorithms) {
+                granularity_os << algo << '\t';
+            }
+            granularity_os << '\n';
+
+            for (unsigned d = 0; d < density; ++d) {
+                granularity_os << std::fixed << std::setprecision(5) << real_densities[g - 1][d] << '\t';
+                for (unsigned a = 0; a < cfg_.ccl_average_algorithms.size(); ++a) {
+                    granularity_os << std::fixed << std::setprecision(8) << (granularity_results_[dataset_name].at<Vec<double, 16>>(d, a)[g - 1]/10.0) << '\t';
+                }
+                granularity_os << '\n';
+            }
+            granularity_os.close();
+
+            string output_file = output_granularity_results + "_" + to_string(g) + kTerminalExtension;
+            main_script_os << "gnuplot -e \"input_file='" + cur_granularity_os + "'\" -e \"output_file='" + output_file + "'\" .\\" +
+                dataset_name + cfg_.gnuplot_script_extension << '\n';
+        }
+        main_script_os.close();
+
+        // GNUPLOT SCRIPT
+        {
+            SystemInfo s_info;
+            string compiler_name(s_info.compiler_name());
+            string compiler_version(s_info.compiler_version());
+            //replace the . with _ for compiler strings
+            std::replace(compiler_version.begin(), compiler_version.end(), '.', '_');
+            path script_os_path = current_output_path / path(dataset_name + cfg_.gnuplot_script_extension);
+
+            ofstream script_os(script_os_path.string());
+            if (!script_os.is_open()) {
+                ob.Cwarning("Unable to create '" + script_os_path.string() + "', skipped", dataset_name);
+            }
+
+            script_os << "# This is a gnuplot (http://www.gnuplot.info/) script!" << '\n' << '\n';
+
+            script_os << "reset" << '\n';
+            script_os << "cd '" << current_output_path.string() << "\'" << '\n';
+            script_os << "set grid" << '\n' << '\n';
+
+            // GRANULARITY
+            script_os << "# GRANULARITY GRAPH (COLORS)" << '\n' << '\n';
+
+            script_os << "set output output_file" << '\n';
+            script_os << "set title " << GetGnuplotTitle() << '\n' << '\n';
+
+            script_os << "# " << kTerminal << " colors" << '\n';
+            script_os << "set terminal " << kTerminal << " enhanced color font ',15'" << '\n' << '\n';
+
+            script_os << "# Axes labels" << '\n';
+            script_os << "set xlabel \"Density [%]\"" << '\n';
+            script_os << "set ylabel \"Execution Time [ms]\"" << '\n' << '\n';
+
+            script_os << "# Get stats to set labels" << '\n';
+            script_os << "stats[1:" << cfg_.ccl_average_algorithms.size() << "] input_file matrix name 'granularity' noout" << '\n';
+            script_os << " ymax = granularity_max + (granularity_max / 100) * 10" << '\n';
+            script_os << " ymin = granularity_min - (granularity_min / 100) * 10" << '\n';
+
+            script_os << "# Axes range" << '\n';
+            script_os << "set xrange [0:100]" << '\n';
+            script_os << "set yrange [0:45]" << '\n';
+            //script_os << "set logscale y" << '\n' << '\n';
+
+            script_os << "# Legend" << '\n';
+            script_os << "set key right outside nobox spacing 2 font ', 8'" << '\n' << '\n';
+
+            script_os << "# Plot" << '\n';
+            script_os << "plot \\" << '\n';
+            vector<String>::iterator it; // I need it after the cycle
+            unsigned i = 2;
+            for (it = cfg_.ccl_average_algorithms.begin(); it != (cfg_.ccl_average_algorithms.end() - 1); ++it, ++i) {
+                script_os << "input_file" << " using 1:" << i << " with lines title \"" + DoubleEscapeUnderscore(string(*it)) + "\" , \\" << '\n';
+            }
+            script_os << "input_file" << " using 1:" << i << " with lines title \"" + DoubleEscapeUnderscore(string(*it)) + "\"" << '\n' << '\n';
+
+            script_os << "# Replot in latex folder" << '\n';
+            script_os << "set title \"\"" << '\n' << '\n';
+
+            script_os << "set output \'" << (cfg_.latex_path / path(compiler_name + compiler_version)).string() << "\'.output_file" << '\n';
+            script_os << "replot" << '\n' << '\n';
+
+            script_os << "# GRANULARITY GRAPH (BLACK AND WHITE)" << '\n' << '\n';
+
+            script_os << "set output 'bw'.output_file" << '\n';
+            script_os << "set title " << GetGnuplotTitle() << '\n' << '\n';
+
+            script_os << "# " << kTerminal << " black and white" << '\n';
+            script_os << "set terminal " << kTerminal << " enhanced monochrome dashed font ',15'" << '\n' << '\n';
+
+            script_os << "replot" << '\n' << '\n';
+            script_os << "exit gnuplot" << '\n';
+
+            script_os.close();
+            // GNUPLOT SCRIPT
+        }
+        string command = "";
+#if LINUX || UNIX || APPLE
+        command += "sh ";
+#endif
+
+        if (0 != system((command + "\"" + main_script + "\"").c_str())) {
+            ob.Cwarning("Unable to run '" + main_script + "' script", dataset_name);
         }
     }
 }

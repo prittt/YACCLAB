@@ -118,7 +118,7 @@ int main()
     Labeling::img_ = Mat1b(1, 1, static_cast<uchar>(0));
     for (const auto& algo_name : cfg.ccl_existing_algorithms) {
         const auto& algorithm = LabelingMapSingleton::GetLabeling(algo_name);
-        if (cfg.perform_average || cfg.perform_density || (cfg.perform_correctness && cfg.perform_check_8connectivity_std)) {
+        if (cfg.perform_average || cfg.perform_density || cfg.perform_granularity || (cfg.perform_correctness && cfg.perform_check_8connectivity_std)) {
             try {
                 algorithm->PerformLabeling();
                 cfg.ccl_average_algorithms.push_back(algo_name);
@@ -198,7 +198,7 @@ int main()
 
     if (!cfg.perform_average && !cfg.perform_correctness &&
         !cfg.perform_density && !cfg.perform_memory &&
-        !cfg.perform_average_ws) {
+        !cfg.perform_average_ws && !cfg.perform_granularity) {
         ob_setconf.Cerror("There are no tests to perform");
     }
 
@@ -217,7 +217,7 @@ int main()
         }
     }
 
-    if (cfg.perform_average || cfg.perform_average_ws || cfg.perform_density || cfg.perform_memory /*|| cfg.perform_granularity*/) {
+    if (cfg.perform_average || cfg.perform_average_ws || cfg.perform_density || cfg.perform_memory || cfg.perform_granularity) {
     // Set and create current output directory
         if (!create_directories(cfg.output_path, ec)) {
             ob_setconf.Cerror("Unable to create output directory '" + cfg.output_path.string() + "' - " + ec.message());
@@ -265,14 +265,16 @@ int main()
     }
 
     // Granularity tests
-
+    if (cfg.perform_granularity) {
+        yt.GranularityTest();
+    }
     // Memory tests
     if (cfg.perform_memory) {
         yt.MemoryTest();
     }
 
     // Latex Generator
-    if (cfg.perform_average || cfg.perform_average_ws || cfg.perform_density || cfg.perform_memory /*|| cfg.perform_granularity*/) {
+    if (cfg.perform_average || cfg.perform_average_ws || cfg.perform_density || cfg.perform_memory || cfg.perform_granularity) {
         yt.LatexGenerator();
     }
 

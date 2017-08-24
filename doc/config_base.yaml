@@ -14,20 +14,22 @@
 perform: 
   correctness:        false
   average:            true
-  density:            true
-  memory:             false
   average_with_steps: true
+  density:            true
+  granularity:        true
+  memory:             false
 
 correctness_tests: 
   eight_connectivity_standard: true
-  eight_connectivity_steps: true
-  eight_connectivity_memory: true
+  eight_connectivity_steps:    true
+  eight_connectivity_memory:   true
 
 # Number of tests repetitions 
 tests_number: 
   average:            10 
-  density:            10 
   average_with_steps: 10
+  density:            10
+  granularity:        10 
 
 # -------------------------------------------------------------------------------------
 # List of CCL algorithms to test
@@ -35,9 +37,9 @@ tests_number:
 
 algorithms: 
   - SAUF_RemSP
-  - SAUF_TTA
-  - SAUF_UFPC
-  - SAUF_UF
+#  - SAUF_TTA
+#  - SAUF_UFPC
+#  - SAUF_UF
   - BBDT_RemSP
   - BBDT_TTA
   - BBDT_UFPC
@@ -54,23 +56,23 @@ algorithms:
   - PRED_TTA
   - PRED_UFPC
   - PRED_UF
-  - LSL_STD_TTA
-  - LSL_STD_UF
-  - LSL_STDZ_TTA
-  - LSL_STDZ_UF
-  - LSL_RLE_TTA
-  - LSL_RLE_UF
+#  - LSL_STD_TTA
+#  - LSL_STD_UF
+#  - LSL_STDZ_TTA
+#  - LSL_STDZ_UF
+#  - LSL_RLE_TTA
+#  - LSL_RLE_UF
   - LSL_RLEZ_TTA
-  - LSL_RLEZ_UF
+#  - LSL_RLEZ_UF
   - DiStefano
   - CT
   - SBLA
   - labeling_NULL
 
-# Algoritms which require to specify a labels solver: SAUF, BBDT, CCIT, LSL, CTB, PRED
-# Possible label solvers: UF, UFPC, RemSP, TTA
-# LSL requires also a version specifier: STD, STDZ, RLE, RLEZ; only UF and TTA can be used with LSL
-# Algoritms which don't require to specify a labels solver: DiStefano, CT, SBLA, NULL
+# Algorithms which require to specify a labels solver are: SAUF, BBDT, CCIT, LSL, CTB, PRED
+# Possible labels solvers are: UF, UFPC, RemSP, TTA
+# LSL requires also a version specifier: STD, STDZ, RLE, RLEZ; only UF and TTA solvers can be used with LSL
+# Algorithms which don't require to specify a labels solver are: DiStefano, CT, SBLA, NULL
 
 # -------------------------------------------------------------------------------------
 # Datasets to use for each test
@@ -84,6 +86,9 @@ average_datasets: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "t
 
 # List of datasets on which "Average Runtime Tests With Steps" shall be run
 average_datasets_with_steps: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800", "xdocs"]
+
+# List of datasets on which "Granularity Tests" shall be run (NOTE TODO)
+granularity_datasets: ["2048", "4096", "8192"]
 
 # List of datasets on which "Memory Tests" shall be run
 memory_datasets: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "test_random", "tobacco800", "xdocs"]
@@ -99,9 +104,9 @@ paths: {input: "${YACCLAB_INPUT_DATASET_PATH}", output: "${YACCLAB_OUTPUT_RESULT
 write_n_labels: false
 
 # Save labeled image
-color_labels: {average: false, density: false}
+color_labels: {average: false, density: false} #TODO
 
 # Save the results of each run test
-save_middle_tests: {average: false, average_with_steps: false, density: false}
+save_middle_tests: {average: false, average_with_steps: false, density: false, granularity: false}
 
 # This is YACCLAB configuration file
