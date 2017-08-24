@@ -1271,6 +1271,8 @@ void YacclabTests::GranularityTest()
             algo_pos[cfg_.ccl_average_algorithms[i]] = i;
         auto shuffled_ccl_average_algorithms = cfg_.ccl_average_algorithms;
 
+        random_shuffle(begin(filenames), end(filenames));
+
         // Test is executed n_test times
         for (unsigned test = 0; test < cfg_.granularity_tests_number; ++test) {
             // For every file in list
@@ -1340,7 +1342,10 @@ void YacclabTests::GranularityTest()
                 int cur_density = stoi(cur_filename.substr(2, 3));
                 
                 for (int c = 0; c < min_res.cols; ++c) {
-                    granularity_results_[dataset_name].at<Vec<double, 16>>(cur_density, c)[cur_granularity - 1] += min_res(r,c);
+                    auto& cur_result = granularity_results_[dataset_name].at<Vec<double, 16>>(cur_density, c)[cur_granularity - 1];
+                    if (cur_result > min_res(r,c) || cur_result == 0){
+                        cur_result = min_res(r,c);
+                    }
                 }
             }
             else {
@@ -1360,7 +1365,7 @@ void YacclabTests::GranularityTest()
         main_script_os <<
 #ifdef WINDOWS
             "@echo off";
-#elif LINUX || UNIX || APPLE
+#elif defined(LINUX) || defined(UNIX) || defined(APPLE)
             "#!/bin/sh";
 #endif
         main_script_os << '\n';
@@ -1384,16 +1389,16 @@ void YacclabTests::GranularityTest()
             granularity_os << '\n';
 
             for (unsigned d = 0; d < density; ++d) {
-                granularity_os << std::fixed << std::setprecision(5) << real_densities[g - 1][d] << '\t';
+                granularity_os << std::fixed << std::setprecision(5) << /*real_densities[g - 1][d]*/ d << '\t';
                 for (unsigned a = 0; a < cfg_.ccl_average_algorithms.size(); ++a) {
-                    granularity_os << std::fixed << std::setprecision(8) << (granularity_results_[dataset_name].at<Vec<double, 16>>(d, a)[g - 1]/10.0) << '\t';
+                    granularity_os << std::fixed << std::setprecision(8) << (granularity_results_[dataset_name].at<Vec<double, 16>>(d, a)[g - 1]) << '\t';
                 }
                 granularity_os << '\n';
             }
             granularity_os.close();
 
             string output_file = output_granularity_results + "_" + to_string(g) + kTerminalExtension;
-            main_script_os << "gnuplot -e \"input_file='" + cur_granularity_os + "'\" -e \"output_file='" + output_file + "'\" .\\" +
+            main_script_os << "gnuplot -e \"input_file='" + cur_granularity_os + "'\" -e \"output_file='" + output_file + "'\" " +
                 dataset_name + cfg_.gnuplot_script_extension << '\n';
         }
         main_script_os.close();
@@ -1438,7 +1443,7 @@ void YacclabTests::GranularityTest()
 
             script_os << "# Axes range" << '\n';
             script_os << "set xrange [0:100]" << '\n';
-            script_os << "set yrange [0:45]" << '\n';
+            script_os << "set yrange [0:ymax]" << '\n';
             //script_os << "set logscale y" << '\n' << '\n';
 
             script_os << "# Legend" << '\n';
@@ -1474,7 +1479,7 @@ void YacclabTests::GranularityTest()
             // GNUPLOT SCRIPT
         }
         string command = "";
-#if LINUX || UNIX || APPLE
+#if defined(LINUX) || defined(UNIX) || defined(APPLE)
         command += "sh ";
 #endif
 

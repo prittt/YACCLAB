@@ -130,7 +130,7 @@ struct ConfigData {
         system_script_extension      =
 #ifdef WINDOWS
             ".bat";
-#elif LINUX || UNIX || APPLE
+#elif defined(LINUX) || defined(UNIX) || defined(APPLE)
             ".sh";
 #endif
         colors_folder                = "colors";
