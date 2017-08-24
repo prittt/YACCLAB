@@ -1090,10 +1090,10 @@ void YacclabTests::DensityTest()
             script_os << "set ylabel \"Execution Time [ms]\"" << '\n' << '\n';
 
             script_os << "# Get stats to set labels" << '\n';
-            script_os << "stats[1:8] '" + output_density_results + "' matrix name 'density' noout" << '\n';
-            script_os << "stats[1:8] '" + output_size_results + "' matrix name 'size' noout" << '\n';
-            script_os << " ymax = density_max + (density_max / 100) * 10" << '\n';
-            script_os << " ymin = density_min - (density_min / 100) * 10" << '\n';
+            script_os << "stats[1:" << cfg_.ccl_average_algorithms.size() << "] '" + output_density_results + "' matrix name 'density' noout" << '\n';
+            script_os << "stats[1:" << cfg_.ccl_average_algorithms.size() << "] '" + output_size_results + "' matrix name 'size' noout" << '\n';
+            script_os << "ymax = density_max + (density_max / 100) * 10" << '\n';
+            script_os << "ymin = density_min - (density_min / 100) * 10" << '\n';
 
             script_os << "# Axes range" << '\n';
             script_os << "set xrange [0:1]" << '\n';
@@ -1142,8 +1142,8 @@ void YacclabTests::DensityTest()
             script_os << "set ylabel \"Execution Time [ms]\"" << '\n' << '\n';
 
             script_os << "# Get stats to set labels" << '\n';
-            script_os << " ymax = size_max + (size_max/100)*30" << '\n';
-            script_os << " ymin = size_min - (size_min/100)*30" << '\n';
+            script_os << "ymax = size_max + (size_max/100)*30" << '\n';
+            script_os << "ymin = size_min - (size_min/100)*30" << '\n';
 
             script_os << "# Axes range" << '\n';
             script_os << "set format x \"10^{%L}\"" << '\n';
