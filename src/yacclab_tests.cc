@@ -1283,14 +1283,15 @@ void YacclabTests::GranularityTest()
                 string filename = filenames[file].first;
                 path filename_path = dataset_path / path(filename);
 
+                int cur_granularity = stoi(filename.substr(0, 2));
+                //if (cur_granularity < 15) continue;
+                int cur_density = stoi(filename.substr(2, 3));
+
                 // Read and load image
                 if (!GetBinaryImage(filename_path, Labeling::img_)) {
                     ob.Cwarning("Unable to open '" + filename + "', granularity results/charts will miss some data");
                     continue;
                 }
-
-                int cur_granularity = stoi(filename.substr(0, 2));
-                int cur_density = stoi(filename.substr(2, 3));
 
                 int nonzero = countNonZero(Labeling::img_);
                 real_densities[cur_granularity-1][cur_density] = 100.0 * nonzero / (Labeling::img_.rows*Labeling::img_.cols);
