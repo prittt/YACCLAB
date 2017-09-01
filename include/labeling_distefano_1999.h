@@ -177,10 +177,7 @@ public:
 
 	void PerformLabelingWithSteps()
 	{
-		perf_.start();
-		Alloc();
-		perf_.stop();
-		double alloc_timing = perf_.last();
+        double alloc_timing = Alloc();
 
 		perf_.start();
 		FirstScan();
@@ -333,15 +330,31 @@ private:
 	int *a_renum;
 	int i_new_label;
 
-	void Alloc()
-	{
-		img_labels_ = cv::Mat1i(img_.size());
-
-		a_class = new int[UPPER_BOUND_8_CONNECTIVITY];
-		a_single = new bool[UPPER_BOUND_8_CONNECTIVITY];
-		a_renum = new int[UPPER_BOUND_8_CONNECTIVITY];
-	}
-	void Dealloc()
+    double Alloc()
+    {
+        // Memory allocation for the output image
+        perf_.start();
+        img_labels_ = cv::Mat1i(img_.size());
+        a_class = new int[UPPER_BOUND_8_CONNECTIVITY];
+        a_single = new bool[UPPER_BOUND_8_CONNECTIVITY];
+        a_renum = new int[UPPER_BOUND_8_CONNECTIVITY];
+        memset(img_labels_.data, 0, img_labels_.dataend - img_labels_.datastart);
+        memset(a_class, 0, UPPER_BOUND_8_CONNECTIVITY*sizeof(int));
+        memset(a_single, 0, UPPER_BOUND_8_CONNECTIVITY*sizeof(bool));
+        memset(a_renum, 0, UPPER_BOUND_8_CONNECTIVITY*sizeof(int));
+        perf_.stop();
+        double t = perf_.last();
+        perf_.start();
+        memset(img_labels_.data, 0, img_labels_.dataend - img_labels_.datastart);
+        memset(a_class, 0, UPPER_BOUND_8_CONNECTIVITY*sizeof(int));
+        memset(a_single, 0, UPPER_BOUND_8_CONNECTIVITY*sizeof(bool));
+        memset(a_renum, 0, UPPER_BOUND_8_CONNECTIVITY*sizeof(int));
+        perf_.stop();
+        double ma_t = t - perf_.last();
+        // Return total time
+        return ma_t;
+    }
+    void Dealloc()
 	{
 		delete[] a_class;
 		delete[] a_single;

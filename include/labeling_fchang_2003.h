@@ -91,10 +91,7 @@ public:
     }
     void PerformLabelingWithSteps()
     {
-        perf_.start();
-        Alloc();
-        perf_.stop();
-        double alloc_timing = perf_.last();
+        double alloc_timing = Alloc();
 
         perf_.start();
         AllScans();
@@ -283,9 +280,20 @@ private:
         } while (!(crd_cur_point == s && crd_next_point == T));
     }
     
-    void Alloc()
+    double Alloc()
     {
-        img_labels_ = cv::Mat1i(img_.size()); // Memory allocation of the output image
+        // Memory allocation for the output image
+        perf_.start();
+        img_labels_ = cv::Mat1i(img_.size());
+        memset(img_labels_.data, 0, img_labels_.dataend - img_labels_.datastart);
+        perf_.stop();
+        double t = perf_.last();
+        perf_.start();
+        memset(img_labels_.data, 0, img_labels_.dataend - img_labels_.datastart);
+        perf_.stop();
+        double ma_t = t - perf_.last();
+        // Return total time
+        return ma_t;
     }
     void Dealloc()
     {
@@ -293,7 +301,7 @@ private:
     }
     void AllScans()
     {
-        img_labels_ = cv::Mat1i::zeros(img_.size()); // Initialization
+        memset(img_labels_.data, 0, img_labels_.dataend - img_labels_.datastart); // Initialization
 
         n_labels_ = 0;
         for (int y = 0; y < img_.rows; y++) {
