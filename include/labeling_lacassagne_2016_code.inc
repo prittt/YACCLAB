@@ -37,8 +37,8 @@ public:
 
         // Step 2
         Mat1i ERA(rows, cols + 1, 0); // MISSING in the paper: ERA must have one column more than the input image 
-                                      // in order to handle special cases (e.g. lines with chessboard pattern 
-                                      // starting with a foreground pixel) 
+                                   // in order to handle special cases (e.g. lines with chessboard pattern 
+                                   // starting with a foreground pixel) 
 
         LabelsSolver::Alloc(UPPER_BOUND_8_CONNECTIVITY);
         LabelsSolver::Setup();
@@ -126,10 +126,7 @@ public:
 
     void PerformLabelingWithSteps()
     {
-        perf_.start();
-        Alloc();
-        perf_.stop();
-        double alloc_timing = perf_.last();
+        double alloc_timing = Alloc();
 
         perf_.start();
         FirstScan();
@@ -184,8 +181,8 @@ public:
 
         // Step 2
         MemMat<int> ERA(rows, cols + 1, 0); // MISSING in the paper: ERA must have one column more than the input image 
-                                            // in order to handle special cases (e.g. lines with chessboard pattern 
-                                            // starting with a foreground pixel) 
+                                         // in order to handle special cases (e.g. lines with chessboard pattern 
+                                         // starting with a foreground pixel) 
 
         LabelsSolver::MemAlloc(UPPER_BOUND_8_CONNECTIVITY);
         LabelsSolver::MemSetup();
@@ -268,9 +265,13 @@ private:
     int *ner;
     Mat1i ER, RLC, ERA;
 
-    void Alloc() {
-        LabelsSolver::Alloc(UPPER_BOUND_8_CONNECTIVITY); // Memory allocation of the labels solver
-        img_labels_ = cv::Mat1i(img_.size()); // Memory allocation of the output image
+    double Alloc()
+    {
+        // Memory allocation of the labels solver
+        double ls_t = LabelsSolver::Alloc(UPPER_BOUND_8_CONNECTIVITY, perf_);
+        // Memory allocation for the output image and for other structures
+        perf_.start();
+        img_labels_ = cv::Mat1i(img_.size());
 
         int rows = img_.rows;
         int cols = img_.cols;
@@ -279,10 +280,30 @@ private:
         RLC = Mat1i(rows, (cols + 1) & ~1); // MISSING in the paper: RLC requires 2 values/run in row, so width must be next multiple of 2
         ner = new int[rows]; //vector<int> ner(rows); // Number of runs 
 
-        ERA = Mat1i(rows, cols + 1, 0); // MISSING in the paper: ERA must have one column more than the input image 
+        ERA = Mat1i(rows, cols + 1); // MISSING in the paper: ERA must have one column more than the input image 
                                 // in order to handle special cases (e.g. lines with chessboard pattern 
                                 // starting with a foreground pixel) 
+
+        memset(img_labels_.data, 0, img_labels_.dataend - img_labels_.datastart);
+        memset(ER.data, 0, ER.dataend - ER.datastart);
+        memset(RLC.data, 0, RLC.dataend - RLC.datastart);
+        memset(ner, 0, rows*sizeof(int));
+        memset(ERA.data, 0, ERA.dataend - ERA.datastart);
+        perf_.stop();
+        double t = perf_.last();
+        perf_.start();
+        memset(img_labels_.data, 0, img_labels_.dataend - img_labels_.datastart);
+        memset(ER.data, 0, ER.dataend - ER.datastart);
+        memset(RLC.data, 0, RLC.dataend - RLC.datastart);
+        memset(ner, 0, rows*sizeof(int));
+        memset(ERA.data, 0, ERA.dataend - ERA.datastart);
+        perf_.stop();
+        double ma_t = t - perf_.last();
+
+        // Return total time
+        return ls_t + ma_t;
     }
+
     void Dealloc() {
         ERA.release();
 
@@ -328,6 +349,8 @@ private:
 
         // Step 2
         LabelsSolver::Setup();
+
+		memset(ERA.data, 0, ERA.dataend - ERA.datastart);
 
         // First row
         {

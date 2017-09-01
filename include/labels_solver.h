@@ -31,12 +31,24 @@
 
 #include "register.h"
 #include "memory_tester.h"
+#include "performance_evaluator.h"
 
 // Union-find (UF)
 class UF {
 // Maximum number of labels (included background) = 2^(sizeof(unsigned) x 8)
 public:
-	static void Alloc(unsigned max_length) {
+    static double Alloc(unsigned max_length, PerformanceEvaluator& perf) {
+        perf.start();
+        P_ = new unsigned[max_length];
+        memset(P_, 0, max_length*sizeof(unsigned));
+        perf.stop();
+        double t = perf.last();
+        perf.start();
+        memset(P_, 0, max_length*sizeof(unsigned));
+        perf.stop();
+        return t - perf.last();
+    }
+    static void Alloc(unsigned max_length) {
 		P_ = new unsigned[max_length];
 	}
 	static void Dealloc() {
@@ -178,7 +190,18 @@ private:
 class UFPC {
 // Maximum number of labels (included background) = 2^(sizeof(unsigned) x 8)
 public:
-	static void Alloc(unsigned max_length) {
+    static double Alloc(unsigned max_length, PerformanceEvaluator& perf) {
+        perf.start();
+        P_ = new unsigned[max_length];
+        memset(P_, 0, max_length*sizeof(unsigned));
+        perf.stop();
+        double t = perf.last();
+        perf.start();
+        memset(P_, 0, max_length*sizeof(unsigned));
+        perf.stop();
+        return t - perf.last();
+    }
+    static void Alloc(unsigned max_length) {
 		P_ = new unsigned[max_length];
 	}
 	static void Dealloc() {
@@ -362,6 +385,17 @@ private:
 class RemSP {
 // Maximum number of labels (included background) = 2^(sizeof(unsigned) x 8)
 public:
+    static double Alloc(unsigned max_length, PerformanceEvaluator& perf) {
+        perf.start();
+        P_ = new unsigned[max_length];
+        memset(P_, 0, max_length*sizeof(unsigned));
+        perf.stop();
+        double t = perf.last();
+        perf.start();
+        memset(P_, 0, max_length*sizeof(unsigned));
+        perf.stop();
+        return t - perf.last();
+    }
 	static void Alloc(unsigned max_length) {
 		P_ = new unsigned[max_length];
 	}
@@ -496,6 +530,23 @@ class TTA {
 	// Maximum number of labels (included background) = 2^(sizeof(unsigned) x 8) - 1:
 	// the special value "-1" for next_ table array has been replace with UINT_MAX
 public:
+    static double Alloc(unsigned max_length, PerformanceEvaluator& perf) {
+        perf.start();
+        rtable_ = new unsigned[max_length];
+        next_ = new unsigned[max_length];
+        tail_ = new unsigned[max_length];
+        memset(rtable_, 0, max_length*sizeof(unsigned));
+        memset(next_, 0, max_length*sizeof(unsigned));
+        memset(tail_, 0, max_length*sizeof(unsigned));
+        perf.stop();
+        double t = perf.last();
+        perf.start();
+        memset(rtable_, 0, max_length*sizeof(unsigned));
+        memset(next_, 0, max_length*sizeof(unsigned));
+        memset(tail_, 0, max_length*sizeof(unsigned));
+        perf.stop();
+        return t - perf.last();
+    }
 	static void Alloc(unsigned max_length) {
 		rtable_ = new unsigned[max_length];
 		next_ = new unsigned[max_length];
