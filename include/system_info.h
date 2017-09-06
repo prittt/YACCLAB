@@ -32,9 +32,15 @@
 #include <iostream>
 #include <string>
 
+#include <config_data.h>
+
 #if _WIN32 || _WIN64 || WIN32 || __WIN32__ || __WINDOWS__ || __TOS_WIN__
+#ifdef _MSC_VER
 #include <intrin.h>
+#endif
+#ifndef NOMINMAX
 #define NOMINMAX // Prevent <Windows.h> header file defines its own macros named max and min
+#endif
 #include <WINDOWS.h>
 #include <lm.h>
 #pragma comment(lib, "netapi32.lib")
@@ -51,6 +57,8 @@
 #define APPLE
 #endif
 
+extern struct ConfigData cfg;
+
 /*@brief Retrieve system information
 
 Class that retrieves machine information like the CPU
@@ -59,7 +67,7 @@ brand name, the OS used, and the architecture employed.
 */
 class SystemInfo {
 public:
-    SystemInfo();
+    SystemInfo(ConfigData& cfg);
 
     // Return the brand and model of the CPU used
     std::string cpu() { return cpu_; }
@@ -83,23 +91,19 @@ private:
 
     void SetCpuBrand();
     void SetBuild();
-    void SetOs();
+    void SetOs(ConfigData& cfg);
     void SetCompiler();
 
 #if  defined(WINDOWS)
     std::string GetWindowsCpu();
 
-    bool GetWinMajorMinorVersion(DWORD& major, DWORD& minor);
+    //bool GetWinMajorMinorVersion(DWORD& major, DWORD& minor);
 
-    std::string GetWindowsVersion();
-
+    //std::string GetWindowsVersion();
 #elif defined(LINUX) || defined(UNIX)
     std::string GetLinuxCpu();
-
 #elif defined(APPLE)
-
     std::string GetAppleCpu();
-
 #endif
 };
 

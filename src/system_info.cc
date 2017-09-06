@@ -26,6 +26,7 @@
 // OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "config_data.h"
 #include "system_info.h"
 
 #include <algorithm>
@@ -35,11 +36,11 @@
 
 using namespace std;
 
-SystemInfo::SystemInfo()
+SystemInfo::SystemInfo(ConfigData& cfg)
 {
     SetBuild();
     SetCpuBrand();
-    SetOs();
+    SetOs(cfg);
     SetCompiler();
 }
 
@@ -100,106 +101,106 @@ string SystemInfo::GetWindowsCpu()
 
     return { cpu_name };
 }
-
-bool SystemInfo::GetWinMajorMinorVersion(DWORD& major, DWORD& minor)
-{
-    bool bRetCode = false;
-    LPBYTE pinfoRawData = 0;
-    if (NERR_Success == NetWkstaGetInfo(NULL, 100, &pinfoRawData)) {
-        WKSTA_INFO_100* pworkstationInfo = (WKSTA_INFO_100*)pinfoRawData;
-        major = pworkstationInfo->wki100_ver_major;
-        minor = pworkstationInfo->wki100_ver_minor;
-        ::NetApiBufferFree(pinfoRawData);
-        bRetCode = true;
-    }
-    return bRetCode;
-}
-
-string SystemInfo::GetWindowsVersion()
-{
-    string winver;
-    OSVERSIONINFOEX osver;
-    SYSTEM_INFO sysInfo;
-    typedef void(__stdcall *GETSYSTEMINFO) (LPSYSTEM_INFO);
-
-    __pragma(warning(push))
-        __pragma(warning(disable:4996))
-        memset(&osver, 0, sizeof(osver));
-    osver.dwOSVersionInfoSize = sizeof(osver);
-    GetVersionEx((LPOSVERSIONINFO)&osver);
-    __pragma(warning(pop))
-        DWORD major = 0;
-    DWORD minor = 0;
-    if (GetWinMajorMinorVersion(major, minor)) {
-        osver.dwMajorVersion = major;
-        osver.dwMinorVersion = minor;
-    }
-    else if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 2) {
-        OSVERSIONINFOEXW osvi;
-        ULONGLONG cm = 0;
-        cm = VerSetConditionMask(cm, VER_MINORVERSION, VER_EQUAL);
-        ZeroMemory(&osvi, sizeof(osvi));
-        osvi.dwOSVersionInfoSize = sizeof(osvi);
-        osvi.dwMinorVersion = 3;
-        if (VerifyVersionInfoW(&osvi, VER_MINORVERSION, cm)) {
-            osver.dwMinorVersion = 3;
-        }
-    }
-
-    GETSYSTEMINFO getSysInfo = (GETSYSTEMINFO)GetProcAddress(GetModuleHandle((LPCTSTR)"kernel32.dll"), "GetNativeSystemInfo");
-    if (getSysInfo == NULL)  getSysInfo = ::GetSystemInfo;
-    getSysInfo(&sysInfo);
-
-    if (osver.dwMajorVersion == 10 && osver.dwMinorVersion >= 0 && osver.wProductType != VER_NT_WORKSTATION)  winver = "Windows 10 Server";
-    if (osver.dwMajorVersion == 10 && osver.dwMinorVersion >= 0 && osver.wProductType == VER_NT_WORKSTATION)  winver = "Windows 10";
-    if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 3 && osver.wProductType != VER_NT_WORKSTATION)  winver = "Windows Server 2012 R2";
-    if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 3 && osver.wProductType == VER_NT_WORKSTATION)  winver = "Windows 8.1";
-    if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 2 && osver.wProductType != VER_NT_WORKSTATION)  winver = "Windows Server 2012";
-    if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 2 && osver.wProductType == VER_NT_WORKSTATION)  winver = "Windows 8";
-    if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 1 && osver.wProductType != VER_NT_WORKSTATION)  winver = "Windows Server 2008 R2";
-    if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 1 && osver.wProductType == VER_NT_WORKSTATION)  winver = "Windows 7";
-    if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 0 && osver.wProductType != VER_NT_WORKSTATION)  winver = "Windows Server 2008";
-    if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 0 && osver.wProductType == VER_NT_WORKSTATION)  winver = "Windows Vista";
-    if (osver.dwMajorVersion == 5 && osver.dwMinorVersion == 2 && osver.wProductType == VER_NT_WORKSTATION
-        &&  sysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)  winver = "Windows XP";
-    if (osver.dwMajorVersion == 5 && osver.dwMinorVersion == 2)   winver = "Windows Server 2003";
-    if (osver.dwMajorVersion == 5 && osver.dwMinorVersion == 1)   winver = "Windows XP";
-    if (osver.dwMajorVersion == 5 && osver.dwMinorVersion == 0)   winver = "Windows 2000";
-    if (osver.dwMajorVersion < 5)   winver = "unknown";
-
-    if (osver.wServicePackMajor != 0) {
-        std::string sp;
-        char buf[128] = { 0 };
-        sp = " Service Pack ";
-        sprintf_s(buf, sizeof(buf), "%hd", osver.wServicePackMajor);
-        sp.append(buf);
-        winver += sp;
-    }
-
-    typedef BOOL(WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
-    LPFN_ISWOW64PROCESS fnIsWow64Process;
-    BOOL bIsWow64 = FALSE;
-
-    fnIsWow64Process = (LPFN_ISWOW64PROCESS)GetProcAddress(
-        GetModuleHandle(TEXT("kernel32")), "IsWow64Process");
-
-    if (NULL != fnIsWow64Process) {
-        if (!fnIsWow64Process(GetCurrentProcess(), &bIsWow64)) {
-            //handle error
-        }
-    }
-
-    if ((bIsWow64 && build_ == "x86") || (build_ == "x64")) {
-        //64 bit OS and 32 bit built application or 64 bit application
-        winver += " 64 bit";
-    }
-    else if ((!bIsWow64 && build_ == "x86")) {
-        //32 bit OS and 32 bit built application
-        winver += " 32 bit";
-    }
-
-    return winver;
-}
+//
+//bool SystemInfo::GetWinMajorMinorVersion(DWORD& major, DWORD& minor)
+//{
+//    bool bRetCode = false;
+//    LPBYTE pinfoRawData = 0;
+//    if (NERR_Success == NetWkstaGetInfo(NULL, 100, &pinfoRawData)) {
+//        WKSTA_INFO_100* pworkstationInfo = (WKSTA_INFO_100*)pinfoRawData;
+//        major = pworkstationInfo->wki100_ver_major;
+//        minor = pworkstationInfo->wki100_ver_minor;
+//        ::NetApiBufferFree(pinfoRawData);
+//        bRetCode = true;
+//    }
+//    return bRetCode;
+//}
+//
+//string SystemInfo::GetWindowsVersion()
+//{
+//    string winver;
+//    OSVERSIONINFOEX osver;
+//    SYSTEM_INFO sysInfo;
+//    typedef void(__stdcall *GETSYSTEMINFO) (LPSYSTEM_INFO);
+//
+//    __pragma(warning(push))
+//        __pragma(warning(disable:4996))
+//        memset(&osver, 0, sizeof(osver));
+//    osver.dwOSVersionInfoSize = sizeof(osver);
+//    GetVersionEx((LPOSVERSIONINFO)&osver);
+//    __pragma(warning(pop))
+//        DWORD major = 0;
+//    DWORD minor = 0;
+//    if (GetWinMajorMinorVersion(major, minor)) {
+//        osver.dwMajorVersion = major;
+//        osver.dwMinorVersion = minor;
+//    }
+//    else if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 2) {
+//        OSVERSIONINFOEXW osvi;
+//        ULONGLONG cm = 0;
+//        cm = VerSetConditionMask(cm, VER_MINORVERSION, VER_EQUAL);
+//        ZeroMemory(&osvi, sizeof(osvi));
+//        osvi.dwOSVersionInfoSize = sizeof(osvi);
+//        osvi.dwMinorVersion = 3;
+//        if (VerifyVersionInfoW(&osvi, VER_MINORVERSION, cm)) {
+//            osver.dwMinorVersion = 3;
+//        }
+//    }
+//
+//    GETSYSTEMINFO getSysInfo = (GETSYSTEMINFO)GetProcAddress(GetModuleHandle((LPCTSTR)"kernel32.dll"), "GetNativeSystemInfo");
+//    if (getSysInfo == NULL)  getSysInfo = ::GetSystemInfo;
+//    getSysInfo(&sysInfo);
+//
+//    if (osver.dwMajorVersion == 10 && osver.dwMinorVersion >= 0 && osver.wProductType != VER_NT_WORKSTATION)  winver = "Windows 10 Server";
+//    if (osver.dwMajorVersion == 10 && osver.dwMinorVersion >= 0 && osver.wProductType == VER_NT_WORKSTATION)  winver = "Windows 10";
+//    if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 3 && osver.wProductType != VER_NT_WORKSTATION)  winver = "Windows Server 2012 R2";
+//    if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 3 && osver.wProductType == VER_NT_WORKSTATION)  winver = "Windows 8.1";
+//    if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 2 && osver.wProductType != VER_NT_WORKSTATION)  winver = "Windows Server 2012";
+//    if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 2 && osver.wProductType == VER_NT_WORKSTATION)  winver = "Windows 8";
+//    if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 1 && osver.wProductType != VER_NT_WORKSTATION)  winver = "Windows Server 2008 R2";
+//    if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 1 && osver.wProductType == VER_NT_WORKSTATION)  winver = "Windows 7";
+//    if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 0 && osver.wProductType != VER_NT_WORKSTATION)  winver = "Windows Server 2008";
+//    if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 0 && osver.wProductType == VER_NT_WORKSTATION)  winver = "Windows Vista";
+//    if (osver.dwMajorVersion == 5 && osver.dwMinorVersion == 2 && osver.wProductType == VER_NT_WORKSTATION
+//        &&  sysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)  winver = "Windows XP";
+//    if (osver.dwMajorVersion == 5 && osver.dwMinorVersion == 2)   winver = "Windows Server 2003";
+//    if (osver.dwMajorVersion == 5 && osver.dwMinorVersion == 1)   winver = "Windows XP";
+//    if (osver.dwMajorVersion == 5 && osver.dwMinorVersion == 0)   winver = "Windows 2000";
+//    if (osver.dwMajorVersion < 5)   winver = "unknown";
+//
+//    if (osver.wServicePackMajor != 0) {
+//        std::string sp;
+//        char buf[128] = { 0 };
+//        sp = " Service Pack ";
+//        sprintf_s(buf, sizeof(buf), "%hd", osver.wServicePackMajor);
+//        sp.append(buf);
+//        winver += sp;
+//    }
+//
+//    typedef BOOL(WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
+//    LPFN_ISWOW64PROCESS fnIsWow64Process;
+//    BOOL bIsWow64 = FALSE;
+//
+//    fnIsWow64Process = (LPFN_ISWOW64PROCESS)GetProcAddress(
+//        GetModuleHandle(TEXT("kernel32")), "IsWow64Process");
+//
+//    if (NULL != fnIsWow64Process) {
+//        if (!fnIsWow64Process(GetCurrentProcess(), &bIsWow64)) {
+//            //handle error
+//        }
+//    }
+//
+//    if ((bIsWow64 && build_ == "x86") || (build_ == "x64")) {
+//        //64 bit OS and 32 bit built application or 64 bit application
+//        winver += " 64 bit";
+//    }
+//    else if ((!bIsWow64 && build_ == "x86")) {
+//        //32 bit OS and 32 bit built application
+//        winver += " 32 bit";
+//    }
+//
+//    return winver;
+//}
 
 #elif defined(LINUX) || defined(UNIX) 
 string SystemInfo::GetLinuxCpu()
@@ -219,22 +220,22 @@ string SystemInfo::GetLinuxCpu()
     return cpu_name;
 }
 
-string GetLinuxOs()
-{
-    struct utsname unameData;
-    uname(&unameData);
-
-    string bit = unameData.machine;
-
-    if (bit == "x86_64")
-        bit = "64 bit";
-    else if (bit == "i686")
-        bit = "32 bit";
-    else
-        bit = "bit_unknown";
-
-    return string(unameData.sysname) + " " + bit;
-}
+//string GetLinuxOs()
+//{
+//    struct utsname unameData;
+//    uname(&unameData);
+//
+//    string bit = unameData.machine;
+//
+//    if (bit == "x86_64")
+//        bit = "64 bit";
+//    else if (bit == "i686")
+//        bit = "32 bit";
+//    else
+//        bit = "bit_unknown";
+//
+//    return string(unameData.sysname) + " " + bit;
+//}
 #elif defined(APPLE)
 string SystemInfo::GetAppleCpu()
 {
@@ -248,17 +249,19 @@ string SystemInfo::GetAppleCpu()
 
 #endif
 
-void SystemInfo::SetOs()
+void SystemInfo::SetOs(ConfigData& cfg)
 {
-#if defined(WINDOWS)
-    os_ = GetWindowsVersion();
-#elif defined(UNIX) || defined(LINUX)
-    os_ = GetLinuxOs();
-#elif defined(APPLE)
-    os_ = "Mac OSX";
-#else
-    os_ = "os_unknown";
-#endif
+//#if defined(WINDOWS)
+//    os_ = GetWindowsVersion();
+//#elif defined(UNIX) || defined(LINUX)
+//    os_ = GetLinuxOs();
+//#elif defined(APPLE)
+//    os_ = "Mac OSX";
+//#else
+//    os_ = "os_unknown";
+//#endif
+
+    os_ = cfg.yacclab_os;
 }
 
 void SystemInfo::SetCompiler()
@@ -269,7 +272,7 @@ void SystemInfo::SetCompiler()
 #if defined(__clang__)
     /* Clang/LLVM. ---------------------------------------------- */
     compiler_name_ = "Clang";
-    compiler_version_ = string(__clang_major__) + "_" + string(__clang_minor__);
+    compiler_version_ = to_string(__clang_major__) + " " + to_string(__clang_minor__);
 
 #elif defined(__ICC) || defined(__INTEL_COMPILER)
     /* Intel ICC/ICPC. ------------------------------------------ */
@@ -278,13 +281,10 @@ void SystemInfo::SetCompiler()
 
 #elif defined(__GNUC__) || defined(__GNUG__)
     /* GNU GCC/G++. --------------------------------------------- */
-    compiler_name_ = "GCC-G++";
+    compiler_name_ = "GCC";
 
 #ifdef __VERSION__
-
-    compiler_version_ = "_" + string(__VERSION__);
-    replace(compiler_version_.begin(), compiler_version_.end(), ' ', '_');
-
+    compiler_version_ = string(__VERSION__);
 #endif // __VERSION__
 
 #elif defined(__HP_cc) || defined(__HP_aCC)
@@ -297,8 +297,8 @@ void SystemInfo::SetCompiler()
 
 #elif defined(_MSC_VER)
     /* Microsoft Visual Studio. --------------------------------- */
-    compiler_name_ = "MSVC";
-    if (_MSC_VER == 1910) //Visual Studio 2017, MSVC++ 15.0
+    compiler_name_ = "VS";
+    if (_MSC_VER >= 1910) //Visual Studio 2017, MSVC++ 15.0
         compiler_version_ = "15.0";
     else if (_MSC_VER == 1900)
         compiler_version_ = "14.0";
