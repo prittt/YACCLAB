@@ -412,7 +412,7 @@ void YacclabTests::AverageTest()
         }
 
         { // GNUPLOT SCRIPT
-            SystemInfo s_info;
+            SystemInfo s_info(cfg_);
             string compiler_name(s_info.compiler_name());
             string compiler_version(s_info.compiler_version());
             //replace the . with _ for compiler strings
@@ -437,7 +437,7 @@ void YacclabTests::AverageTest()
             script_os << "# " << dataset_name << "(COLORS)" << '\n';
             script_os << "set output \"" + output_graph + "\"" << '\n';
 
-            script_os << "set title " << GetGnuplotTitle() << '\n' << '\n';
+            script_os << "set title " << GetGnuplotTitle(cfg_) << '\n' << '\n';
 
             script_os << "# " << kTerminal << " colors" << '\n';
             script_os << "set terminal " << kTerminal << " enhanced color font ',15'" << '\n' << '\n';
@@ -478,7 +478,7 @@ void YacclabTests::AverageTest()
             script_os << "# " << dataset_name << "(BLACK AND WHITE)" << '\n';
             script_os << "set output \"" + output_graph_bw + "\"" << '\n';
 
-            script_os << "set title " << GetGnuplotTitle() << '\n' << '\n';
+            script_os << "set title " << GetGnuplotTitle(cfg_) << '\n' << '\n';
 
             script_os << "# " << kTerminal << " black and white" << '\n';
             script_os << "set terminal " << kTerminal << " enhanced monochrome dashed font ',15'" << '\n' << '\n';
@@ -670,7 +670,7 @@ void YacclabTests::AverageTestWithSteps()
 
         // GNUPLOT SCRIPT
         {
-            SystemInfo s_info;
+            SystemInfo s_info(cfg_);
             string compiler_name(s_info.compiler_name());
             string compiler_version(s_info.compiler_version());
             //replace the . with _ for compiler strings
@@ -695,7 +695,7 @@ void YacclabTests::AverageTestWithSteps()
             script_os << "# " << dataset_name << "(COLORS)" << '\n';
             script_os << "set output \"" + output_graph + "\"" << '\n';
 
-            script_os << "set title " << GetGnuplotTitle() << '\n' << '\n';
+            script_os << "set title " << GetGnuplotTitle(cfg_) << '\n' << '\n';
 
             script_os << "# " << kTerminal << " colors" << '\n';
             script_os << "set terminal " << kTerminal << " enhanced color font ',15'" << '\n' << '\n';
@@ -759,7 +759,7 @@ void YacclabTests::AverageTestWithSteps()
             script_os << "# " << dataset_name << "(BLACK AND WHITE)" << '\n';
             script_os << "set output \"" + output_graph_bw + "\"" << '\n';
 
-            script_os << "set title " << GetGnuplotTitle() << '\n' << '\n';
+            script_os << "set title " << GetGnuplotTitle(cfg_) << '\n' << '\n';
 
             script_os << "# " << kTerminal << " black and white" << '\n';
             script_os << "set terminal " << kTerminal << " enhanced monochrome dashed font ',15'" << '\n' << '\n';
@@ -1054,7 +1054,7 @@ void YacclabTests::DensityTest()
 
         // GNUPLOT SCRIPT
         {
-            SystemInfo s_info;
+            SystemInfo s_info(cfg_);
             string compiler_name(s_info.compiler_name());
             string compiler_version(s_info.compiler_version());
             //replace the . with _ for compiler strings
@@ -1080,7 +1080,7 @@ void YacclabTests::DensityTest()
             script_os << "# DENSITY GRAPH (COLORS)" << '\n' << '\n';
 
             script_os << "set output \"" + output_density_graph + "\"" << '\n';
-            script_os << "set title " << GetGnuplotTitle() << '\n' << '\n';
+            script_os << "set title " << GetGnuplotTitle(cfg_) << '\n' << '\n';
 
             script_os << "# " << kTerminal << " colors" << '\n';
             script_os << "set terminal " << kTerminal << " enhanced color font ',15'" << '\n' << '\n';
@@ -1121,7 +1121,7 @@ void YacclabTests::DensityTest()
             script_os << "# DENSITY GRAPH (BLACK AND WHITE)" << '\n' << '\n';
 
             script_os << "set output \"" + output_density_bw_graph + "\"" << '\n';
-            script_os << "set title " << GetGnuplotTitle() << '\n' << '\n';
+            script_os << "set title " << GetGnuplotTitle(cfg_) << '\n' << '\n';
 
             script_os << "# " << kTerminal << " black and white" << '\n';
             script_os << "set terminal " << kTerminal << " enhanced monochrome dashed font ',15'" << '\n' << '\n';
@@ -1132,7 +1132,7 @@ void YacclabTests::DensityTest()
             script_os << "# SIZE GRAPH (COLORS)" << '\n' << '\n';
 
             script_os << "set output \"" + output_size_graph + "\"" << '\n';
-            script_os << "set title " << GetGnuplotTitle() << '\n' << '\n';
+            script_os << "set title " << GetGnuplotTitle(cfg_) << '\n' << '\n';
 
             script_os << "# " << kTerminal << " colors" << '\n';
             script_os << "set terminal " << kTerminal << " enhanced color font ',15'" << '\n' << '\n';
@@ -1182,7 +1182,7 @@ void YacclabTests::DensityTest()
             script_os << "# SIZE (BLACK AND WHITE)" << '\n' << '\n';
 
             script_os << "set output \"" + output_size_bw_graph + "\"" << '\n';
-            script_os << "set title " << GetGnuplotTitle() << '\n' << '\n';
+            script_os << "set title " << GetGnuplotTitle(cfg_) << '\n' << '\n';
 
             script_os << "# " << kTerminal << " black and white" << '\n';
             script_os << "set terminal " << kTerminal << " enhanced monochrome dashed font ',15'" << '\n' << '\n';
@@ -1406,7 +1406,7 @@ void YacclabTests::GranularityTest()
 
         // GNUPLOT SCRIPT
         {
-            SystemInfo s_info;
+            SystemInfo s_info(cfg_);
             string compiler_name(s_info.compiler_name());
             string compiler_version(s_info.compiler_version());
             //replace the . with _ for compiler strings
@@ -1428,7 +1428,7 @@ void YacclabTests::GranularityTest()
             script_os << "# GRANULARITY GRAPH (COLORS)" << '\n' << '\n';
 
             script_os << "set output output_file" << '\n';
-            script_os << "set title " << GetGnuplotTitle() << '\n' << '\n';
+            script_os << "set title " << GetGnuplotTitle(cfg_) << '\n' << '\n';
 
             script_os << "# " << kTerminal << " colors" << '\n';
             script_os << "set terminal " << kTerminal << " enhanced color font ',15'" << '\n' << '\n';
@@ -1468,7 +1468,7 @@ void YacclabTests::GranularityTest()
             script_os << "# GRANULARITY GRAPH (BLACK AND WHITE)" << '\n' << '\n';
 
             script_os << "set output 'bw'.output_file" << '\n';
-            script_os << "set title " << GetGnuplotTitle() << '\n' << '\n';
+            script_os << "set title " << GetGnuplotTitle(cfg_) << '\n' << '\n';
 
             script_os << "# " << kTerminal << " black and white" << '\n';
             script_os << "set terminal " << kTerminal << " enhanced monochrome dashed font ',15'" << '\n' << '\n';
@@ -1664,7 +1664,7 @@ void YacclabTests::LatexGenerator()
     }
 
     { // CHARTS SECTION ------------------------------------------------------------------------------------------
-        SystemInfo s_info;
+        SystemInfo s_info(cfg_);
         string info_to_latex = s_info.build() + "_" + s_info.compiler_name() + s_info.compiler_version() + "_" + s_info.os();
         std::replace(info_to_latex.begin(), info_to_latex.end(), ' ', '_');
         info_to_latex = EscapeUnderscore(info_to_latex);
