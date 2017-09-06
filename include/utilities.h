@@ -38,6 +38,8 @@
 extern const std::string kTerminal;
 extern const std::string kTerminalExtension;
 
+extern struct ConfigData cfg;
+
 namespace dmux {
     extern class StreamDemultiplexer cout;
 }
@@ -100,10 +102,9 @@ int RedirectCvError(int status, const char* func_name, const char* err_msg, cons
 
 @return string which represents the title
 */
-std::string GetGnuplotTitle();
+std::string GetGnuplotTitle(ConfigData& cfg);
 
 std::string EscapeUnderscore(const std::string& s);
 std::string DoubleEscapeUnderscore(const std::string& s);
-
 
 #endif // !YACCLAB_UTILITIES_H_
