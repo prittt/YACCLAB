@@ -37,7 +37,6 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 
-#include "file_manager.h"
 #include "progress_bar.h"
 #include "system_info.h"
 
@@ -208,10 +207,11 @@ int RedirectCvError(int status, const char* func_name, const char* err_msg, cons
     return 0;
 }
 
-std::string GetGnuplotTitle()
+std::string GetGnuplotTitle(ConfigData& cfg)
 {
-    SystemInfo s_info;
-    string s = "\"{/:Bold CPU}: " + s_info.cpu() + " {/:Bold BUILD}: " + s_info.build() + " {/:Bold OS}: " + s_info.os() + "\" font ', 11'";
+    SystemInfo s_info(cfg);
+    string s = "\"{/:Bold CPU}: " + s_info.cpu() + " {/:Bold BUILD}: " + s_info.build() + " {/:Bold OS}: " + s_info.os() +
+        " {/:Bold COMPILER}: " + s_info.compiler_name() + " " + s_info.compiler_version() + "\" font ', 9'";
     return s;
 }
 
