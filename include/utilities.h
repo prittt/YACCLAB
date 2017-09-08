@@ -42,7 +42,7 @@ namespace dmux {
     extern class StreamDemultiplexer cout;
 }
 
-// To compare lengths of OpenCV String 
+// To compare lengths of OpenCV String
 bool CompareLengthCvString(cv::String const& lhs, cv::String const& rhs);
 
 // This function is useful to delete eventual carriage return from a string
@@ -75,9 +75,8 @@ void ColorLabels(const cv::Mat1i& img_labels, cv::Mat3b& img_out);
 void NormalizeLabels(cv::Mat1i& img_labels);
 
 // Get binary image given a image's filename;
-bool GetBinaryImage(const std::string& filename, cv::Mat1b& binary_mat);
-bool GetBinaryImage(const filesystem::path& p, cv::Mat1b& binary_mat);
-
+bool GetBinaryImage(const std::string& filename, cv::Mat1b& binary_mat, bool inverted = false);
+bool GetBinaryImage(const filesystem::path& p, cv::Mat1b& binary_mat, bool inverted = false);
 
 // Compare two int matrices element by element
 bool CompareMat(const cv::Mat1i& mat_a, const cv::Mat1i& mat_b);
@@ -104,6 +103,5 @@ std::string GetGnuplotTitle();
 
 std::string EscapeUnderscore(const std::string& s);
 std::string DoubleEscapeUnderscore(const std::string& s);
-
 
 #endif // !YACCLAB_UTILITIES_H_

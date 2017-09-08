@@ -88,7 +88,10 @@ struct ConfigData {
     std::vector<cv::String> density_datasets;     // List of datasets on which density tests will be performed
     std::vector<cv::String> granularity_datasets; // List of datasets on which granularity tests will be performed
     std::vector<cv::String> average_datasets;     // Lists of dataset on which average tests will be performed
-    std::vector<cv::String> average_datasets_ws;  // Lists of dataset on which average tests whit steps will be performed
+    std::vector<cv::String> average_ws_datasets;  // Lists of dataset on which average tests whit steps will be performed
+
+    std::vector<std::pair<cv::String, bool>> real_average_datasets;
+    std::vector<std::pair<cv::String, bool>> real_average_ws_datasets;
 
     std::vector<cv::String> ccl_algorithms;          // Lists of algorithms specified by the user in the config.yaml
     std::vector<cv::String> ccl_existing_algorithms; // Lists of 'ccl_algorithms' actually existing
@@ -96,6 +99,7 @@ struct ConfigData {
     std::vector<cv::String> ccl_mem_algorithms;        // List of algorithms which actually support memory tests
     std::vector<cv::String> ccl_average_algorithms;    // List of algorithms which actually support average tests
     std::vector<cv::String> ccl_average_ws_algorithms; // List of algorithms which actually support average with steps tests
+    std::string yacclab_os = "";
 
     ConfigData(const cv::FileStorage& fs) {
         // Flags to customize output format (false by default)
@@ -165,8 +169,7 @@ struct ConfigData {
         average_datasets             = std::vector<cv::String>(fs["average_datasets"].size());
         cv::read(fs["average_datasets"], average_datasets);
 
-        average_datasets_ws          = std::vector<cv::String>(fs["average_datasets_with_steps"].size());
-        cv::read(fs["average_datasets_with_steps"], average_datasets_ws);
+        cv::read(fs["average_datasets_with_steps"], average_ws_datasets);
 
         ccl_algorithms               = std::vector<cv::String>(fs["algorithms"].size());
         cv::read(fs["algorithms"], ccl_algorithms);

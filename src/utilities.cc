@@ -37,6 +37,7 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 
+#include "config_data.h"
 #include "file_manager.h"
 #include "progress_bar.h"
 #include "system_info.h"
@@ -136,25 +137,31 @@ void NormalizeLabels(Mat1i& img_labels)
     }
 }
 
-bool GetBinaryImage(const string& filename, Mat1b& binary_mat)
+bool GetBinaryImage(const string& filename, Mat1b& binary_mat, bool inverted)
 {
     // Image load
     Mat1b image;
     image = imread(filename, IMREAD_GRAYSCALE);   // Read the file
 
     // Check if image exist
-    if (image.empty())
+    if (image.empty()) {
         return false;
+    }
 
     // Adjust the threshold to make it binary
-    threshold(image, binary_mat, 100, 1, THRESH_BINARY);
+    if (inverted) {
+        threshold(image, binary_mat, 100, 1, THRESH_BINARY_INV);
+    }
+    else {
+        threshold(image, binary_mat, 100, 1, THRESH_BINARY);
+    }
 
     return true;
 }
 
-bool GetBinaryImage(const filesystem::path& p, Mat1b& binary_mat)
+bool GetBinaryImage(const filesystem::path& p, Mat1b& binary_mat, bool inverted)
 {
-    return GetBinaryImage(p.string(), binary_mat);
+    return GetBinaryImage(p.string(), binary_mat, inverted);
 }
 
 bool CompareMat(const Mat1i& mat_a, const Mat1i& mat_b)
@@ -211,7 +218,18 @@ int RedirectCvError(int status, const char* func_name, const char* err_msg, cons
 std::string GetGnuplotTitle()
 {
     SystemInfo s_info;
-    string s = "\"{/:Bold CPU}: " + s_info.cpu() + " {/:Bold BUILD}: " + s_info.build() + " {/:Bold OS}: " + s_info.os() + "\" font ', 11'";
+    FileStorage fs;
+    
+    fs.open("config.yaml", FileStorage::READ);
+    
+    ConfigData cfg(fs);
+    /*string s = "\"{/:Bold CPU}: " + s_info.cpu() + " {/:Bold BUILD}: " + s_info.build() +
+        " {/:Bold OS}: " + s_info.os() + " {/:Bold COMPILER}: " + s_info.compiler_name() +
+        " " + s_info.compiler_version() + "\" font ', 9'";*/
+    string s = "\"{/:Bold CPU}: " + s_info.cpu() + " {/:Bold BUILD}: " + s_info.build() +
+        " {/:Bold OS}: " + cfg.yacclab_os + " {/:Bold COMPILER}: " + s_info.compiler_name() +
+        " " + s_info.compiler_version() + "\" font ', 9'";
+    
     return s;
 }
 
@@ -239,4 +257,30 @@ string DoubleEscapeUnderscore(const string& s)
         found = s_escaped.find_first_of("_", found + 3);
     }
     return s_escaped;
+}
+
+void SetCpuAffinityAndPriority()
+{
+#ifdef WINDOWS
+    // Set priority of process
+    if (!SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS)) {
+        cout << "Error";
+    }
+    SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
+
+    // Set affinity of process to cpus 0 and 1
+    HANDLE process = GetCurrentProcess();
+    DWORD_PTR processAffinityMask = 0b00000011;
+    BOOL success = SetProcessAffinityMask(process, processAffinityMask);
+
+#elif defined(LINUX) || defined(UNIX) || defined(APPLE)
+    // The Linux niceness scale goes from -20 to 19. The lower the number the more priority that task gets.
+    setpriority(PRIO_PROCESS, 0, -20);
+    // Set affinity to cpus 0 and 1
+    cpu_set_t  mask;
+    CPU_ZERO(&mask);
+    CPU_SET(0, &mask);
+    CPU_SET(1, &mask);
+    sched_setaffinity(0, sizeof(mask), &mask);
+#endif
 }
