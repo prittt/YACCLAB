@@ -45,7 +45,7 @@
 using namespace std;
 using namespace cv;
 
-#ifdef APPLE
+#ifdef YACCLAB_APPLE
 const string kTerminal = "postscript";
 const string kTerminalExtension = ".ps";
 #else
@@ -80,13 +80,13 @@ string GetDatetime()
     for (auto& c : buffer)
         c = '\0';
 
-#ifdef WINDOWS
+#ifdef YACCLAB_WINDOWS
 
     struct tm timeinfo;
     localtime_s(&timeinfo, &rawtime);
     strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", &timeinfo);
 
-#elif defined(LINUX) || defined(UNIX) || defined(APPLE)
+#elif defined(YACCLAB_LINUX) || defined(YACCLAB_UNIX) || defined(YACCLAB_APPLE)
 
     struct tm * timeinfo;
     timeinfo = localtime(&rawtime);
@@ -142,7 +142,6 @@ bool GetBinaryImage(const string& filename, Mat1b& binary_mat, bool inverted)
     // Image load
     Mat1b image;
     image = imread(filename, IMREAD_GRAYSCALE);   // Read the file
-
     // Check if image exist
     if (image.empty()) {
         return false;
@@ -155,7 +154,6 @@ bool GetBinaryImage(const string& filename, Mat1b& binary_mat, bool inverted)
     else {
         threshold(image, binary_mat, 100, 1, THRESH_BINARY);
     }
-
     return true;
 }
 
@@ -175,7 +173,7 @@ bool CompareMat(const Mat1i& mat_a, const Mat1i& mat_b)
 
 void HideConsoleCursor()
 {
-#ifdef WINDOWS
+#ifdef YACCLAB_WINDOWS
     HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
 
     CONSOLE_CURSOR_INFO cursor_info;
@@ -184,27 +182,9 @@ void HideConsoleCursor()
     cursor_info.bVisible = false; // set the cursor visibility
     SetConsoleCursorInfo(out, &cursor_info);
 
-#elif defined(LINUX) || defined(LINUX) || defined(APPLE)
+#elif defined(YACCLAB_LINUX) || defined(YACCLAB_LINUX) || defined(YACCLAB_APPLE)
     system("setterm -cursor off");
 #endif
-    return;
-}
-
-#define CONSOLE_WIDTH 80
-
-void cerror(const string& err)
-{
-    string status_msg = "ERROR: [";
-    size_t num_spaces = max(0, int(CONSOLE_WIDTH - (status_msg.size() + err.size()) + 1) % CONSOLE_WIDTH); // 70 = output console dimension - "[ERROR]: " dimension
-    cerr << status_msg << err << "]" << string(num_spaces, ' ') << endl;
-    return;
-}
-
-void cmessage(const string& msg)
-{
-    string status_msg = "MSG: [";
-    size_t num_spaces = max(0, int(CONSOLE_WIDTH - (status_msg.size() + msg.size()) + 1) % CONSOLE_WIDTH); // 70 = output console dimension - "[ERROR]: " dimension
-    cerr << status_msg << msg << "]" << string(num_spaces, ' ') << endl;
     return;
 }
 
@@ -247,30 +227,4 @@ string DoubleEscapeUnderscore(const string& s)
         found = s_escaped.find_first_of("_", found + 3);
     }
     return s_escaped;
-}
-
-void SetCpuAffinityAndPriority()
-{
-#ifdef WINDOWS
-    // Set priority of process
-    if (!SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS)) {
-        cout << "Error";
-    }
-    SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
-
-    // Set affinity of process to cpus 0 and 1
-    HANDLE process = GetCurrentProcess();
-    DWORD_PTR processAffinityMask = 0b00000011;
-    BOOL success = SetProcessAffinityMask(process, processAffinityMask);
-
-#elif defined(LINUX) || defined(UNIX) || defined(APPLE)
-    // The Linux niceness scale goes from -20 to 19. The lower the number the more priority that task gets.
-    setpriority(PRIO_PROCESS, 0, -20);
-    // Set affinity to cpus 0 and 1
-    cpu_set_t  mask;
-    CPU_ZERO(&mask);
-    CPU_SET(0, &mask);
-    CPU_SET(1, &mask);
-    sched_setaffinity(0, sizeof(mask), &mask);
-#endif
 }
