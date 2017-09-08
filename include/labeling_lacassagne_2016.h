@@ -40,6 +40,34 @@
 using namespace std;
 using namespace cv;
 
+struct Table2D {
+    unsigned **prows = nullptr;
+
+    Table2D() {}
+    Table2D(const Table2D&) = delete;
+    Table2D& operator=(const Table2D&) = delete;
+    Table2D(size_t rows, size_t cols) { Reserve(rows, cols); }
+    ~Table2D() { Release(); }
+
+    void Reserve(size_t rows, size_t cols) {
+        prows = new unsigned*[rows];
+        *prows = new unsigned[rows*cols];
+        unsigned *currow = *prows;
+        for (size_t i = 1; i < rows; ++i) {
+            currow += cols;
+            prows[i] = currow;
+        }
+    }
+
+    void Release() {
+        if (prows) {
+            delete[] *prows;
+            delete[] prows;
+            prows = nullptr;
+        }
+    }
+};
+
 // Modifications for RLE version
 #define RLE_MOD1 //if (f) 
 #define RLE_MOD2 f

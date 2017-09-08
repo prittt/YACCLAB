@@ -4,58 +4,66 @@ public:
         int cols = img_.cols;
 
         // Step 1
-        Mat1i ER(rows, cols);   // Matrix of relative label (1 label/pixel) 
-        Mat1i RLC(rows, (cols + 1) & ~1); // MISSING in the paper: RLC requires 2 values/run in row, so width must be next multiple of 2
+        Table2D ER(rows, cols);   // Matrix of relative label (1 label/pixel) 
+
+        // Notes on the RLC table:
+        // 1) rows: +1 in order to handle compact usage of RLC table without if statements,
+        // 2) columns: MISSING in the paper, RLC requires 2 values/run in row, so width must be next multiple of 2.
+        Table2D RLC(rows + 1, (cols + 1) & ~1);
+
         int *ner = new int[rows]; //vector<int> ner(rows); // Number of runs 
 
         for (int r = 0; r < rows; ++r) {
             // Get pointers to rows
             const unsigned char* img_r = img_.ptr<unsigned char>(r);
-            unsigned* ER_r = ER.ptr<unsigned>(r);
-            unsigned* RLC_r = RLC.ptr<unsigned>(r);
+            unsigned* ER_r = ER.prows[r];
+            unsigned* RLC_r = RLC.prows[r];
             int x0;
             int x1 = 0; // Previous value of X
             int f = 0;  // Front detection
             ZOA_MOD0
-            int er = 0;
+                int er = 0;
             for (int c = 0; c < cols; ++c) {
                 x0 = img_r[c] > 0;
                 f = x0 ^ x1;
-				RLE_MOD1 {
-					RLC_r[er] = c ZOA_MOD1;
-					ZOA_MOD2
-					er = er + RLE_MOD2;
-				}
+                RLE_MOD1{
+                    RLC_r[er] = c ZOA_MOD1;
+                    ZOA_MOD2
+                        er = er + RLE_MOD2;
+                }
                 ER_r[c] = er;
                 x1 = x0;
             }
             ZOA_MOD3
-            RLC_r[er] = cols ZOA_MOD1;
+                RLC_r[er] = cols ZOA_MOD1;
             ZOA_MOD4
-            ner[r] = er;
+                ner[r] = er;
+            // Compact RLC usage
+            RLC.prows[r + 1] = RLC_r + er + 1;
         }
 
         // Step 2
-        Mat1i ERA(rows, cols + 1, 0); // MISSING in the paper: ERA must have one column more than the input image 
-                                   // in order to handle special cases (e.g. lines with chessboard pattern 
-                                   // starting with a foreground pixel) 
+        Table2D ERA(rows, cols + 1); // MISSING in the paper: ERA must have one column more than the input image 
+        // in order to handle special cases (e.g. lines with chessboard pattern 
+        // starting with a foreground pixel) 
+        memset(ERA.prows[0], 0, rows * (cols + 1) * sizeof(unsigned));
 
         LabelsSolver::Alloc(UPPER_BOUND_8_CONNECTIVITY);
         LabelsSolver::Setup();
 
         // First row
         {
-            unsigned* ERA_r = ERA.ptr<unsigned>(0);
+            unsigned* ERA_r = ERA.prows[0];
             for (int er = 1; er <= ner[0]; er += 2) {
                 ERA_r[er] = LabelsSolver::NewLabel();
             }
         }
         for (int r = 1; r < rows; ++r) {
             // Get pointers to rows
-            unsigned* ERA_r = ERA.ptr<unsigned>(r);
-            const unsigned* ERA_r_prev = (unsigned *)(((char *)ERA_r) - ERA.step.p[0]);
-            const unsigned* ER_r_prev = ER.ptr<unsigned>(r - 1);
-            const unsigned* RLC_r = RLC.ptr<unsigned>(r);
+            unsigned* ERA_r = ERA.prows[r];
+            const unsigned* ERA_r_prev = ERA.prows[r - 1];
+            const unsigned* ER_r_prev = ER.prows[r - 1];
+            const unsigned* RLC_r = RLC.prows[r];
             for (int er = 1; er <= ner[r]; er += 2) {
                 int j0 = RLC_r[er - 1];
                 int j1 = RLC_r[er] ZOA_MOD5;
@@ -111,8 +119,8 @@ public:
         {
             // Get pointers to rows
             unsigned* labels_r = img_labels_.ptr<unsigned>(r);
-            const unsigned* ERA_r = ERA.ptr<unsigned>(r);
-            const unsigned* ER_r = ER.ptr<unsigned>(r);
+            const unsigned* ERA_r = ERA.prows[r];
+            const unsigned* ER_r = ER.prows[r];
             for (int c = 0; c < cols; ++c)
             {
                 //labels(r, c) = A[EA(r, c)];
@@ -165,24 +173,24 @@ public:
             {
                 x0 = img(r, c) > 0;
                 f = x0 ^ x1;
-				RLE_MOD1 {
-					RLC(r, er) = c ZOA_MOD1;
-					ZOA_MOD2
-					er = er + RLE_MOD2;
-				}
+                RLE_MOD1{
+                    RLC(r, er) = c ZOA_MOD1;
+                    ZOA_MOD2
+                        er = er + RLE_MOD2;
+                }
                 ER(r, c) = er;
                 x1 = x0;
             }
             ZOA_MOD3
-			RLC(r, er) = cols ZOA_MOD1;
+                RLC(r, er) = cols ZOA_MOD1;
             ZOA_MOD4
-            ner[r] = er;
+                ner[r] = er;
         }
 
         // Step 2
         MemMat<int> ERA(rows, cols + 1, 0); // MISSING in the paper: ERA must have one column more than the input image 
-                                         // in order to handle special cases (e.g. lines with chessboard pattern 
-                                         // starting with a foreground pixel) 
+        // in order to handle special cases (e.g. lines with chessboard pattern 
+        // starting with a foreground pixel) 
 
         LabelsSolver::MemAlloc(UPPER_BOUND_8_CONNECTIVITY);
         LabelsSolver::MemSetup();
@@ -263,7 +271,7 @@ public:
 
 private:
     int *ner;
-    Mat1i ER, RLC, ERA;
+    Table2D ER, RLC, ERA;
 
     double Alloc()
     {
@@ -276,27 +284,32 @@ private:
         int rows = img_.rows;
         int cols = img_.cols;
 
-        ER = Mat1i(rows, cols); // Matrix of relative label (1 label/pixel) 
-        RLC = Mat1i(rows, (cols + 1) & ~1); // MISSING in the paper: RLC requires 2 values/run in row, so width must be next multiple of 2
+        ER.Reserve(rows, cols); // Matrix of relative label (1 label/pixel)
+
+        // Notes on the RLC table:
+        // 1) rows: +1 in order to handle compact usage of RLC table without if statements,
+        // 2) columns: MISSING in the paper, RLC requires 2 values/run in row, so width must be next multiple of 2.
+        RLC.Reserve(rows + 1, (cols + 1) & ~1);
+
         ner = new int[rows]; //vector<int> ner(rows); // Number of runs 
 
-        ERA = Mat1i(rows, cols + 1); // MISSING in the paper: ERA must have one column more than the input image 
-                                // in order to handle special cases (e.g. lines with chessboard pattern 
-                                // starting with a foreground pixel) 
+        ERA.Reserve(rows, cols + 1); // MISSING in the paper: ERA must have one column more than the input image 
+        // in order to handle special cases (e.g. lines with chessboard pattern 
+        // starting with a foreground pixel) 
 
         memset(img_labels_.data, 0, img_labels_.dataend - img_labels_.datastart);
-        memset(ER.data, 0, ER.dataend - ER.datastart);
-        memset(RLC.data, 0, RLC.dataend - RLC.datastart);
+        memset(*ER.prows, 0, rows*cols * sizeof(unsigned));
+        memset(*RLC.prows, 0, (rows + 1)*((cols + 1) & ~1) * sizeof(unsigned));
         memset(ner, 0, rows*sizeof(int));
-        memset(ERA.data, 0, ERA.dataend - ERA.datastart);
+        memset(*ERA.prows, 0, rows*(cols + 1) * sizeof(unsigned));
         perf_.stop();
         double t = perf_.last();
         perf_.start();
         memset(img_labels_.data, 0, img_labels_.dataend - img_labels_.datastart);
-        memset(ER.data, 0, ER.dataend - ER.datastart);
-        memset(RLC.data, 0, RLC.dataend - RLC.datastart);
+        memset(*ER.prows, 0, rows*cols * sizeof(unsigned));
+        memset(*RLC.prows, 0, (rows + 1)*((cols + 1) & ~1) * sizeof(unsigned));
         memset(ner, 0, rows*sizeof(int));
-        memset(ERA.data, 0, ERA.dataend - ERA.datastart);
+        memset(*ERA.prows, 0, rows*(cols + 1) * sizeof(unsigned));
         perf_.stop();
         double ma_t = t - perf_.last();
 
@@ -305,11 +318,11 @@ private:
     }
 
     void Dealloc() {
-        ERA.release();
+        ERA.Release();
 
         delete[] ner;
-        RLC.release();
-        ER.release();
+        RLC.Release();
+        ER.Release();
 
         // No free for img_labels_ because it is required at the end of the algorithm 
         LabelsSolver::Dealloc();
@@ -323,8 +336,8 @@ private:
         for (int r = 0; r < rows; ++r) {
             // Get pointers to rows
             const unsigned char* img_r = img_.ptr<unsigned char>(r);
-            unsigned* ER_r = ER.ptr<unsigned>(r);
-            unsigned* RLC_r = RLC.ptr<unsigned>(r);
+            unsigned* ER_r = ER.prows[r];
+            unsigned* RLC_r = RLC.prows[r];
             int x0;
             int x1 = 0; // Previous value of X
             int f = 0;  // Front detection
@@ -333,39 +346,40 @@ private:
             for (int c = 0; c < cols; ++c) {
                 x0 = img_r[c] > 0;
                 f = x0 ^ x1;
-				RLE_MOD1 {
-					RLC_r[er] = c ZOA_MOD1;
-					ZOA_MOD2
-					er = er + RLE_MOD2;
-				}
+                RLE_MOD1{
+                    RLC_r[er] = c ZOA_MOD1;
+                    ZOA_MOD2
+                        er = er + RLE_MOD2;
+                }
                 ER_r[c] = er;
                 x1 = x0;
             }
             ZOA_MOD3
-            RLC_r[er] = cols ZOA_MOD1;
+                RLC_r[er] = cols ZOA_MOD1;
             ZOA_MOD4
-            ner[r] = er;
+                ner[r] = er;
+            // Compact RLC usage
+            RLC.prows[r + 1] = RLC_r + er + 1;
         }
 
         // Step 2
         LabelsSolver::Setup();
 
-		memset(ERA.data, 0, ERA.dataend - ERA.datastart);
+        memset(ERA.prows[0], 0, rows * (cols + 1) * sizeof(unsigned));
 
         // First row
         {
-            unsigned* ERA_r = ERA.ptr<unsigned>(0);
+            unsigned* ERA_r = ERA.prows[0];
             for (int er = 1; er <= ner[0]; er += 2) {
                 ERA_r[er] = LabelsSolver::NewLabel();
             }
         }
-        for (int r = 1; r < rows; ++r)
-        {
+        for (int r = 1; r < rows; ++r) {
             // Get pointers to rows
-            unsigned* ERA_r = ERA.ptr<unsigned>(r);
-            const unsigned* ERA_r_prev = (unsigned *)(((char *)ERA_r) - ERA.step.p[0]);
-            const unsigned* ER_r_prev = ER.ptr<unsigned>(r - 1);
-            const unsigned* RLC_r = RLC.ptr<unsigned>(r);
+            unsigned* ERA_r = ERA.prows[r];
+            const unsigned* ERA_r_prev = ERA.prows[r - 1];
+            const unsigned* ER_r_prev = ER.prows[r - 1];
+            const unsigned* RLC_r = RLC.prows[r];
             for (int er = 1; er <= ner[r]; er += 2) {
                 int j0 = RLC_r[er - 1];
                 int j1 = RLC_r[er] ZOA_MOD5;
@@ -390,16 +404,14 @@ private:
                         // Min extraction and propagation
                         if (a < ak)
                             LabelsSolver::UpdateTable(ak, a);
-                        if (a > ak)
-                        {
+                        if (a > ak) {
                             LabelsSolver::UpdateTable(a, ak);
                             a = ak;
                         }
                     }
                     ERA_r[er] = a; // The global min
                 }
-                else
-                {
+                else {
                     ERA_r[er] = LabelsSolver::NewLabel();
                 }
             }
@@ -417,8 +429,8 @@ private:
         {
             // Get pointers to rows
             unsigned* labels_r = img_labels_.ptr<unsigned>(r);
-            const unsigned* ERA_r = ERA.ptr<unsigned>(r);
-            const unsigned* ER_r = ER.ptr<unsigned>(r);
+            const unsigned* ERA_r = ERA.prows[r];
+            const unsigned* ER_r = ER.prows[r];
             for (int c = 0; c < img_.cols; ++c)
             {
                 //labels(r, c) = A[EA(r, c)];
