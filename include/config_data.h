@@ -133,9 +133,9 @@ struct ConfigData {
         input_txt                    = "files.txt";
         gnuplot_script_extension     = ".gnuplot";
         system_script_extension      =
-#ifdef WINDOWS
+#ifdef YACCLAB_WINDOWS
             ".bat";
-#elif defined(LINUX) || defined(UNIX) || defined(APPLE)
+#elif defined(YACCLAB_LINUX) || defined(YACCLAB_UNIX) || defined(YACCLAB_APPLE)
             ".sh";
 #endif
         colors_folder                = "colors";

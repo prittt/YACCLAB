@@ -40,7 +40,7 @@
 using namespace std;
 
 const char filesystem::path::separator_ =
-#ifdef WINDOWS
+#ifdef YACCLAB_WINDOWS
 '\\';
 #else
 '/';
@@ -73,7 +73,7 @@ bool filesystem::create_directories(const path& p)
 {
     string s(p.string());
     string parameters = "";
-#if defined(UNIX) || defined(LINUX) || defined(APPLE)
+#if defined(YACCLAB_UNIX) || defined(YACCLAB_LINUX) || defined(YACCLAB_APPLE)
     // make it recursive by adding "-p" suffix
     parameters = "-p";
 #endif
@@ -94,9 +94,9 @@ bool filesystem::create_directories(const path& p, error_code& ec)
 
 void filesystem::path::NormalizePath()
 {
-#if defined(UNIX) || defined(LINUX) || defined(APPLE)
+#if defined(YACCLAB_UNIX) || defined(YACCLAB_LINUX) || defined(YACCLAB_APPLE)
     std::replace(path_.begin(), path_.end(), '\\', '/');
-#elif defined(WINDOWS)
+#elif defined(YACCLAB_WINDOWS)
     std::replace(path_.begin(), path_.end(), '/', '\\');
 #endif
 

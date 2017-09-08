@@ -1368,9 +1368,9 @@ void YacclabTests::GranularityTest()
 
         // Write into the main script
         main_script_os <<
-#ifdef WINDOWS
+#ifdef YACCLAB_WINDOWS
             "@echo off";
-#elif defined(LINUX) || defined(UNIX) || defined(APPLE)
+#elif defined(YACCLAB_LINUX) || defined(YACCLAB_UNIX) || defined(YACCLAB_APPLE)
             "#!/bin/sh";
 #endif
         main_script_os << '\n';
@@ -1484,7 +1484,7 @@ void YacclabTests::GranularityTest()
             // GNUPLOT SCRIPT
         }
         string command = "";
-#if defined(LINUX) || defined(UNIX) || defined(APPLE)
+#if defined(YACCLAB_LINUX) || defined(YACCLAB_UNIX) || defined(YACCLAB_APPLE)
         command += "sh ";
 #endif
 

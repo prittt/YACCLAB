@@ -86,7 +86,6 @@ bool CompareMat(const cv::Mat1i& mat_a, const cv::Mat1i& mat_b);
 /*@brief Read bool from YAML configuration file
 
 @param[in] node_list FileNode that contain bool data_
-
 @return bool value of field in node_list
 */
 //bool ReadBool(const cv::FileNode& node_list);
@@ -98,7 +97,6 @@ int RedirectCvError(int status, const char* func_name, const char* err_msg, cons
 
 /*
 @brief Return the string title to insert in gnuplot charts
-
 @return string which represents the title
 */
 std::string GetGnuplotTitle(ConfigData& cfg);
