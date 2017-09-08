@@ -88,7 +88,10 @@ struct ConfigData {
     std::vector<cv::String> density_datasets;     // List of datasets on which density tests will be performed
     std::vector<cv::String> granularity_datasets; // List of datasets on which granularity tests will be performed
     std::vector<cv::String> average_datasets;     // Lists of dataset on which average tests will be performed
-    std::vector<cv::String> average_datasets_ws;  // Lists of dataset on which average tests whit steps will be performed
+    std::vector<cv::String> average_ws_datasets;  // Lists of dataset on which average tests whit steps will be performed
+
+    std::vector<std::pair<cv::String, bool>> real_average_datasets;
+    std::vector<std::pair<cv::String, bool>> real_average_ws_datasets;
 
     std::vector<cv::String> ccl_algorithms;          // Lists of algorithms specified by the user in the config.yaml
     std::vector<cv::String> ccl_existing_algorithms; // Lists of 'ccl_algorithms' actually existing
@@ -130,9 +133,9 @@ struct ConfigData {
         input_txt                    = "files.txt";
         gnuplot_script_extension     = ".gnuplot";
         system_script_extension      =
-#ifdef WINDOWS
+#ifdef YACCLAB_WINDOWS
             ".bat";
-#elif defined(LINUX) || defined(UNIX) || defined(APPLE)
+#elif defined(YACCLAB_LINUX) || defined(YACCLAB_UNIX) || defined(YACCLAB_APPLE)
             ".sh";
 #endif
         colors_folder                = "colors";
@@ -155,7 +158,7 @@ struct ConfigData {
         density_datasets             = { "test_random" };
         cv::read(fs["check_datasets"], check_datasets);
         cv::read(fs["average_datasets"], average_datasets);
-        cv::read(fs["average_datasets_with_steps"], average_datasets_ws);
+        cv::read(fs["average_datasets_with_steps"], average_ws_datasets);
         cv::read(fs["memory_datasets"], memory_datasets);
         cv::read(fs["granularity_datasets"], granularity_datasets);
         cv::read(fs["algorithms"], ccl_algorithms);

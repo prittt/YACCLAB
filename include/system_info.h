@@ -44,17 +44,17 @@
 #include <WINDOWS.h>
 #include <lm.h>
 #pragma comment(lib, "netapi32.lib")
-#define WINDOWS
+#define YACCLAB_WINDOWS
 #elif  __gnu_linux__ || __linux__
-#define LINUX
+#define YACCLAB_LINUX
 #include <sys/utsname.h>
 #elif  __unix || __unix__
-#define UNIX
+#define YACCLAB_UNIX
 #include <sys/utsname.h>
 #elif __APPLE__ || __MACH__ || macintosh || Macintosh || (__APPLE__ && __MACH__)
 #include <sys/types.h>
 #include <sys/sysctl.h>
-#define APPLE
+#define YACCLAB_APPLE
 #endif
 
 extern struct ConfigData cfg;
@@ -67,7 +67,14 @@ brand name, the OS used, and the architecture employed.
 */
 class SystemInfo {
 public:
-    SystemInfo(ConfigData& cfg);
+    SystemInfo(ConfigData& cfg)
+    {
+        SetBuild();
+        SetCpuBrand();
+        SetOs(cfg);
+        SetOsBit();
+        SetCompiler();
+    }
 
     // Return the brand and model of the CPU used
     std::string cpu() { return cpu_; }
@@ -76,7 +83,7 @@ public:
     std::string build() { return build_; }
 
     // Return the Operating System used
-    std::string os() { return os_; }
+    std::string os() { return os_ + " " + os_bit_; }
 
     // Return the compiler_ used (name and version)
     std::string compiler_name() { return compiler_name_; }
@@ -86,25 +93,15 @@ private:
     std::string cpu_;
     std::string build_;
     std::string os_;
+    std::string os_bit_;
     std::string compiler_name_;
     std::string compiler_version_;
 
     void SetCpuBrand();
     void SetBuild();
     void SetOs(ConfigData& cfg);
+    void SetOsBit();
     void SetCompiler();
-
-#if  defined(WINDOWS)
-    std::string GetWindowsCpu();
-
-    //bool GetWinMajorMinorVersion(DWORD& major, DWORD& minor);
-
-    //std::string GetWindowsVersion();
-#elif defined(LINUX) || defined(UNIX)
-    std::string GetLinuxCpu();
-#elif defined(APPLE)
-    std::string GetAppleCpu();
-#endif
 };
 
 #endif // !YACCLAB_SYSTEM_INFO_H_

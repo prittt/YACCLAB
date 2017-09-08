@@ -37,13 +37,15 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 
+#include "config_data.h"
+#include "file_manager.h"
 #include "progress_bar.h"
 #include "system_info.h"
 
 using namespace std;
 using namespace cv;
 
-#ifdef APPLE
+#ifdef YACCLAB_APPLE
 const string kTerminal = "postscript";
 const string kTerminalExtension = ".ps";
 #else
@@ -78,13 +80,13 @@ string GetDatetime()
     for (auto& c : buffer)
         c = '\0';
 
-#ifdef WINDOWS
+#ifdef YACCLAB_WINDOWS
 
     struct tm timeinfo;
     localtime_s(&timeinfo, &rawtime);
     strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", &timeinfo);
 
-#elif defined(LINUX) || defined(UNIX) || defined(APPLE)
+#elif defined(YACCLAB_LINUX) || defined(YACCLAB_UNIX) || defined(YACCLAB_APPLE)
 
     struct tm * timeinfo;
     timeinfo = localtime(&rawtime);
@@ -135,25 +137,29 @@ void NormalizeLabels(Mat1i& img_labels)
     }
 }
 
-bool GetBinaryImage(const string& filename, Mat1b& binary_mat)
+bool GetBinaryImage(const string& filename, Mat1b& binary_mat, bool inverted)
 {
     // Image load
     Mat1b image;
     image = imread(filename, IMREAD_GRAYSCALE);   // Read the file
-
     // Check if image exist
-    if (image.empty())
+    if (image.empty()) {
         return false;
+    }
 
     // Adjust the threshold to make it binary
-    threshold(image, binary_mat, 100, 1, THRESH_BINARY);
-
+    if (inverted) {
+        threshold(image, binary_mat, 100, 1, THRESH_BINARY_INV);
+    }
+    else {
+        threshold(image, binary_mat, 100, 1, THRESH_BINARY);
+    }
     return true;
 }
 
-bool GetBinaryImage(const filesystem::path& p, Mat1b& binary_mat)
+bool GetBinaryImage(const filesystem::path& p, Mat1b& binary_mat, bool inverted)
 {
-    return GetBinaryImage(p.string(), binary_mat);
+    return GetBinaryImage(p.string(), binary_mat, inverted);
 }
 
 bool CompareMat(const Mat1i& mat_a, const Mat1i& mat_b)
@@ -167,7 +173,7 @@ bool CompareMat(const Mat1i& mat_a, const Mat1i& mat_b)
 
 void HideConsoleCursor()
 {
-#ifdef WINDOWS
+#ifdef YACCLAB_WINDOWS
     HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
 
     CONSOLE_CURSOR_INFO cursor_info;
@@ -176,27 +182,9 @@ void HideConsoleCursor()
     cursor_info.bVisible = false; // set the cursor visibility
     SetConsoleCursorInfo(out, &cursor_info);
 
-#elif defined(LINUX) || defined(LINUX) || defined(APPLE)
+#elif defined(YACCLAB_LINUX) || defined(YACCLAB_LINUX) || defined(YACCLAB_APPLE)
     system("setterm -cursor off");
 #endif
-    return;
-}
-
-#define CONSOLE_WIDTH 80
-
-void cerror(const string& err)
-{
-    string status_msg = "ERROR: [";
-    size_t num_spaces = max(0, int(CONSOLE_WIDTH - (status_msg.size() + err.size()) + 1) % CONSOLE_WIDTH); // 70 = output console dimension - "[ERROR]: " dimension
-    cerr << status_msg << err << "]" << string(num_spaces, ' ') << endl;
-    return;
-}
-
-void cmessage(const string& msg)
-{
-    string status_msg = "MSG: [";
-    size_t num_spaces = max(0, int(CONSOLE_WIDTH - (status_msg.size() + msg.size()) + 1) % CONSOLE_WIDTH); // 70 = output console dimension - "[ERROR]: " dimension
-    cerr << status_msg << msg << "]" << string(num_spaces, ' ') << endl;
     return;
 }
 

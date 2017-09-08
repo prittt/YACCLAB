@@ -236,17 +236,19 @@ void YacclabTests::AverageTest()
         average_results_suffix = "_average.txt";
 
     // Initialize results container
-    average_results_ = cv::Mat1d(cfg_.average_datasets.size(), cfg_.ccl_average_algorithms.size(), std::numeric_limits<double>::max());
+    average_results_ = cv::Mat1d(cfg_.real_average_datasets.size(), cfg_.ccl_average_algorithms.size(), std::numeric_limits<double>::max());
 
-    for (unsigned d = 0; d < cfg_.average_datasets.size(); ++d) { // For every dataset in the average list
-        String dataset_name(cfg_.average_datasets[d]),
+    for (unsigned d = 0; d < cfg_.real_average_datasets.size(); ++d) { // For every dataset in the average list
+        bool dataset_is_inverted(cfg_.real_average_datasets[d].second);
+
+        String dataset_name(cfg_.real_average_datasets[d].first),
             output_average_results = dataset_name + average_results_suffix,
             output_graph = dataset_name + kTerminalExtension,
             output_graph_bw = dataset_name + "_bw" + kTerminalExtension;
 
         path dataset_path(cfg_.input_path / path(dataset_name)),
             is_path = dataset_path / path(cfg_.input_txt), // files.txt path
-            current_output_path(cfg_.output_path / path(cfg_.average_folder) / path(dataset_name)),
+            current_output_path(cfg_.output_path / path(cfg_.average_folder) / path(dataset_name + (dataset_is_inverted ? "_inverted" : ""))),
             output_broad_path = current_output_path / path(dataset_name + complete_results_suffix),
             output_colored_images_path = current_output_path / path(cfg_.colors_folder),
             output_middle_results_path = current_output_path / path(cfg_.middle_folder),
@@ -293,7 +295,7 @@ void YacclabTests::AverageTest()
         vector<pair<double, uint16_t>> supp_average(cfg_.ccl_average_algorithms.size(), make_pair(0.0, 0));
 
         // Start output message box
-        ob.StartRepeatedBox(dataset_name, filenames_size, cfg_.average_tests_number);
+        ob.StartRepeatedBox(dataset_name + (dataset_is_inverted ? "_inverted" : ""), filenames_size, cfg_.average_tests_number);
 
         map<String, size_t> algo_pos;
         for (size_t i = 0; i < cfg_.ccl_average_algorithms.size(); ++i)
@@ -311,7 +313,7 @@ void YacclabTests::AverageTest()
                 path filename_path = dataset_path / path(filename);
 
                 // Read and load image
-                if (!GetBinaryImage(filename_path, Labeling::img_)) {
+                if (!GetBinaryImage(filename_path, Labeling::img_, dataset_is_inverted)) {
                     ob.Cmessage("Unable to open '" + filename + "'");
                     continue;
                 }
@@ -508,8 +510,10 @@ void YacclabTests::AverageTestWithSteps()
         average_results_suffix = "_average.txt",
         average_results_rounded_suffix = "_average_rounded.txt";
 
-    for (unsigned d = 0; d < cfg_.average_datasets_ws.size(); ++d) { // For every dataset in the average list
-        String dataset_name(cfg_.average_datasets_ws[d]),
+    for (unsigned d = 0; d < cfg_.real_average_ws_datasets.size(); ++d) { // For every dataset in the average list
+        bool dataset_is_inverted(cfg_.real_average_ws_datasets[d].second);
+        
+        String dataset_name(cfg_.real_average_ws_datasets[d].first),
             output_average_results = dataset_name + average_results_suffix,
             output_average_results_rounded = dataset_name + average_results_rounded_suffix,
             output_graph = dataset_name + kTerminalExtension,
@@ -517,7 +521,7 @@ void YacclabTests::AverageTestWithSteps()
 
         path dataset_path(cfg_.input_path / path(dataset_name)),
             is_path = dataset_path / path(cfg_.input_txt), // files.txt path
-            current_output_path(cfg_.output_path / path(cfg_.average_ws_folder) / path(dataset_name)),
+            current_output_path(cfg_.output_path / path(cfg_.average_ws_folder) / path(dataset_name + (dataset_is_inverted ? "_inverted" : ""))),
             output_broad_path = current_output_path / path(dataset_name + complete_results_suffix),
             output_middle_results_path = current_output_path / path(cfg_.middle_folder),
             average_os_path = current_output_path / path(output_average_results),
@@ -557,7 +561,7 @@ void YacclabTests::AverageTestWithSteps()
         }
 
         // Start output message box
-        ob.StartRepeatedBox(dataset_name, filenames_size, cfg_.average_ws_tests_number);
+        ob.StartRepeatedBox(dataset_name + (dataset_is_inverted ? "_inverted" : ""), filenames_size, cfg_.average_ws_tests_number);
 
         map<String, size_t> algo_pos;
         for (size_t i = 0; i < cfg_.ccl_average_ws_algorithms.size(); ++i)
@@ -1364,9 +1368,9 @@ void YacclabTests::GranularityTest()
 
         // Write into the main script
         main_script_os <<
-#ifdef WINDOWS
+#ifdef YACCLAB_WINDOWS
             "@echo off";
-#elif defined(LINUX) || defined(UNIX) || defined(APPLE)
+#elif defined(YACCLAB_LINUX) || defined(YACCLAB_UNIX) || defined(YACCLAB_APPLE)
             "#!/bin/sh";
 #endif
         main_script_os << '\n';
@@ -1480,7 +1484,7 @@ void YacclabTests::GranularityTest()
             // GNUPLOT SCRIPT
         }
         string command = "";
-#if defined(LINUX) || defined(UNIX) || defined(APPLE)
+#if defined(YACCLAB_LINUX) || defined(YACCLAB_UNIX) || defined(YACCLAB_APPLE)
         command += "sh ";
 #endif
 
@@ -1649,8 +1653,8 @@ void YacclabTests::LatexGenerator()
         }
         os << "\\\\" << '\n';
         os << "\t\\hline" << '\n';
-        for (unsigned i = 0; i < cfg_.average_datasets.size(); ++i) {
-            os << "\t" << cfg_.average_datasets[i];
+        for (unsigned i = 0; i < cfg_.real_average_datasets.size(); ++i) {
+            os << "\t" << cfg_.real_average_datasets[i].first;
             for (int j = 0; j < average_results_.cols; ++j) {
                 os << " & ";
                 if (average_results_(i, j) != numeric_limits<double>::max())
@@ -1689,11 +1693,11 @@ void YacclabTests::LatexGenerator()
             os << "\t\\newcommand{\\compilerName}{" + compiler_name + compiler_version + "}" << '\n';
             os << "\t\\centering" << '\n';
 
-            for (unsigned i = 0; i < cfg_.average_datasets.size(); ++i) {
+            for (unsigned i = 0; i < cfg_.real_average_datasets.size(); ++i) {
                 os << "\t\\begin{subfigure}[tbh]{" + chart_size + "\\textwidth}" << '\n';
-                os << "\t\t\\caption{" << cfg_.average_datasets[i] + "}" << '\n';
+                os << "\t\t\\caption{" << cfg_.real_average_datasets[i].first + "}" << '\n';
                 os << "\t\t\\centering" << '\n';
-                os << "\t\t\\includegraphics[width=" + chart_width + "\\textwidth]{\\compilerName_" + cfg_.average_datasets[i] + ".pdf}" << '\n';
+                os << "\t\t\\includegraphics[width=" + chart_width + "\\textwidth]{\\compilerName_" + cfg_.real_average_datasets[i].first + ".pdf}" << '\n';
                 os << "\t\\end{subfigure}" << '\n' << '\n';
             }
             os << "\t\\caption{\\machineName \\enspace " + datetime + "}" << '\n' << '\n';
@@ -1712,11 +1716,11 @@ void YacclabTests::LatexGenerator()
             // \newcommand{\compilerName}{MSVC15_0}
             os << "\t\\newcommand{\\compilerName}{" + compiler_name + compiler_version + "}" << '\n';
             os << "\t\\centering" << '\n';
-            for (unsigned i = 0; i < cfg_.average_datasets_ws.size(); ++i) {
+            for (unsigned i = 0; i < cfg_.real_average_ws_datasets.size(); ++i) {
                 os << "\t\\begin{subfigure}[tbh]{" + chart_size + "\\textwidth}" << '\n';
-                os << "\t\t\\caption{" << cfg_.average_datasets_ws[i] + "}" << '\n';
+                os << "\t\t\\caption{" << cfg_.real_average_ws_datasets[i].first + "}" << '\n';
                 os << "\t\t\\centering" << '\n';
-                os << "\t\t\\includegraphics[width=" + chart_width + "\\textwidth]{\\compilerName_" + average_ws_suffix + cfg_.average_datasets_ws[i] + ".pdf}" << '\n';
+                os << "\t\t\\includegraphics[width=" + chart_width + "\\textwidth]{\\compilerName_" + average_ws_suffix + cfg_.real_average_ws_datasets[i].first + ".pdf}" << '\n';
                 os << "\t\\end{subfigure}" << '\n' << '\n';
             }
             os << "\t\\caption{\\machineName \\enspace " + datetime + "}" << '\n' << '\n';
