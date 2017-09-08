@@ -36,52 +36,12 @@
 
 using namespace std;
 
-SystemInfo::SystemInfo(ConfigData& cfg)
-{
-    SetBuild();
-    SetCpuBrand();
-    SetOs(cfg);
-    SetCompiler();
-}
-
 void SystemInfo::SetCpuBrand()
 {
-#ifdef WINDOWS
-    cpu_ = GetWindowsCpu();
-#elif defined(LINUX) || defined(UNIX)
-    cpu_ = GetLinuxCpu();
-#elif defined(APPLE)
-    cpu_ = GetAppleCpu();
-#else
     cpu_ = "cpu_unknown";
-#endif
 
-    const char* t = " \t\n\r\f\v";
-
-    // Remove heading and trailing spaces in string
-    cpu_.erase(0, cpu_.find_first_not_of(t));
-    cpu_.erase(cpu_.find_last_not_of(t) + 1);
-
-    // Delete "CPU" characters from CPUBrandString, if present
-    const string pattern = " CPU";
-    string::size_type n = pattern.length();
-    for (string::size_type i = cpu_.find(pattern); i != string::npos; i = cpu_.find(pattern))
-        cpu_.erase(i, n);
-}
-
-void SystemInfo::SetBuild()
-{
-    if (sizeof(void*) == 4)
-        build_ = "x86";
-    else if (sizeof(void*) == 8)
-        build_ = "x64";
-    else
-        build_ = "build_unknown";
-}
-
-#if defined(WINDOWS)
-string SystemInfo::GetWindowsCpu()
-{
+#if defined(_MSC_VER) && defined(YACCLAB_WINDOWS)
+    // Compiler dependent, works on Windows and Visual Studio
     int cpu_info[4] = { -1 };
     unsigned nExIds, i = 0;
     char cpu_name[0x40];
@@ -98,116 +58,24 @@ string SystemInfo::GetWindowsCpu()
         else if (i == 0x80000004)
             memcpy(cpu_name + 32, cpu_info, sizeof(cpu_info));
     }
-
-    return { cpu_name };
-}
-//
-//bool SystemInfo::GetWinMajorMinorVersion(DWORD& major, DWORD& minor)
-//{
-//    bool bRetCode = false;
-//    LPBYTE pinfoRawData = 0;
-//    if (NERR_Success == NetWkstaGetInfo(NULL, 100, &pinfoRawData)) {
-//        WKSTA_INFO_100* pworkstationInfo = (WKSTA_INFO_100*)pinfoRawData;
-//        major = pworkstationInfo->wki100_ver_major;
-//        minor = pworkstationInfo->wki100_ver_minor;
-//        ::NetApiBufferFree(pinfoRawData);
-//        bRetCode = true;
-//    }
-//    return bRetCode;
-//}
-//
-//string SystemInfo::GetWindowsVersion()
-//{
-//    string winver;
-//    OSVERSIONINFOEX osver;
-//    SYSTEM_INFO sysInfo;
-//    typedef void(__stdcall *GETSYSTEMINFO) (LPSYSTEM_INFO);
-//
-//    __pragma(warning(push))
-//        __pragma(warning(disable:4996))
-//        memset(&osver, 0, sizeof(osver));
-//    osver.dwOSVersionInfoSize = sizeof(osver);
-//    GetVersionEx((LPOSVERSIONINFO)&osver);
-//    __pragma(warning(pop))
-//        DWORD major = 0;
-//    DWORD minor = 0;
-//    if (GetWinMajorMinorVersion(major, minor)) {
-//        osver.dwMajorVersion = major;
-//        osver.dwMinorVersion = minor;
-//    }
-//    else if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 2) {
-//        OSVERSIONINFOEXW osvi;
-//        ULONGLONG cm = 0;
-//        cm = VerSetConditionMask(cm, VER_MINORVERSION, VER_EQUAL);
-//        ZeroMemory(&osvi, sizeof(osvi));
-//        osvi.dwOSVersionInfoSize = sizeof(osvi);
-//        osvi.dwMinorVersion = 3;
-//        if (VerifyVersionInfoW(&osvi, VER_MINORVERSION, cm)) {
-//            osver.dwMinorVersion = 3;
-//        }
-//    }
-//
-//    GETSYSTEMINFO getSysInfo = (GETSYSTEMINFO)GetProcAddress(GetModuleHandle((LPCTSTR)"kernel32.dll"), "GetNativeSystemInfo");
-//    if (getSysInfo == NULL)  getSysInfo = ::GetSystemInfo;
-//    getSysInfo(&sysInfo);
-//
-//    if (osver.dwMajorVersion == 10 && osver.dwMinorVersion >= 0 && osver.wProductType != VER_NT_WORKSTATION)  winver = "Windows 10 Server";
-//    if (osver.dwMajorVersion == 10 && osver.dwMinorVersion >= 0 && osver.wProductType == VER_NT_WORKSTATION)  winver = "Windows 10";
-//    if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 3 && osver.wProductType != VER_NT_WORKSTATION)  winver = "Windows Server 2012 R2";
-//    if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 3 && osver.wProductType == VER_NT_WORKSTATION)  winver = "Windows 8.1";
-//    if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 2 && osver.wProductType != VER_NT_WORKSTATION)  winver = "Windows Server 2012";
-//    if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 2 && osver.wProductType == VER_NT_WORKSTATION)  winver = "Windows 8";
-//    if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 1 && osver.wProductType != VER_NT_WORKSTATION)  winver = "Windows Server 2008 R2";
-//    if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 1 && osver.wProductType == VER_NT_WORKSTATION)  winver = "Windows 7";
-//    if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 0 && osver.wProductType != VER_NT_WORKSTATION)  winver = "Windows Server 2008";
-//    if (osver.dwMajorVersion == 6 && osver.dwMinorVersion == 0 && osver.wProductType == VER_NT_WORKSTATION)  winver = "Windows Vista";
-//    if (osver.dwMajorVersion == 5 && osver.dwMinorVersion == 2 && osver.wProductType == VER_NT_WORKSTATION
-//        &&  sysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)  winver = "Windows XP";
-//    if (osver.dwMajorVersion == 5 && osver.dwMinorVersion == 2)   winver = "Windows Server 2003";
-//    if (osver.dwMajorVersion == 5 && osver.dwMinorVersion == 1)   winver = "Windows XP";
-//    if (osver.dwMajorVersion == 5 && osver.dwMinorVersion == 0)   winver = "Windows 2000";
-//    if (osver.dwMajorVersion < 5)   winver = "unknown";
-//
-//    if (osver.wServicePackMajor != 0) {
-//        std::string sp;
-//        char buf[128] = { 0 };
-//        sp = " Service Pack ";
-//        sprintf_s(buf, sizeof(buf), "%hd", osver.wServicePackMajor);
-//        sp.append(buf);
-//        winver += sp;
-//    }
-//
-//    typedef BOOL(WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
-//    LPFN_ISWOW64PROCESS fnIsWow64Process;
-//    BOOL bIsWow64 = FALSE;
-//
-//    fnIsWow64Process = (LPFN_ISWOW64PROCESS)GetProcAddress(
-//        GetModuleHandle(TEXT("kernel32")), "IsWow64Process");
-//
-//    if (NULL != fnIsWow64Process) {
-//        if (!fnIsWow64Process(GetCurrentProcess(), &bIsWow64)) {
-//            //handle error
-//        }
-//    }
-//
-//    if ((bIsWow64 && build_ == "x86") || (build_ == "x64")) {
-//        //64 bit OS and 32 bit built application or 64 bit application
-//        winver += " 64 bit";
-//    }
-//    else if ((!bIsWow64 && build_ == "x86")) {
-//        //32 bit OS and 32 bit built application
-//        winver += " 32 bit";
-//    }
-//
-//    return winver;
-//}
-
-#elif defined(LINUX) || defined(UNIX) 
-string SystemInfo::GetLinuxCpu()
-{
+    cpu_ = { cpu_name };
+#elif defined(YACCLAB_WINDOWS)
+    // Compiler indipendent, works on Windows
+    FILE *lsofFile_p = _popen("wmic cpu get name", "rb");
+    if (!lsofFile_p) {
+        return;
+    }
+    char buffer[1024];
+    /* First fgets copies the first useless output
+        while the second one captures the name of the cpu */
+    char *line_p = fgets(buffer, sizeof(buffer), lsofFile_p);
+    line_p = fgets(buffer, sizeof(buffer), lsofFile_p);
+    _pclose(lsofFile_p);
+    cpu_ = { line_p };
+#elif defined(YACCLAB_LINUX) || defined(YACCLAB_UNIX)
     ifstream cpuinfo("/proc/cpuinfo");
     if (!cpuinfo.is_open()) {
-        return "cpu_unknown";
+        cpu_ = "cpu_unknown";
     }
     string cpu_name;
     while (getline(cpuinfo, cpu_name)) {
@@ -217,50 +85,81 @@ string SystemInfo::GetLinuxCpu()
         }
     }
     cpuinfo.close();
-    return cpu_name;
-}
-
-//string GetLinuxOs()
-//{
-//    struct utsname unameData;
-//    uname(&unameData);
-//
-//    string bit = unameData.machine;
-//
-//    if (bit == "x86_64")
-//        bit = "64 bit";
-//    else if (bit == "i686")
-//        bit = "32 bit";
-//    else
-//        bit = "bit_unknown";
-//
-//    return string(unameData.sysname) + " " + bit;
-//}
-#elif defined(APPLE)
-string SystemInfo::GetAppleCpu()
-{
-    // https://developer.apple.com/legacy/library/documentation/Darwin/Reference/ManPages/man3/sysctl.3.html#//apple_ref/doc/man/3/sysctl
-    // http://stackoverflow.com/questions/853798/programmatically-get-processor-details-from-mac-os-x
-    // http://osxdaily.com/2011/07/15/get-cpu-info-via-command-line-in-mac-os-x/
-
-    string cpu_name = system("sysctl - n machdep.cpu.brand_string");
-    return cpu_name;
-}
-
+    cpu_ = cpu_name;
+#elif defined(YACCLAB_APPLE)
+#define BUFFERLEN 100
+    char buffer[BUFFERLEN];
+    size_t bufferlen = BUFFERLEN;
+    sysctlbyname("machdep.cpu.brand_string", &buffer, &bufferlen, NULL, 0);
+    cpu_ = { buffer };
 #endif
+
+    const char* t = " \t\n\r\f\v";
+    // Remove heading and trailing special characters in cpu string
+    cpu_.erase(0, cpu_.find_first_not_of(t));
+    cpu_.erase(cpu_.find_last_not_of(t) + 1);
+
+    // Delete "CPU" characters, if present, from cpu name
+    const string pattern = " CPU";
+    string::size_type n = pattern.length();
+    for (string::size_type i = cpu_.find(pattern); i != string::npos; i = cpu_.find(pattern)) {
+        cpu_.erase(i, n);
+    }
+}
+
+void SystemInfo::SetBuild()
+{
+    if (sizeof(void*) == 4)
+        build_ = "x86";
+    else if (sizeof(void*) == 8)
+        build_ = "x64";
+    else
+        build_ = "build_unknown";
+}
+
+void SystemInfo::SetOsBit()
+{
+    os_bit_ = "";
+
+#if defined(YACCLAB_WINDOWS)
+    // Compiler indipendent, works on Windows
+    typedef BOOL(WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
+    LPFN_ISWOW64PROCESS fnIsWow64Process;
+    BOOL bIsWow64 = FALSE;
+
+    //IsWow64Process is not available on all supported versions of Windows.
+    //Use GetModuleHandle to get a handle to the DLL that contains the function
+    //and GetProcAddress to get a pointer to the function if available.
+
+    fnIsWow64Process = (LPFN_ISWOW64PROCESS)GetProcAddress(
+        GetModuleHandle(TEXT("kernel32")), "IsWow64Process");
+
+    if (NULL != fnIsWow64Process) {
+        if (!fnIsWow64Process(GetCurrentProcess(), &bIsWow64)) {
+            //handle error
+            return;
+        }
+    }
+    if (bIsWow64)
+        os_bit_ = "64 bit";
+    else
+        os_bit_ = "32 bit";
+
+#elif defined(YACCLAB_LINUX) || defined(YACCLAB_UNIX)
+    struct utsname unameData;
+    uname(&unameData);
+    string bit = unameData.machine;
+    if (bit == "x86_64")
+        os_bit_ = "64 bit";
+    else if (bit == "i686")
+        os_bit_ = "32 bit";
+#elif defined(YACCLAB_APPLE)
+    // TODO
+#endif
+}
 
 void SystemInfo::SetOs(ConfigData& cfg)
 {
-//#if defined(WINDOWS)
-//    os_ = GetWindowsVersion();
-//#elif defined(UNIX) || defined(LINUX)
-//    os_ = GetLinuxOs();
-//#elif defined(APPLE)
-//    os_ = "Mac OSX";
-//#else
-//    os_ = "os_unknown";
-//#endif
-
     os_ = cfg.yacclab_os;
 }
 
@@ -318,8 +217,6 @@ void SystemInfo::SetCompiler()
         compiler_version_ = "7.0";
     else if (_MSC_VER == 1200)
         compiler_version_ = "6.0";
-
-     // else "None"
 
 #elif defined(__PGI)
     /* Portland Group PGCC/PGCPP. ------------------------------- */
