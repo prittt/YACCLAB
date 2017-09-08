@@ -99,7 +99,6 @@ struct ConfigData {
     std::vector<cv::String> ccl_mem_algorithms;        // List of algorithms which actually support memory tests
     std::vector<cv::String> ccl_average_algorithms;    // List of algorithms which actually support average tests
     std::vector<cv::String> ccl_average_ws_algorithms; // List of algorithms which actually support average with steps tests
-    std::string yacclab_os = "";
 
     std::string yacclab_os;             // Name of the current OS
 
@@ -159,7 +158,7 @@ struct ConfigData {
         density_datasets             = { "test_random" };
         cv::read(fs["check_datasets"], check_datasets);
         cv::read(fs["average_datasets"], average_datasets);
-        cv::read(fs["average_datasets_with_steps"], average_datasets_ws);
+        cv::read(fs["average_datasets_with_steps"], average_ws_datasets);
         cv::read(fs["memory_datasets"], memory_datasets);
         cv::read(fs["granularity_datasets"], granularity_datasets);
         cv::read(fs["algorithms"], ccl_algorithms);

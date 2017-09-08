@@ -225,9 +225,39 @@ int main()
     }
 
     if (cfg.perform_average) {
+        // Name of the dataset and true if it is an "inverted" dataset
+        for (size_t d = 0; d < cfg.average_datasets.size(); ++d) {
+            string dataset = cfg.average_datasets[d];
+            bool inverted = false;
+
+            size_t found = dataset.find("_inverted");
+            if (found != string::npos) {
+                // found an inverted dataset
+                dataset = dataset.substr(0, found);
+                inverted = true;
+                cfg.average_datasets[d] = dataset;
+            }
+            cfg.real_average_datasets.push_back(make_pair(dataset, inverted));
+        }
+
         ds.insert(ds.end(), cfg.average_datasets.begin(), cfg.average_datasets.end());
     }
     if (cfg.perform_average_ws) {
+        // Name of the dataset and true if it is an "inverted" dataset
+        for (size_t d = 0; d < cfg.average_ws_datasets.size(); ++d) {
+            string dataset = cfg.average_ws_datasets[d];
+            bool inverted = false;
+
+            size_t found = dataset.find("_inverted");
+            if (found != string::npos) {
+                // found an inverted dataset
+                dataset = dataset.substr(0, found);
+                inverted = true;
+                cfg.average_ws_datasets[d] = dataset;
+            }
+            cfg.real_average_ws_datasets.push_back(make_pair(dataset, inverted));
+        }
+
         ds.insert(ds.end(), cfg.average_ws_datasets.begin(), cfg.average_ws_datasets.end());
     }
     std::sort(ds.begin(), ds.end());
@@ -279,41 +309,11 @@ int main()
 
     // Average tests
     if (cfg.perform_average) {
-        // Name of the dataset and true if it is an "inverted" dataset
-        for (size_t d = 0; d < cfg.average_datasets.size(); ++d) {
-            string dataset = cfg.average_datasets[d];
-            bool inverted = false;
-
-            size_t found = dataset.find("_inverted");
-            if (found != string::npos) {
-                // found an inverted dataset
-                dataset = dataset.substr(0, found);
-                inverted = true;
-                cfg.average_datasets[d] = dataset;
-            }
-            cfg.real_average_datasets.push_back(make_pair(dataset, inverted));
-        }
-
         yt.AverageTest();
     }
 
     // Average with steps tests
     if (cfg.perform_average_ws) {
-        // Name of the dataset and true if it is an "inverted" dataset
-        for (size_t d = 0; d < cfg.average_ws_datasets.size(); ++d) {
-            string dataset = cfg.average_ws_datasets[d];
-            bool inverted = false;
-
-            size_t found = dataset.find("_inverted");
-            if (found != string::npos) {
-                // found an inverted dataset
-                dataset = dataset.substr(0, found);
-                inverted = true;
-                cfg.average_ws_datasets[d] = dataset;
-            }
-            cfg.real_average_ws_datasets.push_back(make_pair(dataset, inverted));
-        }
-
         yt.AverageTestWithSteps();
     }
 
