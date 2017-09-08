@@ -101,6 +101,8 @@ struct ConfigData {
     std::vector<cv::String> ccl_average_ws_algorithms; // List of algorithms which actually support average with steps tests
     std::string yacclab_os = "";
 
+    std::string yacclab_os;             // Name of the current OS
+
     ConfigData(const cv::FileStorage& fs) {
         // Flags to customize output format (false by default)
         perform_correctness          = ReadBool(fs["perform"]["correctness"]);
@@ -116,9 +118,9 @@ struct ConfigData {
 
         average_color_labels         = ReadBool(fs["color_labels"]["average"]);
         density_color_labels         = ReadBool(fs["color_labels"]["density"]);
-        
+
         write_n_labels               = ReadBool(fs["write_n_labels"]);
-        
+
         average_save_middle_tests    = ReadBool(fs["save_middle_tests"]["average"]);
         average_ws_save_middle_tests = ReadBool(fs["save_middle_tests"]["average_with_steps"]);
         density_save_middle_tests    = ReadBool(fs["save_middle_tests"]["density"]);
@@ -154,25 +156,15 @@ struct ConfigData {
         input_path                   = path(fs["paths"]["input"]);
         latex_path                   = output_path / path("latex");
 
-        check_datasets               = std::vector<cv::String>(fs["check_datasets"].size());
+        density_datasets             = { "test_random" };
         cv::read(fs["check_datasets"], check_datasets);
-        
-        memory_datasets              = std::vector<cv::String>(fs["memory_datasets"].size());
-        cv::read(fs["memory_datasets"], memory_datasets);
-
-        density_datasets             = std::vector<cv::String>(1, { "test_random" });
-        
-        // TODO granularity_datasets         = std::vector<cv::String>(fs["average_datasets"].size());
-        granularity_datasets         = std::vector<cv::String>(fs["average_datasets"].size());
-        cv::read(fs["granularity_datasets"], granularity_datasets);
-
-        average_datasets             = std::vector<cv::String>(fs["average_datasets"].size());
         cv::read(fs["average_datasets"], average_datasets);
-
-        cv::read(fs["average_datasets_with_steps"], average_ws_datasets);
-
-        ccl_algorithms               = std::vector<cv::String>(fs["algorithms"].size());
+        cv::read(fs["average_datasets_with_steps"], average_datasets_ws);
+        cv::read(fs["memory_datasets"], memory_datasets);
+        cv::read(fs["granularity_datasets"], granularity_datasets);
         cv::read(fs["algorithms"], ccl_algorithms);
+
+        yacclab_os                   = static_cast<std::string>(fs["os"]);
     }
 
     bool ReadBool(const cv::FileNode& node_list)

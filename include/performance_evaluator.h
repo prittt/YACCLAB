@@ -49,12 +49,14 @@ public:
 
     void start()
     {
-        counter_.last = (double)cv::getTickCount();
+        int64 ticks = cv::getTickCount();
+        counter_.last = static_cast<double>(ticks);
     }
 
     double stop()
     {
-        double t = cv::getTickCount() - counter_.last;
+        int64 ticks = cv::getTickCount();
+        double t = ticks - counter_.last;
         counter_.last = t;
         counter_.total += t;
         return counter_.last*1000. / tick_frequency_;

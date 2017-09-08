@@ -155,12 +155,9 @@ public:
 
         LabelsSolver::Dealloc();
     }
-    void PerformLabelingWithSteps() // TODO
+    void PerformLabelingWithSteps()
     {
-        perf_.start();
-        Alloc();
-        perf_.stop();
-        double alloc_timing = perf_.last();
+        double alloc_timing = Alloc();
 
         perf_.start();
         FirstScan();
@@ -281,10 +278,22 @@ public:
     }
 
 private:
-    void Alloc()
+    double Alloc()
     {
-        LabelsSolver::Alloc(UPPER_BOUND_8_CONNECTIVITY); // Memory allocation of the labels solver
-        img_labels_ = cv::Mat1i(img_.size()); // Memory allocation of the output image
+        // Memory allocation of the labels solver
+        double ls_t = LabelsSolver::Alloc(UPPER_BOUND_8_CONNECTIVITY, perf_);
+        // Memory allocation for the output image
+        perf_.start();
+        img_labels_ = cv::Mat1i(img_.size());
+        memset(img_labels_.data, 0, img_labels_.dataend - img_labels_.datastart);
+        perf_.stop();
+        double t = perf_.last();
+        perf_.start();
+        memset(img_labels_.data, 0, img_labels_.dataend - img_labels_.datastart);
+        perf_.stop();
+        double ma_t = t - perf_.last();
+        // Return total time
+        return ls_t + ma_t;
     }
     void Dealloc()
     {
@@ -293,7 +302,7 @@ private:
     }
     void FirstScan() 
     {
-        img_labels_ = cv::Mat1i::zeros(img_.size()); // Initialization
+        memset(img_labels_.data, 0, img_labels_.dataend - img_labels_.datastart); // Initialization
         LabelsSolver::Setup();
 
         // Scan Mask

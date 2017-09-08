@@ -109,4 +109,6 @@ color_labels: {average: false, density: false} #TODO
 # Save the results of each run test
 save_middle_tests: {average: false, average_with_steps: false, density: false, granularity: false}
 
+os: "${YACCLAB_OS}"
+
 # This is YACCLAB configuration file

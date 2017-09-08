@@ -215,21 +215,11 @@ int RedirectCvError(int status, const char* func_name, const char* err_msg, cons
     return 0;
 }
 
-std::string GetGnuplotTitle()
+std::string GetGnuplotTitle(ConfigData& cfg)
 {
-    SystemInfo s_info;
-    FileStorage fs;
-    
-    fs.open("config.yaml", FileStorage::READ);
-    
-    ConfigData cfg(fs);
-    /*string s = "\"{/:Bold CPU}: " + s_info.cpu() + " {/:Bold BUILD}: " + s_info.build() +
-        " {/:Bold OS}: " + s_info.os() + " {/:Bold COMPILER}: " + s_info.compiler_name() +
-        " " + s_info.compiler_version() + "\" font ', 9'";*/
-    string s = "\"{/:Bold CPU}: " + s_info.cpu() + " {/:Bold BUILD}: " + s_info.build() +
-        " {/:Bold OS}: " + cfg.yacclab_os + " {/:Bold COMPILER}: " + s_info.compiler_name() +
-        " " + s_info.compiler_version() + "\" font ', 9'";
-    
+    SystemInfo s_info(cfg);
+    string s = "\"{/:Bold CPU}: " + s_info.cpu() + " {/:Bold BUILD}: " + s_info.build() + " {/:Bold OS}: " + s_info.os() +
+        " {/:Bold COMPILER}: " + s_info.compiler_name() + " " + s_info.compiler_version() + "\" font ', 9'";
     return s;
 }
 

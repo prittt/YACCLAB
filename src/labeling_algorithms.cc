@@ -42,14 +42,14 @@ Labeling* LabelingMapSingleton::GetLabeling(const std::string& s)
     return LabelingMapSingleton::GetInstance().data_.at(s);
 }
 
-bool LabelingMapSingleton::Exists(const std::string& s) {
+bool LabelingMapSingleton::Exists(const std::string& s)
+{
     return LabelingMapSingleton::GetInstance().data_.end() != LabelingMapSingleton::GetInstance().data_.find(s);
 }
 
-std::string Step(StepType n_step) {
-
-    switch (n_step)
-    {
+std::string Step(StepType n_step)
+{
+    switch (n_step) {
     case ALLOC_DEALLOC:
         return "Alloc Dealloc";
         break;
@@ -66,4 +66,3 @@ std::string Step(StepType n_step) {
 
     return "";
 }
-
