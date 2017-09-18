@@ -83,7 +83,6 @@ bool YacclabTests::CheckFileList(const path& base_path, vector<pair<string, bool
     return ret;
 }
 
-
 // This function take a Mat1d of results and save it in the  specified output-stream
 bool YacclabTests::SaveBroadOutputResults(map<String, Mat1d>& results, const string& o_filename, const Mat1i& labels, const vector<pair<string, bool>>& filenames, const std::vector<cv::String>& ccl_algorithms)
 {
@@ -579,7 +578,7 @@ void YacclabTests::AverageTestWithSteps()
                 path filename_path = dataset_path / path(filename);
 
                 // Read and load image
-                if (!GetBinaryImage(filename_path, Labeling::img_)) {
+                if (!GetBinaryImage(filename_path, Labeling::img_, dataset_is_inverted)) {
                     ob.Cmessage("Unable to open '" + filename + "'");
                     continue;
                 }
@@ -1745,6 +1744,30 @@ void YacclabTests::LatexGenerator()
                 os << "\t\t\\caption{" << density_datasets[i] + "}" << '\n';
                 os << "\t\t\\centering" << '\n';
                 os << "\t\t\\includegraphics[width=" + chart_width + "\\textwidth]{\\compilerName_" + density_datasets[i] + ".pdf}" << '\n';
+                os << "\t\\end{subfigure}" << '\n' << '\n';
+            }
+            os << "\t\\caption{\\machineName \\enspace " + datetime + "}" << '\n' << '\n';
+            os << "\\end{figure}" << '\n' << '\n';
+        }
+
+        // SECTION DENSITY CHARTS  ---------------------------------------------------------------------------
+        if (cfg_.perform_granularity) {
+            //vector<String> density_datasets{ "density", "size" };
+
+            os << "\\section{Granularity Charts}" << '\n' << '\n';
+            os << "\\begin{figure}[tbh]" << '\n' << '\n';
+            // \newcommand{ \machineName }{x86\_MSVC15.0\_Windows\_10\_64\_bit}
+            os << "\t\\newcommand{\\machineName}{";
+            os << info_to_latex << "}" << '\n';
+            // \newcommand{\compilerName}{MSVC15_0}
+            os << "\t\\newcommand{\\compilerName}{" + compiler_name + compiler_version + "}" << '\n';
+            os << "\t\\centering" << '\n';
+
+            for (unsigned i = 0; i < cfg_.granularity_datasets.size(); ++i) {
+                os << "\t\\begin{subfigure}[tbh]{" + chart_size + "\\textwidth}" << '\n';
+                os << "\t\t\\caption{" << cfg_.granularity_datasets[i] + "}" << '\n';
+                os << "\t\t\\centering" << '\n';
+                os << "\t\t\\includegraphics[width=" + chart_width + "\\textwidth]{\\compilerName_" + cfg_.granularity_datasets[i] + ".pdf}" << '\n';
                 os << "\t\\end{subfigure}" << '\n' << '\n';
             }
             os << "\t\\caption{\\machineName \\enspace " + datetime + "}" << '\n' << '\n';

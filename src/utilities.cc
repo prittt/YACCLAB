@@ -80,13 +80,13 @@ string GetDatetime()
     for (auto& c : buffer)
         c = '\0';
 
-#ifdef YACCLAB_WINDOWS
+#if defined(YACCLAB_WINDOWS) && defined(_MSC_VER)
 
     struct tm timeinfo;
     localtime_s(&timeinfo, &rawtime);
     strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", &timeinfo);
 
-#elif defined(YACCLAB_LINUX) || defined(YACCLAB_UNIX) || defined(YACCLAB_APPLE)
+#elif defined(YACCLAB_WINDOWS) || defined(YACCLAB_LINUX) || defined(YACCLAB_UNIX) || defined(YACCLAB_APPLE)
 
     struct tm * timeinfo;
     timeinfo = localtime(&rawtime);

@@ -30,6 +30,7 @@
 #include "system_info.h"
 
 #include <algorithm>
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -60,18 +61,17 @@ void SystemInfo::SetCpuBrand()
     }
     cpu_ = { cpu_name };
 #elif defined(YACCLAB_WINDOWS)
-    // Compiler indipendent, works on Windows
-    FILE *lsofFile_p = _popen("wmic cpu get name", "rb");
-    if (!lsofFile_p) {
+    // Compiler independent, works on Windows
+    std::system("wmic cpu get name|more > cpu_name.txt");
+    ifstream is("cpu_name.txt");
+    if (!is.is_open()) {
         return;
     }
-    char buffer[1024];
-    /* First fgets copies the first useless output
-        while the second one captures the name of the cpu */
-    char *line_p = fgets(buffer, sizeof(buffer), lsofFile_p);
-    line_p = fgets(buffer, sizeof(buffer), lsofFile_p);
-    _pclose(lsofFile_p);
-    cpu_ = { line_p };
+    string line;
+    std::getline(is, line);
+    std::getline(is, line);
+    is.close();
+    cpu_ = line;
 #elif defined(YACCLAB_LINUX) || defined(YACCLAB_UNIX)
     ifstream cpuinfo("/proc/cpuinfo");
     if (!cpuinfo.is_open()) {
@@ -122,7 +122,7 @@ void SystemInfo::SetOsBit()
     os_bit_ = "";
 
 #if defined(YACCLAB_WINDOWS)
-    // Compiler indipendent, works on Windows
+    // Compiler independent, works on Windows
     typedef BOOL(WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
     LPFN_ISWOW64PROCESS fnIsWow64Process;
     BOOL bIsWow64 = FALSE;
