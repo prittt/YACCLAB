@@ -211,7 +211,9 @@ int main()
         ds.insert(ds.end(), cfg.memory_datasets.begin(), cfg.memory_datasets.end());
     }
     if (cfg.perform_granularity) {
-        ds.insert(ds.end(), cfg.granularity_datasets.begin(), cfg.granularity_datasets.end());
+        for (auto& d : cfg.granularity_datasets) {
+            ds.push_back((path("granularity") / path(d)).string());
+        }
     }
     std::sort(ds.begin(), ds.end());
     ds.erase(unique(ds.begin(), ds.end()), ds.end());
@@ -223,53 +225,40 @@ int main()
             ob_setconf.Cwarning("Inverted datasets are allowed only in 'average' and 'average with steps' tests, skipped");
         }
     }
+    {
+        auto find_inverted_dataset = [](vector<String>& datasets, vector<pair<String, bool>>& real_d) {
+            for (size_t d = 0; d < datasets.size(); ++d) {
+                string dataset_temp = datasets[d];
+                bool inverted = false;
 
-    if (cfg.perform_average) {
-        // Name of the dataset and true if it is an "inverted" dataset
-        for (size_t d = 0; d < cfg.average_datasets.size(); ++d) {
-            string dataset = cfg.average_datasets[d];
-            bool inverted = false;
-
-            size_t found = dataset.find("_inverted");
-            if (found != string::npos) {
-                // found an inverted dataset
-                dataset = dataset.substr(0, found);
-                inverted = true;
-                cfg.average_datasets[d] = dataset;
+                size_t found = dataset_temp.find("_inverted");
+                if (found != string::npos) {
+                    // found an inverted dataset
+                    dataset_temp = dataset_temp.substr(0, found);
+                    inverted = true;
+                    datasets[d] = dataset_temp;
+                }
+                real_d.push_back(make_pair(dataset_temp, inverted));
             }
-            cfg.real_average_datasets.push_back(make_pair(dataset, inverted));
+        };
+
+        if (cfg.perform_average) {
+            // Name of the dataset and true if it is an "inverted" dataset
+            find_inverted_dataset(cfg.average_datasets, cfg.real_average_datasets);
+            ds.insert(ds.end(), cfg.average_datasets.begin(), cfg.average_datasets.end());
         }
-
-        ds.insert(ds.end(), cfg.average_datasets.begin(), cfg.average_datasets.end());
-    }
-    if (cfg.perform_average_ws) {
-        // Name of the dataset and true if it is an "inverted" dataset
-        for (size_t d = 0; d < cfg.average_ws_datasets.size(); ++d) {
-            string dataset = cfg.average_ws_datasets[d];
-            bool inverted = false;
-
-            size_t found = dataset.find("_inverted");
-            if (found != string::npos) {
-                // found an inverted dataset
-                dataset = dataset.substr(0, found);
-                inverted = true;
-                cfg.average_ws_datasets[d] = dataset;
-            }
-            cfg.real_average_ws_datasets.push_back(make_pair(dataset, inverted));
+        if (cfg.perform_average_ws) {
+            // Name of the dataset and true if it is an "inverted" dataset
+            find_inverted_dataset(cfg.average_ws_datasets, cfg.real_average_ws_datasets);
+            ds.insert(ds.end(), cfg.average_ws_datasets.begin(), cfg.average_ws_datasets.end());
         }
-
-        ds.insert(ds.end(), cfg.average_ws_datasets.begin(), cfg.average_ws_datasets.end());
     }
     std::sort(ds.begin(), ds.end());
     ds.erase(unique(ds.begin(), ds.end()), ds.end());
 
     // Check if all the datasets files.txt exist
     for (auto& x : ds) {
-        String dataset = x;
-        if (dataset.find("_inverted") != string::npos) {
-            dataset = dataset.substr(0, dataset.find("_inverted"));
-        }
-        path p = cfg.input_path / path(dataset) / path(cfg.input_txt);
+        path p = cfg.input_path / path(x) / path(cfg.input_txt);
         if (!exists(p, ec)) {
             ob_setconf.Cwarning("There is no dataset (no files.txt available) " + x + ", skipped");
         }
