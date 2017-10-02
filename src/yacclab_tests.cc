@@ -1346,10 +1346,11 @@ void YacclabTests::GranularityTest()
                 int cur_density = stoi(cur_filename.substr(2, 3));
                 
                 for (int c = 0; c < min_res.cols; ++c) {
-                    auto& cur_result = granularity_results_[dataset_name].at<Vec<double, 16>>(cur_density, c)[cur_granularity - 1];
+                    granularity_results_[dataset_name].at<Vec<double, 16>>(cur_density, c)[cur_granularity - 1] += min_res(r, c);
+                    /*auto& cur_result = granularity_results_[dataset_name].at<Vec<double, 16>>(cur_density, c)[cur_granularity - 1];
                     if (cur_result > min_res(r,c) || cur_result == 0){
                         cur_result = min_res(r,c);
-                    }
+                    }*/
                 }
             }
             else {
@@ -1395,7 +1396,7 @@ void YacclabTests::GranularityTest()
             for (unsigned d = 0; d < density; ++d) {
                 granularity_os << std::fixed << std::setprecision(5) << /*real_densities[g - 1][d]*/ d << '\t';
                 for (unsigned a = 0; a < cfg_.ccl_average_algorithms.size(); ++a) {
-                    granularity_os << std::fixed << std::setprecision(8) << (granularity_results_[dataset_name].at<Vec<double, 16>>(d, a)[g - 1]) << '\t';
+                    granularity_os << std::fixed << std::setprecision(8) << (granularity_results_[dataset_name].at<Vec<double, 16>>(d, a)[g - 1] / 10.0) << '\t';
                 }
                 granularity_os << '\n';
             }
