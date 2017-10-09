@@ -127,8 +127,8 @@ function install_osx_environment()
   rm -rf "'brew cache'"
   
   #Update brew and packages
-  #brew update -y > /dev/null
-  #brew upgrade -y > /dev/null
+  brew update -y > /dev/null
+  brew upgrade -y > /dev/null
   #brew update -y > brew_update.log
   #brew upgrade -y > brew_upgrade.log
   echo -e "------------------------------------------> DONE!" 
