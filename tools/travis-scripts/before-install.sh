@@ -120,7 +120,11 @@ function install_osx_environment()
 {
   echo "############################################### Install OSX Environment ###############################################"
 
+  
   echo -e "\n\n------------------------------------------> Clean and Update brew"
+  #Set rubi 2.3 (travis-ci issue?)
+  rvm --default use 2.3.0
+  
   #Clean brew cache to avoid memory waste
   brew cleanup > /dev/null
   #brew cleanup > brew_cleanup.log
@@ -178,6 +182,7 @@ function install_osx_environment()
   echo -e "------------------------------------------> DONE!"
 	
   echo -e "\n\n------------------------------------------> Install Gnuplot and dependent packages:"
+  update 
   brew install gnuplot > gnuplot_install.log
   gnuplot --version
   echo -e "------------------------------------------> DONE!" 
