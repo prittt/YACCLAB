@@ -40,8 +40,8 @@ function install_linux_environment()
   echo -e "------------------------------------------> DONE!" 
   
   echo -e "\n\n------------------------------------------> Update apt"
-  sudo apt-get -qq update -y
-  #sudo apt-get upgrade -y #Don't do that
+  sudo sed -i 's/us-central1.gce/us-central1.gce.clouds/' /etc/apt/sources.list && sudo apt-get update
+  #sudo apt-get -qq update -y
   echo -e "------------------------------------------> DONE!" 
   
   echo -e "\n\n------------------------------------------> Install gcc-4.8:"
@@ -121,10 +121,7 @@ function install_osx_environment()
   echo "############################################### Install OSX Environment ###############################################"
 
   
-  echo -e "\n\n------------------------------------------> Clean and Update brew"
-  #Set rubi 2.3 (travis-ci issue?)
-  rvm --default use 2.3.0
-  
+  echo -e "\n\n------------------------------------------> Clean and Update brew" 
   #Clean brew cache to avoid memory waste
   brew cleanup > /dev/null
   #brew cleanup > brew_cleanup.log
@@ -181,8 +178,8 @@ function install_osx_environment()
   export LD_LIBRARY_PATH=./opencv-3.1.0/build/install_dir
   echo -e "------------------------------------------> DONE!"
 	
-  echo -e "\n\n------------------------------------------> Install Gnuplot and dependent packages:"
-  update 
+  echo -e "\n\n------------------------------------------> Install Gnuplot and dependent packages:" 
+  ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null 2> /dev/null
   brew install gnuplot > gnuplot_install.log
   gnuplot --version
   echo -e "------------------------------------------> DONE!" 
