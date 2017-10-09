@@ -45,7 +45,7 @@ memory_datasets: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "te
 # -------------------------------------------------------------------------------------
 
 # Directory for input/output paths
-paths: {input: "${YACCLAB_INPUT_DATASET_PATH}", output: "${YACCLAB_OUTPUT_RESULTS_PATH}"}
+paths: {input: "", output: ""}
 
 # Save the returned number of components in output files
 write_n_labels: false

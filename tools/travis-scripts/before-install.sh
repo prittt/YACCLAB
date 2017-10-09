@@ -40,7 +40,6 @@ function install_linux_environment()
   echo -e "------------------------------------------> DONE!" 
   
   echo -e "\n\n------------------------------------------> Update apt"
-  sudo sed -i 's/us-central1.gce/us-central1.gce.clouds/' /etc/apt/sources.list && sudo apt-get update
   #sudo apt-get -qq update -y
   echo -e "------------------------------------------> DONE!" 
   
