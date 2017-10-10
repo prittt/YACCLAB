@@ -47,6 +47,7 @@ function install_linux_environment()
   if [ "$CXX" = "g++" ]; then sudo apt-get -qq install g++-4.8; fi
   if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
   sudo update-alternatives --quiet --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
+  sudo apt-get install gcc-4.8-multilib g++-4.8-multilib #To handle the following error: Missing include “bits/c++config.h” when cross compiling 64 bit program on 32 bit in Ubuntu 
   echo -e "------------------------------------------> DONE!" 
   
   echo -e "\n\n------------------------------------------> Install OpenCV-3.1.0 (only if they weren't cached) and dependent packages:"
