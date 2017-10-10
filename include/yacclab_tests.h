@@ -120,15 +120,14 @@ private:
 
                 unsigned n_labels_correct, n_labels_to_control;
 
-                // SAUF is the reference (the labels are already normalized)
-                //auto& sauf = LabelingMapSingleton::GetInstance().data_.at("SAUF_UFPC");
-                //sauf->PerformLabeling();
-                //n_labels_correct = sauf->n_labels_;
-                //cv::Mat1i& labeled_img_correct = sauf->img_labels_;
+                // SAUF with Union-Find is the reference: labels are already "normalized"
+                auto& sauf = LabelingMapSingleton::GetInstance().data_.at("SAUF_UF");
+                sauf->PerformLabeling();
+                n_labels_correct = sauf->n_labels_;
+                cv::Mat1i& labeled_img_correct = sauf->img_labels_;
 
-                // TODO: remove OpenCV connectedComponents and use SAUF above
-                cv::Mat1i labeled_img_correct;
-                n_labels_correct = cv::connectedComponents(Labeling::img_, labeled_img_correct, 8, 4, cv::CCL_WU);
+                //cv::Mat1i labeled_img_correct;
+                //n_labels_correct = cv::connectedComponents(Labeling::img_, labeled_img_correct, 8, 4, cv::CCL_WU);
 
                 unsigned j = 0;
                 for (const auto& algo_name : ccl_algorithms) {
