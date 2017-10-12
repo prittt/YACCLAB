@@ -78,7 +78,11 @@ function install_linux_environment()
   if [ "$CXX" = "g++" ]; then sudo apt-get -qq install g++-4.8; fi
   if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
   sudo update-alternatives --quiet --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
-  sudo apt-get install gcc-4.8-multilib g++-4.8-multilib #To handle the following error: Missing include “bits/c++config.h” when cross compiling 64 bit program on 32 bit in Ubuntu 
+  echo -e "------------------------------------------> DONE!" 
+  
+  echo -e "\n\n------------------------------------------> Install dependencies and libs to build x86 program on x64 architecture (Ubuntu bug)"
+  sudo apt-get install build-essential gcc-multilib gcc-4.8-multilib g++-multilib g++-4.8-multilib lib32z1 lib32ncurses5 lib32bz2-1.0 libc6-dev libgmp-dev libmpfr-dev libmpc-dev
+  sudo dpkg --add-architecture i386
   echo -e "------------------------------------------> DONE!" 
   
   echo -e "\n\n------------------------------------------> Install OpenCV-3.1.0 (only if they weren't cached) and dependent packages:"
@@ -110,8 +114,6 @@ function install_linux_environment()
   
     # Set build instructions for Ubuntu distro (x86 build).
     cmake -D CMAKE_C_FLAGS=-m32 -D CMAKE_CXX_FLAGS=-m32 -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=./install_dir -D WITH_FFMPEG=OFF -D WITH_OPENCL=OFF -D WITH_QT=OFF -D WITH_IPP=OFF -D WITH_MATLAB=OFF -D WITH_OPENGL=OFF -D WITH_QT=OFF -D WITH_TIFF=OFF -D BUILD_EXAMPLES=OFF -D BUILD_TESTS=OFF -D BUILD_PERF_TESTS=OFF -D BUILD_opencv_java=OFF -D BUILD_opencv_python2=OFF -D BUILD_opencv_python3=OFF -D WITH_TBB=OFF -D WITH_V4L=OFF -D INSTALL_C_EXAMPLES=OFF -D INSTALL_PYTHON_EXAMPLES=OFF -D BUILD_EXAMPLES=OFF -D BUILD_SHARE_LIBS=OFF -D BUILD_ZLIB=OFF -D BUILD_opencv_core=ON -D BUILD_opencv_imgproc=ON -D BUILD_opencv_imgcodecs=ON -D BUILD_opencv_videoio=OFF -D BUILD_opencv_highgui=OFF -D BUILD_opencv_video=OFF -D BUILD_opencv_calib3d=OFF -D BUILD_opencv_features2d=OFF -D BUILD_opencv_objdetect=OFF -D BUILD_opencv_ml=OFF -D BUILD_opencv_flann=OFF -D BUILD_opencv_photo=OFF -D BUILD_opencv_stitching=OFF -D BUILD_opencv_cudaarithm=OFF -D BUILD_opencv_cudabgsegm=OFF -D BUILD_opencv_cudacodec=OFF -D BUILD_opencv_cudafeatures2d=OFF -D BUILD_opencv_cudafilters=OFF -D BUILD_opencv_cudaimgproc=OFF -D BUILD_opencv_cudalegacy=OFF -D BUILD_opencv_cudaobjdetect=OFF -D BUILD_opencv_cudaoptflow=OFF -D BUILD_opencv_cudastereo=OFF -D BUILD_opencv_cudawarping=OFF -D BUILD_opencv_cudev=OFF -D BUILD_opencv_shape=OFF -D BUILD_opencv_superres=OFF -D BUILD_opencv_videostab=OFF -D BUILD_opencv_viz=OFF -D WITH_OPENEXR=OFF ..
-   
-
  
     # Run 'make' with four threads.
     make -j4
