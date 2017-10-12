@@ -37,12 +37,12 @@ set(CMAKE_SUPPRESS_REGENERATION true)
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Configs" FORCE)
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE PATH "Install prefix" FORCE)
 
-#Set YACCLAB_dataset download variable
+#Set YACCLAB variables
 set(YACCLAB_DOWNLOAD_DATASET OFF CACHE BOOL "If flagged the YACCLAB dataset will be automatically downloaded")
 set(YACCLAB_INPUT_DATASET_PATH "${CMAKE_INSTALL_PREFIX}/input" CACHE PATH "'input' dataset path") 
 set(YACCLAB_OUTPUT_RESULTS_PATH "${CMAKE_INSTALL_PREFIX}/output" CACHE PATH "'output' results path") 
-#Set the OS in config file
 set(YACCLAB_OS "${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_VERSION}" CACHE STRING "" FORCE)
+set(YACCLAB_IS_TRAVIS_CI OFF CACHE BOOL "This variable is used to handle travis-ci parameters, do not change its value")
 
 if(MSVC)
   set(CMAKE_USE_RELATIVE_PATHS ON CACHE INTERNAL "" FORCE)
@@ -141,9 +141,12 @@ file(GLOB HFILES ${HFILES} "include/*.h" "include/*.hpp")
 file(GLOB INCFILES ${INCFILES} "include/*.inc")
 
 add_definitions(-D_CRT_SECURE_NO_WARNINGS) #To suppress 'fopen' opencv warning/bug  
-# Set configuration file		
-configure_file("${CMAKE_SOURCE_DIR}/doc/config_base.yaml" "${CMAKE_INSTALL_PREFIX}/config.yaml")
-
+# Set configuration file	
+if(YACCLAB_IS_TRAVIS_CI)	
+	configure_file("${CMAKE_SOURCE_DIR}/doc/config_travis.yaml" "${CMAKE_INSTALL_PREFIX}/config.yaml")
+else()
+	configure_file("${CMAKE_SOURCE_DIR}/doc/config_base.yaml" "${CMAKE_INSTALL_PREFIX}/config.yaml")
+endif()
 source_group("Include Files" FILES ${INCFILES})
 source_group("Header Files" FILES ${HFILES})
 source_group("Source Files" FILES ${SRCFILES})
