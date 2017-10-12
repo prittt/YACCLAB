@@ -85,6 +85,10 @@ function install_linux_environment()
   sudo dpkg --add-architecture i386
   echo -e "------------------------------------------> DONE!" 
   
+  echo -e "\n\n------------------------------------------> Install zlib for x86 (to handle ubuntu bug)"
+  sudo apt-get install zlib1g
+  echo -e "------------------------------------------> DONE!" 
+  
   echo -e "\n\n------------------------------------------> Install OpenCV-3.1.0 (only if they weren't cached) and dependent packages:"
   sudo apt-get -qq -y install build-essential
   sudo apt-get -qq -y install git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
