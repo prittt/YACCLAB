@@ -92,7 +92,7 @@ bool YacclabTests::SaveBroadOutputResults(map<String, Mat1d>& results, const str
     }
 
     // To set heading file format
-    os << "#" << "\t";
+    os << "#" << '\t';
     for (const auto& algo_name : ccl_algorithms) {
         const auto& algo = LabelingMapSingleton::GetLabeling(algo_name);
 
@@ -104,30 +104,30 @@ bool YacclabTests::SaveBroadOutputResults(map<String, Mat1d>& results, const str
             StepType step = static_cast<StepType>(step_number);
             double column_value(results_reduced(0, step_number));
             if (column_value != numeric_limits<double>::max()) {
-                os << algo_name + "_" << Step(step) << "\t";
+                os << algo_name + "_" << Step(step) << '\t';
             }
         }
-        cfg_.write_n_labels ? os << algo_name + "_n_labels" << "\t" : os << "";
+        cfg_.write_n_labels ? os << algo_name + "_n_labels" << '\t' : os << "";
     }
     os << '\n';
 
     for (unsigned files = 0; files < filenames.size(); ++files) {
         if (filenames[files].second) {
-            os << filenames[files].first << "\t";
+            os << filenames[files].first << '\t';
             unsigned i = 0;
             for (const auto& algo_name : ccl_algorithms) {
                 const auto& algo = LabelingMapSingleton::GetLabeling(algo_name);
 
                 for (int step_number = 0; step_number != StepType::ST_SIZE; ++step_number) {
                     if (results.at(algo_name)(files, step_number) != numeric_limits<double>::max()) {
-                        os << results.at(algo_name)(files, step_number) << "\t";
+                        os << results.at(algo_name)(files, step_number) << '\t';
                     }
                     else {
                         // Step not held, skipped
-                        //os << 0 << "\t";
+                        //os << 0 << '\t';
                     }
                 }
-                cfg_.write_n_labels ? os << labels(files, i) << "\t" : os << "";
+                cfg_.write_n_labels ? os << labels(files, i) << '\t' : os << "";
                 ++i;
             }
             os << '\n';
@@ -148,19 +148,19 @@ bool YacclabTests::SaveBroadOutputResults(const Mat1d& results, const string& o_
     // To set heading file format
     os << "#";
     for (const auto& algo_name : ccl_algorithms) {
-        os << "\t" << algo_name;
-        cfg_.write_n_labels ? os << "\t" << "n_label" : os << "";
+        os << '\t' << algo_name;
+        cfg_.write_n_labels ? os << '\t' << "n_label" : os << "";
     }
     os << '\n';
     // To set heading file format
 
     for (unsigned files = 0; files < filenames.size(); ++files) {
         if (filenames[files].second) {
-            os << filenames[files].first << "\t";
+            os << filenames[files].first << '\t';
             unsigned i = 0;
             for (const auto& algo_name : ccl_algorithms) {
-                os << results(files, i) << "\t";
-                cfg_.write_n_labels ? os << labels(files, i) << "\t" : os << "";
+                os << results(files, i) << '\t';
+                cfg_.write_n_labels ? os << labels(files, i) << '\t' : os << "";
                 ++i;
             }
             os << '\n';
@@ -179,10 +179,10 @@ void YacclabTests::SaveAverageWithStepsResults(const string& os_name, const Stri
     }
 
     // Write heading string in output stream
-    os << "#Algorithm" << "\t";
+    os << "#Algorithm" << '\t';
     for (int step_number = 0; step_number != StepType::ST_SIZE; ++step_number) {
         StepType step = static_cast<StepType>(step_number);
-        os << Step(step) << "\t";
+        os << Step(step) << '\t';
     }
     os << "Total" << '\n';
 
@@ -200,18 +200,18 @@ void YacclabTests::SaveAverageWithStepsResults(const string& os_name, const Stri
         //        algo_name_double_escaped.insert(found, "\\\\");
         //        found = algo_name_double_escaped.find_first_of("_", found + 3);
         //    }
-        //    os << algo_name_double_escaped << "\t";
+        //    os << algo_name_double_escaped << '\t';
         //}
         os << DoubleEscapeUnderscore(string(algo_name)) << '\t';
 
         for (int c = 0; c < results.cols; ++c) {
             if (rounded) {
                 cumulative_sum += floor(results(r, c) * 100.00 + 0.5) / 100.00;
-                os << std::fixed << std::setprecision(2) << results(r, c) << "\t";
+                os << std::fixed << std::setprecision(2) << results(r, c) << '\t';
             }
             else {
                 cumulative_sum += results(r, c);
-                os << std::fixed << std::setprecision(8) << results(r, c) << "\t";
+                os << std::fixed << std::setprecision(8) << results(r, c) << '\t';
             }
         }
         // Write cumulative_sum as total
@@ -235,19 +235,18 @@ void YacclabTests::AverageTest()
         average_results_suffix = "_average.txt";
 
     // Initialize results container
-    average_results_ = cv::Mat1d(cfg_.real_average_datasets.size(), cfg_.ccl_average_algorithms.size(), std::numeric_limits<double>::max());
+    average_results_ = cv::Mat1d(cfg_.average_datasets.size(), cfg_.ccl_average_algorithms.size(), std::numeric_limits<double>::max());
 
-    for (unsigned d = 0; d < cfg_.real_average_datasets.size(); ++d) { // For every dataset in the average list
-        bool dataset_is_inverted(cfg_.real_average_datasets[d].second);
+    for (unsigned d = 0; d < cfg_.average_datasets.size(); ++d) { // For every dataset in the average list
 
-        String dataset_name(cfg_.real_average_datasets[d].first),
+        String dataset_name(cfg_.average_datasets[d]),
             output_average_results = dataset_name + average_results_suffix,
             output_graph = dataset_name + kTerminalExtension,
             output_graph_bw = dataset_name + "_bw" + kTerminalExtension;
 
         path dataset_path(cfg_.input_path / path(dataset_name)),
             is_path = dataset_path / path(cfg_.input_txt), // files.txt path
-            current_output_path(cfg_.output_path / path(cfg_.average_folder) / path(dataset_name + (dataset_is_inverted ? "_inverted" : ""))),
+            current_output_path(cfg_.output_path / path(cfg_.average_folder) / path(dataset_name)),
             output_broad_path = current_output_path / path(dataset_name + complete_results_suffix),
             output_colored_images_path = current_output_path / path(cfg_.colors_folder),
             output_middle_results_path = current_output_path / path(cfg_.middle_folder),
@@ -294,7 +293,7 @@ void YacclabTests::AverageTest()
         vector<pair<double, uint16_t>> supp_average(cfg_.ccl_average_algorithms.size(), make_pair(0.0, 0));
 
         // Start output message box
-        ob.StartRepeatedBox(dataset_name + (dataset_is_inverted ? "_inverted" : ""), filenames_size, cfg_.average_tests_number);
+        ob.StartRepeatedBox(dataset_name, filenames_size, cfg_.average_tests_number);
 
         map<String, size_t> algo_pos;
         for (size_t i = 0; i < cfg_.ccl_average_algorithms.size(); ++i)
@@ -312,7 +311,7 @@ void YacclabTests::AverageTest()
                 path filename_path = dataset_path / path(filename);
 
                 // Read and load image
-                if (!GetBinaryImage(filename_path, Labeling::img_, dataset_is_inverted)) {
+                if (!GetBinaryImage(filename_path, Labeling::img_)) {
                     ob.Cmessage("Unable to open '" + filename + "'");
                     continue;
                 }
@@ -389,7 +388,7 @@ void YacclabTests::AverageTest()
             }
         }
 
-        average_os << "#Algorithm" << "\t" << "Average" << "\t" << "Round Average for Graphs" << '\n';
+        average_os << "#Algorithm" << '\t' << "Average" << '\t' << "Round Average for Graphs" << '\n';
         for (unsigned i = 0; i < cfg_.ccl_average_algorithms.size(); ++i) {
             // For all the Algorithms in the array
             const auto& algo_name = cfg_.ccl_average_algorithms[i];
@@ -402,12 +401,12 @@ void YacclabTests::AverageTest()
                     algo_name_double_escaped.insert(found, "\\\\");
                     found = algo_name_double_escaped.find_first_of("_", found + 3);
                 }
-                average_os << algo_name_double_escaped << "\t";
+                average_os << algo_name_double_escaped << '\t';
             }
 
             // Save all the results
             average_results_(d, i) = supp_average[i].first / supp_average[i].second;
-            average_os << std::fixed << std::setprecision(8) << supp_average[i].first / supp_average[i].second << "\t";
+            average_os << std::fixed << std::setprecision(8) << supp_average[i].first / supp_average[i].second << '\t';
             // TODO numberOfDecimalDigitToDisplayInGraph in config?
             average_os << std::fixed << std::setprecision(2) << supp_average[i].first / supp_average[i].second << '\n';
         }
@@ -509,10 +508,9 @@ void YacclabTests::AverageTestWithSteps()
         average_results_suffix = "_average.txt",
         average_results_rounded_suffix = "_average_rounded.txt";
 
-    for (unsigned d = 0; d < cfg_.real_average_ws_datasets.size(); ++d) { // For every dataset in the average list
-        bool dataset_is_inverted(cfg_.real_average_ws_datasets[d].second);
-        
-        String dataset_name(cfg_.real_average_ws_datasets[d].first),
+    for (unsigned d = 0; d < cfg_.average_ws_datasets.size(); ++d) { // For every dataset in the average list
+
+        String dataset_name(cfg_.average_ws_datasets[d]),
             output_average_results = dataset_name + average_results_suffix,
             output_average_results_rounded = dataset_name + average_results_rounded_suffix,
             output_graph = dataset_name + kTerminalExtension,
@@ -520,7 +518,7 @@ void YacclabTests::AverageTestWithSteps()
 
         path dataset_path(cfg_.input_path / path(dataset_name)),
             is_path = dataset_path / path(cfg_.input_txt), // files.txt path
-            current_output_path(cfg_.output_path / path(cfg_.average_ws_folder) / path(dataset_name + (dataset_is_inverted ? "_inverted" : ""))),
+            current_output_path(cfg_.output_path / path(cfg_.average_ws_folder) / path(dataset_name)),
             output_broad_path = current_output_path / path(dataset_name + complete_results_suffix),
             output_middle_results_path = current_output_path / path(cfg_.middle_folder),
             average_os_path = current_output_path / path(output_average_results),
@@ -560,7 +558,7 @@ void YacclabTests::AverageTestWithSteps()
         }
 
         // Start output message box
-        ob.StartRepeatedBox(dataset_name + (dataset_is_inverted ? "_inverted" : ""), filenames_size, cfg_.average_ws_tests_number);
+        ob.StartRepeatedBox(dataset_name, filenames_size, cfg_.average_ws_tests_number);
 
         map<String, size_t> algo_pos;
         for (size_t i = 0; i < cfg_.ccl_average_ws_algorithms.size(); ++i)
@@ -578,7 +576,7 @@ void YacclabTests::AverageTestWithSteps()
                 path filename_path = dataset_path / path(filename);
 
                 // Read and load image
-                if (!GetBinaryImage(filename_path, Labeling::img_, dataset_is_inverted)) {
+                if (!GetBinaryImage(filename_path, Labeling::img_)) {
                     ob.Cmessage("Unable to open '" + filename + "'");
                     continue;
                 }
@@ -805,7 +803,7 @@ void YacclabTests::DensityTest()
             output_size_bw_graph = dataset_name + "_size_bw" + kTerminalExtension,
             output_null = dataset_name + null_results_suffix;
 
-        path dataset_path(cfg_.input_path / path(dataset_name)),
+        path dataset_path(cfg_.input_path / path("random") / path(dataset_name)),
             is_path = dataset_path / path(cfg_.input_txt), // files.txt path
             current_output_path(cfg_.output_path / path(cfg_.density_folder) / path(dataset_name)),
             output_broad_path = current_output_path / path(dataset_name + complete_results_suffix),
@@ -1024,16 +1022,25 @@ void YacclabTests::DensityTest()
             // TODO
         }
 
+        density_os << "# density";
+        size_os << "# size";
+        for (const auto& algo_name : cfg_.ccl_average_algorithms) {
+            density_os << '\t' << algo_name ;
+            size_os << '\t' << algo_name;
+        }
+        density_os << '\n';
+        size_os << '\n';
+
         // To write density result on specified file
         for (unsigned i = 0; i < density; ++i) {
             // For every density
             if (density_average[0][i] == 0.0) { // Check it only for the first algorithm (it is the same for the others)
                 density_os << "#"; // It means that there is no element with this density characteristic
             }
-            density_os << ((float)(i + 1) / 10) << "\t"; //Density value
+            density_os << ((float)(i + 1) / 10) << '\t'; //Density value
             for (unsigned j = 0; j < density_average.size(); ++j) {
                 // For every algorithm
-                density_os << density_average[j][i] << "\t";
+                density_os << density_average[j][i] << '\t';
             }
             density_os << '\n'; // End of current line (current density)
         }
@@ -1047,10 +1054,10 @@ void YacclabTests::DensityTest()
                 size_os << "#"; // It means that there is no element with this size characteristic
             supp_size_labels[i].first = (int)(pow(2, i + 5));
             supp_size_labels[i].second = size_average[0][i];
-            size_os << (int)pow(supp_size_labels[i].first, 2) << "\t"; //Size value
+            size_os << (int)pow(supp_size_labels[i].first, 2) << '\t'; //Size value
             for (unsigned j = 0; j < size_average.size(); ++j) {
                 // For every algorithms
-                size_os << size_average[j][i] << "\t";
+                size_os << size_average[j][i] << '\t';
             }
             size_os << '\n'; // End of current line (current size)
         }
@@ -1645,7 +1652,7 @@ void YacclabTests::LatexGenerator()
             os << "S[table-format=2.3]|";
         os << "}" << '\n';
         os << "\t\\hline" << '\n';
-        os << "\t";
+        os << '\t';
         for (unsigned i = 0; i < cfg_.ccl_average_algorithms.size(); ++i) {
             //RemoveCharacter(datasets_name, '\\');
             //datasets_name.erase(std::remove(datasets_name.begin(), datasets_name.end(), '\\'), datasets_name.end());
@@ -1653,8 +1660,8 @@ void YacclabTests::LatexGenerator()
         }
         os << "\\\\" << '\n';
         os << "\t\\hline" << '\n';
-        for (unsigned i = 0; i < cfg_.real_average_datasets.size(); ++i) {
-            os << "\t" << cfg_.real_average_datasets[i].first;
+        for (unsigned i = 0; i < cfg_.average_datasets.size(); ++i) {
+            os << '\t' << cfg_.average_datasets[i];
             for (int j = 0; j < average_results_.cols; ++j) {
                 os << " & ";
                 if (average_results_(i, j) != numeric_limits<double>::max())
@@ -1693,11 +1700,11 @@ void YacclabTests::LatexGenerator()
             os << "\t\\newcommand{\\compilerName}{" + compiler_name + compiler_version + "}" << '\n';
             os << "\t\\centering" << '\n';
 
-            for (unsigned i = 0; i < cfg_.real_average_datasets.size(); ++i) {
+            for (unsigned i = 0; i < cfg_.average_datasets.size(); ++i) {
                 os << "\t\\begin{subfigure}[tbh]{" + chart_size + "\\textwidth}" << '\n';
-                os << "\t\t\\caption{" << cfg_.real_average_datasets[i].first + "}" << '\n';
+                os << "\t\t\\caption{" << cfg_.average_datasets[i] + "}" << '\n';
                 os << "\t\t\\centering" << '\n';
-                os << "\t\t\\includegraphics[width=" + chart_width + "\\textwidth]{\\compilerName_" + cfg_.real_average_datasets[i].first + ".pdf}" << '\n';
+                os << "\t\t\\includegraphics[width=" + chart_width + "\\textwidth]{\\compilerName_" + cfg_.average_datasets[i] + ".pdf}" << '\n';
                 os << "\t\\end{subfigure}" << '\n' << '\n';
             }
             os << "\t\\caption{\\machineName \\enspace " + datetime + "}" << '\n' << '\n';
@@ -1716,11 +1723,11 @@ void YacclabTests::LatexGenerator()
             // \newcommand{\compilerName}{MSVC15_0}
             os << "\t\\newcommand{\\compilerName}{" + compiler_name + compiler_version + "}" << '\n';
             os << "\t\\centering" << '\n';
-            for (unsigned i = 0; i < cfg_.real_average_ws_datasets.size(); ++i) {
+            for (unsigned i = 0; i < cfg_.average_ws_datasets.size(); ++i) {
                 os << "\t\\begin{subfigure}[tbh]{" + chart_size + "\\textwidth}" << '\n';
-                os << "\t\t\\caption{" << cfg_.real_average_ws_datasets[i].first + "}" << '\n';
+                os << "\t\t\\caption{" << cfg_.average_ws_datasets[i] + "}" << '\n';
                 os << "\t\t\\centering" << '\n';
-                os << "\t\t\\includegraphics[width=" + chart_width + "\\textwidth]{\\compilerName_" + average_ws_suffix + cfg_.real_average_ws_datasets[i].first + ".pdf}" << '\n';
+                os << "\t\t\\includegraphics[width=" + chart_width + "\\textwidth]{\\compilerName_" + average_ws_suffix + cfg_.average_ws_datasets[i] + ".pdf}" << '\n';
                 os << "\t\\end{subfigure}" << '\n' << '\n';
             }
             os << "\t\\caption{\\machineName \\enspace " + datetime + "}" << '\n' << '\n';
@@ -1794,7 +1801,7 @@ void YacclabTests::LatexGenerator()
                 os << "S[table-format=2.3]|";
             os << "}" << '\n';
             os << "\t\\hline" << '\n';
-            os << "\t";
+            os << '\t';
 
             // Header
             os << "{Algorithm} & {Binary Image} & {Label Image} & {Equivalence Vector/s}  & {Other} & {Total Accesses}";

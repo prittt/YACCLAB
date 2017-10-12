@@ -90,9 +90,6 @@ struct ConfigData {
     std::vector<cv::String> average_datasets;     // Lists of dataset on which average tests will be performed
     std::vector<cv::String> average_ws_datasets;  // Lists of dataset on which average tests whit steps will be performed
 
-    std::vector<std::pair<cv::String, bool>> real_average_datasets;
-    std::vector<std::pair<cv::String, bool>> real_average_ws_datasets;
-
     std::vector<cv::String> ccl_algorithms;          // Lists of algorithms specified by the user in the config.yaml
     std::vector<cv::String> ccl_existing_algorithms; // Lists of 'ccl_algorithms' actually existing
 
@@ -155,7 +152,7 @@ struct ConfigData {
         input_path                   = path(fs["paths"]["input"]);
         latex_path                   = output_path / path("latex");
 
-        density_datasets             = { "test_random" };
+        density_datasets             = { "classical" };
         cv::read(fs["check_datasets"], check_datasets);
         cv::read(fs["average_datasets"], average_datasets);
         cv::read(fs["average_datasets_with_steps"], average_ws_datasets);

@@ -137,7 +137,7 @@ void NormalizeLabels(Mat1i& img_labels)
     }
 }
 
-bool GetBinaryImage(const string& filename, Mat1b& binary_mat, bool inverted)
+bool GetBinaryImage(const string& filename, Mat1b& binary_mat)
 {
     // Image load
     Mat1b image;
@@ -146,20 +146,14 @@ bool GetBinaryImage(const string& filename, Mat1b& binary_mat, bool inverted)
     if (image.empty()) {
         return false;
     }
-
     // Adjust the threshold to make it binary
-    if (inverted) {
-        threshold(image, binary_mat, 100, 1, THRESH_BINARY_INV);
-    }
-    else {
-        threshold(image, binary_mat, 100, 1, THRESH_BINARY);
-    }
+    threshold(image, binary_mat, 100, 1, THRESH_BINARY);
+
     return true;
 }
 
-bool GetBinaryImage(const filesystem::path& p, Mat1b& binary_mat, bool inverted)
-{
-    return GetBinaryImage(p.string(), binary_mat, inverted);
+bool GetBinaryImage(const path& p, Mat1b& binary_mat) {
+    return GetBinaryImage(p.string(), binary_mat);
 }
 
 bool CompareMat(const Mat1i& mat_a, const Mat1i& mat_b)
@@ -183,7 +177,7 @@ void HideConsoleCursor()
     SetConsoleCursorInfo(out, &cursor_info);
 
 #elif defined(YACCLAB_LINUX) || defined(YACCLAB_LINUX) || defined(YACCLAB_APPLE)
-    system("setterm -cursor off");
+    int unused = system("setterm -cursor off");
 #endif
     return;
 }

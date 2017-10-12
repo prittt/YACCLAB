@@ -77,8 +77,8 @@ void ColorLabels(const cv::Mat1i& img_labels, cv::Mat3b& img_out);
 void NormalizeLabels(cv::Mat1i& img_labels);
 
 // Get binary image given a image's filename;
-bool GetBinaryImage(const std::string& filename, cv::Mat1b& binary_mat, bool inverted = false);
-bool GetBinaryImage(const filesystem::path& p, cv::Mat1b& binary_mat, bool inverted = false);
+bool GetBinaryImage(const std::string& filename, cv::Mat1b& binary_mat);
+bool GetBinaryImage(const filesystem::path& p, cv::Mat1b& binary_mat);
 
 // Compare two int matrices element by element
 bool CompareMat(const cv::Mat1i& mat_a, const cv::Mat1i& mat_b);

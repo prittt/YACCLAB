@@ -218,49 +218,11 @@ int main()
     std::sort(ds.begin(), ds.end());
     ds.erase(unique(ds.begin(), ds.end()), ds.end());
 
-    // Check if inverted dataset exists in the wrong list
-    for (auto& x : ds) {
-        String dataset = x;
-        if (dataset.find("_inverted") != string::npos) {
-            ob_setconf.Cwarning("Inverted datasets are allowed only in 'average' and 'average with steps' tests, skipped");
-        }
-    }
-    {
-        auto find_inverted_dataset = [](vector<String>& datasets, vector<pair<String, bool>>& real_d) {
-            for (size_t d = 0; d < datasets.size(); ++d) {
-                string dataset_temp = datasets[d];
-                bool inverted = false;
-
-                size_t found = dataset_temp.find("_inverted");
-                if (found != string::npos) {
-                    // found an inverted dataset
-                    dataset_temp = dataset_temp.substr(0, found);
-                    inverted = true;
-                    datasets[d] = dataset_temp;
-                }
-                real_d.push_back(make_pair(dataset_temp, inverted));
-            }
-        };
-
-        if (cfg.perform_average) {
-            // Name of the dataset and true if it is an "inverted" dataset
-            find_inverted_dataset(cfg.average_datasets, cfg.real_average_datasets);
-            ds.insert(ds.end(), cfg.average_datasets.begin(), cfg.average_datasets.end());
-        }
-        if (cfg.perform_average_ws) {
-            // Name of the dataset and true if it is an "inverted" dataset
-            find_inverted_dataset(cfg.average_ws_datasets, cfg.real_average_ws_datasets);
-            ds.insert(ds.end(), cfg.average_ws_datasets.begin(), cfg.average_ws_datasets.end());
-        }
-    }
-    std::sort(ds.begin(), ds.end());
-    ds.erase(unique(ds.begin(), ds.end()), ds.end());
-
     // Check if all the datasets files.txt exist
     for (auto& x : ds) {
         path p = cfg.input_path / path(x) / path(cfg.input_txt);
         if (!exists(p, ec)) {
-            ob_setconf.Cwarning("There is no dataset (no files.txt available) " + x + ", skipped");
+            ob_setconf.Cwarning("There is no dataset '" + x + "' (no files.txt available), skipped");
         }
     }
 
