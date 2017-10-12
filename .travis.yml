@@ -65,8 +65,8 @@ script:
   # Run test script
   - tools/travis-scripts/run-script.sh
 
-cache:
-  directories: 
-     - opencv-3.1.0
-before_cache: 
+#cache:
+#  directories: 
+#     - opencv-3.1.0
+#before_cache: 
 
