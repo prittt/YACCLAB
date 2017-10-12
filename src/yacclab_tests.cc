@@ -36,6 +36,7 @@
 #include <cstdint>
 
 #include <opencv2/imgproc.hpp>
+#include <opencv2/imgcodecs.hpp>
 
 #include "labeling_algorithms.h"
 #include "latex_generator.h"
