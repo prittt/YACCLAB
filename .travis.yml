@@ -32,7 +32,7 @@ sudo: required
  
 matrix:
   include:
-    # mac
+    # mac (x86 build)
     - os: osx
       osx_image: xcode7.3
       #addons:
@@ -40,7 +40,7 @@ matrix:
       #      packages:
       env: 
         - BUILD_TARGET=mac 
-    # linux
+    # linux (x64 build)
     - os: linux
       addons:
          apt:

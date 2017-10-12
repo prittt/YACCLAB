@@ -31,7 +31,7 @@
 
 #include <numeric>
 
-#include <opencv2/opencv.hpp>
+#include <opencv2/core.hpp>
 
 #include "labels_solver.h"
 #include "labeling_algorithms.h"

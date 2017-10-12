@@ -31,7 +31,7 @@
 
 #include <map>
 
-#include "opencv2/opencv.hpp"
+#include "opencv2/core.hpp"
 
 class PerformanceEvaluator {
     struct Elapsed {

@@ -26,8 +26,10 @@
 // OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#pragma once
-#include "opencv2/opencv.hpp"
+#ifndef MEMORY_TESTER_H_
+#define MEMORY_TESTER_H_
+
+#include "opencv2/core.hpp"
 
 enum memorydatatype {
     // Data structures for "classical" algorithms
@@ -191,62 +193,4 @@ private:
     std::vector<int> accesses_;
 };
 
-//template <typename T>
-//class MemVector {
-//public:
-//	MemVector(std::vector<T> vec){
-//		vec_ = vec;  // Deep copy
-//		accesses_ = cv::Mat1i(1, vec.size(), 0);
-//	}
-//
-//	MemVector(const size_t size){
-//		vec_ = vector<T>(size);
-//		accesses_ = cv::Mat1i(1, size, 0);
-//	}
-//
-//	MemVector(const size_t size, const T val){
-//		vec_ = vector<T>(size, val);
-//		accesses_ = cv::Mat1i(1, size, 1); // The initilization accesses must be counted
-//	}
-//
-//	T& operator[](const int i){
-//		accesses_.ptr<int>(0)[i]++; // Count access
-//		return vec_[i];
-//	}
-//
-//	std::vector<T> GetVector() const{
-//		return vec_;
-//	}
-//
-//	cv::Mat1i GetAcessesVector() const{
-//		return accesses_.clone();
-//	}
-//
-//	double GetTotalAcesses() const{
-//		return cv::sum(accesses_)[0];
-//	}
-//
-//	T* GetDataPointer(){
-//		return vec_.data_();
-//	}
-//
-//	size_t size(){
-//		return vec_.size();
-//	}
-//
-//	void Memiota(size_t begin, size_t end, const T value){
-//
-//		T _value = value;
-//
-//		for (size_t i = begin; i < end; ++i){
-//			vec_[i] = _value++;
-//			accesses_(0,i)++;	// increment access
-//		}
-//	}
-//
-//	//~MemVector();  // This is the destructor: declaration
-//
-//private:
-//	std::vector<T> vec_;
-//	cv::Mat1i accesses_;
-//};
+#endif // MEMORY_TESTER_H_
