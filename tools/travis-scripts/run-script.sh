@@ -72,7 +72,7 @@ function build_mac(){
  
    echo -e "\n\n------------------------------------------> YACCLAB configuration" 
    mkdir bin
-   cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_PREFIX_PATH=./opencv-3.1.0/build/ -D YACCLAB_DOWNLOAD_DATASET=OFF -G Xcode -Bbin -Hbin/.. 
+   cmake -D -D CMAKE_C_FLAGS=-m64 -D CMAKE_CXX_FLAGS=-m64 CMAKE_BUILD_TYPE=Release -D CMAKE_PREFIX_PATH=./opencv-3.1.0/build/ -D YACCLAB_DOWNLOAD_DATASET=OFF -G Xcode -Bbin -Hbin/.. 
 
    cd bin
    
