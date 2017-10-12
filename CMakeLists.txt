@@ -94,6 +94,8 @@ else()
 		message(STATUS "We are not able to check if ${CMAKE_CXX_COMPILER} compiler has complete C++11 support. YACCLAB may not work properly.")
 	endif()
 endif()
+message(STATUS "C++ flags: ${CMAKE_CXX_FLAGS}")
+message(STATUS "C flags: ${CMAKE_C_FLAGS}")
 
 
 # ----------------------------------------------------------------------------
