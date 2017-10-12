@@ -28,7 +28,7 @@
 # OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# exit this script if any commmand fails 
+# Exit this script if any commmand fails 
 set -e
 
 function install_linux_environment()
@@ -78,8 +78,37 @@ function install_linux_environment()
 	mkdir install_dir
   
     # Set build instructions for Ubuntu distro (x86 build).
-    cmake -D CMAKE_C_FLAGS=-m32 -D CMAKE_CXX_FLAGS=-m32 -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=./install_dir -D WITH_FFMPEG=OFF -D WITH_OPENCL=OFF -D WITH_QT=OFF -D WITH_IPP=OFF -D WITH_MATLAB=OFF -D WITH_OPENGL=OFF -D WITH_QT=OFF -D WITH_TIFF=OFF -D BUILD_EXAMPLES=OFF -D BUILD_TESTS=OFF -D BUILD_PERF_TESTS=OFF -D BUILD_opencv_java=OFF -D BUILD_opencv_python2=OFF -D BUILD_opencv_python3=OFF -D WITH_TBB=OFF -D WITH_V4L=OFF -D INSTALL_C_EXAMPLES=OFF -D INSTALL_PYTHON_EXAMPLES=OFF -D BUILD_EXAMPLES=OFF -D BUILD_SHARE_LIBS=OFF ..
-  
+    cmake -D CMAKE_C_FLAGS=-m32 -D CMAKE_CXX_FLAGS=-m32 -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=./install_dir -D WITH_FFMPEG=OFF -D WITH_OPENCL=OFF -D WITH_QT=OFF -D WITH_IPP=OFF -D WITH_MATLAB=OFF -D WITH_OPENGL=OFF -D WITH_QT=OFF -D WITH_TIFF=OFF -D BUILD_EXAMPLES=OFF -D BUILD_TESTS=OFF -D BUILD_PERF_TESTS=OFF -D BUILD_opencv_java=OFF -D BUILD_opencv_python2=OFF -D BUILD_opencv_python3=OFF -D WITH_TBB=OFF -D WITH_V4L=OFF -D INSTALL_C_EXAMPLES=OFF -D INSTALL_PYTHON_EXAMPLES=OFF -D BUILD_EXAMPLES=OFF -D BUILD_SHARE_LIBS=OFF\ 
+	-D BUIL_opencv_core=ON \ 
+	-D BUIL_opencv_imgproc=ON \
+	-D BUIL_opencv_imgcodecs=ON \
+	-D BUIL_opencv_videoio=OFF \
+	-D BUIL_opencv_highgui=OFF \
+	-D BUIL_opencv_video=OFF \
+	-D BUIL_opencv_calib3d=OFF \
+	-D BUIL_opencv_features2d=OFF \
+	-D BUIL_opencv_objdetect=OFF \
+	-D BUIL_opencv_ml=OFF \
+	-D BUIL_opencv_flann=OFF \
+	-D BUIL_opencv_photo=OFF \
+	-D BUIL_opencv_stitching=OFF \
+	-D BUIL_opencv_cudaarithm=OFF \
+	-D BUIL_opencv_cudabgsegm=OFF \
+	-D BUIL_opencv_cudacodec=OFF \
+	-D BUIL_opencv_cudafeatures2d=OFF \
+	-D BUIL_opencv_cudafilters=OFF \
+	-D BUIL_opencv_cudaimgproc=OFF \
+	-D BUIL_opencv_cudalegacy=OFF \
+	-D BUIL_opencv_cudaobjdetect=OFF \
+	-D BUIL_opencv_cudaoptflow=OFF \
+	-D BUIL_opencv_cudastereo=OFF \
+	-D BUIL_opencv_cudawarping=OFF \
+	-D BUIL_opencv_cudev=OFF \
+	-D BUIL_opencv_shape=OFF \
+	-D BUIL_opencv_superres=OFF \
+	-D BUIL_opencv_videostab=OFF \
+	-D BUIL_opencv_viz=OFF ..
+ 
     # Run 'make' with four threads.
     make -j4
   
@@ -161,7 +190,36 @@ function install_osx_environment()
 	mkdir install_dir
     
 	# Set build instructions for OSX (x86 build).
-    cmake -D CMAKE_C_FLAGS=-m32 -D CMAKE_CXX_FLAGS=-m32 -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=./install_dir -D WITH_FFMPEG=OFF -D WITH_OPENCL=OFF -D WITH_QT=OFF -D WITH_IPP=OFF -D WITH_MATLAB=OFF -D WITH_OPENGL=OFF -D WITH_TIFF=OFF -D BUILD_EXAMPLES=OFF -D BUILD_TESTS=OFF -D BUILD_PERF_TESTS=OFF -D BUILD_opencv_java=OFF -D BUILD_opencv_python2=OFF -D BUILD_opencv_python3=OFF -D WITH_TBB=OFF -D WITH_CUDA=OFF -D WITH_V4L=OFF -D INSTALL_C_EXAMPLES=OFF -D INSTALL_PYTHON_EXAMPLES=OFF -D BUILD_EXAMPLES=OFF -D BUILD_SHARED_LIBS=OFF ..
+    cmake -D CMAKE_C_FLAGS=-m32 -D CMAKE_CXX_FLAGS=-m32 -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=./install_dir -D WITH_FFMPEG=OFF -D WITH_OPENCL=OFF -D WITH_QT=OFF -D WITH_IPP=OFF -D WITH_MATLAB=OFF -D WITH_OPENGL=OFF -D WITH_TIFF=OFF -D BUILD_EXAMPLES=OFF -D BUILD_TESTS=OFF -D BUILD_PERF_TESTS=OFF -D BUILD_opencv_java=OFF -D BUILD_opencv_python2=OFF -D BUILD_opencv_python3=OFF -D WITH_TBB=OFF -D WITH_CUDA=OFF -D WITH_V4L=OFF -D INSTALL_C_EXAMPLES=OFF -D INSTALL_PYTHON_EXAMPLES=OFF -D BUILD_EXAMPLES=OFF -D BUILD_SHARED_LIBS=OFF\ 
+	-D BUIL_opencv_core=ON \ 
+	-D BUIL_opencv_imgproc=ON \
+	-D BUIL_opencv_imgcodecs=ON \
+	-D BUIL_opencv_videoio=OFF \
+	-D BUIL_opencv_highgui=OFF \
+	-D BUIL_opencv_video=OFF \
+	-D BUIL_opencv_calib3d=OFF \
+	-D BUIL_opencv_features2d=OFF \
+	-D BUIL_opencv_objdetect=OFF \
+	-D BUIL_opencv_ml=OFF \
+	-D BUIL_opencv_flann=OFF \
+	-D BUIL_opencv_photo=OFF \
+	-D BUIL_opencv_stitching=OFF \
+	-D BUIL_opencv_cudaarithm=OFF \
+	-D BUIL_opencv_cudabgsegm=OFF \
+	-D BUIL_opencv_cudacodec=OFF \
+	-D BUIL_opencv_cudafeatures2d=OFF \
+	-D BUIL_opencv_cudafilters=OFF \
+	-D BUIL_opencv_cudaimgproc=OFF \
+	-D BUIL_opencv_cudalegacy=OFF \
+	-D BUIL_opencv_cudaobjdetect=OFF \
+	-D BUIL_opencv_cudaoptflow=OFF \
+	-D BUIL_opencv_cudastereo=OFF \
+	-D BUIL_opencv_cudawarping=OFF \
+	-D BUIL_opencv_cudev=OFF \
+	-D BUIL_opencv_shape=OFF \
+	-D BUIL_opencv_superres=OFF \
+	-D BUIL_opencv_videostab=OFF \
+	-D BUIL_opencv_viz=OFF ..
   
     # Run 'make' with four threads.
     make -j
