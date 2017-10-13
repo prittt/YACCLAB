@@ -50,7 +50,7 @@
 
             if (CONDITION_B1) {
                 NEW_LABEL;
-                if (CONDITION_B2 || CONDITION_B4)
+                if ((CONDITION_B2) || (CONDITION_B4))
                     nextprocedure2 = true;
                 else
                     nextprocedure2 = false;
@@ -79,7 +79,7 @@
 
                 if (CONDITION_B1) {
                     ASSIGN_LX;
-                    if (CONDITION_B2 || CONDITION_B4)
+                    if ((CONDITION_B2) || (CONDITION_B4))
                         nextprocedure2 = true;
                     else
                         nextprocedure2 = false;
