@@ -176,8 +176,9 @@ void HideConsoleCursor()
     cursor_info.bVisible = false; // set the cursor visibility
     SetConsoleCursorInfo(out, &cursor_info);
 
-#elif defined(YACCLAB_LINUX) || defined(YACCLAB_LINUX) || defined(YACCLAB_APPLE)
-    int unused = system("setterm -cursor off");
+#elif defined(YACCLAB_LINUX) || defined(YACCLAB_UNIX) || defined(YACCLAB_APPLE)
+    int unused; // To avoid "return unused" and "variable unused" warnings 
+    unused = system("setterm -cursor off");
 #endif
     return;
 }

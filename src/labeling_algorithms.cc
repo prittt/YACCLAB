@@ -62,6 +62,8 @@ std::string Step(StepType n_step)
     case ALL_SCANS:
         return "All Scans";
         break;
+    case ST_SIZE: // To avoid warning on AppleClang
+        break;
     }
 
     return "";

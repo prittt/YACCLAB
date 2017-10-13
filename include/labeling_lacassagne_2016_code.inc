@@ -167,7 +167,7 @@ public:
             int x0;
             int x1 = 0; // Previous value of X
             int f = 0;  // Front detection
-            int b = 0;  // Right border compensation
+            ZOA_MOD0
             int er = 0;
             for (int c = 0; c < cols; ++c)
             {
@@ -341,7 +341,7 @@ private:
             int x0;
             int x1 = 0; // Previous value of X
             int f = 0;  // Front detection
-            int b = 0;  // Right border compensation
+            ZOA_MOD0
             int er = 0;
             for (int c = 0; c < cols; ++c) {
                 x0 = img_r[c] > 0;

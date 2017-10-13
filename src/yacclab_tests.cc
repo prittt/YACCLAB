@@ -95,7 +95,6 @@ bool YacclabTests::SaveBroadOutputResults(map<String, Mat1d>& results, const str
     // To set heading file format
     os << "#" << '\t';
     for (const auto& algo_name : ccl_algorithms) {
-        const auto& algo = LabelingMapSingleton::GetLabeling(algo_name);
 
         // Calculate the max of the columns to find unused steps
         Mat1d results_reduced(1, results.at(algo_name).cols);
@@ -117,8 +116,6 @@ bool YacclabTests::SaveBroadOutputResults(map<String, Mat1d>& results, const str
             os << filenames[files].first << '\t';
             unsigned i = 0;
             for (const auto& algo_name : ccl_algorithms) {
-                const auto& algo = LabelingMapSingleton::GetLabeling(algo_name);
-
                 for (int step_number = 0; step_number != StepType::ST_SIZE; ++step_number) {
                     if (results.at(algo_name)(files, step_number) != numeric_limits<double>::max()) {
                         os << results.at(algo_name)(files, step_number) << '\t';
@@ -158,11 +155,9 @@ bool YacclabTests::SaveBroadOutputResults(const Mat1d& results, const string& o_
     for (unsigned files = 0; files < filenames.size(); ++files) {
         if (filenames[files].second) {
             os << filenames[files].first << '\t';
-            unsigned i = 0;
-            for (const auto& algo_name : ccl_algorithms) {
+            for (unsigned i = 0; i < ccl_algorithms.size(); ++i) {
                 os << results(files, i) << '\t';
                 cfg_.write_n_labels ? os << labels(files, i) << '\t' : os << "";
-                ++i;
             }
             os << '\n';
         }
@@ -653,7 +648,6 @@ void YacclabTests::AverageTestWithSteps()
 
             // Matrix reduce done, save the results into the average file
             for (int step_number = 0; step_number != StepType::ST_SIZE; ++step_number) {
-                StepType step = static_cast<StepType>(step_number);
                 double avg{ 0.0 };
                 if (supp_average[step_number].first > 0.0 && supp_average[step_number].second > 0) {
                     steps_presence[step_number] = true;

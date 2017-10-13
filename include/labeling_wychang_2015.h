@@ -76,14 +76,14 @@ public:
 
         int lx, u, v, k;
 
-#define CONDITION_B1 img_row[x] > 0 
-#define CONDITION_B2 x+1<w && img_row[x+1] > 0              // WRONG in the original code -> add missing condition 
-#define CONDITION_B3 y+1<h && img_row_fol[x] > 0            // WRONG in the original code -> add missing condition
-#define CONDITION_B4 x+1<w && y+1<h && img_row_fol[x+1] > 0 // WRONG in the original code -> add missing condition
-#define CONDITION_U1 x-1>0 && img_row_prev[x-1] > 0         // WRONG in the original code -> add missing condition
-#define CONDITION_U2 img_row_prev[x] > 0
-#define CONDITION_U3 x+1<w && img_row_prev[x+1] > 0         // WRONG in the original code -> add missing condition
-#define CONDITION_U4 x+2<w && img_row_prev[x+2] > 0         // WRONG in the original code -> add missing condition
+#define CONDITION_B1 (img_row[x] > 0) 
+#define CONDITION_B2 (x+1<w && img_row[x+1] > 0)              // WRONG in the original code -> add missing condition 
+#define CONDITION_B3 (y+1<h && img_row_fol[x] > 0)            // WRONG in the original code -> add missing condition
+#define CONDITION_B4 (x+1<w && y+1<h && img_row_fol[x+1] > 0) // WRONG in the original code -> add missing condition
+#define CONDITION_U1 (x-1>0 && img_row_prev[x-1] > 0)         // WRONG in the original code -> add missing condition
+#define CONDITION_U2 (img_row_prev[x] > 0)
+#define CONDITION_U3 (x+1<w && img_row_prev[x+1] > 0)         // WRONG in the original code -> add missing condition
+#define CONDITION_U4 (x+2<w && img_row_prev[x+2] > 0)         // WRONG in the original code -> add missing condition
 #define ASSIGN_S img_labels_row[x] = img_labels_row[x-2]
 #define ASSIGN_P img_labels_row[x] = img_labels_row_prev_prev[x-2]
 #define ASSIGN_Q img_labels_row[x] = img_labels_row_prev_prev[x]

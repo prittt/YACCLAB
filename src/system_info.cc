@@ -59,7 +59,7 @@ void SystemInfo::SetCpuBrand()
         else if (i == 0x80000004)
             memcpy(cpu_name + 32, cpu_info, sizeof(cpu_info));
     }
-    cpu_ = { cpu_name };
+    cpu_ = string(cpu_name); // AppleClang doesn't like braces initializer list of c++11
 #elif defined(YACCLAB_WINDOWS)
     // Compiler independent, works on Windows
     std::system("wmic cpu get name|more > cpu_name.txt");
