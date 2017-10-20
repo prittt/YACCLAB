@@ -39,7 +39,7 @@
 #include "performance_evaluator.h"
 
 #define UPPER_BOUND_8_CONNECTIVITY ((size_t)((img_.rows + 1) / 2) * (size_t)((img_.cols + 1) / 2) + 1)
-//#define UPPER_BOUND_4_CONNECTIVITY todo;
+#define UPPER_BOUND_4_CONNECTIVITY (((size_t)img_.rows * (size_t)img_.cols + 1) / 2 + 1)
 
 class Labeling {
 public:
