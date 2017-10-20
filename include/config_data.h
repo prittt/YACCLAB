@@ -153,11 +153,11 @@ struct ConfigData {
         latex_path                   = output_path / path("latex");
 
         density_datasets             = { "classical" };
+        granularity_datasets         = { "granularity" };
         cv::read(fs["check_datasets"], check_datasets);
         cv::read(fs["average_datasets"], average_datasets);
         cv::read(fs["average_datasets_with_steps"], average_ws_datasets);
         cv::read(fs["memory_datasets"], memory_datasets);
-        cv::read(fs["granularity_datasets"], granularity_datasets);
         cv::read(fs["algorithms"], ccl_algorithms);
 
         yacclab_os                   = static_cast<std::string>(fs["os"]);
