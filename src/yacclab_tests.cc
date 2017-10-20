@@ -139,7 +139,6 @@ bool YacclabTests::SaveBroadOutputResults(const Mat1d& results, const string& o_
 {
     ofstream os(o_filename);
     if (!os.is_open()) {
-        dmux::cout << "Unable to save middle results" << '\n';
         return false;
     }
 
@@ -224,7 +223,7 @@ void YacclabTests::SaveAverageWithStepsResults(const string& os_name, const Stri
 
 void YacclabTests::AverageTest()
 {
-    OutputBox ob("Average Tests");
+    OutputBox ob("Average Test");
 
     string complete_results_suffix = "_results.txt",
         middle_results_suffix = "_run",
@@ -249,33 +248,28 @@ void YacclabTests::AverageTest()
             average_os_path = current_output_path / path(output_average_results);
 
         if (!create_directories(current_output_path)) {
-            ob.Cwarning("Average Test on '" + dataset_name + "': unable to find/create the output path " + current_output_path.string());
+            ob.Cwarning("Unable to find/create the output path '" + current_output_path.string() + "', skipped", dataset_name);
             continue;
         }
 
+        // TODO: remove color labels from this test
         if (cfg_.average_color_labels) {
             if (!create_directories(output_colored_images_path)) {
-                ob.Cwarning("Average Test on '" + dataset_name + "': unable to find/create the output path " + output_colored_images_path.string());
-            }
-        }
-
-        if (cfg_.average_ws_save_middle_tests) {
-            if (!create_directories(output_middle_results_path)) {
-                ob.Cwarning("Average Test on '" + dataset_name + "': unable to find/create the output path " + output_middle_results_path.string());
+                ob.Cwarning("Unable to find/create the output path '" + output_colored_images_path.string() + "', colored images won't be saved");
             }
         }
 
         // For AVERAGE
         ofstream average_os(average_os_path.string());
         if (!average_os.is_open()) {
-            ob.Cmessage("Average Test on '" + dataset_name + "': Unable to open " + average_os_path.string());
-            // TODO
+            ob.Cwarning("Unable to open '" + average_os_path.string() + "', skipped", dataset_name);
+            continue;
         }
 
         // To save list of filename on which CLLAlgorithms must be tested
         vector<pair<string, bool>> filenames;  // first: filename, second: state of filename (find or not)
         if (!LoadFileList(filenames, is_path)) {
-            ob.Cerror("Unable to open '" + is_path.string() + "'", dataset_name);
+            ob.Cwarning("Unable to open '" + is_path.string() + "', skipped", dataset_name);
             continue;
         }
 
@@ -290,6 +284,12 @@ void YacclabTests::AverageTest()
 
         // Start output message box
         ob.StartRepeatedBox(dataset_name, filenames_size, cfg_.average_tests_number);
+
+        if (cfg_.average_ws_save_middle_tests) {
+            if (!create_directories(output_middle_results_path)) {
+                ob.Cwarning("Unable to find/create the output path '" + output_middle_results_path.string() + "', middle results won't be saved");
+            }
+        }
 
         map<String, size_t> algo_pos;
         for (size_t i = 0; i < cfg_.ccl_average_algorithms.size(); ++i)
@@ -308,7 +308,7 @@ void YacclabTests::AverageTest()
 
                 // Read and load image
                 if (!GetBinaryImage(filename_path, Labeling::img_)) {
-                    ob.Cmessage("Unable to open '" + filename + "'");
+                    ob.Cwarning("Unable to open '" + filename + "', skipped");
                     continue;
                 }
 
@@ -329,8 +329,8 @@ void YacclabTests::AverageTest()
                         // This variable need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
                         n_labels = algorithm->n_labels_;
                     }
-                    catch (const runtime_error&) {
-                        ob.Cmessage("'PerformLabeling()' method not implemented in '" + algo_name + "'");
+                    catch (const runtime_error& /*e*/) {
+                        //ob.Cwarning(algo_name + ": " + e.what()); // Already checked
                         continue;
                     }
 
@@ -358,20 +358,20 @@ void YacclabTests::AverageTest()
                     algorithm->FreeLabelingData();
                 } // END ALGORITHMS FOR
             } // END FILES FOR.
-            ob.StopRepeatedBox();
+            ob.StopRepeatedBox(false);
 
             // Save middle results if necessary (flag 'average_save_middle_tests' enabled)
             if (cfg_.average_save_middle_tests) {
                 string output_middle_results_file = (output_middle_results_path / path(dataset_name + middle_results_suffix + "_" + to_string(test) + ".txt")).string();
                 if (!SaveBroadOutputResults(current_res, output_middle_results_file, labels, filenames, cfg_.ccl_average_algorithms)) {
-                    ob.Cwarning("Unable to save middle results for Average Tests");
+                    ob.Cwarning("Unable to save middle results for 'average test'");
                 }
             }
         } // END TEST FOR
 
         // To write in a file min results
         if (!SaveBroadOutputResults(min_res, output_broad_path.string(), labels, filenames, cfg_.ccl_average_algorithms)) {
-            ob.Cwarning("Unable to save min results for Average Tests");
+            ob.Cwarning("Unable to save min results for 'average test'");
         }
 
         // To calculate average times and write it on the specified file
@@ -403,7 +403,7 @@ void YacclabTests::AverageTest()
             // Save all the results
             average_results_(d, i) = supp_average[i].first / supp_average[i].second;
             average_os << std::fixed << std::setprecision(8) << supp_average[i].first / supp_average[i].second << '\t';
-            // TODO numberOfDecimalDigitToDisplayInGraph in config?
+            // TODO numberOfDecimalDigitToDisplayInGraph in configuration file ?
             average_os << std::fixed << std::setprecision(2) << supp_average[i].first / supp_average[i].second << '\n';
         }
 
@@ -418,8 +418,7 @@ void YacclabTests::AverageTest()
 
             ofstream script_os(script_os_path.string());
             if (!script_os.is_open()) {
-                ob.Cmessage("Average Test With Steps on '" + dataset_name + "': Unable to create " + script_os_path.string());
-                // TODO
+                ob.Cwarning("Unable to create " + script_os_path.string());
             }
 
             script_os << "# This is a gnuplot (http://www.gnuplot.info/) script!" << '\n';
@@ -487,17 +486,17 @@ void YacclabTests::AverageTest()
             script_os.close();
         } // GNUPLOT SCRIPT
 
-        if (0 != std::system(("gnuplot \"" + (current_output_path / path(dataset_name + cfg_.gnuplot_script_extension)).string() + "\"").c_str())) {
-            ob.Cmessage("Average Test on '" + dataset_name + "': Unable to run gnuplot's script");
-            // TODO
+        if (0 != std::system(("gnuplot \"" + (current_output_path / path(dataset_name + cfg_.gnuplot_script_extension)).string() + "\" 2> gnuplot_errors.txt").c_str())) {
+            ob.Cwarning("Unable to run gnuplot script");
         }
+        ob.CloseBox();
     } // END DATASET FOR
 }
 
 void YacclabTests::AverageTestWithSteps()
 {
     // Initialize output message box
-    OutputBox ob("Average Tests With Steps");
+    OutputBox ob("Average Test With Steps");
 
     string complete_results_suffix = "_results.txt",
         middle_results_suffix = "_run",
@@ -521,13 +520,8 @@ void YacclabTests::AverageTestWithSteps()
             average_rounded_os_path = current_output_path / path(output_average_results_rounded);
 
         if (!create_directories(current_output_path)) {
-            ob.Cerror("Average Test With Steps on '" + dataset_name + "': unable to find/create the output path " + current_output_path.string());
-        }
-
-        if (cfg_.average_ws_save_middle_tests) {
-            if (!create_directories(output_middle_results_path)) {
-                ob.Cerror("Average Test With Steps on '" + dataset_name + "': Unable to find/create the output path " + output_middle_results_path.string());
-            }
+            ob.Cwarning("Unable to find/create the output path '" + current_output_path.string() + "', skipped", dataset_name);
+            continue;
         }
 
         // Initialize results container
@@ -536,7 +530,7 @@ void YacclabTests::AverageTestWithSteps()
         // To save list of filename on which CLLAlgorithms must be tested
         vector<pair<string, bool>> filenames;  // first: filename, second: state of filename (find or not)
         if (!LoadFileList(filenames, is_path)) {
-            ob.Cerror("Unable to open '" + is_path.string() + "'", dataset_name);
+            ob.Cwarning("Unable to open '" + is_path.string() + "'", dataset_name);
             continue;
         }
 
@@ -556,6 +550,12 @@ void YacclabTests::AverageTestWithSteps()
         // Start output message box
         ob.StartRepeatedBox(dataset_name, filenames_size, cfg_.average_ws_tests_number);
 
+        if (cfg_.average_ws_save_middle_tests) {
+            if (!create_directories(output_middle_results_path)) {
+                ob.Cwarning("Unable to find/create the output path '" + output_middle_results_path.string() + "', middle results won't be saved");
+            }
+        }
+
         map<String, size_t> algo_pos;
         for (size_t i = 0; i < cfg_.ccl_average_ws_algorithms.size(); ++i)
             algo_pos[cfg_.ccl_average_ws_algorithms[i]] = i;
@@ -573,7 +573,7 @@ void YacclabTests::AverageTestWithSteps()
 
                 // Read and load image
                 if (!GetBinaryImage(filename_path, Labeling::img_)) {
-                    ob.Cmessage("Unable to open '" + filename + "'");
+                    ob.Cwarning("Unable to open '" + filename + "'");
                     continue;
                 }
 
@@ -592,8 +592,8 @@ void YacclabTests::AverageTestWithSteps()
                         // This variable need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
                         n_labels = algorithm->n_labels_;
                     }
-                    catch (const runtime_error&) {
-                        ob.Cmessage("'PerformLabelingWithSteps()' method not implemented in '" + algo_name + "'");
+                    catch (const runtime_error& /*e*/) {
+                        //ob.Cwarning(algo_name + ": " + algo_name + ": " + e.what()); // Already checked!
                         continue;
                     }
 
@@ -617,7 +617,7 @@ void YacclabTests::AverageTestWithSteps()
                     algorithm->FreeLabelingData();
                 } // END ALGORITHMS FOR
             } // END FILES FOR.
-            ob.StopRepeatedBox();
+            ob.StopRepeatedBox(false);
 
             // Save middle results if necessary (flag 'average_save_middle_tests' enabled)
             if (cfg_.average_ws_save_middle_tests) {
@@ -676,8 +676,7 @@ void YacclabTests::AverageTestWithSteps()
 
             ofstream script_os(script_os_path.string());
             if (!script_os.is_open()) {
-                ob.Cmessage("Average Test With Steps on '" + dataset_name + "': Unable to create " + script_os_path.string());
-                // TODO
+                ob.Cwarning("Unable to create " + script_os_path.string());
             }
 
             script_os << "# This is a gnuplot (http://www.gnuplot.info/) script!" << '\n';
@@ -767,10 +766,10 @@ void YacclabTests::AverageTestWithSteps()
             script_os.close();
         } // End GNUPLOT SCRIPT
 
-        if (0 != std::system(("gnuplot \"" + (current_output_path / path(dataset_name + cfg_.gnuplot_script_extension)).string() + "\"").c_str())) {
-            ob.Cmessage("Average Test With Steps on '" + dataset_name + "': Unable to run gnuplot's script");
-            // TODO
+        if (0 != std::system(("gnuplot \"" + (current_output_path / path(dataset_name + cfg_.gnuplot_script_extension)).string() + "\" 2> gnuplot_errors.txt").c_str())) {
+            ob.Cwarning("Unable to run gnuplot script");
         }
+        ob.CloseBox();
     }
 }
 
@@ -809,28 +808,25 @@ void YacclabTests::DensityTest()
             null_os_path = current_output_path / path(output_null);
 
         if (!create_directories(current_output_path)) {
-            ob.Cwarning("unable to find/create the output path '" + current_output_path.string() + ", skipped", dataset_name);
+            ob.Cwarning("Unable to find/create the output path '" + current_output_path.string() + ", skipped", dataset_name);
             continue;
         }
 
+        // TODO: remove color labels from this test
         if (cfg_.density_color_labels) {
             if (!create_directories(output_colored_images_path)) {
-                ob.Cmessage("Density Test on '" + dataset_name + "': Unable to find/create the output path " + output_colored_images_path.string());
-                // TODO
-            }
-        }
-
-        if (cfg_.density_save_middle_tests) {
-            if (!create_directories(output_middle_results_path)) {
-                ob.Cmessage("Density Test on '" + dataset_name + "': Unable to find/create the output path " + output_middle_results_path.string());
-                // TODO
+                ob.Cwarning("Unable to find/create the output path '" + output_colored_images_path.string() + "', colored images won't be saved");
             }
         }
 
         // To save list of filename on which CLLAlgorithms must be tested
         vector<pair<string, bool>> filenames;  // first: filename, second: state of filename (find or not)
         if (!LoadFileList(filenames, is_path)) {
-            ob.Cerror("Unable to open '" + is_path.string() + "'", dataset_name);
+            ob.Cwarning("Unable to open '" + is_path.string() + "'", dataset_name);
+            continue;
+        }
+        if (!CheckFileList(dataset_path, filenames)) {
+            ob.Cwarning("Missing some files in dataset folder, skipped", dataset_name);
             continue;
         }
 
@@ -879,6 +875,12 @@ void YacclabTests::DensityTest()
         // Start output message box
         ob.StartRepeatedBox(dataset_name, filenames_size, cfg_.density_tests_number);
 
+        if (cfg_.density_save_middle_tests) {
+            if (!create_directories(output_middle_results_path)) {
+                ob.Cwarning("Unable to find/create the output path '" + output_middle_results_path.string() + "', middle results won't be saved");
+            }
+        }
+
         map<String, size_t> algo_pos;
         for (size_t i = 0; i < cfg_.ccl_average_algorithms.size(); ++i)
             algo_pos[cfg_.ccl_average_algorithms[i]] = i;
@@ -896,7 +898,7 @@ void YacclabTests::DensityTest()
 
                 // Read and load image
                 if (!GetBinaryImage(filename_path, Labeling::img_)) {
-                    ob.Cmessage("Unable to open '" + filename + "'");
+                    ob.Cwarning("Unable to open '" + filename + "'");
                     continue;
                 }
 
@@ -916,8 +918,8 @@ void YacclabTests::DensityTest()
                         // This variable need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
                         n_labels = algorithm->n_labels_;
                     }
-                    catch (const runtime_error&) {
-                        ob.Cmessage("'PerformLabeling()' method not implemented in '" + algo_name + "'");
+                    catch (const runtime_error& /*e*/) {
+                        //ob.Cwarning(algo_name + ": " + e.what()); // Already checked
                         continue;
                     }
 
@@ -945,7 +947,7 @@ void YacclabTests::DensityTest()
                     algorithm->FreeLabelingData();
                 } // END ALGORITHMS FOR
             } // END FILES FOR.
-            ob.StopRepeatedBox();
+            ob.StopRepeatedBox(false);
 
             // Save middle results if necessary (flag 'density_save_middle_tests' enabled)
             if (cfg_.density_save_middle_tests) {
@@ -1006,15 +1008,13 @@ void YacclabTests::DensityTest()
         // For DENSITY RESULT
         ofstream density_os(density_os_path.string());
         if (!density_os.is_open()) {
-            ob.Cmessage("Density Test on '" + dataset_name + "': Unable to open " + density_os_path.string());
-            // TODO
+            ob.Cwarning("Unable to open '" + density_os_path.string() + "'");
         }
 
         // For SIZE RESULT
         ofstream size_os(size_os_path.string());
         if (!size_os.is_open()) {
-            ob.Cmessage("Density Test on '" + dataset_name + "': Unable to open " + size_os_path.string());
-            // TODO
+            ob.Cwarning("Unable to open '" + size_os_path.string() + "'");
         }
 
         density_os << "# density";
@@ -1069,8 +1069,7 @@ void YacclabTests::DensityTest()
 
             ofstream script_os(script_os_path.string());
             if (!script_os.is_open()) {
-                ob.Cmessage("Density Test With Steps on '" + dataset_name + "': Unable to create " + script_os_path.string());
-                // TODO
+                ob.Cwarning("Unable to create '" + script_os_path.string() + "'");
             }
 
             script_os << "# This is a gnuplot (http://www.gnuplot.info/) script!" << '\n';
@@ -1160,19 +1159,7 @@ void YacclabTests::DensityTest()
             script_os << "set key right outside top nobox spacing 2 font ', 8'" << '\n';
 
             script_os << "# Plot" << '\n';
-            //// Set Labels
-            //for (unsigned i=0; i < supp_size_labels.size(); ++i){
-            //	if (supp_size_labels[i].second != 0){
-            //		script_os << "set label " << i+1 << " \"" << supp_size_labels[i].first << "x" << supp_size_labels[i].first << "\" at " << pow(supp_size_labels[i].first,2) << "," << supp_size_labels[i].second << '\n';
-            //	}
-            //	else{
-            //		// It means that there is no element with this size characteristic so this label is not necessary
-            //	}
-            //}
-            //// Set Labels
             script_os << "plot \\" << '\n';
-            //vector<pair<CCLPointer, string>>::iterator it; // I need it after the cycle
-            //unsigned i = 2;
             i = 2;
             for (it = cfg_.ccl_average_algorithms.begin(); it != (cfg_.ccl_average_algorithms.end() - 1); ++it, ++i) {
                 script_os << "\"" + output_size_results + "\" using 1:" << i << " with linespoints title \"" + DoubleEscapeUnderscore(string(*it)) + "\" , \\" << '\n';
@@ -1202,10 +1189,10 @@ void YacclabTests::DensityTest()
             // GNUPLOT SCRIPT
         }
 
-        if (0 != std::system(("gnuplot \"" + (current_output_path / path(dataset_name + cfg_.gnuplot_script_extension)).string() + "\"").c_str())) {
-            ob.Cmessage("Density Test on '" + dataset_name + "': Unable to run gnuplot's script");
-            // TODO
+        if (0 != std::system(("gnuplot \"" + (current_output_path / path(dataset_name + cfg_.gnuplot_script_extension)).string() + "\" 2> gnuplot_errors.txt").c_str())) {
+            ob.Cwarning("Unable to run gnuplot script");
         }
+        ob.CloseBox();
     }
 }
 
@@ -1217,8 +1204,6 @@ void YacclabTests::GranularityTest()
         middle_results_suffix = "_run",
         granularity_results_suffix = "_granularity";
 
-    ofstream txt("gd.txt");
-
     for (unsigned d = 0; d < cfg_.granularity_datasets.size(); ++d) { // For every dataset in the granularity list
 
         String dataset_name(cfg_.granularity_datasets[d]),
@@ -1226,7 +1211,7 @@ void YacclabTests::GranularityTest()
             output_granularity_graph = dataset_name + "_granularity" + kTerminalExtension,
             output_granularity_bw_graph = dataset_name + "_granularity_bw" + kTerminalExtension;
 
-        path dataset_path(cfg_.input_path / path("granularity") / path(dataset_name)),
+        path dataset_path(cfg_.input_path / path("random") / path(dataset_name)),
             is_path = dataset_path / path(cfg_.input_txt), // files.txt path
             current_output_path(cfg_.output_path / path(cfg_.granularity_folder) / path(dataset_name)),
             output_broad_path = current_output_path / path(dataset_name + complete_results_suffix),
@@ -1238,12 +1223,6 @@ void YacclabTests::GranularityTest()
             continue;
         }
 
-        if (cfg_.granularity_save_middle_tests) {
-            if (!create_directories(output_middle_results_path)) {
-                ob.Cwarning("Unable to find/create the output path '" + output_middle_results_path.string() + "', middle results won't be saved", dataset_name);
-            }
-        }
-
         // To save list of filename on which CLLAlgorithms must be tested
         vector<pair<string, bool>> filenames;  // first: filename, second: state of filename (find or not)
         if (!LoadFileList(filenames, is_path)) {
@@ -1251,8 +1230,7 @@ void YacclabTests::GranularityTest()
             continue;
         }
         if (!CheckFileList(dataset_path, filenames)) {
-            ob.Cwarning("Missing some files, skipped", dataset_name);
-            continue;
+            ob.Cwarning("Missing some files in dataset folder", dataset_name);
         }
         
         // Number of files
@@ -1270,6 +1248,12 @@ void YacclabTests::GranularityTest()
 
         // Start output message box
         ob.StartRepeatedBox(dataset_name, filenames_size, cfg_.granularity_tests_number);
+
+        if (cfg_.granularity_save_middle_tests) {
+            if (!create_directories(output_middle_results_path)) {
+                ob.Cwarning("Unable to find/create the output path '" + output_middle_results_path.string() + "', middle results won't be saved", dataset_name);
+            }
+        }
 
         map<String, size_t> algo_pos;
         for (size_t i = 0; i < cfg_.ccl_average_algorithms.size(); ++i)
@@ -1328,7 +1312,7 @@ void YacclabTests::GranularityTest()
                     algorithm->FreeLabelingData();
                 } // END ALGORITHMS FOR
             } // END FILES FOR.
-            ob.StopRepeatedBox();
+            ob.StopRepeatedBox(false);
 
             // Save middle results if necessary
             if (cfg_.granularity_save_middle_tests) {
@@ -1349,10 +1333,6 @@ void YacclabTests::GranularityTest()
                 
                 for (int c = 0; c < min_res.cols; ++c) {
                     granularity_results_[dataset_name].at<Vec<double, 16>>(cur_density, c)[cur_granularity - 1] += min_res(r, c);
-                    /*auto& cur_result = granularity_results_[dataset_name].at<Vec<double, 16>>(cur_density, c)[cur_granularity - 1];
-                    if (cur_result > min_res(r,c) || cur_result == 0){
-                        cur_result = min_res(r,c);
-                    }*/
                 }
             }
             else {
@@ -1364,7 +1344,7 @@ void YacclabTests::GranularityTest()
         string main_script = (current_output_path / path("main_script" + cfg_.system_script_extension)).string();
         ofstream main_script_os(main_script);
         if (!main_script_os.is_open()) {
-            ob.Cwarning("Unable to open " + main_script, dataset_name);
+            ob.Cwarning("Unable to open '" + main_script + "'");
             return;
         }
 
@@ -1385,7 +1365,7 @@ void YacclabTests::GranularityTest()
             string cur_granularity_os = granularity_os_path.string() + "_" + to_string(g) + ".txt";
             ofstream granularity_os(cur_granularity_os);
             if (!granularity_os.is_open()) {
-                ob.Cwarning("Unable to open " + cur_granularity_os, dataset_name);
+                ob.Cwarning("Unable to open '" + cur_granularity_os + "'");
                 continue;
             }
 
@@ -1491,8 +1471,9 @@ void YacclabTests::GranularityTest()
 #endif
 
         if (0 != system((command + "\"" + main_script + "\"").c_str())) {
-            ob.Cwarning("Unable to run '" + main_script + "' script", dataset_name);
+            ob.Cwarning("Unable to run '" + main_script + "' script");
         }
+        ob.CloseBox();
     }
 }
 
@@ -1506,14 +1487,16 @@ void YacclabTests::MemoryTest()
     String output_file((current_output_path.string() / path(cfg_.memory_file)).string());
 
     if (!create_directories(current_output_path)) {
-        ob.Cwarning("Unable to find/create the output path '" + current_output_path.string() + "', memory tests skipped");
+        ob.Cwarning("Unable to find/create the output path '" + current_output_path.string() + "', 'memory test' skipped");
+        ob.CloseBox();
         return;
     }
 
     // To write MEMORY results
     ofstream os(output_file);
     if (!os.is_open()) {
-        ob.Cwarning("Unable to open '" + output_file + "', memory tests skipped");
+        ob.Cwarning("Unable to open '" + output_file + "', 'memory test' skipped");
+        ob.CloseBox();
         return;
     }
     os << "#Average number of accesses" << '\n';
@@ -1601,7 +1584,6 @@ void YacclabTests::MemoryTest()
 
         os << '\n' << '\n';;
     }
-
     os.close();
 }
 

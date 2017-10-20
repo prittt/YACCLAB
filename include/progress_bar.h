@@ -218,10 +218,7 @@ private:
 
 
 
-/* This class is useful to display a title bar in the output console.
-Example of usage:
-    TODO
-*/
+/* This class is useful to display a title bar in the output console. */
 class OutputBox {
 public:
 
@@ -281,9 +278,9 @@ public:
         pb.DisplayRepeated(progress);
     }
 
-    void StopRepeatedBox()
+    void StopRepeatedBox(bool close_box = true)
     {
-        if (pb.EndRepeated()) {
+        if (pb.EndRepeated() && close_box) {
             PrintSeparatorLine();
         }
     }

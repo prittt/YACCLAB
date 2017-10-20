@@ -98,7 +98,7 @@ private:
             // Load list of images on which ccl_algorithms must be tested
             std::vector<std::pair<std::string, bool>> filenames; // first: filename, second: state of filename (find or not)
             if (!LoadFileList(filenames, is_path)) {
-                ob.Cwarning("Unable to open '" + is_path.string(), dataset_name);
+                ob.Cwarning("Unable to open '" + is_path.string() + "'", dataset_name);
                 continue;
             }
 

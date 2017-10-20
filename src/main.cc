@@ -167,32 +167,37 @@ int main()
     }
 
     if (cfg.perform_average && (cfg.average_tests_number < 1 || cfg.average_tests_number > 999)) {
-        ob_setconf.Cwarning("'Average tests' repetitions cannot be less than 1 or more than 999, skipped");
+        ob_setconf.Cwarning("'average test' repetitions cannot be less than 1 or more than 999, skipped");
         cfg.perform_average = false;
     }
 
     if (cfg.perform_density && (cfg.density_tests_number < 1 || cfg.density_tests_number > 999)) {
-        ob_setconf.Cwarning("'Density tests' repetitions cannot be less than 1 or more than 999, skipped");
+        ob_setconf.Cwarning("'density test' repetitions cannot be less than 1 or more than 999, skipped");
         cfg.perform_density = false;
     }
 
     if (cfg.perform_average_ws && (cfg.average_ws_tests_number < 1 || cfg.average_ws_tests_number > 999)) {
-        ob_setconf.Cwarning("'Average tests with steps' repetitions cannot be less than 1 or more than 999, skipped");
+        ob_setconf.Cwarning("'average with steps test' repetitions cannot be less than 1 or more than 999, skipped");
         cfg.perform_average_ws = false;
     }
 
     if ((cfg.perform_correctness) && cfg.check_datasets.size() == 0) {
-        ob_setconf.Cwarning("There are no datasets specified for 'correctness tests', skipped");
+        ob_setconf.Cwarning("There are no datasets specified for 'correctness test', skipped");
         cfg.perform_correctness = false;
     }
 
     if ((cfg.perform_average) && cfg.average_datasets.size() == 0) {
-        ob_setconf.Cwarning("There are no datasets specified for 'average tests', skipped");
+        ob_setconf.Cwarning("There are no datasets specified for 'average test', skipped");
         cfg.perform_average = false;
     }
 
+    if ((cfg.perform_average_ws) && cfg.average_ws_datasets.size() == 0) {
+        ob_setconf.Cwarning("There are no datasets specified for 'average with steps test', skipped");
+        cfg.perform_average_ws = false;
+    }
+
     if ((cfg.perform_memory) && cfg.memory_datasets.size() == 0) {
-        ob_setconf.Cwarning("There are no datasets specified for 'memory tests', skipped");
+        ob_setconf.Cwarning("There are no datasets specified for 'memory test', skipped");
         cfg.perform_memory = false;
     }
 
@@ -202,27 +207,68 @@ int main()
         ob_setconf.Cerror("There are no tests to perform");
     }
 
-    // Check if datasets exist
-    vector<String> ds;
-    if (cfg.perform_correctness) {
-        ds.insert(ds.end(), cfg.check_datasets.begin(), cfg.check_datasets.end());
-    }
-    if (cfg.perform_memory) {
-        ds.insert(ds.end(), cfg.memory_datasets.begin(), cfg.memory_datasets.end());
-    }
-    if (cfg.perform_granularity) {
-        for (auto& d : cfg.granularity_datasets) {
-            ds.push_back((path("granularity") / path(d)).string());
-        }
-    }
-    std::sort(ds.begin(), ds.end());
-    ds.erase(unique(ds.begin(), ds.end()), ds.end());
+    // Check datasets existence
+    {
+        std::function<bool(vector<String>&, bool)> CheckDatasetExistence = [&cfg, &ob_setconf, &ec](vector<String>& dataset, bool print_message) -> bool {
+            // Check if all the datasets' files.txt exist
+            bool exists_one_dataset = false;
+            for (auto& x : dataset) {
+                path p = cfg.input_path / path(x) / path(cfg.input_txt);
+                if (!exists(p, ec)) {
+                    if (print_message) {
+                        ob_setconf.Cwarning("There is no dataset '" + x + "' (no files.txt available), skipped");
+                    }
+                }
+                else {
+                    exists_one_dataset = true;
+                }
+            }
+            return exists_one_dataset;
+        };
 
-    // Check if all the datasets files.txt exist
-    for (auto& x : ds) {
-        path p = cfg.input_path / path(x) / path(cfg.input_txt);
-        if (!exists(p, ec)) {
-            ob_setconf.Cwarning("There is no dataset '" + x + "' (no files.txt available), skipped");
+        vector<String> ds;
+        if (cfg.perform_correctness) {
+            ds.insert(ds.end(), cfg.check_datasets.begin(), cfg.check_datasets.end());
+        }
+        if (cfg.perform_memory) {
+            ds.insert(ds.end(), cfg.memory_datasets.begin(), cfg.memory_datasets.end());
+        }
+        if (cfg.perform_average) {
+            ds.insert(ds.end(), cfg.average_datasets.begin(), cfg.average_datasets.end());
+        }
+        if (cfg.perform_average) {
+            ds.insert(ds.end(), cfg.average_ws_datasets.begin(), cfg.average_ws_datasets.end());
+        }
+        std::sort(ds.begin(), ds.end());
+        ds.erase(unique(ds.begin(), ds.end()), ds.end());
+        CheckDatasetExistence(ds, true); // To check single dataset
+
+        if (cfg.perform_correctness) {
+            if (!CheckDatasetExistence(cfg.check_datasets, false)) {
+                ob_setconf.Cwarning("There are no valid datasets for 'correctness test', skipped");
+                cfg.perform_correctness = false;
+            }
+        }
+
+        if (cfg.perform_average) {
+            if (!CheckDatasetExistence(cfg.average_datasets, false)) {
+                ob_setconf.Cwarning("There are no valid datasets for 'average test', skipped");
+                cfg.perform_average = false;
+            }
+        }
+
+        if (cfg.perform_average_ws) {
+            if (!CheckDatasetExistence(cfg.average_ws_datasets, false)) {
+                ob_setconf.Cwarning("There are no valid datasets for 'average with steps test', skipped");
+                cfg.perform_average_ws = false;
+            }
+        }
+
+        if (cfg.perform_memory) {
+            if (!CheckDatasetExistence(cfg.memory_datasets, false)) {
+                ob_setconf.Cwarning("There are no valid datasets for 'memory test', skipped");
+                cfg.perform_memory = false;
+            }
         }
     }
 
@@ -258,26 +304,26 @@ int main()
         }
     }
 
-    // Average tests
+    // Average test
     if (cfg.perform_average) {
         yt.AverageTest();
     }
 
-    // Average with steps tests
+    // Average with steps test
     if (cfg.perform_average_ws) {
         yt.AverageTestWithSteps();
     }
 
-    // Density tests
+    // Density test
     if (cfg.perform_density) {
         yt.DensityTest();
     }
 
-    // Granularity tests
+    // Granularity test
     if (cfg.perform_granularity) {
         yt.GranularityTest();
     }
-    // Memory tests
+    // Memory test
     if (cfg.perform_memory) {
         yt.MemoryTest();
     }
