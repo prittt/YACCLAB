@@ -775,7 +775,7 @@ void YacclabTests::AverageTestWithSteps()
 
 void YacclabTests::DensityTest()
 {
-    OutputBox ob("Density Tests");
+    OutputBox ob("Density Test");
 
     string complete_results_suffix = "_results.txt",
         middle_results_suffix = "_run",
@@ -1198,7 +1198,7 @@ void YacclabTests::DensityTest()
 
 void YacclabTests::GranularityTest()
 {
-    OutputBox ob("Granularity Tests");
+    OutputBox ob("Granularity Test");
 
     string complete_results_suffix = "_results.txt",
         middle_results_suffix = "_run",
@@ -1480,7 +1480,7 @@ void YacclabTests::GranularityTest()
 void YacclabTests::MemoryTest()
 {
     // Initialize output message box
-    OutputBox ob("Memory Tests");
+    OutputBox ob("Memory Test");
 
     path current_output_path(cfg_.output_path / path(cfg_.memory_folder));
 
