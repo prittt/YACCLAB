@@ -87,9 +87,6 @@ average_datasets: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "t
 # List of datasets on which "Average Runtime Tests With Steps" shall be run
 average_datasets_with_steps: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800", "xdocs"]
 
-# List of datasets on which "Granularity Tests" shall be run (NOTE TODO)
-granularity_datasets: ["2048"]
-
 # List of datasets on which "Memory Tests" shall be run
 memory_datasets: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800", "xdocs"]
 
