@@ -1,5 +1,8 @@
 # YACCLAB: Yet Another Connected Components Labeling Benchmark &nbsp;&nbsp;&nbsp; [![Build Status](https://travis-ci.org/prittt/YACCLAB.svg?branch=master)](https://travis-ci.org/prittt/YACCLAB)
 
+<p align="justify">Please include the following reference when citing the YACCLAB project/dataset:</p>
+- <p align="justify">Grana, Costantino; Bolelli, Federico; Baraldi, Lorenzo; Vezzani, Roberto "YACCLAB - Yet Another Connected Components Labeling Benchmark" Proceedings of the 23rd International Conference on Pattern Recognition , Cancun, Mexico, 4-8 Dec 2016, 2016. <a href="http://imagelab.ing.unimore.it/files2/yacclab/YACCLAB_ICPR2016_BibTex.html">BibTex</a></p>
+
 <p align="justify"> 
 YACCLAB is an open source C++ project which runs and tests CCL algorithms on a collection of datasets described below. Beside running a CCL algorithm and testing its correctness, YACCLAB performs four more kinds of test: average run-time test, density and size test in which the performance of the algorithms are evaluated with images of increasing density and size, and memory test (see <a href="#tests">Tests</a> section for more details). To check the correctness of an implementation, the output of an algorithm is compared with that of the Scan Array Union Find Algorithm<sup><a href="#SAUF">6</a></sup>, which is assumed to be a correct reference point. Notice that 8-connectivity is always used in the project.
 </p>
