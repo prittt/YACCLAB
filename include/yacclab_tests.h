@@ -124,7 +124,8 @@ private:
                 auto& sauf = LabelingMapSingleton::GetInstance().data_.at("SAUF_UF");
                 sauf->PerformLabeling();
                 n_labels_correct = sauf->n_labels_;
-                cv::Mat1i& labeled_img_correct = sauf->img_labels_;
+                cv::Mat1i labeled_img_correct = sauf->img_labels_.clone();
+                sauf->FreeLabelingData();
 
                 //cv::Mat1i labeled_img_correct;
                 //n_labels_correct = cv::connectedComponents(Labeling::img_, labeled_img_correct, 8, 4, cv::CCL_WU);
