@@ -28,7 +28,38 @@
 # OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# exit this script if any commmand fails 
+# List of OpenCV 3.1.0 modules
+#-D BUIL_opencv_core=ON
+#-D BUIL_opencv_imgproc=ON
+#-D BUIL_opencv_imgcodecs=ON
+#-D BUIL_opencv_videoio=OFF 
+#-D BUIL_opencv_highgui=OFF 
+#-D BUIL_opencv_video=OFF
+#-D BUIL_opencv_calib3d=OFF
+#-D BUIL_opencv_features2d=OFF
+#-D BUIL_opencv_objdetect=OFF
+#-D BUIL_opencv_ml=OFF
+#-D BUIL_opencv_flann=OFF
+#-D BUIL_opencv_photo=OFF
+#-D BUIL_opencv_stitching=OFF
+#-D BUIL_opencv_cudaarithm=OFF
+#-D BUIL_opencv_cudabgsegm=OFF
+#-D BUIL_opencv_cudacodec=OFF
+#-D BUIL_opencv_cudafeatures2d=OFF
+#-D BUIL_opencv_cudafilters=OFF
+#-D BUIL_opencv_cudaimgproc=OFF
+#-D BUIL_opencv_cudalegacy=OFF
+#-D BUIL_opencv_cudaobjdetect=OFF
+#-D BUIL_opencv_cudaoptflow=OFF
+#-D BUIL_opencv_cudastereo=OFF
+#-D BUIL_opencv_cudawarping=OFF
+#-D BUIL_opencv_cudev=OFF
+#-D BUIL_opencv_shape=OFF
+#-D BUIL_opencv_superres=OFF
+#-D BUIL_opencv_videostab=OFF
+#-D BUIL_opencv_viz=OFF
+
+# Exit this script if any commmand fails 
 set -e
 
 function install_linux_environment()
@@ -40,8 +71,7 @@ function install_linux_environment()
   echo -e "------------------------------------------> DONE!" 
   
   echo -e "\n\n------------------------------------------> Update apt"
-  sudo apt-get -qq update -y
-  #sudo apt-get upgrade -y #Don't do that
+  #sudo apt-get -qq update -y
   echo -e "------------------------------------------> DONE!" 
   
   echo -e "\n\n------------------------------------------> Install gcc-4.8:"
@@ -49,6 +79,12 @@ function install_linux_environment()
   if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
   sudo update-alternatives --quiet --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
   echo -e "------------------------------------------> DONE!" 
+  
+  #echo -e "\n\n------------------------------------------> Install dependencies and libs to build x86 program on x64 architecture (Ubuntu bug)"
+  #sudo apt-get install build-essential gcc-multilib gcc-4.8-multilib g++-multilib g++-4.8-multilib lib32z1 lib32ncurses5 lib32bz2-1.0 libc6-dev libgmp-dev libmpfr-dev libmpc-dev
+  #sudo dpkg --add-architecture i386
+  #sudo ln -s /usr/include/x86_64-linux-gnu/zconf.h /usr/include
+  #echo -e "------------------------------------------> DONE!"  
   
   echo -e "\n\n------------------------------------------> Install OpenCV-3.1.0 (only if they weren't cached) and dependent packages:"
   sudo apt-get -qq -y install build-essential
@@ -77,9 +113,9 @@ function install_linux_environment()
     # Create 'install_dir' folder
 	mkdir install_dir
   
-    # Set build instructions for Ubuntu distro.
-    cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=./install_dir -D WITH_FFMPEG=OFF -D WITH_OPENCL=OFF -D WITH_QT=OFF -D WITH_IPP=OFF -D WITH_MATLAB=OFF -D WITH_OPENGL=OFF -D WITH_QT=OFF -D WITH_TIFF=OFF -D BUILD_EXAMPLES=OFF -D BUILD_TESTS=OFF -D BUILD_PERF_TESTS=OFF -D BUILD_opencv_java=OFF -D BUILD_opencv_python2=OFF -D BUILD_opencv_python3=OFF -D WITH_TBB=OFF -D WITH_V4L=OFF -D INSTALL_C_EXAMPLES=OFF -D INSTALL_PYTHON_EXAMPLES=OFF -D BUILD_EXAMPLES=OFF -D BUILD_SHARE_LIBS=OFF ..
-  
+    # Set build instructions for Ubuntu distro (x64 build).
+    cmake -D CMAKE_C_FLAGS=-m64 -D CMAKE_CXX_FLAGS=-m64 -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=./install_dir -D WITH_FFMPEG=OFF -D WITH_OPENCL=OFF -D WITH_QT=OFF -D WITH_IPP=OFF -D WITH_MATLAB=OFF -D WITH_OPENGL=OFF -D WITH_QT=OFF -D WITH_TIFF=OFF -D BUILD_EXAMPLES=OFF -D BUILD_TESTS=OFF -D BUILD_PERF_TESTS=OFF -D BUILD_opencv_java=OFF -D BUILD_opencv_python2=OFF -D BUILD_opencv_python3=OFF -D WITH_TBB=OFF -D WITH_V4L=OFF -D INSTALL_C_EXAMPLES=OFF -D INSTALL_PYTHON_EXAMPLES=OFF -D BUILD_EXAMPLES=OFF -D BUILD_SHARED_LIBS=OFF -D BUILD_ZLIB=OFF -D BUILD_opencv_core=ON -D BUILD_opencv_imgproc=ON -D BUILD_opencv_imgcodecs=ON -D BUILD_opencv_videoio=OFF -D BUILD_opencv_highgui=OFF -D BUILD_opencv_video=OFF -D BUILD_opencv_calib3d=OFF -D BUILD_opencv_features2d=OFF -D BUILD_opencv_objdetect=OFF -D BUILD_opencv_ml=OFF -D BUILD_opencv_flann=OFF -D BUILD_opencv_photo=ON -D BUILD_opencv_stitching=OFF -D BUILD_opencv_cudaarithm=OFF -D BUILD_opencv_cudabgsegm=OFF -D BUILD_opencv_cudacodec=OFF -D BUILD_opencv_cudafeatures2d=OFF -D BUILD_opencv_cudafilters=OFF -D BUILD_opencv_cudaimgproc=OFF -D BUILD_opencv_cudalegacy=OFF -D BUILD_opencv_cudaobjdetect=OFF -D BUILD_opencv_cudaoptflow=OFF -D BUILD_opencv_cudastereo=OFF -D BUILD_opencv_cudawarping=OFF -D BUILD_opencv_cudev=OFF -D BUILD_opencv_shape=OFF -D BUILD_opencv_superres=OFF -D BUILD_opencv_videostab=OFF -D BUILD_opencv_viz=OFF -D WITH_OPENEXR=OFF ..
+ 
     # Run 'make' with four threads.
     make -j4
   
@@ -120,7 +156,8 @@ function install_osx_environment()
 {
   echo "############################################### Install OSX Environment ###############################################"
 
-  echo -e "\n\n------------------------------------------> Clean and Update brew"
+  
+  echo -e "\n\n------------------------------------------> Clean and Update brew" 
   #Clean brew cache to avoid memory waste
   brew cleanup > /dev/null
   #brew cleanup > brew_cleanup.log
@@ -159,8 +196,8 @@ function install_osx_environment()
     # Create 'install_dir' folder
 	mkdir install_dir
     
-	# Set build instructions for Ubuntu distro.
-    cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=./install_dir -D WITH_FFMPEG=OFF -D WITH_OPENCL=OFF -D WITH_QT=OFF -D WITH_IPP=OFF -D WITH_MATLAB=OFF -D WITH_OPENGL=OFF -D WITH_TIFF=OFF -D BUILD_EXAMPLES=OFF -D BUILD_TESTS=OFF -D BUILD_PERF_TESTS=OFF -D BUILD_opencv_java=OFF -D BUILD_opencv_python2=OFF -D BUILD_opencv_python3=OFF -D WITH_TBB=OFF -D WITH_CUDA=OFF -D WITH_V4L=OFF -D INSTALL_C_EXAMPLES=OFF -D INSTALL_PYTHON_EXAMPLES=OFF -D BUILD_EXAMPLES=OFF -D BUILD_SHARED_LIBS=OFF ..
+	# Set build instructions for OSX (x64 build).
+    cmake -D CMAKE_C_FLAGS=-m64 -D CMAKE_CXX_FLAGS=-m64 -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=./install_dir -D WITH_FFMPEG=OFF -D WITH_OPENCL=OFF -D WITH_QT=OFF -D WITH_IPP=OFF -D WITH_MATLAB=OFF -D WITH_OPENGL=OFF -D WITH_TIFF=OFF -D BUILD_EXAMPLES=OFF -D BUILD_TESTS=OFF -D BUILD_PERF_TESTS=OFF -D BUILD_opencv_java=OFF -D BUILD_opencv_python2=OFF -D BUILD_opencv_python3=OFF -D WITH_TBB=OFF -D WITH_CUDA=OFF -D WITH_V4L=OFF -D INSTALL_C_EXAMPLES=OFF -D INSTALL_PYTHON_EXAMPLES=OFF -D BUILD_EXAMPLES=OFF -D BUILD_SHARED_LIBS=OFF -D BUILD_ZLIB=OFF -D BUILD_opencv_core=ON -D BUILD_opencv_imgproc=ON -D BUILD_opencv_imgcodecs=ON -D BUILD_opencv_videoio=OFF -D BUILD_opencv_highgui=OFF -D BUILD_opencv_video=OFF -D BUILD_opencv_calib3d=OFF -D BUILD_opencv_features2d=OFF -D BUILD_opencv_objdetect=OFF -D BUILD_opencv_ml=OFF -D BUILD_opencv_flann=OFF -D BUILD_opencv_photo=ON -D BUILD_opencv_stitching=OFF -D BUILD_opencv_cudaarithm=OFF -D BUILD_opencv_cudabgsegm=OFF -D BUILD_opencv_cudacodec=OFF -D BUILD_opencv_cudafeatures2d=OFF -D BUILD_opencv_cudafilters=OFF -D BUILD_opencv_cudaimgproc=OFF -D BUILD_opencv_cudalegacy=OFF -D BUILD_opencv_cudaobjdetect=OFF -D BUILD_opencv_cudaoptflow=OFF -D BUILD_opencv_cudastereo=OFF -D BUILD_opencv_cudawarping=OFF -D BUILD_opencv_cudev=OFF -D BUILD_opencv_shape=OFF -D BUILD_opencv_superres=OFF -D BUILD_opencv_videostab=OFF -D BUILD_opencv_viz=OFF -D WITH_OPENEXR=OFF ..
   
     # Run 'make' with four threads.
     make -j
@@ -177,7 +214,8 @@ function install_osx_environment()
   export LD_LIBRARY_PATH=./opencv-3.1.0/build/install_dir
   echo -e "------------------------------------------> DONE!"
 	
-  echo -e "\n\n------------------------------------------> Install Gnuplot and dependent packages:"
+  echo -e "\n\n------------------------------------------> Install Gnuplot and dependent packages:" 
+  ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null 2> /dev/null
   brew install gnuplot > gnuplot_install.log
   gnuplot --version
   echo -e "------------------------------------------> DONE!" 
