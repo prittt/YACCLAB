@@ -1,10 +1,8 @@
 %YAML:1.2
 ---
-# This is YACCLAB configuration file
-# Important notes:
-#	- the escape character in gnuplot is '\\' and it is correctly handled by YACCLAB
-#	- for some algorithms YACCLAB contains both optimized (OPT) and readable version;
-#		you should use optimized version for tests.
+##########################################
+# This is the YACCLAB configuration file #
+##########################################
 
 # -------------------------------------------------------------------------------------
 # Tests to perform and their number of repetitions
@@ -36,26 +34,30 @@ tests_number:
 # -------------------------------------------------------------------------------------
 
 algorithms: 
-  - SAUF_RemSP
+#  - SAUF_RemSP
 #  - SAUF_TTA
-#  - SAUF_UFPC
+  - SAUF_UFPC
 #  - SAUF_UF
-  - BBDT_RemSP
-  - BBDT_TTA
-  - BBDT_UFPC
-  - BBDT_UF
-  - CCIT_RemSP
-  - CCIT_TTA
-  - CCIT_UFPC
-  - CCIT_UF
-  - CTB_RemSP
-  - CTB_TTA
-  - CTB_UFPC
-  - CTB_UF
-  - PRED_RemSP
-  - PRED_TTA
-  - PRED_UFPC
-  - PRED_UF
+#  - BBDT_RemSP
+#  - BBDT_TTA
+   - BBDT_UFPC
+#  - BBDT_UF
+#  - CCIT_RemSP
+#  - CCIT_TTA
+   - CCIT_UFPC
+#  - CCIT_UF
+#  - CTB_RemSP
+#  - CTB_TTA
+   - CTB_UFPC
+#  - CTB_UF
+#  - PRED_RemSP
+#  - PRED_TTA
+   - PRED_UFPC
+#  - PRED_UF
+#  - DRAG_RemSP
+#  - DRAG_TTA
+   - DRAG_UFPC
+#  - DRAG_UF
 #  - LSL_STD_TTA
 #  - LSL_STD_UF
 #  - LSL_STDZ_TTA
@@ -69,7 +71,7 @@ algorithms:
   - SBLA
   - labeling_NULL
 
-# Algorithms which require to specify a labels solver are: SAUF, BBDT, CCIT, LSL, CTB, PRED
+# Algorithms which require to specify a labels solver are: SAUF, BBDT, CCIT, LSL, CTB, PRED, and DRAG
 # Possible labels solvers are: UF, UFPC, RemSP, TTA
 # LSL requires also a version specifier: STD, STDZ, RLE, RLEZ; only UF and TTA solvers can be used with LSL
 # Algorithms which don't require to specify a labels solver are: DiStefano, CT, SBLA, NULL
@@ -100,12 +102,14 @@ paths: {input: "${YACCLAB_INPUT_DATASET_PATH}", output: "${YACCLAB_OUTPUT_RESULT
 # Save the returned number of components in output files
 write_n_labels: false
 
-# Save labeled image
-color_labels: {average: false, density: false} #TODO
+# Save labeled image (TODO: remove this option from tests and add a specific tools for doing that in YACCLAB) 
+color_labels: {average: false, density: false}
 
 # Save the results of each run test
 save_middle_tests: {average: false, average_with_steps: false, density: false, granularity: false}
 
 os: "${YACCLAB_OS}"
 
-# This is YACCLAB configuration file
+##########################################
+# This is the YACCLAB configuration file #
+##########################################

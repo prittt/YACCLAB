@@ -1,10 +1,8 @@
 %YAML:1.2
 ---
-# This is YACCLAB configuration file
-# Important notes:
-#	- the escape character in gnuplot is '\\' and it is correctly handled by YACCLAB
-#	- for some algorithms YACCLAB contains both optimized (OPT) and readable version;
-#		you should use optimized version for tests.
+##########################################
+# This is the YACCLAB configuration file #
+##########################################
 
 # -------------------------------------------------------------------------------------
 # Tests to perform and their number of repetitions
@@ -69,7 +67,7 @@ algorithms:
 #  - SBLA
 #  - labeling_NULL
 
-# Algorithms which require to specify a labels solver are: SAUF, BBDT, CCIT, LSL, CTB, PRED
+# Algorithms which require to specify a labels solver are: SAUF, BBDT, CCIT, LSL, CTB, PRED, and DRAG
 # Possible labels solvers are: UF, UFPC, RemSP, TTA
 # LSL requires also a version specifier: STD, STDZ, RLE, RLEZ; only UF and TTA solvers can be used with LSL
 # Algorithms which don't require to specify a labels solver are: DiStefano, CT, SBLA, NULL
@@ -100,7 +98,7 @@ paths: {input: "${YACCLAB_INPUT_DATASET_PATH}", output: "${YACCLAB_OUTPUT_RESULT
 # Save the returned number of components in output files
 write_n_labels: false
 
-# Save labeled image
+# Save labeled image (TODO: remove this option from tests and add a specific tools for doing that in YACCLAB) 
 color_labels: {average: false, density: false} #TODO
 
 # Save the results of each run test
@@ -108,4 +106,6 @@ save_middle_tests: {average: false, average_with_steps: false, density: false, g
 
 os: "${YACCLAB_OS}"
 
-# This is YACCLAB configuration file
+##########################################
+# This is the YACCLAB configuration file #
+##########################################
