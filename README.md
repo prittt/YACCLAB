@@ -29,7 +29,7 @@ Notes for gnuplot:
 - <p align="justify">Install software in YACCLAB/bin subfolder (suggested) or wherever you want using CMake (point 2 of the example image). Note that CMake should automatically find the OpenCV path whether correctly installed on your OS (3), download the YACCLAB Dataset (be sure to check the box if you want to download it (4) or to select the correct path if the dataset is already on your file system (5)), and create a C++ project for the selected IDE/compiler (7-8).</p>
 
 ![Cmake](https://raw.githubusercontent.com/pritt/YACCLAB/master/doc/readme_github.pdf)
-
+[embed]https://raw.githubusercontent.com/pritt/YACCLAB/master/doc/readme_github.pdf[/embed]
 - <p align="justify">Set the <a href="#conf">configuration file (config.cfg)</a> placed in the installation folder (bin in this example) in order to select desired tests.</p>
 
 - <p align="justify">Open the project, compile and run it: the work is done!</p>
@@ -53,7 +53,6 @@ Anyway, when the <i>connectedComponents</i> function is called lot of additional
 		- <b>Chang - Block-Based - (CCIT)</b>: <i>labeling_wychang_2015.cc</i>
 		- <b>Zhao - Stripe Based - (SBLA)</b>: <i>labeling_zhao_2010.cc</i>
 		
-Once the required files have been included in your project you can simply call the desired algorithm creating 
 		
 ## The YACCLAB Dataset
  
