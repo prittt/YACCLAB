@@ -38,22 +38,21 @@ Notes for gnuplot:
 
 If your project requires a Connected Component Labeling algorithm you can use the <i>connectedComponent</i> function of the OpenCV library which implements the BBDT and SAUF algorithms since version 3.2.
 
-Anyway, when the <i>connectedComponents</i> function is called lot of additional code will be executed together with the core function. If your project requires the best performance or does not include OpenCV library you can include an algorithm implemented in YACCLAB adding the following files to your project:
-	1. <i>labeling_algorithms.h</i> which define the base class from which every algorithm derives from.
-	2. <i>label_solver.h</i> which cointains the implementation of labels solving algorithms.
-	3. <i>memory_tester.h</i>
-	4. <i>headers</i> and <i>sources</i> files of the required algorithm/s. The association between algorithms and header/source files is listed below: 
-		- <b>DiStefano</b>: <i>labeling_distefano_1999.cc</i>, 
-		- <b>Chang - Contour Tracing - (CT)</b>: <i>labeling_fchang_2003.cc</i>
-		- <b>Grana - Block-Based with Decision Tree - (BBDT)</b>: <i>labeling_grana_2010.cc</i>
-		- <b>Grana - Pixel Prediction - (PRED)</b>: <i>labeling_grana_2016.cc</i>
-		- <b>He - Configuration Transition Based -(CTB)</b>: <i>labeling_he_2014.cc</i>
-		- <b>Lacassagne - Light Speed Labeling - (LSL)</b>: <i>labeling_lacassagne_2016.cc</i>
-		- <b>Wu - Scan Array-based with Union Find - (SAUF)</b>: <i>labeling_wu_2009.cc</i>
-		- <b>Chang - Block-Based - (CCIT)</b>: <i>labeling_wychang_2015.cc</i>
-		- <b>Zhao - Stripe Based - (SBLA)</b>: <i>labeling_zhao_2010.cc</i>
-		
-		
+Anyway, when the <i>connectedComponents</i> function is called lot of additional code will be executed together with the core function. If your project requires the best performance or does not include OpenCV library you can include an algorithm implemented in YACCLAB adding the following files to your project: 
+- <i>labeling_algorithms.h</i> which define the base class from which every algorithm derives from.
+- <i>label_solver.h</i> which cointains the implementation of labels solving algorithms.
+- <i>memory_tester.h</i>
+- <i>headers</i> and <i>sources</i> files of the required algorithm/s. The association between algorithms and header/source files is listed below: 
+	- <b>DiStefano</b>: <i>labeling_distefano_1999.cc</i>, 
+	- <b>Chang - Contour Tracing - (CT)</b>: <i>labeling_fchang_2003.cc</i>
+	- <b>Grana - Block-Based with Decision Tree - (BBDT)</b>: <i>labeling_grana_2010.cc</i>
+	- <b>Grana - Pixel Prediction - (PRED)</b>: <i>labeling_grana_2016.cc</i>
+	- <b>He - Configuration Transition Based -(CTB)</b>: <i>labeling_he_2014.cc</i>
+	- <b>Lacassagne - Light Speed Labeling - (LSL)</b>: <i>labeling_lacassagne_2016.cc</i>
+	- <b>Wu - Scan Array-based with Union Find - (SAUF)</b>: <i>labeling_wu_2009.cc</i>
+	- <b>Chang - Block-Based - (CCIT)</b>: <i>labeling_wychang_2015.cc</i>
+	- <b>Zhao - Stripe Based - (SBLA)</b>: <i>labeling_zhao_2010.cc</i>
+
 ## The YACCLAB Dataset
  
 <p align="justify">The YACCLAB dataset includes both synthetic and real images. All images are provided in 1 bit per pixel PNG format, with 0 (black) being background and 1 (white) being foreground. The dataset will be automatically downloaded by CMake during the installation process. Images are organized by folders as follows: </p>
