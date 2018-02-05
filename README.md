@@ -5,7 +5,9 @@
 - <p align="justify"> Grana, Costantino; Bolelli, Federico; Baraldi, Lorenzo; Vezzani, Roberto "YACCLAB - Yet Another Connected Components Labeling Benchmark" Proceedings of the 23rd International Conference on Pattern Recognition, Cancun, Mexico, 4-8 Dec 2016, 2016. <a title="BibTex" href="http://imagelab.ing.unimore.it/files2/yacclab/YACCLAB_ICPR2016_BibTex.html">BibTex</a></p>
 
 <p align="justify"> 
-YACCLAB is an open source C++ project which runs and tests CCL algorithms on a collection of datasets described below. Beside running a CCL algorithm and testing its correctness, YACCLAB performs four more kinds of test: average run-time test, density and size test in which the performance of the algorithms are evaluated with images of increasing density and size, and memory test (see <a href="#tests">Tests</a> section for more details). To check the correctness of an implementation, the output of an algorithm is compared with that of the Scan Array Union Find Algorithm<sup><a href="#SAUF">6</a></sup>, which is assumed to be a correct reference point. Notice that 8-connectivity is always used in the project.
+YACCLAB is an open source project that enables researchers to test CCL algorithms under extremely variable points of view, running and testing algorithms on a collection of datasets described below. The benchmark performs the following tests which will be described later in this readme: correctness, average run-time (average), average run-time with steps (average_ws), density, size, granularity and memory accesses (memory).
+
+Notice that 8-connectivity is always used in the project.
 </p>
 
 ## Requirements
@@ -19,17 +21,47 @@ YACCLAB is an open source C++ project which runs and tests CCL algorithms on a c
 
 Note for gnuplot:
 - on Windows system: be sure add gnuplot to system path if you want YACCLAB automatically generates charts.
-- on MacOS system: 'pdf terminal' seems to be not available due to old version of cairo, 'postscript' one is used.
+- on MacOS system: 'pdf terminal' seems to be not available due to old version of cairo, 'postscript' is used instead.
 
 ## Installation
 
 - <p align="justify">Clone the GitHub repository (HTTPS clone URL: https://github.com/prittt/YACCLAB.git) or simply download the full master branch zip file and extract it (e.g YACCLAB folder).</p>
-- <p align="justify">Install software in YACCLAB/build subfolder (suggested) or wherever you want using CMake. Note that CMake should automatically find OpenCV path (if installed), download YACCLAB Dataset and create a project for the selected IDE/compiler.</p>
-- <p align="justify">Set <a href="#conf">configuration file</a> in order to execute desired tests, open the project created at the previous point, compile and run it: the work is done. </p>
+- <p align="justify">Install software in YACCLAB/bin subfolder (suggested) or wherever you want using CMake. Note that CMake should automatically find the OpenCV path (if correctly installed), download the YACCLAB Dataset (be sure tu check the box if you want to download it or select the correct path if the dataset is already on your file system) and create a C++ project for the selected IDE/compiler.</p>
 
-## Datasets
+TODO: add images!
+
+- <p align="justify">Set the <a href="#conf">configuration file (config.cfg)</a> placed in the installation folde (bin in this example) in order to select desired tests;</p>
+
+- <p align="justify">Open the project, compile and run it: the work is done!</p>
+
+## How to include a YACCLAB algorithm into your own project
+
+If your project requires a connected component labeling function you can use the connectedComponent function of the OpenCV library which implements the BBDT (which is the current best algorithm according to YACCLAB) and SAUF algorithms. Since version 3.3 of the OpenCV, also the parallel implemention of that algorithms is included in the library ( .. function).
+
+Anyway, when the OpenCV connectedComponents function is called lot of additional code will be executed together with the core function. If your project requires the best performance you can include 
+
+How to include and execute the code of a single connected component labeling algorithm in your project:
+
+Add the following file to your project:
+
+1) labeling_algorithms.h which define the base class from which every algorithm derives from.
+2) label_solver.h which cointains the implementation labels solver algorithms.
+3) memory_tester.h
+4) the header of the required algorithm/s. The association between algorithms and header file is the following: 
+	a) DiStefano: labeling_distefano_1999.cc
+	b) Chang Contour Tracing: labeling_fchang_2003.cc
+	c) Grana BBDT: labeling_grana_2010.cc
+	d) Grana PRED: labeling_grana_2016.cc
+	e) He CTB: labeling_he_2014.cc
+	f) Lacassagne LSL: labeling_lacassagne_2016.cc
+	g) Wu SAUF: labeling_wu_2009.cc
+	h) Chang BBDT2: labeling_wychang_2015.cc
+	i) Zhao Stripe Based (SBLA): labeling_zhao_2010.cc
+	l) 
+
+## The YACCLAB Dataset
  
-<p align="justify">YACCLAB dataset includes both synthetic and real images. All images are provided in 1 bit per pixel PNG format, with 0 (black) being background and 1 (white) being foreground. The dataset will be automatically downloaded by CMake during the installation process. Images are organized by folders as follows: </p>
+<p align="justify">The YACCLAB dataset includes both synthetic and real images. All images are provided in 1 bit per pixel PNG format, with 0 (black) being background and 1 (white) being foreground. The dataset will be automatically downloaded by CMake during the installation process. Images are organized by folders as follows: </p>
 
 - <b>Random:<sup><a href="#BBDT">4</a></sup></b><p align="justify"> A set of synthetic random noise images who contain black and white random noise with 9 different foreground densities (10% up to 90%), from a low resolution of 32x32 pixels to a maximum resolution of 4096x4096 pixels, allowing to test the scalability and the effectiveness of different approaches when the number of labels gets high. For every combination of size and density, 10 images are provided for a total of 720 images. The resulting subset allows to evaluate performance both in terms of scalability on the number of pixels and on the number of labels (density). </p>
 
