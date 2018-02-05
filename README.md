@@ -19,46 +19,42 @@ Notice that 8-connectivity is always used in the project.
 - Gnuplot (http://www.gnuplot.info/), 
 - One of your favourite IDE/compiler: Visual Studio 2013 or higher, Xcode 5.0.1, gcc 4.7 or higher, .. (with C++11 support)
 
-Note for gnuplot:
+Notes for gnuplot:
 - on Windows system: be sure add gnuplot to system path if you want YACCLAB automatically generates charts.
 - on MacOS system: 'pdf terminal' seems to be not available due to old version of cairo, 'postscript' is used instead.
 
-## Installation
+## Installation (refer to the image below)
 
 - <p align="justify">Clone the GitHub repository (HTTPS clone URL: https://github.com/prittt/YACCLAB.git) or simply download the full master branch zip file and extract it (e.g YACCLAB folder).</p>
-- <p align="justify">Install software in YACCLAB/bin subfolder (suggested) or wherever you want using CMake. Note that CMake should automatically find the OpenCV path (if correctly installed), download the YACCLAB Dataset (be sure tu check the box if you want to download it or select the correct path if the dataset is already on your file system) and create a C++ project for the selected IDE/compiler.</p>
+- <p align="justify">Install software in YACCLAB/bin subfolder (suggested) or wherever you want using CMake (point 2 of the example image). Note that CMake should automatically find the OpenCV path whether correctly installed on your OS (3), download the YACCLAB Dataset (be sure to check the box if you want to download it (4) or to select the correct path if the dataset is already on your file system (5)), and create a C++ project for the selected IDE/compiler (7-8).</p>
 
-TODO: add images!
+![Cmake](https://raw.githubusercontent.com/pritt/YACCLAB/master/doc/readme_github.pdf)
 
-- <p align="justify">Set the <a href="#conf">configuration file (config.cfg)</a> placed in the installation folde (bin in this example) in order to select desired tests;</p>
+- <p align="justify">Set the <a href="#conf">configuration file (config.cfg)</a> placed in the installation folder (bin in this example) in order to select desired tests.</p>
 
 - <p align="justify">Open the project, compile and run it: the work is done!</p>
 
-## How to include a YACCLAB algorithm into your own project
+## How to include a YACCLAB algorithm into your own project?
 
-If your project requires a connected component labeling function you can use the connectedComponent function of the OpenCV library which implements the BBDT (which is the current best algorithm according to YACCLAB) and SAUF algorithms. Since version 3.3 of the OpenCV, also the parallel implemention of that algorithms is included in the library ( .. function).
+If your project requires a Connected Component Labeling algorithm you can use the <i>connectedComponent</i> function of the OpenCV library which implements the BBDT and SAUF algorithms since version 3.2.
 
-Anyway, when the OpenCV connectedComponents function is called lot of additional code will be executed together with the core function. If your project requires the best performance you can include 
-
-How to include and execute the code of a single connected component labeling algorithm in your project:
-
-Add the following file to your project:
-
-1) labeling_algorithms.h which define the base class from which every algorithm derives from.
-2) label_solver.h which cointains the implementation labels solver algorithms.
-3) memory_tester.h
-4) the header of the required algorithm/s. The association between algorithms and header file is the following: 
-	a) DiStefano: labeling_distefano_1999.cc
-	b) Chang Contour Tracing: labeling_fchang_2003.cc
-	c) Grana BBDT: labeling_grana_2010.cc
-	d) Grana PRED: labeling_grana_2016.cc
-	e) He CTB: labeling_he_2014.cc
-	f) Lacassagne LSL: labeling_lacassagne_2016.cc
-	g) Wu SAUF: labeling_wu_2009.cc
-	h) Chang BBDT2: labeling_wychang_2015.cc
-	i) Zhao Stripe Based (SBLA): labeling_zhao_2010.cc
-	l) 
-
+Anyway, when the <i>connectedComponents</i> function is called lot of additional code will be executed together with the core function. If your project requires the best performance or does not include OpenCV library you can include an algorithm implemented in YACCLAB adding the following files to your project:
+	1. <i>labeling_algorithms.h</i> which define the base class from which every algorithm derives from.
+	2. <i>label_solver.h</i> which cointains the implementation of labels solving algorithms.
+	3. <i>memory_tester.h</i>
+	4. <i>headers</i> and <i>sources</i> files of the required algorithm/s. The association between algorithms and header/source files is listed below: 
+		- <b>DiStefano</b>: <i>labeling_distefano_1999.cc</i>, 
+		- <b>Chang - Contour Tracing - (CT)</b>: <i>labeling_fchang_2003.cc</i>
+		- <b>Grana - Block-Based with Decision Tree - (BBDT)</b>: <i>labeling_grana_2010.cc</i>
+		- <b>Grana - Pixel Prediction - (PRED)</b>: <i>labeling_grana_2016.cc</i>
+		- <b>He - Configuration Transition Based -(CTB)</b>: <i>labeling_he_2014.cc</i>
+		- <b>Lacassagne - Light Speed Labeling - (LSL)</b>: <i>labeling_lacassagne_2016.cc</i>
+		- <b>Wu - Scan Array-based with Union Find - (SAUF)</b>: <i>labeling_wu_2009.cc</i>
+		- <b>Chang - Block-Based - (CCIT)</b>: <i>labeling_wychang_2015.cc</i>
+		- <b>Zhao - Stripe Based - (SBLA)</b>: <i>labeling_zhao_2010.cc</i>
+		
+Once the required files have been included in your project you can simply call the desired algorithm creating 
+		
 ## The YACCLAB Dataset
  
 <p align="justify">The YACCLAB dataset includes both synthetic and real images. All images are provided in 1 bit per pixel PNG format, with 0 (black) being background and 1 (white) being foreground. The dataset will be automatically downloaded by CMake during the installation process. Images are organized by folders as follows: </p>
