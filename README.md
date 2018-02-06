@@ -5,7 +5,7 @@
 - <p align="justify"> Grana, Costantino; Bolelli, Federico; Baraldi, Lorenzo; Vezzani, Roberto "YACCLAB - Yet Another Connected Components Labeling Benchmark" Proceedings of the 23rd International Conference on Pattern Recognition, Cancun, Mexico, 4-8 Dec 2016, 2016. <a title="BibTex" href="http://imagelab.ing.unimore.it/files2/yacclab/YACCLAB_ICPR2016_BibTex.html">BibTex</a></p>
 
 <p align="justify"> 
-YACCLAB is an open source project that enables researchers to test CCL algorithms under extremely variable points of view, running and testing algorithms on a collection of datasets described below. The benchmark performs the following tests which will be described later in this readme: correctness, average run-time (average), average run-time with steps (average_ws), density, size, granularity and memory accesses (memory).
+YACCLAB is an open source <i>C++</i> project that enables researchers to test CCL algorithms under extremely variable points of view, running and testing algorithms on a collection of datasets described below. The benchmark performs the following tests which will be described later in this readme: <i>correctness</i>, average run-time (<i>average</i>), average run-time with steps (<i>average_ws</i>), <i>density</i>, <i>size</i>, <i>granularity</i> and memory accesses (<i>memory</i>).
 
 Notice that 8-connectivity is always used in the project.
 </p>
@@ -23,6 +23,7 @@ Notes for gnuplot:
 - on Windows system: be sure add gnuplot to system path if you want YACCLAB automatically generates charts.
 - on MacOS system: 'pdf terminal' seems to be not available due to old version of cairo, 'postscript' is used instead.
 
+<a name="inst"></a>
 ## Installation (refer to the image below)
 
 - <p align="justify">Clone the GitHub repository (HTTPS clone URL: https://github.com/prittt/YACCLAB.git) or simply download the full master branch zip file and extract it (e.g YACCLAB folder).</p>
@@ -38,28 +39,33 @@ Notes for gnuplot:
 
 If your project requires a Connected Components Labeling algorithm and you are not interested in the whole YACCLAB benchmark you can use the <i>connectedComponent</i> function of the OpenCV library which implements the BBDT and SAUF algorithms since version 3.2.
 
-Anyway, when the <i>connectedComponents</i> function is called, lot of additional code will be executed together with the core function. If your project requires the best performance or does not include OpenCV library you can include an algorithm implemented in YACCLAB adding the following files to your project:
-	- <i>labeling_algorithms.h</i> which define the base class from which every algorithm derives from.
-	- <i>label_solver.h</i> which cointains the implementation of labels solving algorithms.
-	- <i>memory_tester.h</i>
-	- <i>headers</i> and <i>sources</i> files of the required algorithm/s. The association between algorithms and header/source files is listed below: 
-		1. <b>DiStefano</b>: <i>labeling_distefano_1999.cc</i>, <i>labeling_distefano_1999.h</i> 
-		1. <b>Chang - Contour Tracing - (CT)</b>: <i>labeling_fchang_2003.cc</i>, <i>labeling_fchang_2003.h</i>
-		1. <b>Grana - Block-Based with Decision Tree - (BBDT)</b>: <i>labeling_grana_2010.cc</i>, <i>labeling_grana_2010.h</i>, <i>labeling_grana_2010_tree.inc</i>
-		1. <b>Grana - Pixel Prediction - (PRED)</b>: <i>labeling_grana_2016.cc</i>, <i>labeling_grana_2016.h</i>, <i>labeling_grana_2016_forest.inc</i>, <i>labeling_grana_2016_forest_0.inc</i>
-		1. <b>He - Configuration Transition Based - (CTB)</b>: <i>labeling_he_2014.cc</i>, <i>labeling_he_2014.h</i>, <i>labeling_he_2014_graph.inc</i>
-		1. <b>Lacassagne - Light Speed Labeling - (LSL)</b>: <i>labeling_lacassagne_2016.cc</i>, <i>labeling_lacassagne_2016.h</i>, <i>labeling_lacassagne_2016_code.inc</i>
-		1. <b>Wu - Scan Array-based with Union Find - (SAUF)</b>: <i>labeling_wu_2009.cc</i>, <i>labeling_wu_2009.h</i>, <i>labeling_wu_2009_tree.inc</i>
-		1. <b>Chang - Block-Based - (CCIT)</b>: <i>labeling_wychang_2015.cc</i>, <i>labeling_wychang_2015.h</i>, <i>labeling_wychang_2015_tree.inc</i>, <i>labeling_wychang_2015_tree_0.inc</i> 
-		1. <b>Zhao - Stripe Based - (SBLA)</b>: <i>labeling_zhao_2010.cc</i>, <i>labeling_zhao_2010.h</i>
+Anyway, when the <i>connectedComponents</i> function is called, lot of additional code will be executed together with the core function. If your project requires the best performance you can include an algorithm implemented in YACCLAB adding the following files to your project:
+1. <i>labeling_algorithms.h</i> which define the base class from which every algorithm derives from.
+2. <i>label_solver.h</i> which cointains the implementation of labels solving algorithms.
+3. <i>memory_tester.h</i>
+4. <i>headers</i> and <i>sources</i> files of the required algorithm/s. The association between algorithms and header/source files is listed below: 
+	- DiStefano <b>(DiStefano)</b>: <i>labeling_distefano_1999.cc</i>, <i>labeling_distefano_1999.h</i>;
+	- F.Chang - Contour Tracing - <b>(CT)</b>: <i>labeling_fchang_2003.cc</i>, <i>labeling_fchang_2003.h</i>;
+	- Grana - Block-Based with Decision Tree - <b>(BBDT)</b>: <i>labeling_grana_2010.cc</i>, <i>labeling_grana_2010.h</i>, <i>labeling_grana_2010_tree.inc</i>;
+	- Grana - Pixel Prediction - <b>(PRED)</b>: <i>labeling_grana_2016.cc</i>, <i>labeling_grana_2016.h</i>, <i>labeling_grana_2016_forest.inc</i>, <i>labeling_grana_2016_forest_0.inc</i>;
+	- He - Configuration Transition Based - <b>(CTB)</b>: <i>labeling_he_2014.cc</i>, <i>labeling_he_2014.h</i>, <i>labeling_he_2014_graph.inc</i>;
+	- Lacassagne - Light Speed Labeling - <b>(LSL)</b>: <i>labeling_lacassagne_2016.cc</i>, <i>labeling_lacassagne_2016.h</i>, <i>labeling_lacassagne_2016_code.inc</i>;
+	- Wu - Scan Array-based with Union Find - <b>(SAUF)</b>: <i>labeling_wu_2009.cc</i>, <i>labeling_wu_2009.h</i>, <i>labeling_wu_2009_tree.inc</i>;
+	- Chang - Block-Based - <b>(CCIT)</b>: <i>labeling_wychang_2015.cc</i>, <i>labeling_wychang_2015.h</i>, <i>labeling_wychang_2015_tree.inc</i>, <i>labeling_wychang_2015_tree_0.inc</i>;
+	- Zhao - Stripe Based - <b>(SBLA)</b>: <i>labeling_zhao_2010.cc</i>, <i>labeling_zhao_2010.h</i>;
 
-		
+### Example of Usage
+
+
+
 ## The YACCLAB Dataset
  
-<p align="justify">The YACCLAB dataset includes both synthetic and real images. All images are provided in 1 bit per pixel PNG format, with 0 (black) being background and 1 (white) being foreground. The dataset will be automatically downloaded by CMake during the installation process. Images are organized by folders as follows: </p>
+<p align="justify">The YACCLAB dataset includes both synthetic and real images and it is suitable for a wide range of applications, ranging from document processing to surveillance, and features a significant variability in terms of resolution, image density, variance of density, and number of components. All images are provided in 1 bit per pixel PNG format, with 0 (black) being background and 1 (white) being foreground. The dataset will be automatically downloaded by CMake during the installation process as described in the <a href="#inst">installation</a> paragraph, or it can be found at http://imagelab.ing.unimore.it/yacclab. Images are organized by folders as follows: </p>
 
-- <b>Random:<sup><a href="#BBDT">4</a></sup></b><p align="justify"> A set of synthetic random noise images who contain black and white random noise with 9 different foreground densities (10% up to 90%), from a low resolution of 32x32 pixels to a maximum resolution of 4096x4096 pixels, allowing to test the scalability and the effectiveness of different approaches when the number of labels gets high. For every combination of size and density, 10 images are provided for a total of 720 images. The resulting subset allows to evaluate performance both in terms of scalability on the number of pixels and on the number of labels (density). </p>
-
+- <b>Synthetic Images</b>:
+	- <b>Classical:<sup><a href="#BBDT">4</a></sup></b><p align="justify"> A set of synthetic random noise images who contain black and white random noise with 9 different foreground densities (10% up to 90%), from a low resolution of 32x32 pixels to a maximum resolution of 4096x4096 pixels, allowing to test the scalability and the effectiveness of different approaches when the number of labels gets high. For every combination of size and density, 10 images are provided for a total of 720 images. The resulting subset allows to evaluate performance both in terms of scalability on the number of pixels and on the number of labels (density). </p>
+	- <b>Granularity:<sup><a href="#LSL">4</a></sup></b><p align="justify"> This dataset allows to test algorithms varying not only the pixels density but also their granularity <i>g</i> (<i>i.e.</i>, dimension of minimum foreground block), underlying the behaviour of different proposals when the number of provisional labels changes. All the images have a resolution of 2048x2048 and are generated with the Mersenne Twister MT19937 random number generator implemented in the <i>C++</i> standard and starting with a "seed" equal to zero. Density of the images ranges from 0% to 100% with step of 1% and for every density value 16 images with pixels blocks of <i>gxg</i> with <i>g</i> ∈ [1,16] are generated. Moreover, the procedure has been repeated 10 times for every couple of density-granularity for a total of 16160 images.</p>
+	
 - <b>MIRflickr:<sup><a href="#MIRFLICKR">10</a></sup></b><p align="justify"> Otsu-binarized version of the MIRflickr dataset, publicly available under a Creative Commons License. It contains 25,000 standard resolution images taken from Flickr. These images have an average resolution of 0.17 megapixels, there are few connected components (495 on average) and are generally composed of not too complex patterns, so the labeling is quite easy and fast.</p>
 
 - <b>Hamlet:</b><p align="justify"> A set of 104 images scanned from a version of the Hamlet found on Project Gutenberg (http://www.gutenberg.org). Images have an average amount of 2.71 million of pixels to analyze and 1447 components to label, with an average foreground density of 0.0789. </p>
