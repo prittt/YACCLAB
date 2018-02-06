@@ -28,9 +28,7 @@ Notes for gnuplot:
 - <p align="justify">Clone the GitHub repository (HTTPS clone URL: https://github.com/prittt/YACCLAB.git) or simply download the full master branch zip file and extract it (e.g YACCLAB folder).</p>
 - <p align="justify">Install software in YACCLAB/bin subfolder (suggested) or wherever you want using CMake (point 2 of the example image). Note that CMake should automatically find the OpenCV path whether correctly installed on your OS (3), download the YACCLAB Dataset (be sure to check the box if you want to download it (4) or to select the correct path if the dataset is already on your file system (5)), and create a C++ project for the selected IDE/compiler (7-8).</p>
 
-![Cmake](https://raw.githubusercontent.com/pritt/YACCLAB/master/doc/readme_github.pdf)
-
-[embed]https://raw.githubusercontent.com/pritt/YACCLAB/master/doc/readme_github.pdf[/embed]
+![Cmake](doc/readme_github.png)
 
 - <p align="justify">Set the <a href="#conf">configuration file (config.cfg)</a> placed in the installation folder (bin in this example) in order to select desired tests.</p>
 
@@ -38,7 +36,7 @@ Notes for gnuplot:
 
 ## How to include a YACCLAB algorithm into your own project?
 
-If your project requires a Connected Component Labeling algorithm and you are not interested in the all benchmark you can use the <i>connectedComponent</i> function of the OpenCV library which implements the BBDT and SAUF algorithms since version 3.2.
+If your project requires a Connected Components Labeling algorithm and you are not interested in the whole YACCLAB benchmark you can use the <i>connectedComponent</i> function of the OpenCV library which implements the BBDT and SAUF algorithms since version 3.2.
 
 Anyway, when the <i>connectedComponents</i> function is called lot of additional code will be executed together with the core function. If your project requires the best performance or does not include OpenCV library you can include an algorithm implemented in YACCLAB adding the following files to your project:
 	1. <i>labeling_algorithms.h</i> which define the base class from which every algorithm derives from.
