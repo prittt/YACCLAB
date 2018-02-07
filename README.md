@@ -2,7 +2,7 @@
 
 <p align="justify">Please include the following reference when citing the YACCLAB project/dataset:</p>
 
-- <p align="justify"> Grana, Costantino; Bolelli, Federico; Baraldi, Lorenzo; Vezzani, Roberto "YACCLAB - Yet Another Connected Components Labeling Benchmark" Proceedings of the 23rd International Conference on Pattern Recognition, Cancun, Mexico, 4-8 Dec 2016, 2016. <a title="BibTex" href="http://imagelab.ing.unimore.it/files2/yacclab/YACCLAB_ICPR2016_BibTex.html">BibTex</a></p>
+- <p align="justify"> Grana, Costantino; Bolelli, Federico; Baraldi, Lorenzo; Vezzani, Roberto "YACCLAB - Yet Another Connected Components Labeling Benchmark" Proceedings of the 23rd International Conference on Pattern Recognition, Cancun, Mexico, 4-8 Dec 2016, 2016. <a title="BibTex" href="http://imagelab.ing.unimore.it/files2/yacclab/YACCLAB_ICPR2016_BibTex.html">BibTex</a>. <a title="Download" href="http://imagelab.ing.unimore.it/imagelab/pubblicazioni/2016-icpr-yacclab.pdf">![Download.](doc/pdf_logo.png)</a></p>
 
 <p align="justify"> 
 YACCLAB is an open source <i>C++</i> project that enables researchers to test CCL algorithms under extremely variable points of view, running and testing algorithms on a collection of datasets described below. The benchmark performs the following tests which will be described later in this readme: <i>correctness</i>, average run-time (<i>average</i>), average run-time with steps (<i>average_ws</i>), <i>density</i>, <i>size</i>, <i>granularity</i> and memory accesses (<i>memory</i>).
