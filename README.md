@@ -40,22 +40,139 @@ Notes for gnuplot:
 If your project requires a Connected Components Labeling algorithm and you are not interested in the whole YACCLAB benchmark you can use the <i>connectedComponent</i> function of the OpenCV library which implements the BBDT and SAUF algorithms since version 3.2.
 
 Anyway, when the <i>connectedComponents</i> function is called, lot of additional code will be executed together with the core function. If your project requires the best performance you can include an algorithm implemented in YACCLAB adding the following files to your project:
-1. <i>labeling_algorithms.h</i> which define the base class from which every algorithm derives from.
-2. <i>label_solver.h</i> which cointains the implementation of labels solving algorithms.
-3. <i>memory_tester.h</i>
-4. <i>headers</i> and <i>sources</i> files of the required algorithm/s. The association between algorithms and header/source files is listed below: 
-	- DiStefano <b>(DiStefano)</b>: <i>labeling_distefano_1999.cc</i>, <i>labeling_distefano_1999.h</i>;
-	- F.Chang - Contour Tracing - <b>(CT)</b>: <i>labeling_fchang_2003.cc</i>, <i>labeling_fchang_2003.h</i>;
-	- Grana - Block-Based with Decision Tree - <b>(BBDT)</b>: <i>labeling_grana_2010.cc</i>, <i>labeling_grana_2010.h</i>, <i>labeling_grana_2010_tree.inc</i>;
-	- Grana - Pixel Prediction - <b>(PRED)</b>: <i>labeling_grana_2016.cc</i>, <i>labeling_grana_2016.h</i>, <i>labeling_grana_2016_forest.inc</i>, <i>labeling_grana_2016_forest_0.inc</i>;
-	- He - Configuration Transition Based - <b>(CTB)</b>: <i>labeling_he_2014.cc</i>, <i>labeling_he_2014.h</i>, <i>labeling_he_2014_graph.inc</i>;
-	- Lacassagne - Light Speed Labeling - <b>(LSL)</b>: <i>labeling_lacassagne_2016.cc</i>, <i>labeling_lacassagne_2016.h</i>, <i>labeling_lacassagne_2016_code.inc</i>;
-	- Wu - Scan Array-based with Union Find - <b>(SAUF)</b>: <i>labeling_wu_2009.cc</i>, <i>labeling_wu_2009.h</i>, <i>labeling_wu_2009_tree.inc</i>;
-	- Chang - Block-Based - <b>(CCIT)</b>: <i>labeling_wychang_2015.cc</i>, <i>labeling_wychang_2015.h</i>, <i>labeling_wychang_2015_tree.inc</i>, <i>labeling_wychang_2015_tree_0.inc</i>;
-	- Zhao - Stripe Based - <b>(SBLA)</b>: <i>labeling_zhao_2010.cc</i>, <i>labeling_zhao_2010.h</i>;
+1. <i>labeling_algorithms.h</i> and <i>labeling_algorithms.cc</i> which define the base class from which every algorithm derives from.
+2. <i>label_solver.h</i> and <i>label_solver.cc</i> which cointain the implementation of labels solving algorithms.
+3. <i>memory_tester.h</i> and <i>performance_evaluator.h</i> just to make things work without changing the code.
+4. <i>headers</i> and <i>sources</i> files of the required algorithm/s. The association between algorithms and headers/sources files is reported in the table below.
+ <table>
+  <tr>
+    <th>Algorithm Name</th>
+    <th width="130">Authors</th>
+    <th>Year</th>
+    <th>Acronym</th>
+    <th>Required Files</th>
+    <th>Templated on Labels Solver</th>
+  </tr>
+  <tr>
+    <td align="center">-</td>
+    <td align="center">L. Di Stefano,<br>A. Bulgarelli</td>
+    <td align="center">1999</td>
+    <td align="center">DiStefano</td>
+    <td align="center"><i>labeling_distefano_1999.h</i></td>
+    <td align="center">NO</td>
+  </tr>
+  <tr>
+    <td align="center">Contour Tracing</td>
+    <td align="center">F. Chang,</br>C.J. Chen,</br>C.J. Lu</td>
+    <td align="center">1999</td>
+    <td align="center">CT</td>
+    <td align="center"><i>labeling_fchang_2003.h</i></td>
+    <td align="center">NO</td>
+  </tr>
+  <tr>
+    <td align="center">Configuration Transition Based</td>
+    <td align="center">L. He,</br>X. Zhao,</br>Y. Chao,</br>K. Suzuki</td>
+    <td align="center">1999</td>
+    <td align="center">CTB</td>
+    <td align="center"><i>labeling_he_2014.h</i>, <i>labeling_he_2014_graph.inc</i>
+    <td align="center">YES</td>
+  </tr>
+  <tr>
+    <td align="center">Scan Array-based with Union Find</td>
+    <td align="center">K. Wu,</br>E. Otoo,</br>K. Suzuki</td>
+    <td align="center">2009</td>
+    <td align="center">SAUF</td>
+    <td align="center"><i>labeling_wu_2009.h</i>, <i>labeling_wu_2009_tree.inc</i></td>
+    <td align="center">YES</td>
+  </tr>
+    <tr>
+    <td align="center">Stripe-Based Labeling Algorithm</td>
+    <td align="center">H.L. Zhao,</br>Y.B. Fan,</br>T.X. Zhang,</br>H.S. Sang</td>
+    <td align="center">2010</td>
+    <td align="center">SBLA</td>
+    <td align="center"><i>labeling_zhao_2010.h</i></td>
+    <td align="center">NO</td>
+  </tr>
+  <tr>
+    <td align="center">Block-Based with Decision Tree</td>
+    <td align="center">C. Grana,</br>D. Borghesani,</br>R. Cucchiara</td>
+    <td align="center">2010</td>
+    <td align="center">BBDT</td>
+    <td align="center"><i>labeling_grana_2010.h</i>, <i>labeling_grana_2010_tree.inc</i></td>
+    <td align="center">YES</td>
+  </tr>
+  <tr>
+    <td align="center">Block-Based with Binary Decision Trees</td>
+    <td align="center">W.Y. Chang,</br>C.C. Chiu,</br>J.H. Yang</td>
+    <td align="center">2015</td>
+    <td align="center">CCIT</td>
+    <td align="center"><i>labeling_wychang_2015.h</i>, <i>labeling_wychang_2015_tree.inc</i>, <i>labeling_wychang_2015_tree_0.inc</i></td>
+    <td align="center">YES</td>
+  </tr>
+  <tr>
+    <td align="center">Light Speed Labeling</td>
+    <td align="center">L. Cabaret,</br>L. Lacassagne,</br>D. Etiemble</td>
+    <td align="center">2016</td>
+    <td align="center">LSL_STD<small><sup>I</sup></small></br>LSL_STDZ<small><sup>II</sup></small></br>LSL_RLE<small><sup>III</sup></small></td>
+    <td align="center"><i>labeling_lacassagne_2016.h</i>, <i>labeling_lacassagne_2016_code.inc</i></td>
+    <td align="center">YES<small><sup>IV</sup></small></td>
+  </tr>
+  <tr>
+    <td align="center">Pixel Prediction</td>
+    <td align="center">C.Grana,</br>L. Baraldi,</br>F. Bolelli</td>
+    <td align="center">2016</td>
+    <td align="center">PRED</td>
+    <td align="center"><i>labeling_grana_2016.h</i>, <i>labeling_grana_2016_forest.inc</i>, <i>labeling_grana_2016_forest_0.inc</i>
+    <td align="center">YES</td>
+  </tr>
+  <tr>
+    <td align="center">Directed Rooted Acyclic Graph</td>
+    <td align="center">F. Bolelli,</br>L. Baraldi,</br>C. Grana</td>
+    <td align="center">-</td>
+    <td align="center">DRAG</td>
+    <td align="center"><i>labeling_bolelli_2018.h</i>, <i>labeling_grana_2018_drag.inc</i></td>
+    <td align="center">YES</td>
+  </tr>
+</table> 
 
-### Example of Usage
+(<small>I</small>) standard version </br>
+(<small>II</small>) with zero-offset optimization </br>
+(<small>III</small>) with RLE compression </br>
+(<small>IV</small>) only on TTA and UF
 
+### Example of Algorithm Usage Outside the Benchmark
+
+```c++
+#include "labels_solver.h"
+#include "labeling_algorithms.h"
+#include "labeling_grana_2010.h" // To include the algorithm code (BBDT in this example)
+
+#include <opencv2/opencv.hpp>
+
+using namespace cv;
+
+int main()
+{
+    BBDT<UFPC> BBDT_UFPC; // To create an object of the desired algorithm (BBDT in this example)
+                          // templated on the labels solving strategy. See the README for the
+                          // complete list of the available labels solvers, available algorithms 
+                          // (N.B. non all the algorithms are templated on the solver) and their 
+                          // acronyms.
+    
+    BBDT_UFPC.img_ = imread("test_image.png", IMREAD_GRAYSCALE); // To load into the CCL object 
+                                                                 // the BINARY image to be labeled 
+
+    threshold(BBDT_UFPC.img_, BBDT_UFPC.img_, 100, 1, THRESH_BINARY); // Just to be sure that the
+                                                                      // loaded image is binary
+
+    BBDT_UFPC.PerformLabeling(); // To perform Connected Components Labeling!
+
+    Mat1i output = BBDT_UFPC.img_labels_; // To get the output labeled image  
+    unsigned n_labels = BBDT_UFPC.n_labels_; // To get the number of labels found in the input img
+
+    return EXIT_SUCCESS;
+}
+```
 
 
 ## The YACCLAB Dataset
