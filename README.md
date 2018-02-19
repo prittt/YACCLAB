@@ -174,6 +174,107 @@ int main()
 }
 ```
 
+<a name="conf"></a>
+## Configuration File
+<p align="justify">A <tt>YAML</tt> configuration file placed in the installation folder lets you to specify which kind of tests should be performed, on which datasets and on which algorithms. A complete description of all configuration parameters is reported below.</p>
+
+- <i>perform:</i> dictionary which specifies the kind of tests to perform. All the available tests are described <a href="#conf">here</a>. 
+```yaml
+perform: 
+  correctness:        false
+  average:            true
+  average_with_steps: false
+  density:            false
+  granularity:        false
+  memory:             false
+```
+
+- <i>correctness_tests:</i> dictionary indicating the kind of correctness tests to perform.
+```yaml
+correctness_tests: 
+  eight_connectivity_standard: true
+  eight_connectivity_steps:    true
+  eight_connectivity_memory:   true
+```
+
+- <i>tests_number</i>: dictionary which sets the number of runs for each test available.
+```yaml
+tests_number: 
+  average:            10 
+  average_with_steps: 10
+  density:            10
+  granularity:        10 
+```
+
+- <i>algorithms</i>: list of algorithms on which apply the chosen tests.
+```yaml
+algorithms: 
+  - SAUF_RemSP
+  - SAUF_TTA
+  - BBDT_RemSP
+  - BBDT_UFPC
+  - CT
+  - labeling_NULL
+```
+
+- <i>check_datasets</i>, <i>average_datasets</i>, <i>average_ws_datasets</i> and <i>memory_datasets</i>: lists of datasets on which, respectively, correctness, average, average_ws and memory tests should be run.
+<!-- 
+- <i>check_datasets:</i> list of datasets on which CCL algorithms should be checked.
+- <i>average_datasets:</i> list of datasets on which average test should be run.
+- <i>average_ws_datasets:</i> list of datasets on which <i>average_ws</i> test should be run.
+- <i>memory_datasets:</i> list of datasets on which memory test should be run.
+-->
+```yaml
+average_datasets: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800", "xdocs"]
+```
+
+<!-- 
+average_datasets: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800", "xdocs"]
+average_datasets_with_steps: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800", "xdocs"]
+memory_datasets: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800", "xdocs"]
+-->
+
+- <i>paths</i>: dictionary with both input (datasets) and output (results) paths. It is automatically filled by Cmake during the creation of the project.
+- <i>write_n_labels</i>: whether to report the number of connected components in the output files.
+- <i>color_labels</i>: whether to output a colored version of labeled images during tests.
+- <i>save_middle_tests</i>: dictionary specifying, separately for every test, whether to save the output of single runs, or only a summary of the whole test.
+```yaml
+write_n_labels: false
+color_labels: {average: false, density: false}
+save_middle_tests: {average: false, average_with_steps: false, density: false, granularity: false}
+```
+
+<!-- <table>
+<tr><td width=200><b>Parameter<b></td><td width=300><b>Description</b></td></tr>
+<tr><td>perform</td><td><p align="justify">Dictionary which specifies the kind of tests to perform (<i>correctness</i>, <i>average</i>, <i>average_ws</i>, <i>density and size</i>, <i>granularity</i> and <i>memory</i>).</p></td></tr>
+<tr><td>correcteness_tests</td><td><p align="justify">Dictionary indicating the kind of correctness tests to perform.</p></td></tr>
+<tr><td>tests_number</td><td><p align="justify">Dictionary which sets the number of runs for each test available.</p></td></tr>
+<tr bgcolor=gray align=center><td colspan="2"><i>Algorithms</i></td></tr>
+<tr><td>algorithms</td><td><p align="justify">List of algorithms on which apply the chosen tests.</p></td></tr>
+<tr align=center><td colspan="2"><i>Datasets</i></td></tr>
+<tr><td>check_datasets</td><td><p align="justify">List of datasets on which CCL algorithms should be checked.</p></td></tr>
+<tr><td>average_datasets</td><td><p align="justify">List of datasets on which average test should be run.</p></td></tr>
+<tr><td>average_ws_datasets</td><td><p align="justify">List of datasets on which <i>average_ws</i> test should be run.</p></td></tr>
+<tr><td>memory_datasets</td><td><p align="justify">List of datasets on which memory test should be run.</p></td></tr>
+<tr align=center><td colspan="2"><i>Utilities</i></td></tr>
+<tr><td>paths</td><td><p align="justify">Dictionary with both input (datasets) and output (results) paths.</p></td></tr>
+<tr><td>write_n_labels</td><td><p align="justify">Whether to report the number of connected components in the output files.</p></td></tr>
+<tr><td>color_labels</td><td><p align="justify">Whether to output a colored version of labeled images during tests.</p></td></tr>
+<tr><td>save_middle_tests</td><td><p align="justify">Dictionary specifying, separately for every test, whether to save the output of single runs, or only a summary of the whole test.</p></td></tr>
+</table>
+-->
+
+## How to Extend YACCLAB with New Algorithms
+
+Work in progress.
+<!-- <p align="justify">YACCLAB has been designed with extensibility in mind, so that new resources can be easily integrated into the project. A CCL algorithm is coded with a <tt>.h</tt> header file, which declares a function implementing the algorithm, and a <tt>.cpp</tt> source file which defines the function itself. The function must follow a standard signature: its first parameter should be a const reference to an OpenCV Mat1b matrix, containing the input image, and its second parameter should be a reference to a Mat1i matrix, which shall be populated with computed labels. The function must also return an integer specifying the number of labels found in the image, included background's one. For example:</p>
+```c++
+int MyLabelingAlgorithm(const cv::Mat1b& img,cv::Mat1i &imgLabels);
+```
+<p align="justify">Making YACCLAB aware of a new algorithm requires two more steps. The new header file has to be included in <tt>labelingAlgorithms.h</tt>, which is in charge of collecting all the algorithms in YACCLAB. This file also defines a C++ map with function pointers to all implemented algorithms, which has also to be updated with the new function.</p>
+
+<p align="justify">Once an algorithm has been added to YACCLAB, it is ready to be tested and compared to the others. To include the newly added algorithm in a test, it is sufficient to include its function name in the <tt>CCLAlgorithmsFunc</tt> <a href="#conf">parameter</a> and a display name in the <tt>CCLAlgorithmsName</tt> parameter. We look at YACCLAB as a growing effort towards better reproducibility of CCL algorithms, so implementations of new and existing labeling methods are welcome.</p>
+-->
 
 ## The YACCLAB Dataset
  
@@ -196,72 +297,13 @@ int main()
 - <b>Fingerprints:<sup><a href="#FINGERPRINTS">16</a></sup></b><p align="justify"> This dataset counts 960 fingerprint images collected by using low-cost optical sensors or synthetically generated. These images were taken from the three Verification Competitions FCV2000, FCV2002 and FCV2004. In order to fit CCL application, fingerprints have been binarized using an adaptive threshold and then negated in order to have foreground pixel with value 255. Most of the original images have a resolution of 500 DPI and their dimensions range from 240 by 320 up to 640 by 480 pixels. </p> 
 
 <a name="tests"></a>
-## Tests
+## Available Tests
 
 - <b>Average run-time tests:</b> <p align="justify"> execute an algorithm on every image of a dataset. The process can be repeated more times in a single test, to get the minimum execution time for each image: this allows to get more reproducible results and overlook delays produced by other running processes. It is also possible to compare the execution speed of different algorithms on the same dataset: in this case, selected algorithms (see <a href="#conf">Configuration File</a> for more details) are executed sequentially on every image of the dataset. Results are presented in three different formats: a plain text file, histogram charts (.pdf/.ps), either in color or in gray-scale, and a LaTeX table, which can be directly included in research papers.</p>
 
 - <b>Density and size tests:</b> <p align="justify"> check the performance of different CCL algorithms when they are executed on images with varying foreground density and size. To this aim, a list of algorithms selected by the user is run sequentially on every image of the test_random dataset. As for run-time tests, it is possible to repeat this test for more than one run. The output is presented as both plain text and charts(.pdf/.ps). For a density test, the mean execution time of each algorithm is reported for densities ranging from 10% up to 90%, while for a size test the same is reported for resolutions ranging from 32x32 up to 4096x4096.</p>
 
 - <b>Memory tests:</b> <p align="justify"> are useful to understand the reason for the good performances of an algorithm or in general to explain its behavior. Memory tests compute the average number of accesses to the label image (i.e the image used to store the provisional and then the final labels for the connected components), the average number of accesses to the binary image to be labeled, and, finally, the average number of accesses to data structures used to solve the equivalences between label classes. Moreover, if an algorithm requires extra data, memory tests summarize them as ``other'' accesses and return the average. Furthermore, all average contributions of an algorithm and dataset are summed together in order to show the total amount of memory accesses. Since counting the number of memory accesses imposes additional computations, functions implementing memory access tests are different from those implementing run-time and density tests, to keep run-time tests as objective as possible.</p>
-
-<a name="conf"></a>
-## Configuration File
-
-<p align="justify">A configuration file placed in the installation folder lets you to specify which kind of test should be performed, on which datasets and on which algorithms. A complete description of all configuration parameters is reported in the table below.</p>
-
-#### Parameter name Description
-<table>
-<tr><td>input_path</td><td>folder on which datasets are placed</td></tr>
-<tr><td>output_path</td><td>folder on which result are stored</td></tr>
-<tr><td>write_n_labels</td><td>whether to report the number of Connected Components in output files</td></tr>
-</table>
-
-#### Correctness tests
-<table>
-<tr><td>check_8connectivity</td><td>whether to perform correctness tests</td></tr>
-<tr><td>check_list</td><td>list of datasets on which CCL algorithms should be checked</td></tr>
-</table>
-
-#### Density and size tests
-<table>
-<tr><td>ds_perform</td><td>whether to perform density and size tests</td></tr>
-<tr><td>ds_colorLabels</td><td>whether to output a colorized version of input images</td></tr>
-<tr><td>ds_testsNumber</td><td>number of runs</td></tr>
-<tr><td>ds_saveMiddleTests</td><td>whether to save the output of single runs, or only a summary of the whole test</td></tr>
-</table>
-
-#### Average execution time tests
-<table>
-<tr><td>at_perform</td><td>whether to perform average execution time tests</td></tr>
-<tr><td>at_colorLabels</td><td>whether to output a colorized version of input images</td></tr>
-<tr><td>at_testsNumber</td><td>number of runs</td></tr>
-<tr><td>at_saveMiddleTests</td><td>whether to save the output of single runs, or only a summary of the whole test</td></tr>
-<tr><td>averages tests</td><td>list of algorithms on which average execution time tests should be run</td></tr>
-</table>
-
-#### Memory tests
-<table>
-<tr><td>mt_perform</td><td>whether to perform memory tests</td></tr>
-<tr><td>memory_tests</td><td>list of datasets on which memory tests should be run</td></tr>
-</table>
-
-#### Algorithm configuration
-<table>
-<tr><td>CCLAlgoFunc</td><td>list of algorithms (function names) on which apply correctness/average/density-size tests</td></tr>
-<tr><td>CCLAlgoName</td><td>list of algorithms (display names for charts) on which apply correctness/average/density-size tests</td></tr>
-<tr><td> CCLMemAlgoFunc</td><td>list of available algorithms (function names) on which apply memory tests</td></tr>
-<tr><td>CCLMemAlgoName</td><td>list of available algorithms (display names for charts) on which apply memory tests</td></tr>
-</table>
-
-## How Add New Algorithms to YACCLAB
-
-<p align="justify">YACCLAB has been designed with extensibility in mind, so that new resources can be easily integrated into the project. A CCL algorithm is coded with a <tt>.h</tt> header file, which declares a function implementing the algorithm, and a <tt>.cpp</tt> source file which defines the function itself. The function must follow a standard signature: its first parameter should be a const reference to an OpenCV Mat1b matrix, containing the input image, and its second parameter should be a reference to a Mat1i matrix, which shall be populated with computed labels. The function must also return an integer specifying the number of labels found in the image, included background's one. For example:</p>
-```c++
-int MyLabelingAlgorithm(const cv::Mat1b& img,cv::Mat1i &imgLabels);
-```
-<p align="justify">Making YACCLAB aware of a new algorithm requires two more steps. The new header file has to be included in <tt>labelingAlgorithms.h</tt>, which is in charge of collecting all the algorithms in YACCLAB. This file also defines a C++ map with function pointers to all implemented algorithms, which has also to be updated with the new function.</p>
-
-<p align="justify">Once an algorithm has been added to YACCLAB, it is ready to be tested and compared to the others. To include the newly added algorithm in a test, it is sufficient to include its function name in the <tt>CCLAlgorithmsFunc</tt> <a href="#conf">parameter</a> and a display name in the <tt>CCLAlgorithmsName</tt> parameter. We look at YACCLAB as a growing effort towards better reproducibility of CCL algorithms, so implementations of new and existing labeling methods are welcome.</p>
 
 ## Results ...
 
