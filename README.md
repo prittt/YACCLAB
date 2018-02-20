@@ -37,11 +37,11 @@ Notes for gnuplot:
 
 ## How to include a YACCLAB algorithm into your own project?
 
-If your project requires a Connected Components Labeling algorithm and you are not interested in the whole YACCLAB benchmark you can use the <i>connectedComponent</i> function of the OpenCV library which implements the BBDT and SAUF algorithms since version 3.2.
+<p align="justify">If your project requires a Connected Components Labeling algorithm and you are not interested in the whole YACCLAB benchmark you can use the <i>connectedComponent</i> function of the OpenCV library which implements the BBDT and SAUF algorithms since version 3.2.</p>
 
-Anyway, when the <i>connectedComponents</i> function is called, lot of additional code will be executed together with the core function. If your project requires the best performance you can include an algorithm implemented in YACCLAB adding the following files to your project:
+<p align="justify">Anyway, when the <i>connectedComponents</i> function is called, lot of additional code will be executed together with the core function. If your project requires the best performance you can include an algorithm implemented in YACCLAB adding the following files to your project:</p>
 1. <i>labeling_algorithms.h</i> and <i>labeling_algorithms.cc</i> which define the base class from which every algorithm derives from.
-2. <i>label_solver.h</i> and <i>label_solver.cc</i> which cointain the implementation of labels solving algorithms.
+2. <i>label_solver.h</i> and <i>label_solver.cc</i> which cointain the implementation of labels solving algorithms
 3. <i>memory_tester.h</i> and <i>performance_evaluator.h</i> just to make things work without changing the code.
 4. <i>headers</i> and <i>sources</i> files of the required algorithm/s. The association between algorithms and headers/sources files is reported in the table below.
  <table>
@@ -57,13 +57,13 @@ Anyway, when the <i>connectedComponents</i> function is called, lot of additiona
     <td align="center">-</td>
     <td align="center">L. Di Stefano,<br>A. Bulgarelli</td>
     <td align="center">1999</td>
-    <td align="center">DiStefano</td>
+    <td align="center">DiStefano <sup>[3](#DiStefano)</sup></td>
     <td align="center"><i>labeling_distefano_1999.h</i></td>
     <td align="center">NO</td>
   </tr>
   <tr>
     <td align="center">Contour Tracing</td>
-    <td align="center">F. Chang,</br>C.J. Chen,</br>C.J. Lu</td>
+    <td align="center">F. Chang,</br>C.J. Chen,</br>C.J. Lu <sup>[1](#CT)</sup></td>
     <td align="center">1999</td>
     <td align="center">CT</td>
     <td align="center"><i>labeling_fchang_2003.h</i></td>
@@ -71,7 +71,7 @@ Anyway, when the <i>connectedComponents</i> function is called, lot of additiona
   </tr>
   <tr>
     <td align="center">Configuration Transition Based</td>
-    <td align="center">L. He,</br>X. Zhao,</br>Y. Chao,</br>K. Suzuki</td>
+    <td align="center">L. He,</br>X. Zhao,</br>Y. Chao,</br>K. Suzuki <sup>[7](#CTB)</sup></td>
     <td align="center">1999</td>
     <td align="center">CTB</td>
     <td align="center"><i>labeling_he_2014.h</i>, <i>labeling_he_2014_graph.inc</i>
@@ -79,7 +79,7 @@ Anyway, when the <i>connectedComponents</i> function is called, lot of additiona
   </tr>
   <tr>
     <td align="center">Scan Array-based with Union Find</td>
-    <td align="center">K. Wu,</br>E. Otoo,</br>K. Suzuki</td>
+    <td align="center">K. Wu,</br>E. Otoo,</br>K. Suzuki <sup>[6](#SAUF)</sup></td>
     <td align="center">2009</td>
     <td align="center">SAUF</td>
     <td align="center"><i>labeling_wu_2009.h</i>, <i>labeling_wu_2009_tree.inc</i></td>
@@ -87,7 +87,7 @@ Anyway, when the <i>connectedComponents</i> function is called, lot of additiona
   </tr>
     <tr>
     <td align="center">Stripe-Based Labeling Algorithm</td>
-    <td align="center">H.L. Zhao,</br>Y.B. Fan,</br>T.X. Zhang,</br>H.S. Sang</td>
+    <td align="center">H.L. Zhao,</br>Y.B. Fan,</br>T.X. Zhang,</br>H.S. Sang <sup>[8](#SBLA)</sup></td>
     <td align="center">2010</td>
     <td align="center">SBLA</td>
     <td align="center"><i>labeling_zhao_2010.h</i></td>
@@ -95,7 +95,7 @@ Anyway, when the <i>connectedComponents</i> function is called, lot of additiona
   </tr>
   <tr>
     <td align="center">Block-Based with Decision Tree</td>
-    <td align="center">C. Grana,</br>D. Borghesani,</br>R. Cucchiara</td>
+    <td align="center">C. Grana,</br>D. Borghesani,</br>R. Cucchiara <sup>[4](#BBDT)</sup></td>
     <td align="center">2010</td>
     <td align="center">BBDT</td>
     <td align="center"><i>labeling_grana_2010.h</i>, <i>labeling_grana_2010_tree.inc</i></td>
@@ -103,7 +103,7 @@ Anyway, when the <i>connectedComponents</i> function is called, lot of additiona
   </tr>
   <tr>
     <td align="center">Block-Based with Binary Decision Trees</td>
-    <td align="center">W.Y. Chang,</br>C.C. Chiu,</br>J.H. Yang</td>
+    <td align="center">W.Y. Chang,</br>C.C. Chiu,</br>J.H. Yang <sup>[2](#CCIT)</sup></td>
     <td align="center">2015</td>
     <td align="center">CCIT</td>
     <td align="center"><i>labeling_wychang_2015.h</i>, <i>labeling_wychang_2015_tree.inc</i>, <i>labeling_wychang_2015_tree_0.inc</i></td>
@@ -111,7 +111,7 @@ Anyway, when the <i>connectedComponents</i> function is called, lot of additiona
   </tr>
   <tr>
     <td align="center">Light Speed Labeling</td>
-    <td align="center">L. Cabaret,</br>L. Lacassagne,</br>D. Etiemble</td>
+    <td align="center">L. Cabaret,</br>L. Lacassagne,</br>D. Etiemble <sup>[5](#LSL_STD)</sup></td>
     <td align="center">2016</td>
     <td align="center">LSL_STD<small><sup>I</sup></small></br>LSL_STDZ<small><sup>II</sup></small></br>LSL_RLE<small><sup>III</sup></small></td>
     <td align="center"><i>labeling_lacassagne_2016.h</i>, <i>labeling_lacassagne_2016_code.inc</i></td>
@@ -119,7 +119,7 @@ Anyway, when the <i>connectedComponents</i> function is called, lot of additiona
   </tr>
   <tr>
     <td align="center">Pixel Prediction</td>
-    <td align="center">C.Grana,</br>L. Baraldi,</br>F. Bolelli</td>
+    <td align="center">C.Grana,</br>L. Baraldi,</br>F. Bolelli <sup>[9](#PRED)</sup></td>
     <td align="center">2016</td>
     <td align="center">PRED</td>
     <td align="center"><i>labeling_grana_2016.h</i>, <i>labeling_grana_2016_forest.inc</i>, <i>labeling_grana_2016_forest_0.inc</i>
@@ -133,12 +133,21 @@ Anyway, when the <i>connectedComponents</i> function is called, lot of additiona
     <td align="center"><i>labeling_bolelli_2018.h</i>, <i>labeling_grana_2018_drag.inc</i></td>
     <td align="center">YES</td>
   </tr>
+  <tr>
+    <td align="center">Null Labeling</td>
+    <td align="center">F. Bolelli,</br>M. Cancilla,</br>L. Baraldi,</br>C. Grana</td>
+    <td align="center">-</td>
+    <td align="center">NULL<small><sup>V</sup></small></td>
+    <td align="center"><i>labeling_null.h</i></td>
+    <td align="center">NO</td>
+  </tr>
 </table> 
 
 (<small>I</small>) standard version </br>
 (<small>II</small>) with zero-offset optimization </br>
 (<small>III</small>) with RLE compression </br>
-(<small>IV</small>) only on TTA and UF
+(<small>IV</small>) only on TTA and UF </br>
+(<small>V</small>) it only copies the pixels from the input image to the output one simply defining a lower bound limit for the execution time of CCL algorithms on a given machine and dataset.
 
 ### Example of Algorithm Usage Outside the Benchmark
 
@@ -178,7 +187,7 @@ int main()
 ## Configuration File
 <p align="justify">A <tt>YAML</tt> configuration file placed in the installation folder lets you to specify which kind of tests should be performed, on which datasets and on which algorithms. A complete description of all configuration parameters is reported below.</p>
 
-- <i>perform:</i> dictionary which specifies the kind of tests to perform. All the available tests are described <a href="#conf">here</a>. 
+- <i>perform</i> - dictionary which specifies the <a href="#conf">kind of tests</a> to perform: 
 ```yaml
 perform: 
   correctness:        false
@@ -189,7 +198,7 @@ perform:
   memory:             false
 ```
 
-- <i>correctness_tests:</i> dictionary indicating the kind of correctness tests to perform.
+- <i>correctness_tests</i> - dictionary indicating the kind of correctness tests to perform:
 ```yaml
 correctness_tests: 
   eight_connectivity_standard: true
@@ -197,7 +206,7 @@ correctness_tests:
   eight_connectivity_memory:   true
 ```
 
-- <i>tests_number</i>: dictionary which sets the number of runs for each test available.
+- <i>tests_number</i> - dictionary which sets the number of runs for each test available:
 ```yaml
 tests_number: 
   average:            10 
@@ -206,7 +215,7 @@ tests_number:
   granularity:        10 
 ```
 
-- <i>algorithms</i>: list of algorithms on which apply the chosen tests.
+- <i>algorithms</i> - list of algorithms on which apply the chosen tests:
 ```yaml
 algorithms: 
   - SAUF_RemSP
@@ -217,7 +226,7 @@ algorithms:
   - labeling_NULL
 ```
 
-- <i>check_datasets</i>, <i>average_datasets</i>, <i>average_ws_datasets</i> and <i>memory_datasets</i>: lists of datasets on which, respectively, correctness, average, average_ws and memory tests should be run.
+- <i>check_datasets</i>, <i>average_datasets</i>, <i>average_ws_datasets</i> and <i>memory_datasets</i> - lists of <a href="#conf">datasets</a> on which, respectively, correctness, average, average_ws and memory tests should be run:
 <!-- 
 - <i>check_datasets:</i> list of datasets on which CCL algorithms should be checked.
 - <i>average_datasets:</i> list of datasets on which average test should be run.
@@ -225,22 +234,28 @@ algorithms:
 - <i>memory_datasets:</i> list of datasets on which memory test should be run.
 -->
 ```yaml
+...
 average_datasets: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800", "xdocs"]
+...
 ```
 
-<!-- 
-average_datasets: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800", "xdocs"]
-average_datasets_with_steps: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800", "xdocs"]
-memory_datasets: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800", "xdocs"]
--->
+- <i>paths</i> - dictionary with both input (datasets) and output (results) paths. It is automatically filled by Cmake during the creation of the project:
+```yaml
+paths: {input: "<datasets_path>", output: "<output_results_path>"}
+```
 
-- <i>paths</i>: dictionary with both input (datasets) and output (results) paths. It is automatically filled by Cmake during the creation of the project.
-- <i>write_n_labels</i>: whether to report the number of connected components in the output files.
-- <i>color_labels</i>: whether to output a colored version of labeled images during tests.
-- <i>save_middle_tests</i>: dictionary specifying, separately for every test, whether to save the output of single runs, or only a summary of the whole test.
+- <i>write_n_labels</i> - whether to report the number of connected components in the output files:
 ```yaml
 write_n_labels: false
+```
+
+- <i>color_labels</i> - whether to output a colored version of labeled images during tests:
+```yaml
 color_labels: {average: false, density: false}
+```
+
+- <i>save_middle_tests</i> - dictionary specifying, separately for every test, whether to save the output of single runs, or only a summary of the whole test:
+```yaml
 save_middle_tests: {average: false, average_with_steps: false, density: false, granularity: false}
 ```
 
@@ -276,8 +291,8 @@ int MyLabelingAlgorithm(const cv::Mat1b& img,cv::Mat1i &imgLabels);
 <p align="justify">Once an algorithm has been added to YACCLAB, it is ready to be tested and compared to the others. To include the newly added algorithm in a test, it is sufficient to include its function name in the <tt>CCLAlgorithmsFunc</tt> <a href="#conf">parameter</a> and a display name in the <tt>CCLAlgorithmsName</tt> parameter. We look at YACCLAB as a growing effort towards better reproducibility of CCL algorithms, so implementations of new and existing labeling methods are welcome.</p>
 -->
 
+<a name="datasets"></a>
 ## The YACCLAB Dataset
- 
 <p align="justify">The YACCLAB dataset includes both synthetic and real images and it is suitable for a wide range of applications, ranging from document processing to surveillance, and features a significant variability in terms of resolution, image density, variance of density, and number of components. All images are provided in 1 bit per pixel PNG format, with 0 (black) being background and 1 (white) being foreground. The dataset will be automatically downloaded by CMake during the installation process as described in the <a href="#inst">installation</a> paragraph, or it can be found at http://imagelab.ing.unimore.it/yacclab. Images are organized by folders as follows: </p>
 
 - <b>Synthetic Images</b>:
@@ -305,6 +320,9 @@ int MyLabelingAlgorithm(const cv::Mat1b& img,cv::Mat1i &imgLabels);
 
 - <b>Memory tests:</b> <p align="justify"> are useful to understand the reason for the good performances of an algorithm or in general to explain its behavior. Memory tests compute the average number of accesses to the label image (i.e the image used to store the provisional and then the final labels for the connected components), the average number of accesses to the binary image to be labeled, and, finally, the average number of accesses to data structures used to solve the equivalences between label classes. Moreover, if an algorithm requires extra data, memory tests summarize them as ``other'' accesses and return the average. Furthermore, all average contributions of an algorithm and dataset are summed together in order to show the total amount of memory accesses. Since counting the number of memory accesses imposes additional computations, functions implementing memory access tests are different from those implementing run-time and density tests, to keep run-time tests as objective as possible.</p>
 
+## Examples of YACCLAB Output Results 
+Work in progress.
+<!--
 ## Results ...
 
 In this section we use  acronyms  to  refer  to  the  available  algorithms:  
@@ -727,40 +745,24 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
    <td align="center">-    </td>
 	</tr>
 </table>
+-->
 
 <p align="justify"><em><a name="CT">[1]</a> F. Chang, C.-J. Chen, and C.-J. Lu, “A linear-time component-labeling algorithm using contour tracing technique,” Computer Vision and Image Understanding, vol. 93, no. 2, pp. 206–220, 2004.</em></p>
-
 <p align="justify"><em><a name="CCIT">[2]</a> W.-Y.  Chang,  C.-C.  Chiu,  and  J.-H.  Yang,  “Block-based  connected-component  labeling  algorithm  using  binary  decision  trees,” Sensors, vol. 15, no. 9, pp. 23 763–23 787, 2015.</em></p>
-
 <p align="justify"><em><a name="DiStefano">[3]</a> L.  Di  Stefano  and  A.  Bulgarelli,  “A  Simple  and  Efficient  Connected Components Labeling Algorithm,” in International Conference on Image Analysis and Processing. IEEE, 1999, pp. 322–327.</em></p>
-
 <p align="justify"><em><a name="BBDT">[4]</a> C.  Grana,  D.  Borghesani,  and  R.  Cucchiara,  “Optimized  Block-based Connected Components Labeling with Decision Trees,” IEEE Transac-tions on Image Processing, vol. 19, no. 6, pp. 1596–1609, 2010.</em></p>
-
 <p align="justify"><em><a name="LSL_STD">[5]</a> L. Lacassagne and B. Zavidovique, “Light speed labeling: efficient connected component labeling on risc architectures,” Journal of Real-Time Image Processing, vol. 6, no. 2, pp. 117–135, 2011</em>.</p>
-
 <p align="justify"><em><a name="SAUF">[6]</a> K. Wu, E. Otoo, and K. Suzuki, Optimizing two-pass connected-component labeling algorithms,” Pattern Analysis and Applications, vol. 12, no. 2, pp. 117–135, 2009.</em></p>
-
 <p align="justify"><em><a name="CTB">[7]</a> L.  He,  X.  Zhao,  Y.  Chao,  and  K.  Suzuki, Configuration-Transition-
 Based  Connected-Component  Labeling, IEEE  Transactions  on  Image Processing, vol. 23, no. 2, pp. 943–951, 2014.</em></p>
-
 <p align="justify"><em><a name="SBLA">[8]</a> H.  Zhao,  Y.  Fan,  T.  Zhang,  and  H.  Sang, Stripe-based  connected components  labelling, Electronics  letters,  vol.  46,  no.  21,  pp.  1434–1436, 2010.</em></p>
-
 <p align="justify"><em><a name="PRED">[9]</a> C. Grana, L. Baraldi, and F. Bolelli, Optimized Connected Components Labeling  with  Pixel  Prediction, in Advanced  Concepts  for  Intelligent Vision Systems, 2016.</em></p>
-
 <p align="justify"><em><a name="MIRFLICKR">[10]</a> M. J. Huiskes and M. S. Lew, “The MIR Flickr Retrieval Evaluation,” in MIR ’08: Proceedings of the 2008 ACM International Conference on Multimedia Information Retrieval. New York, NY, USA: ACM, 2008. [Online]. Available: http://press.liacs.nl/mirflickr/</em></p>
-
 <p align="justify"><em><a name="TOBACCO1">[11]</a> G. Agam, S. Argamon, O. Frieder, D. Grossman, and D. Lewis, “The Complex Document Image Processing (CDIP) Test Collection Project,” Illinois Institute of Technology, 2006. [Online]. Available: http://ir.iit.edu/projects/CDIP.html</em></p>
-
 <p align="justify"><em><a name="TOBACCO2">[12]</a> D. Lewis, G. Agam, S. Argamon, O. Frieder, D. Grossman, and J. Heard, “Building a test collection for complex document information processing,” in Proceedings of the 29th annual international ACM SIGIR conference on Research and development in information retrieval. ACM, 2006, pp. 665–666.</em></p>
-
 <p align="justify"><em><a name="TOBACCO3">[13]</a> “The Legacy Tobacco Document Library (LTDL),” University of California, San Francisco, 2007. [Online]. Available: http://legacy. library.ucsf.edu/</em></p>
-
 <p align="justify"><em><a name="3DPES">[14]</a> D. Baltieri, R. Vezzani, and R. Cucchiara, “3DPeS: 3D People Dataset for Surveillance and Forensics,” in Proceedings of the 2011 joint ACM workshop on Human gesture and behavior understanding. ACM, 2011, pp. 59–64.</em></p>
-
 <p align="justify"><em><a name="MEDICAL">[15]</a> F. Dong, H. Irshad, E.-Y. Oh, M. F. Lerwill, E. F. Brachtel, N. C. Jones, N. W. Knoblauch, L. Montaser-Kouhsari, N. B. Johnson, L. K. Rao et al., “Computational Pathology to Discriminate Benign from Malignant Intraductal Proliferations of the Breast,” PloS one, vol. 9, no. 12, p. e114885, 2014.</em></p>
-
 <p align="justify"><em><a name="FINGERPRINTS">[16]</a> D. Maltoni, D. Maio, A. Jain, and S. Prabhakar, Handbook of fingerprint
 recognition. Springer Science & Business Media, 2009.</em></p>
-
 <p align="justify"><em><a name="YACCLAB">[17]</a> C.Grana, F.Bolelli, L.Baraldi, and R.Vezzani, YACCLAB - Yet Another Connected Components Labeling Benchmark, Proceedings of the 23rd International Conference on Pattern Recognition, Cancun, Mexico, 4-8 Dec 2016, 2016</em></p>
-
