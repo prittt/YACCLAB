@@ -56,15 +56,15 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">-</td>
-    <td align="center">L. Di Stefano,<br>A. Bulgarelli</td>
+    <td align="center">L. Di Stefano,<br>A. Bulgarelli <sup><a href="#DiStefano">[3]</a></sup></td>
     <td align="center">1999</td>
-    <td align="center">DiStefano <sup>[3](#DiStefano)</sup></td>
+    <td align="center">DiStefano</td>
     <td align="center"><i>labeling_distefano_1999.h</i></td>
     <td align="center">NO</td>
   </tr>
   <tr>
     <td align="center">Contour Tracing</td>
-    <td align="center">F. Chang,</br>C.J. Chen,</br>C.J. Lu <sup>[1](#CT)</sup></td>
+    <td align="center">F. Chang,</br>C.J. Chen,</br>C.J. Lu <sup><a href="#CT">[1]</a></sup></td>
     <td align="center">1999</td>
     <td align="center">CT</td>
     <td align="center"><i>labeling_fchang_2003.h</i></td>
@@ -72,7 +72,7 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Configuration Transition Based</td>
-    <td align="center">L. He,</br>X. Zhao,</br>Y. Chao,</br>K. Suzuki <sup>[7](#CTB)</sup></td>
+    <td align="center">L. He,</br>X. Zhao,</br>Y. Chao,</br>K. Suzuki <sup><a href="#CTB">[7]</a></sup></td>
     <td align="center">1999</td>
     <td align="center">CTB</td>
     <td align="center"><i>labeling_he_2014.h</i>, <i>labeling_he_2014_graph.inc</i>
@@ -80,7 +80,7 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Scan Array-based with Union Find</td>
-    <td align="center">K. Wu,</br>E. Otoo,</br>K. Suzuki <sup>[6](#SAUF)</sup></td>
+    <td align="center">K. Wu,</br>E. Otoo,</br>K. Suzuki <sup><a href="#SAUF">[6]</a></sup></td>
     <td align="center">2009</td>
     <td align="center">SAUF</td>
     <td align="center"><i>labeling_wu_2009.h</i>, <i>labeling_wu_2009_tree.inc</i></td>
@@ -88,7 +88,7 @@ Notes for gnuplot:
   </tr>
     <tr>
     <td align="center">Stripe-Based Labeling Algorithm</td>
-    <td align="center">H.L. Zhao,</br>Y.B. Fan,</br>T.X. Zhang,</br>H.S. Sang <sup>[8](#SBLA)</sup></td>
+    <td align="center">H.L. Zhao,</br>Y.B. Fan,</br>T.X. Zhang,</br>H.S. Sang <sup><a href="#SBLA">[8]</a></sup></td>
     <td align="center">2010</td>
     <td align="center">SBLA</td>
     <td align="center"><i>labeling_zhao_2010.h</i></td>
@@ -96,7 +96,7 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Block-Based with Decision Tree</td>
-    <td align="center">C. Grana,</br>D. Borghesani,</br>R. Cucchiara <sup>[4](#BBDT)</sup></td>
+    <td align="center">C. Grana,</br>D. Borghesani,</br>R. Cucchiara <sup><a href="#BBDT">[4]</a></sup></td>
     <td align="center">2010</td>
     <td align="center">BBDT</td>
     <td align="center"><i>labeling_grana_2010.h</i>, <i>labeling_grana_2010_tree.inc</i></td>
@@ -104,7 +104,7 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Block-Based with Binary Decision Trees</td>
-    <td align="center">W.Y. Chang,</br>C.C. Chiu,</br>J.H. Yang <sup>[2](#CCIT)</sup></td>
+    <td align="center">W.Y. Chang,</br>C.C. Chiu,</br>J.H. Yang <sup><a href="#CCIT">[2]</a></sup></td>
     <td align="center">2015</td>
     <td align="center">CCIT</td>
     <td align="center"><i>labeling_wychang_2015.h</i>, <i>labeling_wychang_2015_tree.inc</i>, <i>labeling_wychang_2015_tree_0.inc</i></td>
@@ -112,7 +112,7 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Light Speed Labeling</td>
-    <td align="center">L. Cabaret,</br>L. Lacassagne,</br>D. Etiemble <sup>[5](#LSL_STD)</sup></td>
+    <td align="center">L. Cabaret,</br>L. Lacassagne,</br>D. Etiemble <sup><a href="#LSL_STD">[5]</a></sup></td>
     <td align="center">2016</td>
     <td align="center">LSL_STD<small><sup>I</sup></small></br>LSL_STDZ<small><sup>II</sup></small></br>LSL_RLE<small><sup>III</sup></small></td>
     <td align="center"><i>labeling_lacassagne_2016.h</i>, <i>labeling_lacassagne_2016_code.inc</i></td>
@@ -120,7 +120,7 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Pixel Prediction</td>
-    <td align="center">C.Grana,</br>L. Baraldi,</br>F. Bolelli <sup>[9](#PRED)</sup></td>
+    <td align="center">C.Grana,</br>L. Baraldi,</br>F. Bolelli <sup><a href="#PRED">[9]</a></sup></td>
     <td align="center">2016</td>
     <td align="center">PRED</td>
     <td align="center"><i>labeling_grana_2016.h</i>, <i>labeling_grana_2016_forest.inc</i>, <i>labeling_grana_2016_forest_0.inc</i>
@@ -747,6 +747,8 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
 	</tr>
 </table>
 -->
+
+## References
 
 <p align="justify"><em><a name="CT">[1]</a> F. Chang, C.-J. Chen, and C.-J. Lu, “A linear-time component-labeling algorithm using contour tracing technique,” Computer Vision and Image Understanding, vol. 93, no. 2, pp. 206–220, 2004.</em></p>
 <p align="justify"><em><a name="CCIT">[2]</a> W.-Y.  Chang,  C.-C.  Chiu,  and  J.-H.  Yang,  “Block-based  connected-component  labeling  algorithm  using  binary  decision  trees,” Sensors, vol. 15, no. 9, pp. 23 763–23 787, 2015.</em></p>
