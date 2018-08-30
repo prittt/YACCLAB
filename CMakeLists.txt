@@ -26,10 +26,10 @@
 # OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.8.2)
 
 set (ProjectName "YACCLAB")
-project (${ProjectName})
+project (${ProjectName} LANGUAGES C CXX CUDA)
 
 #Suppress creation of ZERO_CHECK
 set(CMAKE_SUPPRESS_REGENERATION true)
@@ -131,12 +131,6 @@ if(MSVC)
 endif()
 
 # --------------------
-# CUDA 
-# --------------------
-
-find_package(CUDA REQUIRED)
-
-# --------------------
 # Project
 # --------------------
 
@@ -158,9 +152,10 @@ endif()
 source_group("Include Files" FILES ${INCFILES})
 source_group("Header Files" FILES ${HFILES})
 source_group("Source Files" FILES ${SRCFILES})
+source_group("Cuda Files" FILES ${CUDAFILES})
 
 set (addExe ${SRCFILES} ${HFILES} ${INCFILES} ${CUDAFILES} "${CMAKE_INSTALL_PREFIX}/config.yaml")
-cuda_add_executable(${ProjectName} ${addExe})
+add_executable(${ProjectName} ${addExe})
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${ProjectName}) # Set YACCLAB as startup group instead of ALL_BUILD
 target_link_libraries (${ProjectName}  ${OpenCV_LIBS})
 
