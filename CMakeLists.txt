@@ -131,14 +131,22 @@ if(MSVC)
 endif()
 
 # --------------------
+# CUDA 
+# --------------------
+
+find_package(CUDA REQUIRED)
+
+# --------------------
 # Project
 # --------------------
 
 include_directories("${CMAKE_SOURCE_DIR}/include")
+include_directories("${CMAKE_INSTALL_PREFIX}") # To avoid linking error when new file is added to the project directly from Visual Studio IDE
 
 file(GLOB SRCFILES ${SRCFILES} "src/*.cc" "src/*.cpp" "src/*.c")
 file(GLOB HFILES ${HFILES} "include/*.h" "include/*.hpp")
 file(GLOB INCFILES ${INCFILES} "include/*.inc")
+file(GLOB CUDAFILES ${CUDAFILES} "cuda/*.cu")
 
 add_definitions(-D_CRT_SECURE_NO_WARNINGS) #To suppress 'fopen' opencv warning/bug  
 # Set configuration file	
@@ -151,8 +159,8 @@ source_group("Include Files" FILES ${INCFILES})
 source_group("Header Files" FILES ${HFILES})
 source_group("Source Files" FILES ${SRCFILES})
 
-set (addExe ${SRCFILES} ${HFILES} ${INCFILES} "${CMAKE_INSTALL_PREFIX}/config.yaml")
-add_executable(${ProjectName} ${addExe})
+set (addExe ${SRCFILES} ${HFILES} ${INCFILES} ${CUDAFILES} "${CMAKE_INSTALL_PREFIX}/config.yaml")
+cuda_add_executable(${ProjectName} ${addExe})
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${ProjectName}) # Set YACCLAB as startup group instead of ALL_BUILD
 target_link_libraries (${ProjectName}  ${OpenCV_LIBS})
 
