@@ -29,7 +29,7 @@
 cmake_minimum_required(VERSION 3.8.2)
 
 set (ProjectName "YACCLAB")
-project (${ProjectName} LANGUAGES C CXX CUDA)
+project (${ProjectName})
 
 #Suppress creation of ZERO_CHECK
 set(CMAKE_SUPPRESS_REGENERATION true)
@@ -38,6 +38,7 @@ set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Configs" FORCE)
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE PATH "Install prefix" FORCE)
 
 #Set YACCLAB variables
+set(YACCLAB_ENABLE_CUDA OFF CACHE BOOL "Enable CUDA support if checked")
 set(YACCLAB_DOWNLOAD_DATASET OFF CACHE BOOL "If flagged the YACCLAB dataset will be automatically downloaded")
 set(YACCLAB_INPUT_DATASET_PATH "${CMAKE_INSTALL_PREFIX}/input" CACHE PATH "'input' dataset path") 
 set(YACCLAB_OUTPUT_RESULTS_PATH "${CMAKE_INSTALL_PREFIX}/output" CACHE PATH "'output' results path") 
@@ -97,6 +98,21 @@ endif()
 message(STATUS "C++ flags: ${CMAKE_CXX_FLAGS}")
 message(STATUS "C flags: ${CMAKE_C_FLAGS}")
 
+# ----------------------------------------------------------------------------
+#  Check for CUDA support
+# ----------------------------------------------------------------------------
+
+
+if(YACCLAB_ENABLE_CUDA)
+	include(CheckLanguage)
+	check_language(CUDA)	
+	if(CMAKE_CUDA_COMPILER)
+		enable_language(CUDA)
+	else()
+		message(WARNING "No CUDA support")
+	endif()
+endif()
+
 
 # ----------------------------------------------------------------------------
 #  Build & install layouts
@@ -127,9 +143,11 @@ if(MSVC)
 		foreach(flag_var CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
 			string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
 		endforeach(flag_var)
-		foreach(flag_var CMAKE_CUDA_FLAGS_DEBUG CMAKE_CUDA_FLAGS_RELEASE CMAKE_CUDA_FLAGS_MINSIZEREL CMAKE_CUDA_FLAGS_RELWITHDEBINFO) 
-			string(REGEX REPLACE "-MD" "-MT" ${flag_var} "${${flag_var}}")
-		endforeach(flag_var)
+		if (CMAKE_CUDA_COMPILER)
+			foreach(flag_var CMAKE_CUDA_FLAGS_DEBUG CMAKE_CUDA_FLAGS_RELEASE CMAKE_CUDA_FLAGS_MINSIZEREL CMAKE_CUDA_FLAGS_RELWITHDEBINFO) 
+				string(REGEX REPLACE "-MD" "-MT" ${flag_var} "${${flag_var}}")
+			endforeach(flag_var)
+		endif()
 	endif()
 endif()
 
@@ -143,7 +161,11 @@ include_directories("${CMAKE_INSTALL_PREFIX}") # To avoid linking error when new
 file(GLOB SRCFILES ${SRCFILES} "src/*.cc" "src/*.cpp" "src/*.c")
 file(GLOB HFILES ${HFILES} "include/*.h" "include/*.hpp")
 file(GLOB INCFILES ${INCFILES} "include/*.inc")
-file(GLOB CUDAFILES ${CUDAFILES} "cuda/*.cu")
+if (CMAKE_CUDA_COMPILER)
+	file(GLOB CUDAFILES ${CUDAFILES} "cuda/*.cu")
+else()
+	file(GLOB CUDAFILES ${CUDAFILES})
+endif()
 
 add_definitions(-D_CRT_SECURE_NO_WARNINGS) #To suppress 'fopen' opencv warning/bug  
 # Set configuration file	
@@ -155,7 +177,9 @@ endif()
 source_group("Include Files" FILES ${INCFILES})
 source_group("Header Files" FILES ${HFILES})
 source_group("Source Files" FILES ${SRCFILES})
-source_group("Cuda Files" FILES ${CUDAFILES})
+if (CMAKE_CUDA_COMPILER)
+	source_group("Cuda Files" FILES ${CUDAFILES})
+endif()
 
 set (addExe ${SRCFILES} ${HFILES} ${INCFILES} ${CUDAFILES} "${CMAKE_INSTALL_PREFIX}/config.yaml")
 add_executable(${ProjectName} ${addExe})
