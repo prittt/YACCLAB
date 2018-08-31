@@ -134,6 +134,9 @@ endif()
 # --------------------
 
 set(OpenCV_REQUIRED_PACKAGES "core;imgcodecs;imgproc" CACHE STRING "OpenCV packages required by YACCLAB are already set")
+if (CMAKE_CUDA_COMPILER) 
+	set(OpenCV_REQUIRED_PACKAGES "${OpenCV_REQUIRED_PACKAGES};cudafeatures2d")
+endif()
 FIND_PACKAGE(OpenCV REQUIRED ${OpenCV_REQUIRED_PACKAGES})
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 
