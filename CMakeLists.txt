@@ -157,7 +157,7 @@ set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT $
 target_link_libraries (${ProjectName}  ${OpenCV_LIBS})
 
 # Creation of output directory
-if (NOT EXISTS "${YACCLAB_INPUT_DATASET_PATH}")
+if (NOT EXISTS "${YACCLAB_OUTPUT_RESULTS_PATH}")
 		file(MAKE_DIRECTORY ${YACCLAB_OUTPUT_RESULTS_PATH})
 endif()
 	
