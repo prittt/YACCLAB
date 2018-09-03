@@ -176,14 +176,14 @@ void SystemInfo::SetCompiler()
 #elif defined(__ICC) || defined(__INTEL_COMPILER)
     /* Intel ICC/ICPC. ------------------------------------------ */
     compiler_name_ = "IntelC++";
-    compiler_version_ = string(__INTEL_COMPILER);
+    compiler_version_ = to_string(__INTEL_COMPILER);
 
 #elif defined(__GNUC__) || defined(__GNUG__)
     /* GNU GCC/G++. --------------------------------------------- */
     compiler_name_ = "GCC";
 
 #ifdef __VERSION__
-    compiler_version_ = string(__VERSION__);
+    compiler_version_ = to_string(__VERSION__);
 #endif // __VERSION__
 
 #elif defined(__HP_cc) || defined(__HP_aCC)
