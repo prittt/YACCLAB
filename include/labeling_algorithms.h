@@ -36,6 +36,9 @@
 
 #include <opencv2/core.hpp>
 
+// gpu include
+#include <opencv2\cudafeatures2d.hpp>
+
 #include "performance_evaluator.h"
 
 #define UPPER_BOUND_8_CONNECTIVITY ((size_t)((img_.rows + 1) / 2) * (size_t)((img_.cols + 1) / 2) + 1)
@@ -63,12 +66,37 @@ public:
 //    virtual void Dealloc() {}
 };
 
+
+// This could be a Labeling subclass
+class GpuLabeling : public Labeling {
+public:
+	static cv::cuda::GpuMat d_img_;
+	cv::cuda::GpuMat d_img_labels_;
+
+	GpuLabeling() {}
+	virtual ~GpuLabeling() = default;
+
+	// virtual void PerformLabeling() { throw std::runtime_error("'PerformLabeling()' not implemented"); }
+	// virtual void PerformLabelingWithSteps() { throw std::runtime_error("'PerformLabelingWithSteps()' not implemented"); }
+	// virtual void PerformLabelingMem(std::vector<unsigned long>& accesses) { throw std::runtime_error("'PerformLabelingMem(...)' not implemented"); }
+
+	virtual void FreeLabelingData() { d_img_labels_.release(); img_labels_.release(); }
+	//static void SetImg(const cv::Mat1b& img) { img_ = img.clone(); }
+
+	//private:
+	//    virtual void Alloc() {}
+	//    virtual void Dealloc() {}
+};
+
+// Maybe I should split this in two classes
 class LabelingMapSingleton {
 public:
     std::map<std::string, Labeling*> data_;
 
+	// std::map<std::string, GpuLabeling*> gpu_data_;
+
     static LabelingMapSingleton& GetInstance();
-    static Labeling* GetLabeling(const std::string& s);
+    static Labeling* GetLabeling(const std::string& s);			///////
     static bool Exists(const std::string& s);
     LabelingMapSingleton(LabelingMapSingleton const&) = delete;
     void operator=(LabelingMapSingleton const&) = delete;

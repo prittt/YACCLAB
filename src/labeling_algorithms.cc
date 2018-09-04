@@ -30,6 +30,8 @@
 
 cv::Mat1b Labeling::img_;
 
+cv::cuda::GpuMat GpuLabeling::d_img_;
+
 LabelingMapSingleton& LabelingMapSingleton::GetInstance()
 {
     static LabelingMapSingleton instance;	// Guaranteed to be destroyed.

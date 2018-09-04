@@ -223,8 +223,8 @@ class OutputBox {
 public:
 
     OutputBox(const std::string& title = "", 
-        const size_t bar_width = CONSOLE_WIDTH, 
-        const size_t pre_spaces = 2)
+        const unsigned bar_width = CONSOLE_WIDTH, 
+        const unsigned pre_spaces = 2)
     {
         pre_spaces_ = pre_spaces;
         bar_width_ = bar_width > CONSOLE_WIDTH ? CONSOLE_WIDTH : bar_width;
@@ -254,7 +254,7 @@ public:
         pb.Start();
     }
 
-    void UpdateUnitaryBox(const size_t progress)
+    void UpdateUnitaryBox(const unsigned progress)
     {
         pb.Display(progress);
     }
@@ -265,7 +265,7 @@ public:
         PrintSeparatorLine();
     }
 
-    void StartRepeatedBox(const std::string &dataset_name, const size_t n_things_todo, const size_t n_test_todo)
+    void StartRepeatedBox(const std::string &dataset_name, const unsigned n_things_todo, const unsigned n_test_todo)
     {
         PrintData(dataset_name + ":");
         std::string complete_pre_message = std::string(pre_spaces_, ' ') + "|  ";
@@ -273,7 +273,7 @@ public:
         pb.StartRepeated();
     }
 
-    void UpdateRepeatedBox(const size_t progress)
+    void UpdateRepeatedBox(const unsigned progress)
     {
         pb.DisplayRepeated(progress);
     }
@@ -386,8 +386,8 @@ private:
         for (unsigned i = 0; i < data.length(); i += step) {
             if (i == 0) {
                 PrintRawData(data.substr(i, step));
-                i += tab.size();
-                step -= tab.size();
+                i += static_cast<int>(tab.size());
+                step -= static_cast<unsigned>(tab.size());
             }
             else {
                 PrintRawData(tab + data.substr(i, step));
@@ -395,9 +395,9 @@ private:
         }
     }
 
-    size_t bar_width_;
+    unsigned bar_width_;
     std::string title_;
-    size_t pre_spaces_;
+    unsigned pre_spaces_;
     ProgressBar pb;
 };
 
