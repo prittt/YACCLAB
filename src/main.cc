@@ -571,6 +571,7 @@ int main()
 			yt.MemoryTest();
 		}
 
+		GpuLabeling::d_img_.release();
 
 		// Latex Generator
 		if (cfg.gpu_perform_average || cfg.gpu_perform_average_ws || cfg.gpu_perform_density || cfg.gpu_perform_memory || cfg.gpu_perform_granularity) {
@@ -583,7 +584,6 @@ int main()
 
 	}
 #endif
-
 
 	if (cfg.cpu_ccl_algorithms.size() == 0 
 #if defined USE_CUDA

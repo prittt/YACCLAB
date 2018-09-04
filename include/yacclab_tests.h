@@ -161,8 +161,8 @@ private:
         }// END FOR (LIST OF DATASETS)
 
          // To display report of correctness test
-        std::vector<std::string> messages(ccl_algorithms.size());
-        unsigned longest_name = max_element(ccl_algorithms.begin(), ccl_algorithms.end(), CompareLengthCvString)->length();
+        std::vector<std::string> messages(static_cast<unsigned>(ccl_algorithms.size()));
+        unsigned longest_name = static_cast<unsigned>(max_element(ccl_algorithms.begin(), ccl_algorithms.end(), CompareLengthCvString)->length());
 
         unsigned j = 0;
         for (const auto& algo_name : ccl_algorithms) {

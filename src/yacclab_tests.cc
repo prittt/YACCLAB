@@ -230,7 +230,7 @@ void YacclabTests::AverageTest()
         average_results_suffix = "_average.txt";
 
     // Initialize results container
-    average_results_ = cv::Mat1d(cfg_.average_datasets.size(), cfg_.cpu_ccl_average_algorithms.size(), std::numeric_limits<double>::max());
+    average_results_ = cv::Mat1d(static_cast<unsigned>(cfg_.average_datasets.size()), static_cast<unsigned>(cfg_.cpu_ccl_average_algorithms.size()), std::numeric_limits<double>::max());
 
     for (unsigned d = 0; d < cfg_.average_datasets.size(); ++d) { // For every dataset in the average list
 
@@ -274,12 +274,12 @@ void YacclabTests::AverageTest()
         }
 
         // Number of files
-        int filenames_size = filenames.size();
+        unsigned filenames_size = static_cast<unsigned>(filenames.size());
 
         // To save middle/min and average results;
-        Mat1d min_res(filenames_size, cfg_.cpu_ccl_average_algorithms.size(), numeric_limits<double>::max());
-        Mat1d current_res(filenames_size, cfg_.cpu_ccl_average_algorithms.size(), numeric_limits<double>::max());
-        Mat1i labels(filenames_size, cfg_.cpu_ccl_average_algorithms.size(), 0);
+        Mat1d min_res(filenames_size, static_cast<unsigned>(cfg_.cpu_ccl_average_algorithms.size()), numeric_limits<double>::max());
+        Mat1d current_res(filenames_size, static_cast<unsigned>(cfg_.cpu_ccl_average_algorithms.size()), numeric_limits<double>::max());
+        Mat1i labels(filenames_size, static_cast<unsigned>(cfg_.cpu_ccl_average_algorithms.size()), 0);
         vector<pair<double, uint16_t>> supp_average(cfg_.cpu_ccl_average_algorithms.size(), make_pair(0.0, 0));
 
         // Start output message box
@@ -318,7 +318,7 @@ void YacclabTests::AverageTest()
                 for (const auto& algo_name : shuffled_ccl_average_algorithms) {
                     Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
                     unsigned n_labels;
-                    unsigned i = algo_pos[algo_name];
+                    unsigned i = static_cast<unsigned>(algo_pos[algo_name]);
 
                     try {
                         // Perform current algorithm on current image and save result.
@@ -525,7 +525,7 @@ void YacclabTests::AverageTestWithSteps()
         }
 
         // Initialize results container
-        average_ws_results_[dataset_name] = Mat1d(cfg_.cpu_ccl_average_ws_algorithms.size(), StepType::ST_SIZE, numeric_limits<double>::max());
+        average_ws_results_[dataset_name] = Mat1d(static_cast<unsigned>(cfg_.cpu_ccl_average_ws_algorithms.size()), StepType::ST_SIZE, numeric_limits<double>::max());
 
         // To save list of filename on which CLLAlgorithms must be tested
         vector<pair<string, bool>> filenames;  // first: filename, second: state of filename (find or not)
@@ -535,12 +535,12 @@ void YacclabTests::AverageTestWithSteps()
         }
 
         // Number of files
-        int filenames_size = filenames.size();
+        unsigned int filenames_size = static_cast<unsigned>(filenames.size());
 
         // To save middle/min and average results;
         map<String, Mat1d> current_res;
         map<String, Mat1d> min_res;
-        Mat1i labels(filenames_size, cfg_.cpu_ccl_average_ws_algorithms.size(), 0);
+        Mat1i labels(filenames_size, static_cast<unsigned>(cfg_.cpu_ccl_average_ws_algorithms.size()), 0);
 
         for (const auto& algo_name : cfg_.cpu_ccl_average_ws_algorithms) {
             current_res[algo_name] = Mat1d(filenames_size, StepType::ST_SIZE, numeric_limits<double>::max());
@@ -583,7 +583,7 @@ void YacclabTests::AverageTestWithSteps()
                 for (const auto& algo_name : shuffled_ccl_average_ws_algorithms) {
                     Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
                     unsigned n_labels;
-                    unsigned i = algo_pos[algo_name];
+                    unsigned i = static_cast<unsigned>(algo_pos[algo_name]);
 
                     try {
                         // Perform current algorithm on current image and save result.
@@ -785,7 +785,7 @@ void YacclabTests::DensityTest()
         null_results_suffix = "_null_results.txt";
 
     // Initialize results container
-    density_results_ = cv::Mat1d(cfg_.density_datasets.size(), cfg_.cpu_ccl_average_algorithms.size(), std::numeric_limits<double>::max());
+    density_results_ = cv::Mat1d(static_cast<unsigned>(cfg_.density_datasets.size()), static_cast<unsigned>(cfg_.cpu_ccl_average_algorithms.size()), std::numeric_limits<double>::max());
 
     for (unsigned d = 0; d < cfg_.density_datasets.size(); ++d) { // For every dataset in the density list
         String dataset_name(cfg_.density_datasets[d]),
@@ -831,12 +831,12 @@ void YacclabTests::DensityTest()
         }
 
         // Number of files
-        int filenames_size = filenames.size();
+        unsigned int filenames_size = static_cast<unsigned>(filenames.size());
 
         // To save middle/min and average results;
-        Mat1d min_res(filenames_size, cfg_.cpu_ccl_average_algorithms.size(), numeric_limits<double>::max());
-        Mat1d current_res(filenames_size, cfg_.cpu_ccl_average_algorithms.size(), numeric_limits<double>::max());
-        Mat1i labels(filenames_size, cfg_.cpu_ccl_average_algorithms.size(), 0);
+        Mat1d min_res(filenames_size, static_cast<unsigned>(cfg_.cpu_ccl_average_algorithms.size()), numeric_limits<double>::max());
+        Mat1d current_res(filenames_size, static_cast<unsigned>(cfg_.cpu_ccl_average_algorithms.size()), numeric_limits<double>::max());
+        Mat1i labels(filenames_size, static_cast<unsigned>(cfg_.cpu_ccl_average_algorithms.size()), 0);
 
         /*
         Note that number of random_images is less than 800, this is why the second element of the
@@ -907,7 +907,7 @@ void YacclabTests::DensityTest()
                 for (const auto& algo_name : shuffled_ccl_average_algorithms) {
                     Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
                     unsigned n_labels;
-                    unsigned i = algo_pos[algo_name];
+                    unsigned i = static_cast<unsigned>(algo_pos[algo_name]);
 
                     try {
                         // Perform current algorithm on current image and save result.
@@ -1234,17 +1234,17 @@ void YacclabTests::GranularityTest()
         }
         
         // Number of files
-        int filenames_size = filenames.size();
+        unsigned int filenames_size = static_cast<unsigned>(filenames.size());
 
         uint8_t density = 101; // For granularity tests density ranges from 0 to 100 with step 1
         uint8_t granularity = 16; // For granularity tests granularity ranges from 1 to 16 with step 1
 
         // Initialize results container
-        granularity_results_[dataset_name] = cv::Mat(cv::Size(cfg_.cpu_ccl_average_algorithms.size(), density), CV_64FC(granularity), cv::Scalar(0)); // To store minimum values 
+        granularity_results_[dataset_name] = cv::Mat(cv::Size(static_cast<unsigned>(cfg_.cpu_ccl_average_algorithms.size()), density), CV_64FC(granularity), cv::Scalar(0)); // To store minimum values 
         vector<vector<double>> real_densities(granularity, vector<double>(density)); 
-        Mat1d min_res(filenames_size, cfg_.cpu_ccl_average_algorithms.size(), numeric_limits<double>::max());
-        Mat1d current_res(filenames_size, cfg_.cpu_ccl_average_algorithms.size(), numeric_limits<double>::max()); // To store current result
-        Mat1i labels(filenames_size, cfg_.cpu_ccl_average_algorithms.size(), 0); // To count number of labels for every image and algorithm 
+        Mat1d min_res(filenames_size, static_cast<unsigned>(cfg_.cpu_ccl_average_algorithms.size()), numeric_limits<double>::max());
+        Mat1d current_res(filenames_size, static_cast<unsigned>(cfg_.cpu_ccl_average_algorithms.size()), numeric_limits<double>::max()); // To store current result
+        Mat1i labels(filenames_size, static_cast<unsigned>(cfg_.cpu_ccl_average_algorithms.size()), 0); // To count number of labels for every image and algorithm 
 
         // Start output message box
         ob.StartRepeatedBox(dataset_name, filenames_size, cfg_.granularity_tests_number);
@@ -1289,7 +1289,7 @@ void YacclabTests::GranularityTest()
                 for (const auto& algo_name : shuffled_ccl_average_algorithms) {
                     Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
                     unsigned n_labels;
-                    unsigned i = algo_pos[algo_name];
+                    unsigned i = static_cast<unsigned>(algo_pos[algo_name]);
 
                     // Perform current algorithm on current image and save result.
                     algorithm->perf_.start();
@@ -1515,13 +1515,13 @@ void YacclabTests::MemoryTest()
         }
 
         // Number of files
-        int filenames_size = filenames.size();
+        unsigned int filenames_size = static_cast<unsigned>(filenames.size());
 
         unsigned tot_test = 0; // To count the real number of image on which labeling will be applied for every file in list
 
         // Initialize results container
         // To store average memory accesses (one column for every data_ structure type: col 1 -> BINARY_MAT, col 2 -> LABELED_MAT, col 3 -> EQUIVALENCE_VET, col 0 -> OTHER)
-        memory_accesses_[dataset_name] = Mat1d(Size(MD_SIZE, cfg_.cpu_ccl_mem_algorithms.size()), 0.0);
+        memory_accesses_[dataset_name] = Mat1d(Size(MD_SIZE, static_cast<unsigned>(cfg_.cpu_ccl_mem_algorithms.size())), 0.0);
 
         // Start output message box
         ob.StartUnitaryBox(dataset_name, filenames_size);
@@ -1543,7 +1543,7 @@ void YacclabTests::MemoryTest()
             ++tot_test;
 
             // For all the Algorithms in the array
-            for (size_t i = 0; i < cfg_.cpu_ccl_mem_algorithms.size(); ++i) {
+            for (unsigned i = 0; i < static_cast<unsigned>(cfg_.cpu_ccl_mem_algorithms.size()); ++i) {
                 Labeling *algorithm = LabelingMapSingleton::GetLabeling(cfg_.cpu_ccl_mem_algorithms[i]);
                 // The following data_ structure is used to get the memory access matrices
                 vector<unsigned long int> accesses; // Rows represents algorithms and columns represent data_ structures
@@ -1551,7 +1551,7 @@ void YacclabTests::MemoryTest()
                 algorithm->PerformLabelingMem(accesses);
 
                 // For every data_ structure "returned" by the algorithm
-                for (size_t a = 0; a < accesses.size(); ++a) {
+                for (unsigned a = 0; a < static_cast<unsigned>(accesses.size()); ++a) {
                     memory_accesses_[dataset_name](i, a) += accesses[a];
                 }
                 algorithm->FreeLabelingData();
@@ -1569,7 +1569,7 @@ void YacclabTests::MemoryTest()
         os << "#" << dataset_name << '\n';
         os << "Algorithm\tBinary Image\tLabel Image\tEquivalence Vector/s\tOther\tTotal Accesses" << '\n';
 
-        for (size_t a = 0; a < cfg_.cpu_ccl_mem_algorithms.size(); ++a) {
+        for (unsigned a = 0; a < static_cast<unsigned>(cfg_.cpu_ccl_mem_algorithms.size()); ++a) {
             double total_accesses{ 0.0 };
             os << cfg_.cpu_ccl_mem_algorithms[a] << '\t';
             for (int col = 0; col < memory_accesses_[dataset_name].cols; ++col) {
