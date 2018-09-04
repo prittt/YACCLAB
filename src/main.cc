@@ -49,7 +49,10 @@
 #include "system_info.h"
 #include "utilities.h"
 #include "yacclab_tests.h"
+
+#if defined USE_CUDA
 #include "yacclab_gpu_tests.h"
+#endif
 
 using namespace std;
 using namespace cv;
@@ -341,7 +344,7 @@ int main()
 	}
 
 
-
+#if defined USE_CUDA
 	// Gpu
 	if (cfg.gpu_ccl_algorithms.size() > 0) {
 
@@ -579,8 +582,14 @@ int main()
 		filesystem::copy(path(logfile), cfg.output_path / path(logfile), ec);
 
 	}
+#endif
 
-	if (cfg.cpu_ccl_algorithms.size() == 0 && cfg.gpu_ccl_algorithms.size() == 0) {
+
+	if (cfg.cpu_ccl_algorithms.size() == 0 
+#if defined USE_CUDA
+		&& cfg.gpu_ccl_algorithms.size() == 0
+#endif
+		) {
 		ob_setconf.Cerror("Empty algorithms list");
 	}
 	

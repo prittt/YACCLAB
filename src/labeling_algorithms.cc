@@ -30,7 +30,9 @@
 
 cv::Mat1b Labeling::img_;
 
+#if defined USE_CUDA
 cv::cuda::GpuMat GpuLabeling::d_img_;
+#endif
 
 LabelingMapSingleton& LabelingMapSingleton::GetInstance()
 {

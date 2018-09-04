@@ -108,6 +108,7 @@ if(YACCLAB_ENABLE_CUDA)
 	check_language(CUDA)	
 	if(CMAKE_CUDA_COMPILER)
 		enable_language(CUDA)
+		add_definitions(-DUSE_CUDA)
 	else()
 		message(WARNING "No CUDA support")
 	endif()
@@ -159,15 +160,17 @@ endif()
 # --------------------
 
 include_directories("${CMAKE_SOURCE_DIR}/include")
+include_directories("${CMAKE_SOURCE_DIR}/cuda/include")
 include_directories("${CMAKE_INSTALL_PREFIX}") # To avoid linking error when new file is added to the project directly from Visual Studio IDE
 
 file(GLOB SRCFILES ${SRCFILES} "src/*.cc" "src/*.cpp" "src/*.c")
 file(GLOB HFILES ${HFILES} "include/*.h" "include/*.hpp")
 file(GLOB INCFILES ${INCFILES} "include/*.inc")
+file(GLOB CUDAFILES ${CUDAFILES})
 if (CMAKE_CUDA_COMPILER)
-	file(GLOB CUDAFILES ${CUDAFILES} "cuda/*.cu")
-else()
-	file(GLOB CUDAFILES ${CUDAFILES})
+	file(GLOB CUDAFILES ${CUDAFILES} "cuda/src/*.cu")
+	file(GLOB SRCFILES ${SRCFILES} "cuda/src/*.cc" "cuda/src/*.cpp" "cuda/src/*.c")
+	file(GLOB HFILES ${HFILES} "cuda/include/*.h" "cuda/include/*.hpp")
 endif()
 
 add_definitions(-D_CRT_SECURE_NO_WARNINGS) #To suppress 'fopen' opencv warning/bug  

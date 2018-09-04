@@ -37,7 +37,9 @@
 #include <opencv2/core.hpp>
 
 // gpu include
+#if defined USE_CUDA
 #include <opencv2\cudafeatures2d.hpp>
+#endif
 
 #include "performance_evaluator.h"
 
@@ -66,7 +68,7 @@ public:
 //    virtual void Dealloc() {}
 };
 
-
+#if defined USE_CUDA
 // This could be a Labeling subclass
 class GpuLabeling : public Labeling {
 public:
@@ -87,6 +89,7 @@ public:
 	//    virtual void Alloc() {}
 	//    virtual void Dealloc() {}
 };
+#endif
 
 // Maybe I should split this in two classes
 class LabelingMapSingleton {
