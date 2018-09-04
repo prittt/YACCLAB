@@ -183,7 +183,7 @@ void SystemInfo::SetCompiler()
     compiler_name_ = "GCC";
 
 #ifdef __VERSION__
-    compiler_version_ = to_string(__VERSION__);
+    compiler_version_ = string(__VERSION__);
 #endif // __VERSION__
 
 #elif defined(__HP_cc) || defined(__HP_aCC)
