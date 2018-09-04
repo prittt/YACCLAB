@@ -190,8 +190,12 @@ struct ConfigData {
         cv::read(fs["average_datasets"], average_datasets);
         cv::read(fs["average_datasets_with_steps"], average_ws_datasets);
         cv::read(fs["memory_datasets"], memory_datasets);
+#if defined USE_CUDA
         cv::read(fs["cpu_algorithms"], cpu_ccl_algorithms);
 		cv::read(fs["gpu_algorithms"], gpu_ccl_algorithms);
+#else
+		cv::read(fs["algorithms"], cpu_ccl_algorithms);
+#endif
 
         yacclab_os                   = static_cast<std::string>(fs["os"]);
     }

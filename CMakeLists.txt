@@ -177,6 +177,8 @@ add_definitions(-D_CRT_SECURE_NO_WARNINGS) #To suppress 'fopen' opencv warning/b
 # Set configuration file	
 if(YACCLAB_IS_TRAVIS_CI)	
 	configure_file("${CMAKE_SOURCE_DIR}/doc/config_travis.yaml" "${CMAKE_INSTALL_PREFIX}/config.yaml")
+elseif(CMAKE_CUDA_COMPILER)
+	configure_file("${CMAKE_SOURCE_DIR}/doc/config_base_cuda.yaml" "${CMAKE_INSTALL_PREFIX}/config.yaml")
 else()
 	configure_file("${CMAKE_SOURCE_DIR}/doc/config_base.yaml" "${CMAKE_INSTALL_PREFIX}/config.yaml")
 endif()
