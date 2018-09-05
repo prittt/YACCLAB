@@ -106,8 +106,6 @@ namespace CUDA_UF_white_namespace {
 
 		unsigned char v = s_img[local_index];
 
-		//unsigned char v = img[img_index];
-
 		if (in_limits) {
 
 			if (v == 1) {
@@ -125,8 +123,6 @@ namespace CUDA_UF_white_namespace {
 
 			else {
 				if (local_row > 0 && s_img[local_index - BLOCK_COLS]) {
-					//s_buf[local_index] = -1;
-					//unsigned char upper = s_img[local_index - BLOCK_COLS];
 
 					if (local_col > 0 && s_img[local_index - 1]) {
 						Union(s_buf, local_index - 1, local_index - BLOCK_COLS);
@@ -139,36 +135,6 @@ namespace CUDA_UF_white_namespace {
 				}
 
 			}
-
-			//	if (v == 1) {
-
-			//		if (local_col > 0 && img[img_index - 1] == 1) {
-			//			Union(s_buf, local_index, local_index - 1);
-			//		}
-
-
-			//		if (local_row > 0 && img[img_index - img.step] == 1) {
-			//			Union(s_buf, local_index, local_index - BLOCK_COLS);
-			//		}
-
-			//	}
-
-			//	else {
-			//		if (local_row > 0) {
-			//			//s_buf[local_index] = -1;
-			//			unsigned char upper = img[img_index - img.step];
-
-			//			if (local_col > 0 && img[img_index - 1] == upper) {
-			//				Union(s_buf, local_index - 1, local_index - BLOCK_COLS);
-			//			}
-
-
-			//			if (local_col < BLOCK_COLS - 1 && img[img_index + 1] == upper) {
-			//				Union(s_buf, local_index + 1, local_index - BLOCK_COLS);
-			//			}
-			//		}
-
-			//	}
 
 		}
 
@@ -215,7 +181,6 @@ namespace CUDA_UF_white_namespace {
 			else {
 
 				if (global_row > 0 && img[img_index - img.step]) {
-					// unsigned char upper = img[img_index - img.step];
 
 					if (global_col > 0 && (local_row == 0 || local_col == 0) && img[img_index - 1]) {
 						Union(labels.data, labels_index - 1, labels_index - labels.step / sizeof(int));
@@ -231,7 +196,7 @@ namespace CUDA_UF_white_namespace {
 	}
 
 
-	__global__ void PathCompression(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels, cuda::PtrStepSzi labels_definitive) {
+	__global__ void PathCompression(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels) {
 
 		unsigned global_row = blockIdx.y * BLOCK_ROWS + threadIdx.y;
 		unsigned global_col = blockIdx.x * BLOCK_COLS + threadIdx.x;
@@ -240,7 +205,20 @@ namespace CUDA_UF_white_namespace {
 		if (global_row < labels.rows && global_col < labels.cols) {
 			unsigned char val = img[global_row * img.step + global_col];
 
-			labels_definitive[labels_index] = (val == 0) ? 0 : Find(labels.data, labels_index) + 1;
+			labels[labels_index] = Find(labels.data, labels_index);
+		}
+	}
+
+	__global__ void ZeroBackground(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels) {
+
+		unsigned global_row = blockIdx.y * BLOCK_ROWS + threadIdx.y;
+		unsigned global_col = blockIdx.x * BLOCK_COLS + threadIdx.x;
+		unsigned labels_index = global_row * (labels.step / sizeof(int)) + global_col;
+
+		if (global_row < labels.rows && global_col < labels.cols) {
+			unsigned char val = img[global_row * img.step + global_col];
+
+			labels[labels_index] = (val == 0) ? 0 : (labels[labels_index] + 1);
 		}
 	}
 
@@ -250,7 +228,6 @@ using namespace CUDA_UF_white_namespace;
 
 class CUDA_UF_white : public GpuLabeling {
 private:
-	cuda::GpuMat d_labels_;
 	dim3 grid_size_;
 	dim3 block_size_;
 
@@ -259,21 +236,13 @@ public:
 
 	void PerformLabeling() {
 
-		// Alloc 
-		// img_labels_ = cv::Mat1i(img_.size());
-		d_labels_.create(img_.size(), CV_32SC1);
-		d_img_labels_.create(img_.size(), CV_32SC1);
-		grid_size_ = dim3((img_.cols + BLOCK_COLS - 1) / BLOCK_COLS, (img_.rows + BLOCK_ROWS - 1) / BLOCK_ROWS, 1);
-		block_size_.x = BLOCK_COLS;
-		block_size_.y = BLOCK_ROWS;
-		block_size_.z = 1;
-
-		// Memory transfer Host -> Device
-		// d_img_.upload(img_);
-
+		d_img_labels_.create(d_img_.size(), CV_32SC1);
+		grid_size_ = dim3((d_img_.cols + BLOCK_COLS - 1) / BLOCK_COLS, (d_img_.rows + BLOCK_ROWS - 1) / BLOCK_ROWS, 1);
+		block_size_ = dim3(BLOCK_COLS, BLOCK_ROWS, 1);
+		
 		// Phase 1
 		// Etichetta i pixel localmente al blocco		
-		LocalMerge << <grid_size_, block_size_ >> >(d_img_, d_labels_);
+		LocalMerge << <grid_size_, block_size_ >> >(d_img_, d_img_labels_);
 
 		// Immagine di debug della prima fase
 		//cuda::GpuMat d_local_labels;
@@ -284,7 +253,7 @@ public:
 
 		// Phase 2
 		// Collega tra loro gli alberi union-find dei diversi blocchi
-		GlobalMerge << <grid_size_, block_size_ >> > (d_img_, d_labels_);
+		GlobalMerge << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
 
 		// Immagine di debug della seconda fase
 		//cuda::GpuMat d_global_labels;
@@ -295,60 +264,25 @@ public:
 
 		// Phase 3
 		// Collassa gli alberi union-find sulle radici
-		PathCompression << <grid_size_, block_size_ >> > (d_img_, d_labels_, d_img_labels_);
+		PathCompression << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
+		ZeroBackground<<<grid_size_, block_size_ >> > (d_img_, d_img_labels_);
 
 		cudaDeviceSynchronize();
-
-		// Memory transfer Device -> Host
-		// d_img_labels_.download(img_labels_);
-
-		// GPU dealloc
-		// d_img_.release();
-		d_labels_.release();
-		// d_img_labels_.release();
 	}
 
 
 private:
 	// Provo a contare solamente l'allocazione delle strutture dati in Gpu ($)
 	double Alloc() {
-		// Memory allocation for the output image
-		//perf_.start();
-		// img_labels_ = cv::Mat1i(img_.size());
-		//memset(img_labels_.data, 0, img_labels_.dataend - img_labels_.datastart);
-		//perf_.stop();
-		//double t = perf_.last();
-		//perf_.start();
-		//memset(img_labels_.data, 0, img_labels_.dataend - img_labels_.datastart);
-		//perf_.stop();
-		//double ma_t = t - perf_.last();
-		//perf_.start();
-		// Memory allocation for GPU data structures
-		// d_img_.create(img_.size(), CV_8UC1);
-		/*$*/ perf_.start();
-		d_labels_.create(img_.size(), CV_32SC1);
-		d_img_labels_.create(img_.size(), CV_32SC1);
+		perf_.start();
+		d_img_labels_.create(d_img_.size(), CV_32SC1);
 		perf_.stop();
-		// Initialization of class variables
-		// Metti dei define al posto di questi
-		grid_size_.x = (img_.cols + BLOCK_COLS - 1) / BLOCK_COLS;
-		grid_size_.y = (img_.rows + BLOCK_ROWS - 1) / BLOCK_ROWS;
-		grid_size_.z = 1;
-		block_size_.x = BLOCK_COLS;
-		block_size_.y = BLOCK_ROWS;
-		block_size_.z = 1;
-		// perf_.stop();
-		// return perf_.last() + ma_t;
-		/*$*/ return perf_.last();
+		return perf_.last();
 	}
 
-	// $
 	double Dealloc() {
-		// d_img_.release();
 		perf_.start();
-		d_labels_.release();
 		perf_.stop();
-		// d_img_labels_.release();
 		return perf_.last();
 	}
 
@@ -364,13 +298,16 @@ private:
 	}
 
 	void LocalScan() {
-		LocalMerge << <grid_size_, block_size_ >> >(d_img_, d_labels_);
+		grid_size_ = dim3((d_img_.cols + BLOCK_COLS - 1) / BLOCK_COLS, (d_img_.rows + BLOCK_ROWS - 1) / BLOCK_ROWS, 1);
+		block_size_ = dim3(BLOCK_COLS, BLOCK_ROWS, 1);
+		LocalMerge << <grid_size_, block_size_ >> >(d_img_, d_img_labels_);
 		cudaDeviceSynchronize();
 	}
 
 	void GlobalScan() {
-		GlobalMerge << <grid_size_, block_size_ >> > (d_img_, d_labels_);
-		PathCompression << <grid_size_, block_size_ >> > (d_img_, d_labels_, d_img_labels_);
+		GlobalMerge << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
+		PathCompression << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
+		ZeroBackground << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
 		cudaDeviceSynchronize();
 	}
 
@@ -378,8 +315,6 @@ public:
 	void PerformLabelingWithSteps()
 	{
 		double alloc_timing = Alloc();
-
-		// double transfer_timing = MemoryTransferHostToDevice();
 
 		perf_.start();
 		LocalScan();
@@ -391,14 +326,9 @@ public:
 		perf_.stop();
 		perf_.store(Step(StepType::SECOND_SCAN), perf_.last());
 
-		//perf_.start();
-		//MemoryTransferDeviceToHost();
-		//perf_.stop();
-		//transfer_timing += perf_.last();
-
 		double dealloc_timing = Dealloc();
 
-		perf_.store(Step(StepType::ALLOC_DEALLOC), alloc_timing + dealloc_timing /*+ transfer_timing */);
+		perf_.store(Step(StepType::ALLOC_DEALLOC), alloc_timing + dealloc_timing);
 
 	}
 
