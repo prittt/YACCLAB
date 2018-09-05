@@ -223,7 +223,7 @@ void YacclabTests::SaveAverageWithStepsResults(const string& os_name, const Stri
 
 void YacclabTests::AverageTest()
 {
-    OutputBox ob("Average Test");
+    OutputBox ob("CPU Average Test");
 
     string complete_results_suffix = "_results.txt",
         middle_results_suffix = "_run",
@@ -496,7 +496,7 @@ void YacclabTests::AverageTest()
 void YacclabTests::AverageTestWithSteps()
 {
     // Initialize output message box
-    OutputBox ob("Average Test With Steps");
+    OutputBox ob("CPU Average Test With Steps");
 
     string complete_results_suffix = "_results.txt",
         middle_results_suffix = "_run",
@@ -775,7 +775,7 @@ void YacclabTests::AverageTestWithSteps()
 
 void YacclabTests::DensityTest()
 {
-    OutputBox ob("Density Test");
+    OutputBox ob("CPU Density Test");
 
     string complete_results_suffix = "_results.txt",
         middle_results_suffix = "_run",
@@ -1198,7 +1198,7 @@ void YacclabTests::DensityTest()
 
 void YacclabTests::GranularityTest()
 {
-    OutputBox ob("Granularity Test");
+    OutputBox ob("CPU Granularity Test");
 
     string complete_results_suffix = "_results.txt",
         middle_results_suffix = "_run",
@@ -1480,7 +1480,7 @@ void YacclabTests::GranularityTest()
 void YacclabTests::MemoryTest()
 {
     // Initialize output message box
-    OutputBox ob("Memory Test");
+    OutputBox ob("CPU Memory Test");
 
     path current_output_path(cfg_.output_path / path("GPU") / path(cfg_.memory_folder));
 

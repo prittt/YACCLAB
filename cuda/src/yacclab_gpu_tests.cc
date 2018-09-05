@@ -223,7 +223,7 @@ void YacclabGpuTests::SaveAverageWithStepsResults(const string& os_name, const S
 
 void YacclabGpuTests::AverageTest()
 {
-	OutputBox ob("Average Test");
+	OutputBox ob("GPU Average Test");
 
 	string complete_results_suffix = "_results.txt",
 		middle_results_suffix = "_run",
@@ -438,7 +438,7 @@ void YacclabGpuTests::AverageTest()
 			script_os << "# " << dataset_name << "(COLORS)" << '\n';
 			script_os << "set output \"" + output_graph + "\"" << '\n';
 
-			script_os << "set title " << GetGnuplotTitle(cfg_) << '\n' << '\n';
+			script_os << "set title " << GetGnuplotTitleGpu(cfg_) << '\n' << '\n';
 
 			script_os << "# " << kTerminal << " colors" << '\n';
 			script_os << "set terminal " << kTerminal << " enhanced color font ',15'" << '\n' << '\n';
@@ -479,7 +479,7 @@ void YacclabGpuTests::AverageTest()
 			script_os << "# " << dataset_name << "(BLACK AND WHITE)" << '\n';
 			script_os << "set output \"" + output_graph_bw + "\"" << '\n';
 
-			script_os << "set title " << GetGnuplotTitle(cfg_) << '\n' << '\n';
+			script_os << "set title " << GetGnuplotTitleGpu(cfg_) << '\n' << '\n';
 
 			script_os << "# " << kTerminal << " black and white" << '\n';
 			script_os << "set terminal " << kTerminal << " enhanced monochrome dashed font ',15'" << '\n' << '\n';
@@ -502,7 +502,7 @@ void YacclabGpuTests::AverageTest()
 void YacclabGpuTests::AverageTestWithSteps()
 {
 	// Initialize output message box
-	OutputBox ob("Average Test With Steps");
+	OutputBox ob("GPU Average Test With Steps");
 
 	string complete_results_suffix = "_results.txt",
 		middle_results_suffix = "_run",
@@ -699,7 +699,7 @@ void YacclabGpuTests::AverageTestWithSteps()
 			script_os << "# " << dataset_name << "(COLORS)" << '\n';
 			script_os << "set output \"" + output_graph + "\"" << '\n';
 
-			script_os << "set title " << GetGnuplotTitle(cfg_) << '\n' << '\n';
+			script_os << "set title " << GetGnuplotTitleGpu(cfg_) << '\n' << '\n';
 
 			script_os << "# " << kTerminal << " colors" << '\n';
 			script_os << "set terminal " << kTerminal << " enhanced color font ',15'" << '\n' << '\n';
@@ -763,7 +763,7 @@ void YacclabGpuTests::AverageTestWithSteps()
 			script_os << "# " << dataset_name << "(BLACK AND WHITE)" << '\n';
 			script_os << "set output \"" + output_graph_bw + "\"" << '\n';
 
-			script_os << "set title " << GetGnuplotTitle(cfg_) << '\n' << '\n';
+			script_os << "set title " << GetGnuplotTitleGpu(cfg_) << '\n' << '\n';
 
 			script_os << "# " << kTerminal << " black and white" << '\n';
 			script_os << "set terminal " << kTerminal << " enhanced monochrome dashed font ',15'" << '\n' << '\n';
@@ -784,7 +784,7 @@ void YacclabGpuTests::AverageTestWithSteps()
 
 void YacclabGpuTests::DensityTest()
 {
-	OutputBox ob("Density Test");
+	OutputBox ob("GPU Density Test");
 
 	string complete_results_suffix = "_results.txt",
 		middle_results_suffix = "_run",
@@ -1096,7 +1096,7 @@ void YacclabGpuTests::DensityTest()
 			script_os << "# DENSITY GRAPH (COLORS)" << '\n' << '\n';
 
 			script_os << "set output \"" + output_density_graph + "\"" << '\n';
-			script_os << "set title " << GetGnuplotTitle(cfg_) << '\n' << '\n';
+			script_os << "set title " << GetGnuplotTitleGpu(cfg_) << '\n' << '\n';
 
 			script_os << "# " << kTerminal << " colors" << '\n';
 			script_os << "set terminal " << kTerminal << " enhanced color font ',15'" << '\n' << '\n';
@@ -1137,7 +1137,7 @@ void YacclabGpuTests::DensityTest()
 			script_os << "# DENSITY GRAPH (BLACK AND WHITE)" << '\n' << '\n';
 
 			script_os << "set output \"" + output_density_bw_graph + "\"" << '\n';
-			script_os << "set title " << GetGnuplotTitle(cfg_) << '\n' << '\n';
+			script_os << "set title " << GetGnuplotTitleGpu(cfg_) << '\n' << '\n';
 
 			script_os << "# " << kTerminal << " black and white" << '\n';
 			script_os << "set terminal " << kTerminal << " enhanced monochrome dashed font ',15'" << '\n' << '\n';
@@ -1148,7 +1148,7 @@ void YacclabGpuTests::DensityTest()
 			script_os << "# SIZE GRAPH (COLORS)" << '\n' << '\n';
 
 			script_os << "set output \"" + output_size_graph + "\"" << '\n';
-			script_os << "set title " << GetGnuplotTitle(cfg_) << '\n' << '\n';
+			script_os << "set title " << GetGnuplotTitleGpu(cfg_) << '\n' << '\n';
 
 			script_os << "# " << kTerminal << " colors" << '\n';
 			script_os << "set terminal " << kTerminal << " enhanced color font ',15'" << '\n' << '\n';
@@ -1186,7 +1186,7 @@ void YacclabGpuTests::DensityTest()
 			script_os << "# SIZE (BLACK AND WHITE)" << '\n' << '\n';
 
 			script_os << "set output \"" + output_size_bw_graph + "\"" << '\n';
-			script_os << "set title " << GetGnuplotTitle(cfg_) << '\n' << '\n';
+			script_os << "set title " << GetGnuplotTitleGpu(cfg_) << '\n' << '\n';
 
 			script_os << "# " << kTerminal << " black and white" << '\n';
 			script_os << "set terminal " << kTerminal << " enhanced monochrome dashed font ',15'" << '\n' << '\n';
@@ -1210,7 +1210,7 @@ void YacclabGpuTests::DensityTest()
 
 void YacclabGpuTests::GranularityTest()
 {
-	OutputBox ob("Granularity Test");
+	OutputBox ob("GPU Granularity Test");
 
 	string complete_results_suffix = "_results.txt",
 		middle_results_suffix = "_run",
@@ -1426,7 +1426,7 @@ void YacclabGpuTests::GranularityTest()
 			script_os << "# GRANULARITY GRAPH (COLORS)" << '\n' << '\n';
 
 			script_os << "set output output_file" << '\n';
-			script_os << "set title " << GetGnuplotTitle(cfg_) << '\n' << '\n';
+			script_os << "set title " << GetGnuplotTitleGpu(cfg_) << '\n' << '\n';
 
 			script_os << "# " << kTerminal << " colors" << '\n';
 			script_os << "set terminal " << kTerminal << " enhanced color font ',15'" << '\n' << '\n';
@@ -1466,7 +1466,7 @@ void YacclabGpuTests::GranularityTest()
 			script_os << "# GRANULARITY GRAPH (BLACK AND WHITE)" << '\n' << '\n';
 
 			script_os << "set output 'bw'.output_file" << '\n';
-			script_os << "set title " << GetGnuplotTitle(cfg_) << '\n' << '\n';
+			script_os << "set title " << GetGnuplotTitleGpu(cfg_) << '\n' << '\n';
 
 			script_os << "# " << kTerminal << " black and white" << '\n';
 			script_os << "set terminal " << kTerminal << " enhanced monochrome dashed font ',15'" << '\n' << '\n';
@@ -1492,7 +1492,7 @@ void YacclabGpuTests::GranularityTest()
 void YacclabGpuTests::MemoryTest()
 {
 	// Initialize output message box
-	OutputBox ob("Memory Test");
+	OutputBox ob("GPU Memory Test");
 
 	path current_output_path(cfg_.output_path / path("GPU") / path(cfg_.memory_folder));
 

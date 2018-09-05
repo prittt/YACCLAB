@@ -42,6 +42,11 @@
 #include "progress_bar.h"
 #include "system_info.h"
 
+#if defined USE_CUDA
+#include "device_launch_parameters.h"
+#include "cuda_runtime.h"
+#endif
+
 using namespace std;
 using namespace cv;
 
@@ -197,6 +202,28 @@ std::string GetGnuplotTitle(ConfigData& cfg)
         " {/:Bold COMPILER}: " + s_info.compiler_name() + " " + s_info.compiler_version() + "\" font ', 9'";
     return s;
 }
+
+#if defined USE_CUDA
+string cudaBeautifyVersionNumber(int v) {
+	int minor = (v / 10) % 10;
+	int major = v / 1000;
+	return to_string(major) + '.' + to_string(minor);
+}
+
+std::string GetGnuplotTitleGpu(ConfigData& cfg)
+{
+	cudaDeviceProp prop;
+	cudaGetDeviceProperties(&prop, 0);
+	int runtimeVersion, driverVersion;
+	cudaRuntimeGetVersion(&runtimeVersion);
+	cudaDriverGetVersion(&driverVersion);
+
+	SystemInfo s_info(cfg);
+	string s = "\"{/:Bold GPU}: " + string(prop.name) + " {/:Bold CUDA Capability}: " + to_string(prop.major) + '.' + to_string(prop.minor) + 
+		" {/:Bold Runtime}: " + cudaBeautifyVersionNumber(runtimeVersion) + " {/:Bold Driver}: " + cudaBeautifyVersionNumber(driverVersion);
+	return s;
+}
+#endif
 
 string EscapeUnderscore(const string& s)
 {

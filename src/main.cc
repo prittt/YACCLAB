@@ -104,11 +104,11 @@ int main()
     /*  Configuration parameters check                                       */
     /*************************************************************************/
 
-    // Check if all the specified algorithms exist
-
+	
 	// Cpu
 	if (cfg.cpu_ccl_algorithms.size() > 0) {
 	
+		// Check if all the specified algorithms exist
 		for (auto& algo_name : cfg.cpu_ccl_algorithms) {
 			if (!LabelingMapSingleton::Exists(algo_name)) {
 				ob_setconf.Cwarning("Unable to find the algorithm '" + algo_name + "'");
