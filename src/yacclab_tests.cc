@@ -320,19 +320,19 @@ void YacclabTests::AverageTest()
                     unsigned n_labels;
                     unsigned i = algo_pos[algo_name];
 
-                    try {
-                        // Perform current algorithm on current image and save result.
-                        algorithm->perf_.start();
-                        algorithm->PerformLabeling();
-                        algorithm->perf_.stop();
+					try {
+						// Perform current algorithm on current image and save result.
+						algorithm->perf_.start();
+						algorithm->PerformLabeling();
+						algorithm->perf_.stop();
 
-                        // This variable need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
-                        n_labels = algorithm->n_labels_;
-                    }
-                    catch (const runtime_error& /*e*/) {
-                        //ob.Cwarning(algo_name + ": " + e.what()); // Already checked
-                        continue;
-                    }
+						// This variable need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
+						n_labels = algorithm->n_labels_;
+					}
+					catch (const exception& e) {
+						algorithm->FreeLabelingData();
+						ob.Cerror("Something wrong with " + algo_name + ": " + e.what()); // You should check your algorithms' implementation before performing YACCLAB tests  
+					}
 
                     // Save number of labels (we reasonably supposed that labels's number is the same on every #test so only the first time we save it)
                     if (test == 0) {
@@ -592,10 +592,10 @@ void YacclabTests::AverageTestWithSteps()
                         // This variable need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
                         n_labels = algorithm->n_labels_;
                     }
-                    catch (const runtime_error& /*e*/) {
-                        //ob.Cwarning(algo_name + ": " + algo_name + ": " + e.what()); // Already checked!
-                        continue;
-                    }
+					catch (const exception& e) {
+						algorithm->FreeLabelingData();
+						ob.Cerror("Something wrong with " + algo_name + ": " + e.what()); // You should check your algorithms' implementation before performing YACCLAB tests  
+					}
 
                     // Save number of labels (we reasonably supposed that labels's number is the same on every #test so only the first time we save it)
                     if (test == 0) {
@@ -918,10 +918,10 @@ void YacclabTests::DensityTest()
                         // This variable need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
                         n_labels = algorithm->n_labels_;
                     }
-                    catch (const runtime_error& /*e*/) {
-                        //ob.Cwarning(algo_name + ": " + e.what()); // Already checked
-                        continue;
-                    }
+					catch (const exception& e) {
+						algorithm->FreeLabelingData();
+						ob.Cerror("Something wrong with " + algo_name + ": " + e.what()); // You should check your algorithms' implementation before performing YACCLAB tests  
+					}
 
                     // Save number of labels (we reasonably supposed that labels's number is the same on every #test so only the first time we save it)
                     if (test == 0) {
@@ -1291,12 +1291,19 @@ void YacclabTests::GranularityTest()
                     unsigned n_labels;
                     unsigned i = algo_pos[algo_name];
 
-                    // Perform current algorithm on current image and save result.
-                    algorithm->perf_.start();
-                    algorithm->PerformLabeling();
-                    algorithm->perf_.stop();
+					try {
+						// Perform current algorithm on current image and save result.
+						algorithm->perf_.start();
+						algorithm->PerformLabeling();
+						algorithm->perf_.stop();
 
-                    n_labels = algorithm->n_labels_;
+						// This variable need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
+						n_labels = algorithm->n_labels_;
+					}
+					catch (const exception& e) {
+						algorithm->FreeLabelingData();
+						ob.Cerror("Something wrong with " + algo_name + ": " + e.what()); // You should check your algorithms' implementation before performing YACCLAB tests  
+					}
 
                     // Save number of found labels
                     if (test == 0) {
@@ -1545,10 +1552,17 @@ void YacclabTests::MemoryTest()
             // For all the Algorithms in the array
             for (size_t i = 0; i < cfg_.ccl_mem_algorithms.size(); ++i) {
                 Labeling *algorithm = LabelingMapSingleton::GetLabeling(cfg_.ccl_mem_algorithms[i]);
-                // The following data_ structure is used to get the memory access matrices
+                
+				// The following data_ structure is used to get the memory access matrices
                 vector<unsigned long int> accesses; // Rows represents algorithms and columns represent data_ structures
 
-                algorithm->PerformLabelingMem(accesses);
+				try {
+					algorithm->PerformLabelingMem(accesses);
+				}
+				catch (const exception& e) {
+					algorithm->FreeLabelingData();
+					ob.Cerror("Something wrong with " + cfg_.ccl_mem_algorithms[i] + ": " + e.what()); // You should check your algorithms' implementation before performing YACCLAB tests  
+				}
 
                 // For every data_ structure "returned" by the algorithm
                 for (size_t a = 0; a < accesses.size(); ++a) {

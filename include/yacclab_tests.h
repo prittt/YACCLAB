@@ -143,7 +143,10 @@ private:
 
                         NormalizeLabels(labeled_img_to_control);
                         const auto diff = CompareMat(labeled_img_correct, labeled_img_to_control);
-                        if (n_labels_correct != n_labels_to_control || !diff) {
+						
+						algorithm->FreeLabelingData(); // Free algorithm's data
+						
+						if (n_labels_correct != n_labels_to_control || !diff) {
                             stats[j] = false;
                             first_fail[j] = (path(dataset_name) / path(filename)).string();
 
@@ -153,7 +156,6 @@ private:
                                 break;
                             }
                         }
-                        algorithm->FreeLabelingData();
                     }
                     ++j;
                 } // For all the Algorithms in the array
