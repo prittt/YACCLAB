@@ -141,8 +141,8 @@ private:
 					if (stats[j]) {
 						cv::Mat1i& labeled_img_to_control = algorithm->img_labels_;
 
-						std::invoke(func, *algorithm, std::forward<Args>(args)...);
-						// (algorithm->*func)(std::forward<Args>(args)...);
+						// std::invoke(func, *algorithm, std::forward<Args>(args)...);
+						(algorithm->*func)(std::forward<Args>(args)...);
 
 						// TODO: substitute this with in-device-memory check
 						algorithm->d_img_labels_.download(labeled_img_to_control);
@@ -157,10 +157,11 @@ private:
 							// Stop check test if all the algorithms fail
 							if (adjacent_find(stats.begin(), stats.end(), std::not_equal_to<int>()) == stats.end()) {
 								stop = true;
-								break;
 							}
 						}
 						algorithm->FreeLabelingData();
+						if (stop)
+							break;
 					}
 					++j;
 				} // For all the Algorithms in the array

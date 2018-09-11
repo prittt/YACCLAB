@@ -142,17 +142,17 @@ private:
 
                         NormalizeLabels(labeled_img_to_control);
                         const auto diff = CompareMat(labeled_img_correct, labeled_img_to_control);
-                        if (n_labels_correct != n_labels_to_control || !diff) {
+						algorithm->FreeLabelingData();
+						if (n_labels_correct != n_labels_to_control || !diff) {
                             stats[j] = false;
                             first_fail[j] = (path(dataset_name) / path(filename)).string();
 
                             // Stop check test if all the algorithms fail
                             if (adjacent_find(stats.begin(), stats.end(), std::not_equal_to<int>()) == stats.end()) {
-                                stop = true;
+								stop = true;
                                 break;
                             }
                         }
-                        algorithm->FreeLabelingData();
                     }
                     ++j;
                 } // For all the Algorithms in the array
