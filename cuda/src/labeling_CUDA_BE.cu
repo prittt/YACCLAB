@@ -144,7 +144,6 @@ namespace CUDA_BE_namespace {
 			// Connection bitmask is stored in the north-east int of every block
 			// If columns are odd, in the last column, it's stored in the south-west of every block instead
 			// If columns are odd and rows are odd, it's stored in *last_pixel
-			// It will be treated separately, at the end of the algorithm (it's awful, let me know if you can think of something better)
 			if (col + 1 < labels.cols)
 				labels[labels_index + 1] = conn_bitmask;
 			else if (row + 1 < labels.rows)
@@ -302,21 +301,6 @@ namespace CUDA_BE_namespace {
 
 		}
 
-	}
-
-
-	__global__ void LastPixel(cuda::PtrStepSzi labels, unsigned char *last_pixel) {
-
-		unsigned index = (labels.rows - 1) * (labels.step / labels.elem_size) + (labels.cols - 1);
-
-		if (labels.data[index]) {
-			if (HasBit(*last_pixel, 0))
-				labels.data[index] = labels.data[index - (labels.step / labels.elem_size) - 1];
-			else if (HasBit(*last_pixel, 1))
-				labels.data[index] = labels.data[index - (labels.step / labels.elem_size)];
-			else if (HasBit(*last_pixel, 3))
-				labels.data[index] = labels.data[index - 1];
-		}
 	}
 
 }
@@ -482,6 +466,7 @@ private:
 
 		while (true) {
 			changes_ = 0;
+
 			cudaMemcpy(d_changes_, &changes_, sizeof(unsigned char), cudaMemcpyHostToDevice);
 
 			Scan << <grid_size_, block_size_ >> > (d_img_labels_, d_changes_, last_pixel_);
@@ -498,6 +483,8 @@ private:
 		//d_block_labels_.download(block_labels);
 
 		FinalLabeling << <grid_size_, block_size_ >> >(d_img_labels_, d_img_);
+
+		cudaDeviceSynchronize();
 	}
 
 public:

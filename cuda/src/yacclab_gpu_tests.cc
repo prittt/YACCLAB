@@ -1294,6 +1294,9 @@ void YacclabGpuTests::GranularityTest()
 					continue;
 				}
 
+				// Load input image into device memory
+				GpuLabeling::d_img_.upload(Labeling::img_);
+
 				int nonzero = countNonZero(Labeling::img_);
 				real_densities[cur_granularity - 1][cur_density] = 100.0 * nonzero / (Labeling::img_.rows*Labeling::img_.cols);
 				random_shuffle(begin(shuffled_ccl_average_algorithms), end(shuffled_ccl_average_algorithms));
