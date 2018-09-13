@@ -101,6 +101,10 @@ int RedirectCvError(int status, const char* func_name, const char* err_msg, cons
 */
 std::string GetGnuplotTitle(ConfigData& cfg);
 
+#if defined USE_CUDA
+std::string GetGnuplotTitleGpu(ConfigData& cfg);
+#endif
+
 std::string EscapeUnderscore(const std::string& s);
 std::string DoubleEscapeUnderscore(const std::string& s);
 

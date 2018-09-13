@@ -46,18 +46,18 @@ public:
     void CheckPerformLabeling()
     {
         std::string title = "Checking Correctness of 'PerformLabeling()' (8-Connectivity)";
-        CheckAlgorithms(title, cfg_.ccl_average_algorithms, &Labeling::PerformLabeling);
+        CheckAlgorithms(title, cfg_.cpu_ccl_average_algorithms, &Labeling::PerformLabeling);
     }
     void CheckPerformLabelingWithSteps()
     {
         std::string title = "Checking Correctness of 'PerformLabelingWithSteps()' (8-Connectivity)";
-        CheckAlgorithms(title, cfg_.ccl_average_ws_algorithms, &Labeling::PerformLabelingWithSteps);
+        CheckAlgorithms(title, cfg_.cpu_ccl_average_ws_algorithms, &Labeling::PerformLabelingWithSteps);
     }
     void CheckPerformLabelingMem()
     {
         std::string title = "Checking Correctness of 'PerformLabelingMem()' (8-Connectivity)";
         std::vector<unsigned long int> unused;
-        CheckAlgorithms(title, cfg_.ccl_mem_algorithms, &Labeling::PerformLabelingMem, unused);
+        CheckAlgorithms(title, cfg_.cpu_ccl_mem_algorithms, &Labeling::PerformLabelingMem, unused);
     }
 
     void AverageTest();
@@ -103,7 +103,7 @@ private:
             }
 
             // Number of files
-            unsigned filenames_size = filenames.size();
+            size_t filenames_size = filenames.size();
             ob.StartUnitaryBox(dataset_name, filenames_size);
 
             for (unsigned file = 0; file < filenames_size && !stop; ++file) { // For each file in list
@@ -137,22 +137,19 @@ private:
                     // Perform labeling on current algorithm if it has no previously failed
                     if (stats[j]) {
                         cv::Mat1i& labeled_img_to_control = algorithm->img_labels_;
-
                         (algorithm->*func)(std::forward<Args>(args)...);
                         n_labels_to_control = algorithm->n_labels_;
 
                         NormalizeLabels(labeled_img_to_control);
                         const auto diff = CompareMat(labeled_img_correct, labeled_img_to_control);
-						
-						algorithm->FreeLabelingData(); // Free algorithm's data
-						
+						algorithm->FreeLabelingData();
 						if (n_labels_correct != n_labels_to_control || !diff) {
                             stats[j] = false;
                             first_fail[j] = (path(dataset_name) / path(filename)).string();
 
                             // Stop check test if all the algorithms fail
                             if (adjacent_find(stats.begin(), stats.end(), std::not_equal_to<int>()) == stats.end()) {
-                                stop = true;
+								stop = true;
                                 break;
                             }
                         }
@@ -164,8 +161,8 @@ private:
         }// END FOR (LIST OF DATASETS)
 
          // To display report of correctness test
-        std::vector<std::string> messages(ccl_algorithms.size());
-        unsigned longest_name = max_element(ccl_algorithms.begin(), ccl_algorithms.end(), CompareLengthCvString)->length();
+        std::vector<std::string> messages(static_cast<unsigned>(ccl_algorithms.size()));
+        unsigned longest_name = static_cast<unsigned>(max_element(ccl_algorithms.begin(), ccl_algorithms.end(), CompareLengthCvString)->length());
 
         unsigned j = 0;
         for (const auto& algo_name : ccl_algorithms) {

@@ -39,16 +39,27 @@ using namespace filesystem;
 
 struct ConfigData {
 
-    bool perform_correctness;            // Whether to perform correctness tests or not
-    bool perform_average;                // Whether to perform average tests or not
-    bool perform_density;                // Whether to perform density tests or not
-    bool perform_granularity;            // Whether to perform granularity tests or not
-    bool perform_memory;                 // Whether to perform memory tests or not
-    bool perform_average_ws;             // Whether to perform average tests with steps or not
+    bool cpu_perform_correctness;            // Whether to perform correctness tests or not
+    bool cpu_perform_average;                // Whether to perform average tests or not
+    bool cpu_perform_density;                // Whether to perform density tests or not
+    bool cpu_perform_granularity;            // Whether to perform granularity tests or not
+    bool cpu_perform_memory;                 // Whether to perform memory tests or not
+    bool cpu_perform_average_ws;             // Whether to perform average tests with steps or not
+		
+    bool cpu_perform_check_8connectivity_std;	// Whether to perform 8-connectivity test on PerformLabeling() functions
+    bool cpu_perform_check_8connectivity_ws;	// Whether to perform 8-connectivity test on PerformLabelingWithSteps() functions
+    bool cpu_perform_check_8connectivity_mem;	// Whether to perform 8-connectivity test on PerformLabelingMem() functions
 
-    bool perform_check_8connectivity_std;// Whether to perform 8-connectivity test on PerformLabeling() functions
-    bool perform_check_8connectivity_ws; // Whether to perform 8-connectivity test on PerformLabelingWithSteps() functions
-    bool perform_check_8connectivity_mem;// Whether to perform 8-connectivity test on PerformLabelingMem() functions
+	bool gpu_perform_correctness;            // Whether to perform correctness tests or not
+	bool gpu_perform_average;                // Whether to perform average tests or not
+	bool gpu_perform_density;                // Whether to perform density tests or not
+	bool gpu_perform_granularity;            // Whether to perform granularity tests or not
+	bool gpu_perform_memory;                 // Whether to perform memory tests or not
+	bool gpu_perform_average_ws;             // Whether to perform average tests with steps or not
+
+	bool gpu_perform_check_8connectivity_std;	// Whether to perform 8-connectivity test on PerformLabeling() functions
+	bool gpu_perform_check_8connectivity_ws;	// Whether to perform 8-connectivity test on PerformLabelingWithSteps() functions
+	bool gpu_perform_check_8connectivity_mem;	// Whether to perform 8-connectivity test on PerformLabelingMem() functions
 
     bool average_color_labels;           // If true, labeled image from average tests will be colored and stored
     bool density_color_labels;           // If true, labeled image from density tests will be colored and stored
@@ -61,7 +72,7 @@ struct ConfigData {
     unsigned average_tests_number;        // Reps of average tests (only the minimum will be considered)
     unsigned average_ws_tests_number;     // Reps of average tests with steps (only the minimum will be considered)
     unsigned density_tests_number;        // Reps of density tests (only the minimum will be considered)
-    unsigned granularity_tests_number;        // Reps of density tests (only the minimum will be considered)
+    unsigned granularity_tests_number;    // Reps of density tests (only the minimum will be considered)
 
     std::string input_txt;                // File of images list
     std::string gnuplot_script_extension; // Gnuplot scripts extension
@@ -81,7 +92,8 @@ struct ConfigData {
 
     path output_path;                     // Path on which results are stored
     path input_path;                      // Path on which input datasets are stored
-    path latex_path;                      // Path on which latex report will be stored
+    path latex_cpu_path;                      // Path on which latex report will be stored
+    path latex_gpu_path;                      // Path on which latex report will be stored
 
     std::vector<cv::String> check_datasets;       // List of datasets on which check tests will be performed
     std::vector<cv::String> memory_datasets;      // List of datasets on which memory tests will be perform
@@ -90,27 +102,46 @@ struct ConfigData {
     std::vector<cv::String> average_datasets;     // Lists of dataset on which average tests will be performed
     std::vector<cv::String> average_ws_datasets;  // Lists of dataset on which average tests whit steps will be performed
 
-    std::vector<cv::String> ccl_algorithms;          // Lists of algorithms specified by the user in the config.yaml
-    std::vector<cv::String> ccl_existing_algorithms; // Lists of 'ccl_algorithms' actually existing
+    std::vector<cv::String> cpu_ccl_algorithms;          // Lists of cpu algorithms specified by the user in the config.yaml
+    std::vector<cv::String> cpu_ccl_existing_algorithms; // Lists of 'cpu_ccl_algorithms' actually existing
 
-    std::vector<cv::String> ccl_mem_algorithms;        // List of algorithms which actually support memory tests
-    std::vector<cv::String> ccl_average_algorithms;    // List of algorithms which actually support average tests
-    std::vector<cv::String> ccl_average_ws_algorithms; // List of algorithms which actually support average with steps tests
+	std::vector<cv::String> gpu_ccl_algorithms;          // Lists of gpu algorithms specified by the user in the config.yaml
+	std::vector<cv::String> gpu_ccl_existing_algorithms; // Lists of 'gpu_ccl_algorithms' actually existing
+
+    std::vector<cv::String> cpu_ccl_mem_algorithms;        // List of cpu algorithms which actually support memory tests
+    std::vector<cv::String> cpu_ccl_average_algorithms;    // List of cpu algorithms which actually support average tests
+    std::vector<cv::String> cpu_ccl_average_ws_algorithms; // List of cpu algorithms which actually support average with steps tests
+
+	std::vector<cv::String> gpu_ccl_mem_algorithms;        // List of cpu algorithms which actually support memory tests
+	std::vector<cv::String> gpu_ccl_average_algorithms;    // List of cpu algorithms which actually support average tests
+	std::vector<cv::String> gpu_ccl_average_ws_algorithms; // List of cpu algorithms which actually support average with steps tests
 
     std::string yacclab_os;             // Name of the current OS
 
     ConfigData(const cv::FileStorage& fs) {
         // Flags to customize output format (false by default)
-        perform_correctness          = ReadBool(fs["perform"]["correctness"]);
-        perform_average              = ReadBool(fs["perform"]["average"]);
-        perform_average_ws           = ReadBool(fs["perform"]["average_with_steps"]);
-        perform_density              = ReadBool(fs["perform"]["density"]);
-        perform_granularity          = ReadBool(fs["perform"]["granularity"]);
-        perform_memory               = ReadBool(fs["perform"]["memory"]);
+        cpu_perform_correctness          = ReadBool(fs["perform"]["correctness"]);
+        cpu_perform_average              = ReadBool(fs["perform"]["average"]);
+        cpu_perform_average_ws           = ReadBool(fs["perform"]["average_with_steps"]);
+        cpu_perform_density              = ReadBool(fs["perform"]["density"]);
+        cpu_perform_granularity          = ReadBool(fs["perform"]["granularity"]);
+        cpu_perform_memory               = ReadBool(fs["perform"]["memory"]);
 
-        perform_check_8connectivity_std = ReadBool(fs["correctness_tests"]["eight_connectivity_standard"]);
-        perform_check_8connectivity_ws  = ReadBool(fs["correctness_tests"]["eight_connectivity_steps"]);
-        perform_check_8connectivity_mem = ReadBool(fs["correctness_tests"]["eight_connectivity_memory"]);
+        cpu_perform_check_8connectivity_std = ReadBool(fs["correctness_tests"]["eight_connectivity_standard"]);
+        cpu_perform_check_8connectivity_ws  = ReadBool(fs["correctness_tests"]["eight_connectivity_steps"]);
+        cpu_perform_check_8connectivity_mem = ReadBool(fs["correctness_tests"]["eight_connectivity_memory"]);
+
+		// Gpu equivalent
+		gpu_perform_correctness			= ReadBool(fs["perform"]["correctness"]);
+		gpu_perform_average				= ReadBool(fs["perform"]["average"]);
+		gpu_perform_average_ws			= ReadBool(fs["perform"]["average_with_steps"]);
+		gpu_perform_density				= ReadBool(fs["perform"]["density"]);
+		gpu_perform_granularity			= ReadBool(fs["perform"]["granularity"]);
+		gpu_perform_memory				= ReadBool(fs["perform"]["memory"]);
+
+		gpu_perform_check_8connectivity_std		= ReadBool(fs["correctness_tests"]["eight_connectivity_standard"]);
+		gpu_perform_check_8connectivity_ws		= ReadBool(fs["correctness_tests"]["eight_connectivity_steps"]);
+		gpu_perform_check_8connectivity_mem		= ReadBool(fs["correctness_tests"]["eight_connectivity_memory"]);
 
         average_color_labels         = ReadBool(fs["color_labels"]["average"]);
         density_color_labels         = ReadBool(fs["color_labels"]["density"]);
@@ -150,7 +181,8 @@ struct ConfigData {
 
         output_path                  = path(fs["paths"]["output"]) / path(GetDatetimeWithoutSpecialChars());
         input_path                   = path(fs["paths"]["input"]);
-        latex_path                   = output_path / path("latex");
+        latex_cpu_path               = output_path / path("CPU") / path("latex");
+        latex_gpu_path               = output_path / path("GPU") / path("latex");
 
         density_datasets             = { "classical" };
         granularity_datasets         = { "granularity" };
@@ -158,7 +190,12 @@ struct ConfigData {
         cv::read(fs["average_datasets"], average_datasets);
         cv::read(fs["average_datasets_with_steps"], average_ws_datasets);
         cv::read(fs["memory_datasets"], memory_datasets);
-        cv::read(fs["algorithms"], ccl_algorithms);
+#if defined USE_CUDA
+        cv::read(fs["cpu_algorithms"], cpu_ccl_algorithms);
+		cv::read(fs["gpu_algorithms"], gpu_ccl_algorithms);
+#else
+		cv::read(fs["algorithms"], cpu_ccl_algorithms);
+#endif
 
         yacclab_os                   = static_cast<std::string>(fs["os"]);
     }

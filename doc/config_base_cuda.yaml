@@ -1,0 +1,122 @@
+%YAML:1.2
+---
+##########################################
+# This is the YACCLAB configuration file #
+##########################################
+
+# -------------------------------------------------------------------------------------
+# Tests to perform and their number of repetitions
+# -------------------------------------------------------------------------------------
+
+# Kind of tests to execute
+perform: 
+  correctness:        true
+  average:            true
+  average_with_steps: false
+  density:            false
+  granularity:        false
+  memory:             false
+
+correctness_tests: 
+  eight_connectivity_standard: true
+  eight_connectivity_steps:    true
+  eight_connectivity_memory:   true
+
+# Number of tests repetitions 
+tests_number: 
+  average:             5 
+  average_with_steps:  5
+  density:            10
+  granularity:        10 
+
+# -------------------------------------------------------------------------------------
+# List of CCL algorithms to test
+# -------------------------------------------------------------------------------------
+
+cpu_algorithms: 
+#  - SAUF_RemSP
+#  - SAUF_TTA
+#  - SAUF_UFPC
+#  - SAUF_UF
+#  - BBDT_RemSP
+#  - BBDT_TTA
+  - BBDT_UFPC
+#  - BBDT_UF
+#  - CCIT_RemSP
+#  - CCIT_TTA
+#  - CCIT_UFPC
+#  - CCIT_UF
+#  - CTB_RemSP
+#  - CTB_TTA
+#  - CTB_UFPC
+#  - CTB_UF
+#  - PRED_RemSP
+#  - PRED_TTA
+#  - PRED_UFPC
+#  - PRED_UF
+#  - DRAG_RemSP
+#  - DRAG_TTA
+#  - DRAG_UFPC
+#  - DRAG_UF
+#  - LSL_STD_TTA
+#  - LSL_STD_UF
+#  - LSL_STDZ_TTA
+#  - LSL_STDZ_UF
+#  - LSL_RLE_TTA
+#  - LSL_RLE_UF
+#  - LSL_RLEZ_TTA
+#  - LSL_RLEZ_UF
+#  - DiStefano
+#  - CT
+#  - SBLA
+#  - labeling_NULL
+
+gpu_algorithms:
+#  - CUDA_UF
+  - CUDA_UF_white
+
+# Algorithms which require to specify a labels solver are: SAUF, BBDT, CCIT, LSL, CTB, PRED, and DRAG
+# Possible labels solvers are: UF, UFPC, RemSP, TTA
+# LSL requires also a version specifier: STD, STDZ, RLE, RLEZ; only UF and TTA solvers can be used with LSL
+# Algorithms which don't require to specify a labels solver are: DiStefano, CT, SBLA, NULL
+
+# -------------------------------------------------------------------------------------
+# Datasets to use for each test
+# -------------------------------------------------------------------------------------
+
+# Note that perform correctness tests on labeling_NULL algorithm does not make sense
+#check_datasets: ["check", "3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800", "xdocs"]
+check_datasets: ["check"]
+
+# List of datasets on which "Average Runtime Tests" shall be run
+#average_datasets: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800", "xdocs"]
+average_datasets: ["fingerprints"]
+
+# List of datasets on which "Average Runtime Tests With Steps" shall be run
+#average_datasets_with_steps: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800", "xdocs"]
+average_datasets_with_steps: ["fingerprints"]
+
+# List of datasets on which "Memory Tests" shall be run
+memory_datasets: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800", "xdocs"]
+
+# -------------------------------------------------------------------------------------
+# Additional utilities
+# -------------------------------------------------------------------------------------
+
+# Directory for input/output paths
+paths: {input: "${YACCLAB_INPUT_DATASET_PATH}", output: "${YACCLAB_OUTPUT_RESULTS_PATH}"}
+
+# Save the returned number of components in output files
+write_n_labels: false
+
+# Save labeled image (TODO: remove this option from tests and add a specific tools for doing that in YACCLAB) 
+color_labels: {average: false, density: false} #TODO
+
+# Save the results of each run test
+save_middle_tests: {average: false, average_with_steps: false, density: false, granularity: false}
+
+os: "${YACCLAB_OS}"
+
+##########################################
+# This is the YACCLAB configuration file #
+##########################################
