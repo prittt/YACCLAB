@@ -1561,7 +1561,7 @@ void YacclabTests::MemoryTest()
 				}
 				catch (const exception& e) {
 					algorithm->FreeLabelingData();
-					ob.Cerror("Something wrong with " + cfg_.ccl_mem_algorithms[i] + ": " + e.what()); // You should check your algorithms' implementation before performing YACCLAB tests  
+					ob.Cerror("Something wrong with " + cfg_.cpu_ccl_mem_algorithms[i] + ": " + e.what()); // You should check your algorithms' implementation before performing YACCLAB tests  
 				}
 
                 // For every data_ structure "returned" by the algorithm
