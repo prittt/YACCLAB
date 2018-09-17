@@ -141,7 +141,7 @@ namespace CUDA_UF_namespace {
 				unsigned f = Find(s_buf, local_index);
 				unsigned f_row = f / BLOCK_COLS;
 				unsigned f_col = f % BLOCK_COLS;
-				unsigned global_f = (blockIdx.y * BLOCK_ROWS + f_row) * (labels.step / sizeof(int)) + (blockIdx.x * BLOCK_COLS + f_col);
+				unsigned global_f = (blockIdx.y * BLOCK_ROWS + f_row) * (labels.step / labels.elem_size) + (blockIdx.x * BLOCK_COLS + f_col);
 				labels.data[global_row * labels.step / sizeof(int) + global_col] = global_f + 1;		// C'è distinzione tra background e foreground
 			}
 

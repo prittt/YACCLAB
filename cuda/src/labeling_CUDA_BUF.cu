@@ -25,9 +25,6 @@
 
 using namespace cv;
 
-
-// Algorithm itself has good performances, but memory allocation is a problem.
-// I will try to reduce it.
 namespace CUDA_BUF_namespace {
 
 	// Only use it with unsigned numeric types
@@ -43,20 +40,10 @@ namespace CUDA_BUF_namespace {
 	// Risale alla radice dell'albero a partire da un suo nodo n
 	__device__ unsigned Find(const int *s_buf, unsigned n) {
 		// Attenzione: non invocare la find su un pixel di background
-
-		unsigned label = s_buf[n];
-
-		assert(label > 0);
-
-		while (label - 1 != n) {
-			n = label - 1;
-			label = s_buf[n];
-
-			assert(label > 0);
+		while (s_buf[n] != n) {
+			n = s_buf[n];
 		}
-
 		return n;
-
 	}
 
 
@@ -71,14 +58,14 @@ namespace CUDA_BUF_namespace {
 			b = Find(s_buf, b);
 
 			if (a < b) {
-				int old = atomicMin(s_buf + b, a + 1);
-				done = (old == b + 1);
-				b = old - 1;
+				int old = atomicMin(s_buf + b, a);
+				done = (old == b);
+				b = old;
 			}
 			else if (b < a) {
-				int old = atomicMin(s_buf + a, b + 1);
-				done = (old == a + 1);
-				a = old - 1;
+				int old = atomicMin(s_buf + a, b);
+				done = (old == a);
+				a = old;
 			}
 			else {
 				done = true;
@@ -88,14 +75,14 @@ namespace CUDA_BUF_namespace {
 
 	}
 
-	
+
 	__global__ void InitLabeling(cuda::PtrStepSzi labels) {
 		unsigned row = (blockIdx.y * BLOCK_ROWS + threadIdx.y) * 2;
 		unsigned col = (blockIdx.x * BLOCK_COLS + threadIdx.x) * 2;
 		unsigned labels_index = row * (labels.step / labels.elem_size) + col;
 
 		if (row < labels.rows && col < labels.cols) {
-			labels[labels_index] = labels_index + 1;
+			labels[labels_index] = labels_index;
 		}
 	}
 
@@ -156,19 +143,19 @@ namespace CUDA_BUF_namespace {
 
 			if (P > 0) {
 
-				if (HasBit(P, 0) && img[img_index - img.step - 1]) {
+				if (HasBit(P, 0) && img.data[img_index - img.step - 1]) {
 					Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2);
 				}
 
-				if ((HasBit(P, 1) && img[img_index - img.step]) || (HasBit(P, 2) && img[img_index + 1 - img.step])) {
+				if ((HasBit(P, 1) && img.data[img_index - img.step]) || (HasBit(P, 2) && img.data[img_index + 1 - img.step])) {
 					Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size));
 				}
 
-				if (HasBit(P, 3) && img[img_index + 2 - img.step]) {
+				if (HasBit(P, 3) && img.data[img_index + 2 - img.step]) {
 					Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2);
 				}
 
-				if ((HasBit(P, 4) && img[img_index - 1]) || (HasBit(P, 8) && img[img_index + img.step - 1])) {
+				if ((HasBit(P, 4) && img.data[img_index - 1]) || (HasBit(P, 8) && img.data[img_index + img.step - 1])) {
 					Union(labels.data, labels_index, labels_index - 2);
 				}
 			}
@@ -182,22 +169,10 @@ namespace CUDA_BUF_namespace {
 		unsigned labels_index = row * (labels.step / labels.elem_size) + col;
 
 		if (row < labels.rows && col < labels.cols) {
-
-			unsigned label = labels[labels_index];
-
-			if (label) {								// Performances are the same as the paper variant
-
-				unsigned index = labels_index;
-
-				while (label - 1 != index) {
-					index = label - 1;
-					label = labels[index];
-				}
-
-				labels[labels_index] = label;
-			}
+			labels[labels_index] = Find(labels.data, labels_index);
 		}
 	}
+
 
 	__global__ void FinalLabeling(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels) {
 
@@ -208,23 +183,23 @@ namespace CUDA_BUF_namespace {
 
 		if (row < labels.rows && col < labels.cols) {
 
-			unsigned int label = labels[labels_index];
+			unsigned int label = labels[labels_index] + 1;
 
-			if (img[img_index]) {}
-			// labels[labels_index] = label;
+			if (img.data[img_index])
+				labels[labels_index] = label;
 			else {
 				labels[labels_index] = 0;
 			}
 
 			if (col + 1 < labels.cols) {
-				if (img[img_index + 1])
+				if (img.data[img_index + 1])
 					labels[labels_index + 1] = label;
 				else {
 					labels[labels_index + 1] = 0;
 				}
 
 				if (row + 1 < labels.rows) {
-					if (img[img_index + img.step + 1])
+					if (img.data[img_index + img.step + 1])
 						labels[labels_index + (labels.step / labels.elem_size) + 1] = label;
 					else {
 						labels[labels_index + (labels.step / labels.elem_size) + 1] = 0;
@@ -233,7 +208,7 @@ namespace CUDA_BUF_namespace {
 			}
 
 			if (row + 1 < labels.rows) {
-				if (img[img_index + img.step])
+				if (img.data[img_index + img.step])
 					labels[labels_index + (labels.step / labels.elem_size)] = label;
 				else {
 					labels[labels_index + (labels.step / labels.elem_size)] = 0;
@@ -281,7 +256,7 @@ public:
 		//d_img_labels_.download(block_info_final);		
 
 		Compression << <grid_size_, block_size_ >> >(d_img_labels_);
-		
+
 		FinalLabeling << <grid_size_, block_size_ >> >(d_img_, d_img_labels_);
 
 		// d_img_labels_.download(img_labels_);
@@ -334,7 +309,7 @@ private:
 		FinalLabeling << <grid_size_, block_size_ >> >(d_img_, d_img_labels_);
 
 		cudaDeviceSynchronize();
-	} 
+	}
 
 public:
 	void PerformLabelingWithSteps()
