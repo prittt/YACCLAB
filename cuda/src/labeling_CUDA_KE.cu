@@ -187,23 +187,23 @@ public:
 
 		Init << <grid_size_, block_size_ >> >(d_img_, d_img_labels_);
 
-		Mat1i init_labels;
-		d_img_labels_.download(init_labels);
+		//Mat1i init_labels;
+		//d_img_labels_.download(init_labels);
 		// init_labels.release();
 
 		Analyze << <grid_size_, block_size_ >> > (d_img_labels_);
 
-		Mat1i analyze_labels;
-		d_img_labels_.download(analyze_labels);
+		//Mat1i analyze_labels;
+		//d_img_labels_.download(analyze_labels);
 		// analyze_labels.release();
 
 		Reduce << <grid_size_, block_size_ >> >(d_img_, d_img_labels_);
 		Analyze << <grid_size_, block_size_ >> > (d_img_labels_);
 
-		Mat1i final_labels;
-		d_img_labels_.download(final_labels);
+		//Mat1i final_labels;
+		//d_img_labels_.download(final_labels);
 
-		assert(cudaDeviceSynchronize() == cudaSuccess);
+		cudaDeviceSynchronize();
 	}
 
 

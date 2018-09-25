@@ -10,7 +10,6 @@
 
 #include <cstdio>
 #include <stdlib.h>
-#include <math.h>
 #include <time.h>
 #include <iostream>
 
@@ -18,6 +17,7 @@
 #include <opencv2\cudafeatures2d.hpp>
 #include <opencv2\highgui\highgui.hpp>
 #include <map>
+#include <math.h>
 
 // Il minimo per entrambi è 4
 #define BLOCK_ROWS 16

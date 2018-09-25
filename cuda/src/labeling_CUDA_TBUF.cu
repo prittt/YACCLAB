@@ -25,7 +25,7 @@
 
 using namespace cv;
 
-namespace CUDA_BUF_namespace {
+namespace CUDA_TBUF_namespace {
 
 	// Only use it with unsigned numeric types
 	template <typename T>
@@ -94,70 +94,111 @@ namespace CUDA_BUF_namespace {
 
 		if (row < labels.rows && col < labels.cols) {
 
-			unsigned P0 = 0x777;
-			unsigned P = 0;
+#define CONDITION_B col>0 && row>1 && img.data[img_index - 2 * img.step - 1]
+#define CONDITION_C row>1 && img.data[img_index - 2 * img.step]
+#define CONDITION_D col+1<img.cols && row>1 && img.data[img_index - 2 * img.step + 1]
+#define CONDITION_E col+2<img.cols && row>1 && img.data[img_index - 2 * img.step + 2]
 
-			if (img[img_index]) {
-				P |= P0;
-			}
+#define CONDITION_G col>1 && row>0 && img.data[img_index - img.step - 2]
+#define CONDITION_H col>0 && row>0 && img.data[img_index - img.step - 1]
+#define CONDITION_I row>0 && img.data[img_index - img.step]
+#define CONDITION_J col+1<img.step && row>0 && img.data[img_index - img.step + 1]
+#define CONDITION_K col+2<img.step && row>0 && img.data[img_index - img.step + 2]
 
-			if (col + 1 < img.cols) {
+#define CONDITION_M col>1 && img.data[img_index - 2]
+#define CONDITION_N col>0 && img.data[img_index - 1]
+#define CONDITION_O img.data[img_index]
+#define CONDITION_P col+1<img.step && img.data[img_index + 1]
 
-				if (img[img_index + 1]) {
-					P |= (P0 << 1);
-				}
+#define CONDITION_R col>0 && row+1<img.rows && img.data[img_index + img.step - 1]
+#define CONDITION_S row+1<img.rows && img.data[img_index + img.step]
+#define CONDITION_T col+1<img.cols && row+1<img.rows && img.data[img_index + img.step + 1]
 
-			}
+			// Action 1: No action
+#define ACTION_1  
+			// Action 2: New label (the block has foreground pixels and is not connected to anything else)
+#define ACTION_2  
+			//Action 3: Assign label of block P
+#define ACTION_3 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2); 
+			// Action 4: Assign label of block Q 
+#define ACTION_4 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size));	
+			// Action 5: Assign label of block R
+#define ACTION_5 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2); 
+			// Action 6: Assign label of block S
+#define ACTION_6 Union(labels.data, labels_index, labels_index - 2);  
+			// Action 7: Merge labels of block P and Q
+#define ACTION_7 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2); \
+			Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size));			
+			//Action 8: Merge labels of block P and R
+#define ACTION_8 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2); \
+			Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2);			
+			// Action 9 Merge labels of block P and S
+#define ACTION_9 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2); \
+			Union(labels.data, labels_index, labels_index - 2);			
+			// Action 10 Merge labels of block Q and R
+#define ACTION_10 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size)); \
+			Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2);			
+			// Action 11: Merge labels of block Q and S
+#define ACTION_11 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size)); \
+			Union(labels.data, labels_index, labels_index - 2);			
+			// Action 12: Merge labels of block R and S
+#define ACTION_12 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2); \
+			Union(labels.data, labels_index, labels_index - 2);			
+			// Action 13: not used
+#define ACTION_13 
+			// Action 14: Merge labels of block P, Q and S
+#define ACTION_14 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2); \
+			Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size)); \
+			Union(labels.data, labels_index, labels_index - 2);		
+			//Action 15: Merge labels of block P, R and S
+#define ACTION_15 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2); \
+			Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2); \
+            Union(labels.data, labels_index, labels_index - 2);			
+			//Action 16: labels of block Q, R and S
+#define ACTION_16 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size)); \
+			Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2); \
+			Union(labels.data, labels_index, labels_index - 2);			
 
-			if (row + 1 < img.rows) {
+#include "labeling_grana_2010_tree.inc"
 
-				if (img[img_index + img.step]) {
-					P |= (P0 << 4);
-				}
+#undef ACTION_1
+#undef ACTION_2
+#undef ACTION_3
+#undef ACTION_4
+#undef ACTION_5
+#undef ACTION_6
+#undef ACTION_7
+#undef ACTION_8
+#undef ACTION_9
+#undef ACTION_10
+#undef ACTION_11
+#undef ACTION_12
+#undef ACTION_13
+#undef ACTION_14
+#undef ACTION_15
+#undef ACTION_16
 
-			}
 
-			if (col == 0) {
-				P &= 0xEEEE;
-			}
-			if (col + 1 >= img.cols) {
-				P &= 0x3333;
-			}
-			else if (col + 2 >= img.cols) {
-				P &= 0x7777;
-			}
+#undef CONDITION_B
+#undef CONDITION_C
+#undef CONDITION_D
+#undef CONDITION_E
 
-			if (row == 0) {
-				P &= 0xFFF0;
-			}
-			if (row + 1 >= img.rows) {
-				P &= 0xFF;
-			}
-			else if (row + 2 >= img.rows) {
-				P &= 0xFFF;
-			}
+#undef CONDITION_G
+#undef CONDITION_H
+#undef CONDITION_I
+#undef CONDITION_J
+#undef CONDITION_K
 
-			// P is now ready to be used to find neighbour blocks (or it should be)
-			// P value avoids range errors
+#undef CONDITION_M
+#undef CONDITION_N
+#undef CONDITION_O
+#undef CONDITION_P
 
-			if (P > 0) {
-
-				if (HasBit(P, 0) && img.data[img_index - img.step - 1]) {
-					Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2);
-				}
-
-				if ((HasBit(P, 1) && img.data[img_index - img.step]) || (HasBit(P, 2) && img.data[img_index + 1 - img.step])) {
-					Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size));
-				}
-
-				if (HasBit(P, 3) && img.data[img_index + 2 - img.step]) {
-					Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2);
-				}
-
-				if ((HasBit(P, 4) && img.data[img_index - 1]) || (HasBit(P, 8) && img.data[img_index + img.step - 1])) {
-					Union(labels.data, labels_index, labels_index - 2);
-				}
-			}
+#undef CONDITION_R
+#undef CONDITION_S
+#undef CONDITION_T
+			
 		}
 	}
 
@@ -220,15 +261,15 @@ namespace CUDA_BUF_namespace {
 
 }
 
-using namespace CUDA_BUF_namespace;
+using namespace CUDA_TBUF_namespace;
 
-class CUDA_BUF : public GpuLabeling {
+class CUDA_TBUF : public GpuLabeling {
 private:
 	dim3 grid_size_;
 	dim3 block_size_;
 
 public:
-	CUDA_BUF() {}
+	CUDA_TBUF() {}
 
 	void PerformLabeling() {
 
@@ -333,4 +374,4 @@ public:
 
 };
 
-REGISTER_LABELING(CUDA_BUF);
+REGISTER_LABELING(CUDA_TBUF);

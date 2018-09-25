@@ -72,10 +72,14 @@ cpu_algorithms:
 #  - labeling_NULL
 
 gpu_algorithms:
-#  - CUDA_UF
+  - CUDA_LE
+  - CUDA_BE
+  - CUDA_KE
+  - CUDA_DLP
+  - CUDA_UF
+  - CUDA_TUF
   - CUDA_BUF
-#  - CUDA_LE
-#  - CUDA_BE
+  - CUDA_TBUF
  
 
 # Algorithms which require to specify a labels solver are: SAUF, BBDT, CCIT, LSL, CTB, PRED, and DRAG
