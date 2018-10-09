@@ -726,7 +726,7 @@ void YacclabGpuTests::AverageTestWithSteps()
 			script_os << "set xrange[*:*]" << '\n' << '\n';
 
 			script_os << "# Legend" << '\n';
-			script_os << "set key outside left font ', 8'" << '\n' << '\n';
+			script_os << "set key inside right font ', 8'" << '\n' << '\n';
 
 			script_os << "# Plot" << '\n';
 			script_os << "plot \\" << '\n';
@@ -1117,7 +1117,7 @@ void YacclabGpuTests::DensityTest()
 			script_os << "set logscale y" << '\n' << '\n';
 
 			script_os << "# Legend" << '\n';
-			script_os << "set key right outside nobox spacing 2 font ', 8'" << '\n' << '\n';
+			script_os << "set key inside left nobox spacing 2 font ', 8'" << '\n' << '\n';
 
 			script_os << "# Plot" << '\n';
 			script_os << "plot \\" << '\n';
@@ -1168,7 +1168,7 @@ void YacclabGpuTests::DensityTest()
 			script_os << "set logscale xy 10" << '\n' << '\n';
 
 			script_os << "# Legend" << '\n';
-			script_os << "set key right outside top nobox spacing 2 font ', 8'" << '\n';
+			script_os << "set key inside left top nobox spacing 2 font ', 8'" << '\n';
 
 			script_os << "# Plot" << '\n';
 			script_os << "plot \\" << '\n';
@@ -1371,7 +1371,7 @@ void YacclabGpuTests::GranularityTest()
 			"#!/bin/sh";
 #endif
 		main_script_os << '\n';
-		main_script_os << "cd \"" << current_output_path.string() << "\"" << '\n';
+		//main_script_os << "cd \"" << current_output_path.string() << "\"" << '\n';
 
 		// To write granularity results on specified file
 		for (unsigned g = 1; g <= granularity; ++g) {
@@ -1400,8 +1400,10 @@ void YacclabGpuTests::GranularityTest()
 			granularity_os.close();
 
 			string output_file = output_granularity_results + "_" + to_string(g) + kTerminalExtension;
-			main_script_os << "gnuplot -e \"input_file='" + cur_granularity_os + "'\" -e \"output_file='" + output_file + "'\" " +
-				dataset_name + cfg_.gnuplot_script_extension << '\n';
+			string main_script_error_path = (current_output_path / path("main_script_errors.txt")).string();
+			string gnuplot_script_path = (current_output_path / path(dataset_name + cfg_.gnuplot_script_extension)).string();
+			main_script_os << "gnuplot -e \"input_file='" + cur_granularity_os + "'\" -e \"output_file='" + output_file + "'\" \"" +
+				gnuplot_script_path + "\" 2>>\"" + main_script_error_path + "\"\n";
 		}
 		main_script_os.close();
 
@@ -1449,7 +1451,7 @@ void YacclabGpuTests::GranularityTest()
 			//script_os << "set logscale y" << '\n' << '\n';
 
 			script_os << "# Legend" << '\n';
-			script_os << "set key right outside nobox spacing 2 font ', 8'" << '\n' << '\n';
+			script_os << "set key inside left nobox spacing 2 font ', 8'" << '\n' << '\n';
 
 			script_os << "# Plot" << '\n';
 			script_os << "plot \\" << '\n';
