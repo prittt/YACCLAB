@@ -47,6 +47,23 @@ namespace CUDA_KE_namespace {
 
 	}
 
+	// Risale alla radice dell'albero a partire da un suo nodo n
+	__device__ unsigned Find_label(const int *s_buf, unsigned n, unsigned label) {
+		// Attenzione: non invocare la find su un pixel di background
+
+		assert(label > 0);
+
+		while (label - 1 != n) {
+			n = label - 1;
+			label = s_buf[n];
+
+			assert(label > 0);
+		}
+
+		return n;
+
+	}
+
 
 	// Unisce gli alberi contenenti i nodi a e b, collegandone le radici
 	__device__ void Union(int *s_buf, unsigned a, unsigned b) {
@@ -111,32 +128,49 @@ namespace CUDA_KE_namespace {
 					labels.data[labels_index] = labels_index + 1;
 				}
 			}
+			else {
+				labels.data[labels_index] = 0;
+			}
 		}
 	}
 
 
-	// Analysis phase.
-	// The pixel associated with current thread is given the minimum label of the neighbours.
-	__global__ void Analyze(cuda::PtrStepSzi labels) {
+	//// Analysis phase.
+	//// The pixel associated with current thread is given the minimum label of the neighbours.
+	//__global__ void Analyze(cuda::PtrStepSzi labels) {
+
+	//	unsigned row = blockIdx.y * BLOCK_ROWS + threadIdx.y;
+	//	unsigned col = blockIdx.x * BLOCK_COLS + threadIdx.x;
+	//	unsigned labels_index = row * (labels.step / labels.elem_size) + col;
+
+	//	if (row < labels.rows && col < labels.cols) {
+
+	//		unsigned label = labels[labels_index];
+
+	//		if (label) {								// Performances are the same as the paper variant
+
+	//			unsigned index = labels_index;
+
+	//			while (label - 1 != index) {
+	//				index = label - 1;
+	//				label = labels[index];
+	//			}
+
+	//			labels[labels_index] = label;
+	//		}
+	//	}
+	//}
+
+	__global__ void Compression(cuda::PtrStepSzi labels) {
 
 		unsigned row = blockIdx.y * BLOCK_ROWS + threadIdx.y;
 		unsigned col = blockIdx.x * BLOCK_COLS + threadIdx.x;
 		unsigned labels_index = row * (labels.step / labels.elem_size) + col;
 
 		if (row < labels.rows && col < labels.cols) {
-
-			unsigned label = labels[labels_index];
-
-			if (label) {								// Performances are the same as the paper variant
-
-				unsigned index = labels_index;
-
-				while (label - 1 != index) {
-					index = label - 1;
-					label = labels[index];
-				}
-
-				labels[labels_index] = label;
+			unsigned label = labels.data[labels_index];
+			if (label) {
+				labels.data[labels_index] = Find_label(labels.data, labels_index, label) + 1;
 			}
 		}
 	}
@@ -187,18 +221,21 @@ public:
 
 		Init << <grid_size_, block_size_ >> >(d_img_, d_img_labels_);
 
-		//Mat1i init_labels;
-		//d_img_labels_.download(init_labels);
-		// init_labels.release();
+		/*Mat1i init_labels;
+		d_img_labels_.download(init_labels);*/
+		//init_labels.release();
 
-		Analyze << <grid_size_, block_size_ >> > (d_img_labels_);
+		//Analyze << <grid_size_, block_size_ >> > (d_img_labels_);
+		Compression << <grid_size_, block_size_ >> > (d_img_labels_);
 
 		//Mat1i analyze_labels;
 		//d_img_labels_.download(analyze_labels);
-		// analyze_labels.release();
+		//analyze_labels.release();
 
 		Reduce << <grid_size_, block_size_ >> >(d_img_, d_img_labels_);
-		Analyze << <grid_size_, block_size_ >> > (d_img_labels_);
+		//Analyze << <grid_size_, block_size_ >> > (d_img_labels_);
+		Compression << <grid_size_, block_size_ >> > (d_img_labels_);
+
 
 		//Mat1i final_labels;
 		//d_img_labels_.download(final_labels);
@@ -244,14 +281,16 @@ private:
 		//d_img_labels_.download(init_labels);
 		// init_labels.release();
 
-		Analyze << <grid_size_, block_size_ >> > (d_img_labels_);
+		//Analyze << <grid_size_, block_size_ >> > (d_img_labels_);
+		Compression << <grid_size_, block_size_ >> > (d_img_labels_);
 
 		//Mat1i analyze_labels;
 		//d_img_labels_.download(analyze_labels);
 		// analyze_labels.release();
 
 		Reduce << <grid_size_, block_size_ >> >(d_img_, d_img_labels_);
-		Analyze << <grid_size_, block_size_ >> > (d_img_labels_);
+		//Analyze << <grid_size_, block_size_ >> > (d_img_labels_);
+		Compression << <grid_size_, block_size_ >> > (d_img_labels_);
 
 		//Mat1i final_labels;
 		//d_img_labels_.download(final_labels);
