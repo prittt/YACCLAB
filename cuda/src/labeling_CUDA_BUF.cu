@@ -45,7 +45,6 @@ namespace CUDA_BUF_namespace {
 		return n;
 	}
 
-
 	// Unisce gli alberi contenenti i nodi a e b, collegandone le radici
 	__device__ void Union(int *s_buf, unsigned a, unsigned b) {
 
@@ -94,27 +93,35 @@ namespace CUDA_BUF_namespace {
 
 		if (row < labels.rows && col < labels.cols) {
 
-			unsigned P0 = 0x777;
 			unsigned P = 0;
 
-			if (img[img_index]) {
-				P |= P0;
-			}
+			char buffer[4];
 
 			if (col + 1 < img.cols) {
+				// This does not depend on endianness
+				*(reinterpret_cast<int16_t*>(buffer)) = *(reinterpret_cast<int16_t*>(img.data + img_index));
 
-				if (img[img_index + 1]) {
-					P |= (P0 << 1);
+				if (row + 1 < img.rows) {
+					*(reinterpret_cast<int16_t*>(buffer + 2)) = *(reinterpret_cast<int16_t*>(img.data + img_index + img.step));
 				}
+			}
+			else {
+				buffer[0] = img.data[img_index];
+				buffer[1] = 0;
 
+				if (row + 1 < img.rows) {
+					buffer[2] = img.data[img_index + img.step];
+				}
 			}
 
-			if (row + 1 < img.rows) {
-
-				if (img[img_index + img.step]) {
-					P |= (P0 << 4);
-				}
-
+			if (buffer[0]) {
+				P |= 0x777;
+			}
+			if (buffer[1]) {
+				P |= (0x777 << 1);
+			}
+			if (buffer[2]) {
+				P |= (0x777 << 4);
 			}
 
 			if (col == 0) {
@@ -168,7 +175,10 @@ namespace CUDA_BUF_namespace {
 		unsigned labels_index = row * (labels.step / labels.elem_size) + col;
 
 		if (row < labels.rows && col < labels.cols) {
-			labels[labels_index] = Find(labels.data, labels_index);
+			unsigned label = labels.data[labels_index];
+			if (label < labels_index) {
+				labels[labels_index] = Find(labels.data, label);
+			}
 		}
 	}
 
@@ -237,7 +247,7 @@ public:
 		grid_size_ = dim3((((d_img_.cols + 1) / 2) + BLOCK_COLS - 1) / BLOCK_COLS, (((d_img_.rows + 1) / 2) + BLOCK_ROWS - 1) / BLOCK_ROWS, 1);
 		block_size_ = dim3(BLOCK_COLS, BLOCK_ROWS, 1);
 
-		InitLabeling << <grid_size_, block_size_ >> >(d_img_labels_);
+		InitLabeling << <grid_size_, block_size_ >> > (d_img_labels_);
 
 		//cuda::GpuMat d_expanded_connections;
 		//d_expanded_connections.create(d_connections_.rows * 3, d_connections_.cols * 3, CV_8UC1);
@@ -249,14 +259,14 @@ public:
 		//Mat1i init_labels;
 		//d_block_labels_.download(init_labels);
 
-		Merge << <grid_size_, block_size_ >> >(d_img_, d_img_labels_);
+		Merge << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
 
 		//Mat1i block_info_final;
 		//d_img_labels_.download(block_info_final);		
 
-		Compression << <grid_size_, block_size_ >> >(d_img_labels_);
+		Compression << <grid_size_, block_size_ >> > (d_img_labels_);
 
-		FinalLabeling << <grid_size_, block_size_ >> >(d_img_, d_img_labels_);
+		FinalLabeling << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
 
 		// d_img_labels_.download(img_labels_);
 		cudaDeviceSynchronize();
@@ -286,7 +296,7 @@ private:
 		grid_size_ = dim3((((d_img_.cols + 1) / 2) + BLOCK_COLS - 1) / BLOCK_COLS, (((d_img_.rows + 1) / 2) + BLOCK_ROWS - 1) / BLOCK_ROWS, 1);
 		block_size_ = dim3(BLOCK_COLS, BLOCK_ROWS, 1);
 
-		InitLabeling << <grid_size_, block_size_ >> >(d_img_labels_);
+		InitLabeling << <grid_size_, block_size_ >> > (d_img_labels_);
 
 		//cuda::GpuMat d_expanded_connections;
 		//d_expanded_connections.create(d_connections_.rows * 3, d_connections_.cols * 3, CV_8UC1);
@@ -298,14 +308,14 @@ private:
 		//Mat1i init_labels;
 		//d_block_labels_.download(init_labels);
 
-		Merge << <grid_size_, block_size_ >> >(d_img_, d_img_labels_);
+		Merge << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
 
 		//Mat1i block_info_final;
 		//d_img_labels_.download(block_info_final);		
 
-		Compression << <grid_size_, block_size_ >> >(d_img_labels_);
+		Compression << <grid_size_, block_size_ >> > (d_img_labels_);
 
-		FinalLabeling << <grid_size_, block_size_ >> >(d_img_, d_img_labels_);
+		FinalLabeling << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
 
 		cudaDeviceSynchronize();
 	}
