@@ -96,6 +96,7 @@ namespace CUDA_BUF_namespace {
 			unsigned P = 0;
 
 			char buffer[4];
+			*(reinterpret_cast<int*>(buffer)) = 0;
 
 			if (col + 1 < img.cols) {
 				// This does not depend on endianness
@@ -107,7 +108,6 @@ namespace CUDA_BUF_namespace {
 			}
 			else {
 				buffer[0] = img.data[img_index];
-				buffer[1] = 0;
 
 				if (row + 1 < img.rows) {
 					buffer[2] = img.data[img_index + img.step];
