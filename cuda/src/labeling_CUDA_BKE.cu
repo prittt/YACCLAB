@@ -27,37 +27,23 @@ using namespace cv;
 
 namespace CUDA_BKE_namespace {
 
+	// Only use it with unsigned numeric types
+	template <typename T>
+	__device__ __forceinline__ unsigned char HasBit(T bitmap, unsigned char pos) {
+		return (bitmap >> pos) & 1;
+	}
+
+	__device__ __forceinline__ void SetBit(unsigned char &bitmap, unsigned char pos) {
+		bitmap |= (1 << pos);
+	}
+
 	// Risale alla radice dell'albero a partire da un suo nodo n
 	__device__ unsigned Find(const int *s_buf, unsigned n) {
-		// Attenzione: non invocare la find su un pixel di background
-		unsigned label = s_buf[n];
-		assert(label > 0);
-		while (label - 1 != n) {
-			n = label - 1;
-			label = s_buf[n];
-
-			assert(label > 0);
+		while (s_buf[n] != n) {
+			n = s_buf[n];
 		}
 		return n;
 	}
-
-	// Risale alla radice dell'albero a partire da un suo nodo n
-	__device__ unsigned Find_label(const int *s_buf, unsigned n, unsigned label) {
-		// Attenzione: non invocare la find su un pixel di background
-
-		assert(label > 0);
-
-		while (label - 1 != n) {
-			n = label - 1;
-			label = s_buf[n];
-
-			assert(label > 0);
-		}
-
-		return n;
-
-	}
-
 
 	// Unisce gli alberi contenenti i nodi a e b, collegandone le radici
 	__device__ void Union(int *s_buf, unsigned a, unsigned b) {
@@ -70,14 +56,14 @@ namespace CUDA_BKE_namespace {
 			b = Find(s_buf, b);
 
 			if (a < b) {
-				int old = atomicMin(s_buf + b, a + 1);
-				done = (old == b + 1);
-				b = old - 1;
+				int old = atomicMin(s_buf + b, a);
+				done = (old == b);
+				b = old;
 			}
 			else if (b < a) {
-				int old = atomicMin(s_buf + a, b + 1);
-				done = (old == a + 1);
-				a = old - 1;
+				int old = atomicMin(s_buf + a, b);
+				done = (old == a);
+				a = old;
 			}
 			else {
 				done = true;
@@ -88,134 +74,163 @@ namespace CUDA_BKE_namespace {
 	}
 
 
-	__global__ void InitLabeling(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels) {
+	__global__ void InitLabeling(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels, unsigned char *last_pixel) {
 		unsigned row = (blockIdx.y * BLOCK_ROWS + threadIdx.y) * 2;
 		unsigned col = (blockIdx.x * BLOCK_COLS + threadIdx.x) * 2;
 		unsigned img_index = row * img.step + col;
 		unsigned labels_index = row * (labels.step / labels.elem_size) + col;
-
-#define CONDITION_B (col>0 && row>1 && img.data[img_index - 2 * img.step - 1])
-#define CONDITION_C (row>1 && img.data[img_index - 2 * img.step])
-#define CONDITION_D (col+1<img.cols && row>1 && img.data[img_index - 2 * img.step + 1])
-#define CONDITION_E (col+2<img.cols && row>1 && img.data[img_index - 2 * img.step + 2])
-
-#define CONDITION_G (col>1 && row>0 && img.data[img_index - img.step - 2])
-#define CONDITION_H (col>0 && row>0 && img.data[img_index - img.step - 1])
-#define CONDITION_I (row>0 && img.data[img_index - img.step])
-#define CONDITION_J (col+1<img.step && row>0 && img.data[img_index - img.step + 1])
-#define CONDITION_K (col+2<img.step && row>0 && img.data[img_index - img.step + 2])
-
-#define CONDITION_M (col>1 && img.data[img_index - 2])
-#define CONDITION_N (col>0 && img.data[img_index - 1])
-#define CONDITION_O (img.data[img_index])
-#define CONDITION_P (col+1<img.step && img.data[img_index + 1])
-
-#define CONDITION_R (col>0 && row+1<img.rows && img.data[img_index + img.step - 1])
-#define CONDITION_S (row+1<img.rows && img.data[img_index + img.step])
-#define CONDITION_T (col+1<img.cols && row+1<img.rows && img.data[img_index + img.step + 1])
-
-
-#define ACTION_NW labels[labels_index] = labels_index - 2 * (labels.step / labels.elem_size) - 1;
-#define ACTION_N labels[labels_index] = labels_index - 2 * (labels.step / labels.elem_size) + 1;
-#define ACTION_NE labels[labels_index] = labels_index - 2 * (labels.step / labels.elem_size) + 3;
-#define ACTION_W labels[labels_index] = labels_index - 1;
-#define ACTION_C labels[labels_index] = labels_index + 1;
-#define ACTION_0 labels[labels_index] = 0;
-
+		
 		if (row < labels.rows && col < labels.cols) {
 
-#include "labeling_CUDA_BKE_init_tree.inc"
+			unsigned P = 0;			
 
-		}
+			char buffer[4];
+			*(reinterpret_cast<int*>(buffer)) = 0;
 
-#undef ACTION_NW
-#undef ACTION_N
-#undef ACTION_NE
-#undef ACTION_W
-#undef ACTION_C
-#undef ACTION_0
-	}
+			if (col + 1 < img.cols) {
+				// This does not depend on endianness
+				*(reinterpret_cast<int16_t*>(buffer)) = *(reinterpret_cast<int16_t*>(img.data + img_index));
 
-	__global__ void Merge(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels) {
-
-		unsigned row = (blockIdx.y * BLOCK_ROWS + threadIdx.y) * 2;
-		unsigned col = (blockIdx.x * BLOCK_COLS + threadIdx.x) * 2;
-		unsigned img_index = row * img.step + col;
-		unsigned labels_index = row * (labels.step / labels.elem_size) + col;
-
-		if (row < labels.rows && col < labels.cols) {
-
-			// Action 1: No action
-#define ACTION_NULL 
-//			// Action 2: New label (the block has foreground pixels and is not connected to anything else)
-#define ACTION_P Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2); 
-			// Action Q: Merge with block Q
-#define ACTION_Q Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size));	
-			// Action R: Merge with block R
-#define ACTION_R Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2); 
-			// Action S: Merge with block S
-#define ACTION_S Union(labels.data, labels_index, labels_index - 2);  
-
-#include "labeling_CUDA_BKE_merge_tree.inc"
-
-			if (labels[labels_index]) {
-
-				//Placeholder procedure
-				if ((CONDITION_O || CONDITION_P) && (CONDITION_I || CONDITION_J)) {
-					ACTION_Q
+				if (row + 1 < img.rows) {
+					*(reinterpret_cast<int16_t*>(buffer + 2)) = *(reinterpret_cast<int16_t*>(img.data + img_index + img.step));
 				}
-				if ((CONDITION_O || CONDITION_S) && (CONDITION_N || CONDITION_R)) {
-					ACTION_S
-				}
-				if (CONDITION_P && CONDITION_K) {
-					ACTION_R
+			}
+			else {
+				buffer[0] = img.data[img_index];
+
+				if (row + 1 < img.rows) {
+					buffer[2] = img.data[img_index + img.step];
 				}
 			}
 
+			if (buffer[0]) {
+				P |= 0x777;
+			}
+			if (buffer[1]) {
+				P |= (0x777 << 1);
+			}
+			if (buffer[2]) {
+				P |= (0x777 << 4);
+			}
 
-#undef ACTION_NULL
-#undef ACTION_P
-#undef ACTION_Q
-#undef ACTION_R
-#undef ACTION_S
+			if (col == 0) {
+				P &= 0xEEEE;
+			}
+			if (col + 1 >= img.cols) {
+				P &= 0x3333;
+			}
+			else if (col + 2 >= img.cols) {
+				P &= 0x7777;
+			}
 
-#undef CONDITION_B
-#undef CONDITION_C
-#undef CONDITION_D
-#undef CONDITION_E
+			if (row == 0) {
+				P &= 0xFFF0;
+			}
+			if (row + 1 >= img.rows) {
+				P &= 0xFF;
+			}
+			else if (row + 2 >= img.rows) {
+				P &= 0xFFF;
+			}
 
-#undef CONDITION_G
-#undef CONDITION_H
-#undef CONDITION_I
-#undef CONDITION_J
-#undef CONDITION_K
+			// P is now ready to be used to find neighbour blocks (or it should be)
+			// P value avoids range errors
+							
+			int father_negative_offset = 0;
+				
+			// to_link is a bitmask that tells which squares are to be merged with the current one, in reduction phase.
+			// First bit is North, Second bit is North-East and Third bit is West.
+			unsigned char to_link = 0;							
+			
+			// North-West square
+			if (HasBit(P, 0) && img.data[img_index - img.step - 1]) {
+				father_negative_offset = 2 * (labels.step / labels.elem_size) + 2;
+			}
 
-#undef CONDITION_M
-#undef CONDITION_N
-#undef CONDITION_O
-#undef CONDITION_P
+			// North square
+			if ((HasBit(P, 1) && img.data[img_index - img.step]) || (HasBit(P, 2) && img.data[img_index + 1 - img.step])) {
+				if (!father_negative_offset) {
+					father_negative_offset = 2 * (labels.step / labels.elem_size);
+				}
+				else {
+					SetBit(to_link, 0);
+				}
+			}
 
-#undef CONDITION_R
-#undef CONDITION_S
-#undef CONDITION_T
+			// North-East square
+			if (HasBit(P, 3) && img.data[img_index + 2 - img.step]) {
+				if (!father_negative_offset) {
+					father_negative_offset = 2 * (labels.step / labels.elem_size) - 2;
+				}
+				else {
+					SetBit(to_link, 1);
+				}
+			}
 
+			// West square
+			if ((HasBit(P, 4) && img.data[img_index - 1]) || (HasBit(P, 8) && img.data[img_index + img.step - 1])) {
+				if (!father_negative_offset) {
+					father_negative_offset = + 2;
+				}
+				else {
+					SetBit(to_link, 2);
+				}
+			}
+
+			// Just to see where to_link is stored
+			SetBit(to_link, 4);
+			
+			labels.data[labels_index] = labels_index - father_negative_offset;
+			if (col + 1 < labels.cols) {
+				last_pixel = reinterpret_cast<unsigned char *>(labels.data + labels_index + 1);
+			}
+			else if (row + 1 < labels.rows) {
+				last_pixel = reinterpret_cast<unsigned char *>(labels.data + labels_index + labels.step / labels.elem_size);
+			}
+			*last_pixel = to_link;
+		}
+	}
+
+	__global__ void Merge(cuda::PtrStepSzi labels, unsigned char *last_pixel) {
+
+		unsigned row = (blockIdx.y * BLOCK_ROWS + threadIdx.y) * 2;
+		unsigned col = (blockIdx.x * BLOCK_COLS + threadIdx.x) * 2;
+		unsigned labels_index = row * (labels.step / labels.elem_size) + col;
+
+		if (row < labels.rows && col < labels.cols) {
+
+			if (col + 1 < labels.cols) {
+				last_pixel = reinterpret_cast<unsigned char *>(labels.data + labels_index + 1);
+			}
+			else if (row + 1 < labels.rows) {
+				last_pixel = reinterpret_cast<unsigned char *>(labels.data + labels_index + labels.step / labels.elem_size);
+			}
+			unsigned char to_link = *last_pixel;
+
+			if (HasBit(to_link, 0)) {
+				Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size));
+			}
+			if (HasBit(to_link, 1)) {
+				Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2);
+			}
+			if (HasBit(to_link, 2)) {
+				Union(labels.data, labels_index, labels_index - 2);
+			}
 		}
 	}
 
 	__global__ void Compression(cuda::PtrStepSzi labels) {
-
 		unsigned row = (blockIdx.y * BLOCK_ROWS + threadIdx.y) * 2;
 		unsigned col = (blockIdx.x * BLOCK_COLS + threadIdx.x) * 2;
 		unsigned labels_index = row * (labels.step / labels.elem_size) + col;
 
 		if (row < labels.rows && col < labels.cols) {
-			unsigned label = labels[labels_index];
-			if (label) {
-				labels[labels_index] = Find_label(labels.data, labels_index, label) + 1;
+			unsigned label = labels.data[labels_index];
+			if (label != labels_index) {
+				labels.data[labels_index] = Find(labels.data, label);
 			}
 		}
 	}
-
 
 	__global__ void FinalLabeling(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels) {
 
@@ -226,56 +241,36 @@ namespace CUDA_BKE_namespace {
 
 		if (row < labels.rows && col < labels.cols) {
 
-			unsigned int label = labels[labels_index];
+			unsigned int label = labels[labels_index] + 1;
 
-			if (label) {
+			if (img.data[img_index])
+				labels[labels_index] = label;
+			else {
+				labels[labels_index] = 0;
+			}
 
-				if (img.data[img_index]) {
-					// labels[labels_index] = label;
-				}
+			if (col + 1 < labels.cols) {
+				if (img.data[img_index + 1])
+					labels[labels_index + 1] = label;
 				else {
-					labels[labels_index] = 0;
-				}
-
-				if (col + 1 < labels.cols) {
-					if (img.data[img_index + 1])
-						labels[labels_index + 1] = label;
-					else {
-						labels[labels_index + 1] = 0;
-					}
-
-					if (row + 1 < labels.rows) {
-						if (img.data[img_index + img.step + 1])
-							labels[labels_index + (labels.step / labels.elem_size) + 1] = label;
-						else {
-							labels[labels_index + (labels.step / labels.elem_size) + 1] = 0;
-						}
-					}
+					labels[labels_index + 1] = 0;
 				}
 
 				if (row + 1 < labels.rows) {
-					if (img.data[img_index + img.step])
-						labels[labels_index + (labels.step / labels.elem_size)] = label;
+					if (img.data[img_index + img.step + 1])
+						labels[labels_index + (labels.step / labels.elem_size) + 1] = label;
 					else {
-						labels[labels_index + (labels.step / labels.elem_size)] = 0;
-					}
-				}
-			}
-			else {
-				labels[labels_index + 1] = 0;
-
-				if (col + 1 < labels.cols) {
-					labels[labels_index + 1] = 0;				
-
-					if (row + 1 < labels.rows) {
 						labels[labels_index + (labels.step / labels.elem_size) + 1] = 0;
 					}
 				}
+			}
 
-				if (row + 1 < labels.rows) {
+			if (row + 1 < labels.rows) {
+				if (img.data[img_index + img.step])
+					labels[labels_index + (labels.step / labels.elem_size)] = label;
+				else {
 					labels[labels_index + (labels.step / labels.elem_size)] = 0;
 				}
-
 			}
 
 		}
@@ -290,6 +285,8 @@ class CUDA_BKE : public GpuLabeling {
 private:
 	dim3 grid_size_;
 	dim3 block_size_;
+	unsigned char *last_pixel_;
+	bool last_pixel_allocated_;
 
 public:
 	CUDA_BKE() {}
@@ -298,15 +295,40 @@ public:
 
 		d_img_labels_.create(d_img_.size(), CV_32SC1);
 
+		last_pixel_allocated_ = false;
+		if ((d_img_.rows == 1 || d_img_.cols == 1) && !((d_img_.rows + d_img_.cols) % 2)) {
+			cudaMalloc(&last_pixel_, sizeof(unsigned char));
+			last_pixel_allocated_ = true;
+		}
+		else {
+			// last_pixel_ = d_img_labels_.data + d_img_labels_.step + sizeof(unsigned int);
+			last_pixel_ = d_img_labels_.data + ((d_img_labels_.rows - 2) * d_img_labels_.step) + (d_img_labels_.cols - 2) * d_img_labels_.elemSize();
+		}
+
 		grid_size_ = dim3((((d_img_.cols + 1) / 2) + BLOCK_COLS - 1) / BLOCK_COLS, (((d_img_.rows + 1) / 2) + BLOCK_ROWS - 1) / BLOCK_ROWS, 1);
 		block_size_ = dim3(BLOCK_COLS, BLOCK_ROWS, 1);
 
-		InitLabeling << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
+		InitLabeling << <grid_size_, block_size_ >> > (d_img_, d_img_labels_, last_pixel_);
+
+		//Mat1i init_blocks;
+		//d_img_labels_.download(init_blocks);
+
+		//cuda::GpuMat d_init_labels = d_img_labels_.clone();
+		//FinalLabeling << <grid_size_, block_size_ >> > (d_img_, d_init_labels);
+		//Mat1i init_labels;
+		//d_init_labels.download(init_labels);
+		//d_init_labels.release();
 
 		Compression << <grid_size_, block_size_ >> > (d_img_labels_);
 
-		//Mat1i init_labels;
-		//d_img_labels_.download(init_labels);
+		//Mat1i compr_blocks;
+		//d_img_labels_.download(compr_blocks);
+
+		//cuda::GpuMat d_compr_labels = d_img_labels_.clone();
+		//FinalLabeling << <grid_size_, block_size_ >> > (d_img_, d_compr_labels);
+		//Mat1i compr_labels;
+		//d_compr_labels.download(compr_labels);
+		//d_compr_labels.release();
 
 		//cuda::GpuMat d_expanded_connections;
 		//d_expanded_connections.create(d_connections_.rows * 3, d_connections_.cols * 3, CV_8UC1);
@@ -315,17 +337,28 @@ public:
 		//d_expanded_connections.download(expanded_connections);
 		//d_expanded_connections.release();
 
+		Merge << <grid_size_, block_size_ >> > (d_img_labels_, last_pixel_);
 
-		Merge << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
+		//Mat1i merge_blocks;
+		//d_img_labels_.download(merge_blocks);		
 
-		//Mat1i block_info_final;
-		//d_img_labels_.download(block_info_final);		
+		//cuda::GpuMat d_merge_labels = d_img_labels_.clone();
+		//FinalLabeling << <grid_size_, block_size_ >> > (d_img_, d_merge_labels);
+		//Mat1i merge_labels;
+		//d_merge_labels.download(merge_labels);
+		//d_merge_labels.release();
 
 		Compression << <grid_size_, block_size_ >> > (d_img_labels_);
+
+		//Mat1i final_blocks;
+		//d_img_labels_.download(final_blocks);
 
 		FinalLabeling << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
 
 		//d_img_labels_.download(img_labels_);
+		if (last_pixel_allocated_) {
+			cudaFree(last_pixel_);
+		}
 		cudaDeviceSynchronize();
 	}
 
@@ -333,9 +366,20 @@ public:
 private:
 	void Alloc() {
 		d_img_labels_.create(d_img_.size(), CV_32SC1);
+		if ((d_img_.rows == 1 || d_img_.cols == 1) && !((d_img_.rows + d_img_.cols) % 2)) {
+			cudaMalloc(&last_pixel_, sizeof(unsigned char));
+			last_pixel_allocated_ = true;
+		}
+		else {
+			// last_pixel_ = d_img_labels_.data + d_img_labels_.step + sizeof(unsigned int);
+			last_pixel_ = d_img_labels_.data + ((d_img_labels_.rows - 2) * d_img_labels_.step) + (d_img_labels_.cols - 2) * d_img_labels_.elemSize();
+		}
 	}
 
 	void Dealloc() {
+		if (last_pixel_allocated_) {
+			cudaFree(last_pixel_);
+		}
 	}
 
 	double MemoryTransferHostToDevice() {
@@ -353,7 +397,7 @@ private:
 		grid_size_ = dim3((((d_img_.cols + 1) / 2) + BLOCK_COLS - 1) / BLOCK_COLS, (((d_img_.rows + 1) / 2) + BLOCK_ROWS - 1) / BLOCK_ROWS, 1);
 		block_size_ = dim3(BLOCK_COLS, BLOCK_ROWS, 1);
 
-		InitLabeling << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
+		InitLabeling << <grid_size_, block_size_ >> > (d_img_, d_img_labels_, last_pixel_);
 
 		Compression << <grid_size_, block_size_ >> > (d_img_labels_);
 
@@ -367,7 +411,7 @@ private:
 		//Mat1i init_labels;
 		//d_block_labels_.download(init_labels);
 
-		Merge << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
+		Merge << <grid_size_, block_size_ >> > (d_img_labels_, last_pixel_);
 
 		//Mat1i block_info_final;
 		//d_img_labels_.download(block_info_final);		
