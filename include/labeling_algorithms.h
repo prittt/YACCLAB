@@ -62,28 +62,14 @@ public:
 
     virtual void FreeLabelingData() { img_labels_.release(); }
     //static void SetImg(const cv::Mat1b& img) { img_ = img.clone(); }
+
+//private:
+//    virtual void Alloc() {}
+//    virtual void Dealloc() {}
 };
 
-//class Labeling3D {
-//public:
-//	static cv::Mat1b img_;
-//	cv::Mat1i img_labels_;
-//	unsigned n_labels_;
-//	PerformanceEvaluator perf_;
-//
-//	Labeling() {}
-//	virtual ~Labeling() = default;
-//
-//	virtual void PerformLabeling() { throw std::runtime_error("'PerformLabeling()' not implemented"); }
-//	virtual void PerformLabelingWithSteps() { throw std::runtime_error("'PerformLabelingWithSteps()' not implemented"); }
-//	virtual void PerformLabelingMem(std::vector<unsigned long>& accesses) { throw std::runtime_error("'PerformLabelingMem(...)' not implemented"); }
-//
-//	virtual void FreeLabelingData() { img_labels_.release(); }
-//	//static void SetImg(const cv::Mat1b& img) { img_ = img.clone(); }
-//};
-
-
 #if defined USE_CUDA
+// This could be a Labeling subclass
 class GpuLabeling : public Labeling {
 public:
 	static cv::cuda::GpuMat d_img_;
@@ -92,7 +78,16 @@ public:
 	GpuLabeling() {}
 	virtual ~GpuLabeling() = default;
 
+	// virtual void PerformLabeling() { throw std::runtime_error("'PerformLabeling()' not implemented"); }
+	// virtual void PerformLabelingWithSteps() { throw std::runtime_error("'PerformLabelingWithSteps()' not implemented"); }
+	// virtual void PerformLabelingMem(std::vector<unsigned long>& accesses) { throw std::runtime_error("'PerformLabelingMem(...)' not implemented"); }
+
 	virtual void FreeLabelingData() { d_img_labels_.release(); img_labels_.release(); }
+	//static void SetImg(const cv::Mat1b& img) { img_ = img.clone(); }
+
+	//private:
+	//    virtual void Alloc() {}
+	//    virtual void Dealloc() {}
 };
 #endif
 
