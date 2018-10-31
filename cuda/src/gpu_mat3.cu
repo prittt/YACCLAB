@@ -29,7 +29,7 @@ void cv::cuda::GpuMat3::create(int _x, int _y, int _z, int _type)
 
 	_type &= Mat::TYPE_MASK;
 
-	if (x == _x && x == _x && type() == _type && data)
+	if (x == _x && y == _y && z == _z && type() == _type && data)
 		return;
 
 	if (data)
@@ -85,7 +85,9 @@ void cv::cuda::GpuMat3::upload(Mat &mat)
 	params.extent = make_cudaExtent(x * elemSize(), y, z);
 	params.kind = cudaMemcpyHostToDevice;
 
-	CV_CUDEV_SAFE_CALL(cudaMemcpy3D(&params));
+    cudaMemcpy3DParms *params_ptr = &params;
+
+	CV_CUDEV_SAFE_CALL(cudaMemcpy3D(params_ptr));
 }
 
 void cv::cuda::GpuMat3::download(Mat &mat) const
