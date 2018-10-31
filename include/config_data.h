@@ -30,6 +30,8 @@
 #define YACCLAB_CONFIG_DATA_H_
 
 #include <opencv2/imgproc.hpp>
+#include <string>
+#include <map>
 
 #include "file_manager.h"
 #include "system_info.h"
@@ -37,180 +39,95 @@
 
 using namespace filesystem;
 
+bool ReadBool(const cv::FileNode& node_list);
+
+struct ModeConfig {
+
+	std::string mode;
+
+	bool perform_correctness;            // Whether to perform correctness tests or not
+	bool perform_average;                // Whether to perform average tests or not
+	bool perform_density;                // Whether to perform density tests or not
+	bool perform_granularity;            // Whether to perform granularity tests or not
+	bool perform_memory;                 // Whether to perform memory tests or not
+	bool perform_average_ws;             // Whether to perform average tests with steps or not
+
+	bool perform_check_8connectivity_std;	// Whether to perform 8-connectivity test on PerformLabeling() functions
+	bool perform_check_8connectivity_ws;	// Whether to perform 8-connectivity test on PerformLabelingWithSteps() functions
+	bool perform_check_8connectivity_mem;	// Whether to perform 8-connectivity test on PerformLabelingMem() functions
+
+	bool average_save_middle_tests;      // If true, results of each average test run will be stored 
+	bool density_save_middle_tests;      // If true, results of each density test run will be stored 
+	bool granularity_save_middle_tests;  // If true, results of each granularity test run will be stored 
+	bool average_ws_save_middle_tests;   // If true, results of each average test with steps run will be stored 
+
+	unsigned average_tests_number;        // Reps of average tests (only the minimum will be considered)
+	unsigned average_ws_tests_number;     // Reps of average tests with steps (only the minimum will be considered)
+	unsigned density_tests_number;        // Reps of density tests (only the minimum will be considered)
+	unsigned granularity_tests_number;    // Reps of density tests (only the minimum will be considered)
+
+	std::vector<std::string> check_datasets;       // List of datasets on which check tests will be performed
+	std::vector<std::string> memory_datasets;      // List of datasets on which memory tests will be perform
+	std::vector<std::string> density_datasets;     // List of datasets on which density tests will be performed
+	std::vector<std::string> granularity_datasets; // List of datasets on which granularity tests will be performed
+	std::vector<std::string> average_datasets;     // Lists of dataset on which average tests will be performed
+	std::vector<std::string> average_ws_datasets;  // Lists of dataset on which average tests whit steps will be performed
+
+	std::vector<std::string> ccl_algorithms;          // Lists of algorithms specified by the user in the config.yaml
+	std::vector<std::string> ccl_existing_algorithms; // Lists of 'ccl_algorithms' actually existing
+
+	std::vector<std::string> ccl_mem_algorithms;        // List of algorithms which actually support memory tests
+	std::vector<std::string> ccl_average_algorithms;    // List of algorithms which actually support average tests
+	std::vector<std::string> ccl_average_ws_algorithms; // List of algorithms which actually support average with steps tests
+
+	path mode_output_path;
+
+	ModeConfig(std::string _mode, const cv::FileNode& fn);
+};
+
+struct GlobalConfig {
+
+	std::string input_txt;						// File of images list
+	std::string gnuplot_script_extension;		// Gnuplot scripts extension
+	std::string system_script_extension;		// System-based scripts extension
+	std::string colors_folder;					// Folder which will store colored images
+	std::string middle_folder;					// Folder which will store middle results
+	std::string latex_file;						// Latex file which will store textual average results
+	std::string latex_memory_file;				// Latex file which will store textual memory results
+	std::string latex_charts;					// Latex file which will store report latex code for charts
+	std::string memory_file;					// File which will store report textual memory results
+
+	std::string average_folder;					// Folder which will store average test results
+	std::string average_ws_folder;				// Folder which will store average test with steps results
+	std::string density_folder;					// Folder which will store density results
+	std::string granularity_folder;				// Folder which will store granularity results
+	std::string memory_folder;					// Folder which will store memory results
+
+	path glob_output_path;						// Path on which results are stored
+	path input_path;							// Path on which input datasets are stored
+
+	std::string yacclab_os;						// Name of the current OS
+
+	// Verranno eliminati o almeno cambiati
+	bool average_color_labels;           // If true, labeled image from average tests will be colored and stored
+	bool density_color_labels;           // If true, labeled image from density tests will be colored and stored
+	bool write_n_labels;                 // If true, the number of components generated by the algorithms will be stored in the output file
+
+	// da decidere dove e in che forma infilare   
+	path latex_path;                      // Path on which latex report will be stored
+
+	GlobalConfig(const cv::FileStorage& fs);
+};
+
 struct ConfigData {
 
-    bool cpu_perform_correctness;            // Whether to perform correctness tests or not
-    bool cpu_perform_average;                // Whether to perform average tests or not
-    bool cpu_perform_density;                // Whether to perform density tests or not
-    bool cpu_perform_granularity;            // Whether to perform granularity tests or not
-    bool cpu_perform_memory;                 // Whether to perform memory tests or not
-    bool cpu_perform_average_ws;             // Whether to perform average tests with steps or not
-		
-    bool cpu_perform_check_8connectivity_std;	// Whether to perform 8-connectivity test on PerformLabeling() functions
-    bool cpu_perform_check_8connectivity_ws;	// Whether to perform 8-connectivity test on PerformLabelingWithSteps() functions
-    bool cpu_perform_check_8connectivity_mem;	// Whether to perform 8-connectivity test on PerformLabelingMem() functions
+	std::vector<ModeConfig> mode_config_vector;
 
-	bool gpu_perform_correctness;            // Whether to perform correctness tests or not
-	bool gpu_perform_average;                // Whether to perform average tests or not
-	bool gpu_perform_density;                // Whether to perform density tests or not
-	bool gpu_perform_granularity;            // Whether to perform granularity tests or not
-	bool gpu_perform_memory;                 // Whether to perform memory tests or not
-	bool gpu_perform_average_ws;             // Whether to perform average tests with steps or not
+	GlobalConfig global_config;
 
-	bool gpu_perform_check_8connectivity_std;	// Whether to perform 8-connectivity test on PerformLabeling() functions
-	bool gpu_perform_check_8connectivity_ws;	// Whether to perform 8-connectivity test on PerformLabelingWithSteps() functions
-	bool gpu_perform_check_8connectivity_mem;	// Whether to perform 8-connectivity test on PerformLabelingMem() functions
+	ConfigData(const cv::FileStorage& fs);
 
-    bool average_color_labels;           // If true, labeled image from average tests will be colored and stored
-    bool density_color_labels;           // If true, labeled image from density tests will be colored and stored
-    bool write_n_labels;                 // If true, the number of components generated by the algorithms will be stored in the output file
-    bool average_save_middle_tests;      // If true, results of each average test run will be stored 
-    bool density_save_middle_tests;      // If true, results of each density test run will be stored 
-    bool granularity_save_middle_tests;  // If true, results of each granularity test run will be stored 
-    bool average_ws_save_middle_tests;   // If true, results of each average test with steps run will be stored 
-
-    unsigned average_tests_number;        // Reps of average tests (only the minimum will be considered)
-    unsigned average_ws_tests_number;     // Reps of average tests with steps (only the minimum will be considered)
-    unsigned density_tests_number;        // Reps of density tests (only the minimum will be considered)
-    unsigned granularity_tests_number;    // Reps of density tests (only the minimum will be considered)
-
-    std::string input_txt;                // File of images list
-    std::string gnuplot_script_extension; // Gnuplot scripts extension
-    std::string system_script_extension;  // System-based scripts extension
-    std::string colors_folder;            // Folder which will store colored images
-    std::string middle_folder;            // Folder which will store middle results
-    std::string latex_file;               // Latex file which will store textual average results
-    std::string latex_memory_file;        // Latex file which will store textual memory results
-    std::string latex_charts;             // Latex file which will store report latex code for charts
-    std::string memory_file;              // File which will store report textual memory results
-    
-    std::string average_folder;           // Folder which will store average test results
-    std::string average_ws_folder;        // Folder which will store average test with steps results
-    std::string density_folder;           // Folder which will store density results
-    std::string granularity_folder;       // Folder which will store granularity results
-    std::string memory_folder;            // Folder which will store memory results
-
-    path output_path;                     // Path on which results are stored
-    path input_path;                      // Path on which input datasets are stored
-    path latex_cpu_path;                      // Path on which latex report will be stored
-    path latex_gpu_path;                      // Path on which latex report will be stored
-
-    std::vector<cv::String> check_datasets;       // List of datasets on which check tests will be performed
-    std::vector<cv::String> memory_datasets;      // List of datasets on which memory tests will be perform
-    std::vector<cv::String> density_datasets;     // List of datasets on which density tests will be performed
-    std::vector<cv::String> granularity_datasets; // List of datasets on which granularity tests will be performed
-    std::vector<cv::String> average_datasets;     // Lists of dataset on which average tests will be performed
-    std::vector<cv::String> average_ws_datasets;  // Lists of dataset on which average tests whit steps will be performed
-
-    std::vector<cv::String> cpu_ccl_algorithms;          // Lists of cpu algorithms specified by the user in the config.yaml
-    std::vector<cv::String> cpu_ccl_existing_algorithms; // Lists of 'cpu_ccl_algorithms' actually existing
-
-	std::vector<cv::String> gpu_ccl_algorithms;          // Lists of gpu algorithms specified by the user in the config.yaml
-	std::vector<cv::String> gpu_ccl_existing_algorithms; // Lists of 'gpu_ccl_algorithms' actually existing
-
-    std::vector<cv::String> cpu_ccl_mem_algorithms;        // List of cpu algorithms which actually support memory tests
-    std::vector<cv::String> cpu_ccl_average_algorithms;    // List of cpu algorithms which actually support average tests
-    std::vector<cv::String> cpu_ccl_average_ws_algorithms; // List of cpu algorithms which actually support average with steps tests
-
-	std::vector<cv::String> gpu_ccl_mem_algorithms;        // List of cpu algorithms which actually support memory tests
-	std::vector<cv::String> gpu_ccl_average_algorithms;    // List of cpu algorithms which actually support average tests
-	std::vector<cv::String> gpu_ccl_average_ws_algorithms; // List of cpu algorithms which actually support average with steps tests
-
-    std::string yacclab_os;             // Name of the current OS
-
-    ConfigData(const cv::FileStorage& fs) {
-        // Flags to customize output format (false by default)
-        cpu_perform_correctness          = ReadBool(fs["perform"]["correctness"]);
-        cpu_perform_average              = ReadBool(fs["perform"]["average"]);
-        cpu_perform_average_ws           = ReadBool(fs["perform"]["average_with_steps"]);
-        cpu_perform_density              = ReadBool(fs["perform"]["density"]);
-        cpu_perform_granularity          = ReadBool(fs["perform"]["granularity"]);
-        cpu_perform_memory               = ReadBool(fs["perform"]["memory"]);
-
-        cpu_perform_check_8connectivity_std = ReadBool(fs["correctness_tests"]["eight_connectivity_standard"]);
-        cpu_perform_check_8connectivity_ws  = ReadBool(fs["correctness_tests"]["eight_connectivity_steps"]);
-        cpu_perform_check_8connectivity_mem = ReadBool(fs["correctness_tests"]["eight_connectivity_memory"]);
-
-		// Gpu equivalent
-		gpu_perform_correctness			= ReadBool(fs["perform"]["correctness"]);
-		gpu_perform_average				= ReadBool(fs["perform"]["average"]);
-		gpu_perform_average_ws			= ReadBool(fs["perform"]["average_with_steps"]);
-		gpu_perform_density				= ReadBool(fs["perform"]["density"]);
-		gpu_perform_granularity			= ReadBool(fs["perform"]["granularity"]);
-		gpu_perform_memory				= ReadBool(fs["perform"]["memory"]);
-
-		gpu_perform_check_8connectivity_std		= ReadBool(fs["correctness_tests"]["eight_connectivity_standard"]);
-		gpu_perform_check_8connectivity_ws		= ReadBool(fs["correctness_tests"]["eight_connectivity_steps"]);
-		gpu_perform_check_8connectivity_mem		= ReadBool(fs["correctness_tests"]["eight_connectivity_memory"]);
-
-        average_color_labels         = ReadBool(fs["color_labels"]["average"]);
-        density_color_labels         = ReadBool(fs["color_labels"]["density"]);
-
-        write_n_labels               = ReadBool(fs["write_n_labels"]);
-
-        average_save_middle_tests    = ReadBool(fs["save_middle_tests"]["average"]);
-        average_ws_save_middle_tests = ReadBool(fs["save_middle_tests"]["average_with_steps"]);
-        density_save_middle_tests    = ReadBool(fs["save_middle_tests"]["density"]);
-        granularity_save_middle_tests= ReadBool(fs["save_middle_tests"]["granularity"]);
-
-        average_tests_number         = static_cast<int>(fs["tests_number"]["average"]);
-        average_ws_tests_number      = static_cast<int>(fs["tests_number"]["average_with_steps"]);
-        density_tests_number         = static_cast<int>(fs["tests_number"]["density"]);
-        granularity_tests_number     = static_cast<int>(fs["tests_number"]["granularity"]);
-
-        input_txt                    = "files.txt";
-        gnuplot_script_extension     = ".gnuplot";
-        system_script_extension      =
-#ifdef YACCLAB_WINDOWS
-            ".bat";
-#elif defined(YACCLAB_LINUX) || defined(YACCLAB_UNIX) || defined(YACCLAB_APPLE)
-            ".sh";
-#endif
-        colors_folder                = "colors";
-        middle_folder                = "middle_results";
-        latex_file                   = "yacclab_results.tex";
-        latex_charts                 = "averageCharts.tex";
-        latex_memory_file            = "memoryAccesses.tex";
-        memory_file                  = "memory_accesses.txt";
-
-        average_folder               = "average_tests";
-        average_ws_folder            = "average_tests_with_steps";
-        density_folder               = "density_tests";
-        granularity_folder           = "granularity";
-        memory_folder                = "memory_tests";
-
-        output_path                  = path(fs["paths"]["output"]) / path(GetDatetimeWithoutSpecialChars());
-        input_path                   = path(fs["paths"]["input"]);
-        latex_cpu_path               = output_path / path("CPU") / path("latex");
-        latex_gpu_path               = output_path / path("GPU") / path("latex");
-
-        density_datasets             = { "classical" };
-        granularity_datasets         = { "granularity" };
-        cv::read(fs["check_datasets"], check_datasets);
-        cv::read(fs["average_datasets"], average_datasets);
-        cv::read(fs["average_datasets_with_steps"], average_ws_datasets);
-        cv::read(fs["memory_datasets"], memory_datasets);
-#if defined USE_CUDA
-        cv::read(fs["cpu_algorithms"], cpu_ccl_algorithms);
-		cv::read(fs["gpu_algorithms"], gpu_ccl_algorithms);
-#else
-		cv::read(fs["algorithms"], cpu_ccl_algorithms);
-#endif
-
-        yacclab_os                   = static_cast<std::string>(fs["os"]);
-    }
-
-    bool ReadBool(const cv::FileNode& node_list)
-    {
-        bool b = false;
-        if (!node_list.empty()) {
-            //The entry is found
-            std::string s((std::string)node_list);
-            std::transform(s.begin(), s.end(), s.begin(), ::tolower);
-            std::istringstream(s) >> std::boolalpha >> b;
-        }
-        return b;
-    }
 };
+
 
 #endif // !YACCLAB_CONFIG_DATA_H_

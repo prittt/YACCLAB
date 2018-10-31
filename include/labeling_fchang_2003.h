@@ -37,7 +37,7 @@
 #include "labels_solver.h"
 #include "memory_tester.h"
 
-class CT : public Labeling {
+class CT : public Labeling2D<CONN_8> {
 public:
     CT() {}
 
@@ -182,12 +182,12 @@ private:
             }
 
             if (crd_next.y >= 0 && crd_next.x >= 0 && crd_next.y < img_.rows && crd_next.x < img_.cols) {
-                if (img_(crd_next.y, crd_next.x) == byF) {
+                if (img_.data[crd_next.y * img_.step[0] + crd_next.x] == byF) {
                     i_prev = (i_next + 4) % 8;
                     return crd_next;
                 }
                 else
-                    img_labels_(crd_next.y, crd_next.x) = -1;
+					img_.data[crd_next.y * img_.step[0] + crd_next.x] = -1;
             }
 
             i_next = (i_next + 1) % 8;
@@ -200,7 +200,7 @@ private:
         cv::Point2i s(x, y), T, crd_next_point, crd_cur_point;
 
         // The current point is labeled 
-        img_labels_(s.y, s.x) = i_label;
+		img_.data[s.y * img_.step[0] + s.x] = i_label;
 
         bool b_isolated(false);
         int i_previous_contour_point;
@@ -216,7 +216,7 @@ private:
 
         do {
             crd_cur_point = crd_next_point;
-            img_labels_(crd_cur_point.y, crd_cur_point.x) = i_label;
+            img_.data[crd_cur_point.y * img_.step[0] + crd_cur_point.x] = i_label;
             crd_next_point = Tracer(crd_cur_point, i_previous_contour_point, b_isolated);
         } while (!(crd_cur_point == s && crd_next_point == T));
     }

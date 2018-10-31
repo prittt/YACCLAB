@@ -46,6 +46,7 @@ namespace cv
 		{
 			__CV_CUDA_HOST_DEVICE__ PtrStep3() : stepy(0), stepz(0) {}
 			__CV_CUDA_HOST_DEVICE__ PtrStep3(T* data_, size_t stepy_, size_t stepz_) : DevPtr<T>(data_), stepz(stepz_), stepy(stepy_) {}
+			//__CV_CUDA_HOST_DEVICE__ PtrStep3(GpuMat3 &gpu_mat) : DevPtr<T>(reinterpret_cast<T*>(gpu_mat.data)), stepz(gpu_mat.stepz), stepy(gpu_mat.stepy) {}
 
 			size_t stepy;
 			size_t stepz;

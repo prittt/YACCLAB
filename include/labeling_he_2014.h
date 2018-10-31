@@ -38,7 +38,7 @@
 #include "memory_tester.h"
 
 template <typename LabelsSolver>
-class CTB : public Labeling {
+class CTB : public Labeling2D<CONN_8> {
 public:
     CTB() {}
 

@@ -37,7 +37,7 @@
 #include "labels_solver.h"
 #include "memory_tester.h"
 
-class DiStefano : public Labeling {
+class DiStefano : public Labeling2D<CONN_8> {
 public:
     DiStefano() {}
 

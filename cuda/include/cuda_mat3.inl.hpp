@@ -28,17 +28,17 @@ namespace cv {
 		}
 
 
-		template <class T> inline
-			GpuMat3::operator PtrStepSz3<T>() const
-		{
-			return PtrStepSz3<T>(x, y, z, (T*)data, stepy, stepz);
-		}
+		//template <class T> inline
+		//	GpuMat3::operator PtrStepSz3<T>() const
+		//{
+		//	return PtrStepSz3<T>(x, y, z, (T*)data, stepy, stepz);
+		//}
 
-		template <class T> inline
-			GpuMat3::operator PtrStep3<T>() const
-		{
-			return PtrStep<T>((T*)data, stepy, stepz);
-		}
+		//template <class T> inline
+		//	GpuMat3::operator PtrStep3<T>() const
+		//{
+		//	return PtrStep3<T>((T*)data, stepy, stepz);
+		//}
 
 	}
 }

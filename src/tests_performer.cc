@@ -1,63 +1,249 @@
-// Copyright(c) 2016 - 2018 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met :
-//
-// *Redistributions of source code must retain the above copyright notice, this
-// list of conditions and the following disclaimer.
-//
-// * Redistributions in binary form must reproduce the above copyright notice,
-// this list of conditions and the following disclaimer in the documentation
-// and / or other materials provided with the distribution.
-//
-// * Neither the name of YACCLAB nor the names of its
-// contributors may be used to endorse or promote products derived from
-// this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED.IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-// DAMAGES(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-// OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#include "tests_performer.h"
 
-#include "yacclab_gpu_tests.h"
-
-#include <algorithm>
-#include <fstream>
-#include <functional>
-#include <iostream>
-#include <set>
 #include <cstdint>
 
-#include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
 
-#include "labeling_algorithms.h"
-#include "latex_generator.h"
 #include "memory_tester.h"
-#include "utilities.h"
 
-using namespace std;
-using namespace cv;
+
+void TestsPerformer::InitialOperations() {
+
+    ob_ = OutputBox(mode_cfg_.mode + " - Performing initial operations");
+
+    // Check if all the specified algorithms exist
+    CheckAlgorithmsExistence();
+    ob_.Cmessage("Checked algorithm existance");
+
+    // Check if labeling methods of the specified algorithms exist
+    Labeling *first_algo = LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_existing_algorithms[0]);
+    ob_.Cmessage("Got first labeling algorithm");
+
+    first_algo->GetInput()->Create();
+    ob_.Cmessage("Created input");
+
+    CheckMethodsExistence();
+    ob_.Cmessage("Checked methods existance");
+
+    // Check datasets existence
+    CheckDatasets();
+
+    CreateDirectories();
+
+    ob_.CloseBox();
+}
+
+void TestsPerformer::CheckAlgorithmsExistence(){
+	for (auto& algo_name : mode_cfg_.ccl_algorithms) {
+		if (!LabelingMapSingleton::Exists(algo_name)) {
+			ob_.Cwarning("Unable to find the algorithm '" + algo_name + "'");
+		}
+		else {
+			mode_cfg_.ccl_existing_algorithms.push_back(algo_name);
+		}
+	}
+}
+
+void TestsPerformer::CheckMethodsExistence() {
+
+	for (const auto& algo_name : mode_cfg_.ccl_existing_algorithms) {
+		const auto& algorithm = LabelingMapSingleton::GetLabeling(algo_name);
+		if (mode_cfg_.perform_average || mode_cfg_.perform_density || mode_cfg_.perform_granularity || (mode_cfg_.perform_correctness && mode_cfg_.perform_check_8connectivity_std)) {
+			try {
+				algorithm->PerformLabeling();
+				mode_cfg_.ccl_average_algorithms.push_back(algo_name);
+			}
+			catch (const std::runtime_error& e) {
+				ob_.Cwarning(algo_name + ": " + e.what());
+			}
+		}
+		if (mode_cfg_.perform_average_ws || (mode_cfg_.perform_correctness && mode_cfg_.perform_check_8connectivity_ws)) {
+			try {
+				algorithm->PerformLabelingWithSteps();
+				mode_cfg_.ccl_average_ws_algorithms.push_back(algo_name);
+			}
+			catch (const std::runtime_error& e) {
+				ob_.Cwarning(algo_name + ": " + e.what());
+			}
+		}
+		if (mode_cfg_.perform_memory || (mode_cfg_.perform_correctness && mode_cfg_.perform_check_8connectivity_mem)) {
+			try {
+				std::vector<unsigned long int> temp;
+				algorithm->PerformLabelingMem(temp);
+				mode_cfg_.ccl_mem_algorithms.push_back(algo_name);
+			}
+			catch (const std::runtime_error& e) {
+				ob_.Cwarning(algo_name + ": " + e.what());
+			}
+		}
+	}
+
+	if ((mode_cfg_.perform_average || (mode_cfg_.perform_correctness && mode_cfg_.perform_check_8connectivity_std)) && mode_cfg_.ccl_average_algorithms.size() == 0) {
+		ob_.Cwarning("There are no 'algorithms' with valid 'PerformLabeling()' method, related tests will be skipped");
+		mode_cfg_.perform_average = false;
+		mode_cfg_.perform_check_8connectivity_std = false;
+	}
+
+	if ((mode_cfg_.perform_average_ws || (mode_cfg_.perform_correctness && mode_cfg_.perform_check_8connectivity_ws)) && mode_cfg_.ccl_average_ws_algorithms.size() == 0) {
+		ob_.Cwarning("There are no 'algorithms' with valid 'PerformLabelingWithSteps()' method, related tests will be skipped");
+		mode_cfg_.perform_average_ws = false;
+		mode_cfg_.perform_check_8connectivity_ws = false;
+	}
+
+	if ((mode_cfg_.perform_memory || (mode_cfg_.perform_correctness && mode_cfg_.perform_check_8connectivity_mem)) && mode_cfg_.ccl_mem_algorithms.size() == 0) {
+		ob_.Cwarning("There are no 'algorithms' with valid 'PerformLabelingMem()' method, related tests will be skipped");
+		mode_cfg_.perform_memory = false;
+		mode_cfg_.perform_check_8connectivity_mem = false;
+	}
+
+	if (mode_cfg_.perform_average && (mode_cfg_.average_tests_number < 1 || mode_cfg_.average_tests_number > 999)) {
+		ob_.Cwarning("'average test' repetitions cannot be less than 1 or more than 999, skipped");
+		mode_cfg_.perform_average = false;
+	}
+
+	if (mode_cfg_.perform_density && (mode_cfg_.density_tests_number < 1 || mode_cfg_.density_tests_number > 999)) {
+		ob_.Cwarning("'density test' repetitions cannot be less than 1 or more than 999, skipped");
+		mode_cfg_.perform_density = false;
+	}
+
+	if (mode_cfg_.perform_average_ws && (mode_cfg_.average_ws_tests_number < 1 || mode_cfg_.average_ws_tests_number > 999)) {
+		ob_.Cwarning("'average with steps test' repetitions cannot be less than 1 or more than 999, skipped");
+		mode_cfg_.perform_average_ws = false;
+	}
+
+	if ((mode_cfg_.perform_correctness) && mode_cfg_.check_datasets.size() == 0) {
+		ob_.Cwarning("There are no datasets specified for 'correctness test', skipped");
+		mode_cfg_.perform_correctness = false;
+	}
+
+	if ((mode_cfg_.perform_average) && mode_cfg_.average_datasets.size() == 0) {
+		ob_.Cwarning("There are no datasets specified for 'average test', skipped");
+		mode_cfg_.perform_average = false;
+	}
+
+	if ((mode_cfg_.perform_average_ws) && mode_cfg_.average_ws_datasets.size() == 0) {
+		ob_.Cwarning("There are no datasets specified for 'average with steps test', skipped");
+		mode_cfg_.perform_average_ws = false;
+	}
+
+	if ((mode_cfg_.perform_memory) && mode_cfg_.memory_datasets.size() == 0) {
+		ob_.Cwarning("There are no datasets specified for 'memory test', skipped");
+		mode_cfg_.perform_memory = false;
+	}
+
+	if (!mode_cfg_.perform_average && !mode_cfg_.perform_correctness &&
+		!mode_cfg_.perform_density && !mode_cfg_.perform_memory &&
+		!mode_cfg_.perform_average_ws && !mode_cfg_.perform_granularity) {
+		ob_.Cwarning("There are no tests to perform");
+	}
+}
+
+class CheckDatasetsExistence {
+
+private:
+	const path &input_path_;
+	const std::string &input_txt_;
+	OutputBox &ob_;
+	std::error_code& ec_;
+
+public:
+	CheckDatasetsExistence(const path &input_path, const std::string &input_txt, OutputBox &ob, std::error_code& ec) :
+		input_path_(input_path), input_txt_(input_txt), ob_(ob), ec_(ec) {}
+
+	bool operator()(const std::vector<std::string>& dataset, bool print_message) {
+		// Check if all the datasets' files.txt exist
+		bool exists_one_dataset = false;
+		for (auto& x : dataset) {
+			path p = input_path_ / path(x) / path(input_txt_);
+			if (!exists(p, ec_)) {
+				if (print_message) {
+					ob_.Cwarning("There is no dataset '" + x + "' (no files.txt available), skipped");
+				}
+			}
+			else {
+				exists_one_dataset = true;
+			}
+		}
+		return exists_one_dataset;
+	}
+};
+void TestsPerformer::CheckDatasets() {
+
+	std::vector<std::string> ds;
+	if (mode_cfg_.perform_correctness) {
+		ds.insert(ds.end(), mode_cfg_.check_datasets.begin(), mode_cfg_.check_datasets.end());
+	}
+	if (mode_cfg_.perform_memory) {
+		ds.insert(ds.end(), mode_cfg_.memory_datasets.begin(), mode_cfg_.memory_datasets.end());
+	}
+	if (mode_cfg_.perform_average) {
+		ds.insert(ds.end(), mode_cfg_.average_datasets.begin(), mode_cfg_.average_datasets.end());
+	}
+	if (mode_cfg_.perform_average) {
+		ds.insert(ds.end(), mode_cfg_.average_ws_datasets.begin(), mode_cfg_.average_ws_datasets.end());
+	}
+	std::sort(ds.begin(), ds.end());
+	ds.erase(unique(ds.begin(), ds.end()), ds.end());
+	CheckDatasetsExistence check_datasets_existence = CheckDatasetsExistence(glob_cfg_.input_path, glob_cfg_.input_txt, ob_, ec_); // To check single dataset
+
+	if (mode_cfg_.perform_correctness) {
+		if (!check_datasets_existence(mode_cfg_.check_datasets, false)) {
+			ob_.Cwarning("There are no valid datasets for 'correctness test', skipped");
+			mode_cfg_.perform_correctness = false;
+		}
+	}
+
+	if (mode_cfg_.perform_average) {
+		if (!check_datasets_existence(mode_cfg_.average_datasets, false)) {
+			ob_.Cwarning("There are no valid datasets for 'average test', skipped");
+			mode_cfg_.perform_average = false;
+		}
+	}
+
+	if (mode_cfg_.perform_average_ws) {
+		if (!check_datasets_existence(mode_cfg_.average_ws_datasets, false)) {
+			ob_.Cwarning("There are no valid datasets for 'average with steps test', skipped");
+			mode_cfg_.perform_average_ws = false;
+		}
+	}
+
+	if (mode_cfg_.perform_memory) {
+		if (!check_datasets_existence(mode_cfg_.memory_datasets, false)) {
+			ob_.Cwarning("There are no valid datasets for 'memory test', skipped");
+			mode_cfg_.perform_memory = false;
+		}
+	}
+
+}
+
+void TestsPerformer::CreateDirectories() {
+
+	if (mode_cfg_.perform_average || mode_cfg_.perform_average_ws || mode_cfg_.perform_density || mode_cfg_.perform_memory || mode_cfg_.perform_granularity) {
+		// Set and create current output directory
+		if (!create_directories(output_path, ec_)) {
+			ob_.Cerror("Unable to create output directory '" + output_path.string() + "' - " + ec_.message());
+		}
+
+		// Create the directory for latex reports
+		if (!create_directories(output_path / glob_cfg_.latex_path, ec_)) {
+			ob_.Cerror("Unable to create output directory '" + (output_path / glob_cfg_.latex_path).string() + "' - " + ec_.message());
+		}
+	}
+
+}
 
 // Load a list of image names from a specified file (files_path) and store them into a vector of
 // pairs (filenames). Each pairs contains the name of the file (first) and a bool (second)
 // representing file state.
-bool YacclabGpuTests::LoadFileList(vector<pair<string, bool>>& filenames, const path& files_path)
-{
+bool TestsPerformer::LoadFileList(std::vector<std::pair<std::string, bool>>& filenames, const path& files_path) {
+
 	// Open files_path (files.txt)
-	ifstream is(files_path.string());
+	std::ifstream is(files_path.string());
 	if (!is.is_open()) {
 		return false;
 	}
 
-	string cur_filename;
+	std::string cur_filename;
 	while (getline(is, cur_filename)) {
 		// To delete possible carriage return in the file name
 		// (especially designed for windows file newline format)
@@ -71,11 +257,11 @@ bool YacclabGpuTests::LoadFileList(vector<pair<string, bool>>& filenames, const 
 
 // Check if all the files in a list of pair (filename, state) exists and set the state of every file
 // opportunely. The function returns true if all the files exist, false otherwise.
-bool YacclabGpuTests::CheckFileList(const path& base_path, vector<pair<string, bool>>& filenames)
+bool TestsPerformer::CheckFileList(const path& base_path, std::vector<std::pair<std::string, bool>>& filenames)
 {
 	bool ret = true;
 	for (size_t i = 0; i < filenames.size(); ++i) {
-		error_code ec;
+		std::error_code ec;
 		filenames[i].second = filesystem::exists(base_path / path(filenames[i].first), ec);
 		if (!filenames[i].second) {
 			ret = false;
@@ -85,9 +271,9 @@ bool YacclabGpuTests::CheckFileList(const path& base_path, vector<pair<string, b
 }
 
 // This function take a Mat1d of results and save it in the  specified output-stream
-bool YacclabGpuTests::SaveBroadOutputResults(map<String, Mat1d>& results, const string& o_filename, const Mat1i& labels, const vector<pair<string, bool>>& filenames, const std::vector<cv::String>& ccl_algorithms)
-{
-	ofstream os(o_filename);
+bool TestsPerformer::SaveBroadOutputResults(std::map<std::string, cv::Mat1d>& results, const std::string& o_filename, const cv::Mat1i& labels, 
+	const std::vector<std::pair<std::string, bool>>& filenames, const std::vector<std::string>& ccl_algorithms) {
+	std::ofstream os(o_filename);
 	if (!os.is_open()) {
 		return false;
 	}
@@ -97,17 +283,16 @@ bool YacclabGpuTests::SaveBroadOutputResults(map<String, Mat1d>& results, const 
 	for (const auto& algo_name : ccl_algorithms) {
 
 		// Calculate the max of the columns to find unused steps
-		Mat1d results_reduced(1, results.at(algo_name).cols);
+		cv::Mat1d results_reduced(1, results.at(algo_name).cols);
 		cv::reduce(results.at(algo_name), results_reduced, 0, CV_REDUCE_MAX);
 
 		for (int step_number = 0; step_number != StepType::ST_SIZE; ++step_number) {
 			StepType step = static_cast<StepType>(step_number);
 			double column_value(results_reduced(0, step_number));
-			if (column_value != numeric_limits<double>::max()) {
+			if (column_value != std::numeric_limits<double>::max()) {
 				os << algo_name + "_" << Step(step) << '\t';
 			}
 		}
-		cfg_.write_n_labels ? os << algo_name + "_n_labels" << '\t' : os << "";
 	}
 	os << '\n';
 
@@ -117,7 +302,7 @@ bool YacclabGpuTests::SaveBroadOutputResults(map<String, Mat1d>& results, const 
 			unsigned i = 0;
 			for (const auto& algo_name : ccl_algorithms) {
 				for (int step_number = 0; step_number != StepType::ST_SIZE; ++step_number) {
-					if (results.at(algo_name)(files, step_number) != numeric_limits<double>::max()) {
+					if (results.at(algo_name)(files, step_number) != std::numeric_limits<double>::max()) {
 						os << results.at(algo_name)(files, step_number) << '\t';
 					}
 					else {
@@ -125,7 +310,6 @@ bool YacclabGpuTests::SaveBroadOutputResults(map<String, Mat1d>& results, const 
 						//os << 0 << '\t';
 					}
 				}
-				cfg_.write_n_labels ? os << labels(files, i) << '\t' : os << "";
 				++i;
 			}
 			os << '\n';
@@ -135,9 +319,9 @@ bool YacclabGpuTests::SaveBroadOutputResults(map<String, Mat1d>& results, const 
 	return true;
 }
 
-bool YacclabGpuTests::SaveBroadOutputResults(const Mat1d& results, const string& o_filename, const Mat1i& labels, const vector<pair<string, bool>>& filenames, const std::vector<cv::String>& ccl_algorithms)
-{
-	ofstream os(o_filename);
+bool TestsPerformer::SaveBroadOutputResults(const cv::Mat1d& results, const std::string& o_filename, const cv::Mat1i& labels, 
+	const std::vector<std::pair<std::string, bool>>& filenames, const std::vector<std::string>& ccl_algorithms) {
+	std::ofstream os(o_filename);
 	if (!os.is_open()) {
 		return false;
 	}
@@ -146,7 +330,6 @@ bool YacclabGpuTests::SaveBroadOutputResults(const Mat1d& results, const string&
 	os << "#";
 	for (const auto& algo_name : ccl_algorithms) {
 		os << '\t' << algo_name;
-		cfg_.write_n_labels ? os << '\t' << "n_label" : os << "";
 	}
 	os << '\n';
 	// To set heading file format
@@ -156,7 +339,7 @@ bool YacclabGpuTests::SaveBroadOutputResults(const Mat1d& results, const string&
 			os << filenames[files].first << '\t';
 			for (unsigned i = 0; i < ccl_algorithms.size(); ++i) {
 				os << results(files, i) << '\t';
-				cfg_.write_n_labels ? os << labels(files, i) << '\t' : os << "";
+
 			}
 			os << '\n';
 		}
@@ -165,9 +348,8 @@ bool YacclabGpuTests::SaveBroadOutputResults(const Mat1d& results, const string&
 }
 
 // To calculate average times and write it on the specified file
-void YacclabGpuTests::SaveAverageWithStepsResults(const string& os_name, const String& dataset_name, bool rounded)
-{
-	ofstream os(os_name);
+void TestsPerformer::SaveAverageWithStepsResults(const std::string& os_name, const std::string& dataset_name, bool rounded) {
+	std::ofstream os(os_name);
 	if (!os.is_open()) {
 		dmux::cout << "Unable to save average results" << '\n';
 		return;
@@ -184,7 +366,7 @@ void YacclabGpuTests::SaveAverageWithStepsResults(const string& os_name, const S
 	const auto& results = average_ws_results_.at(dataset_name);
 
 	for (int r = 0; r < results.rows; ++r) {
-		const auto& algo_name = cfg_.gpu_ccl_average_ws_algorithms[r];
+		const auto& algo_name = mode_cfg_.ccl_average_ws_algorithms[r];
 		double cumulative_sum{ 0.0 };
 
 		// Gnuplot requires double-escaped name when underscores are encountered
@@ -197,7 +379,7 @@ void YacclabGpuTests::SaveAverageWithStepsResults(const string& os_name, const S
 		//    }
 		//    os << algo_name_double_escaped << '\t';
 		//}
-		os << DoubleEscapeUnderscore(string(algo_name)) << '\t';
+		os << DoubleEscapeUnderscore(std::string(algo_name)) << '\t';
 
 		for (int c = 0; c < results.cols; ++c) {
 			if (rounded) {
@@ -221,30 +403,30 @@ void YacclabGpuTests::SaveAverageWithStepsResults(const string& os_name, const S
 	os.close();
 }
 
-void YacclabGpuTests::AverageTest()
-{
-	OutputBox ob("GPU Average Test");
+void TestsPerformer::AverageTest() {
+	OutputBox ob(mode_cfg_.mode + " Average Test");
 
-	string complete_results_suffix = "_results.txt",
+	std::string complete_results_suffix = "_results.txt",
 		middle_results_suffix = "_run",
 		average_results_suffix = "_average.txt";
 
 	// Initialize results container
-	average_results_ = cv::Mat1d(static_cast<int>(cfg_.average_datasets.size()), static_cast<int>(cfg_.gpu_ccl_average_algorithms.size()), std::numeric_limits<double>::max());
+	average_results_ = cv::Mat1d(static_cast<unsigned>(mode_cfg_.average_datasets.size()), static_cast<unsigned>(mode_cfg_.ccl_average_algorithms.size()), std::numeric_limits<double>::max());
 
-	for (unsigned d = 0; d < cfg_.average_datasets.size(); ++d) { // For every dataset in the average list
+	for (unsigned d = 0; d < mode_cfg_.average_datasets.size(); ++d) { // For every dataset in the average list
 
-		String dataset_name(cfg_.average_datasets[d]),
+		std::string dataset_name(mode_cfg_.average_datasets[d]),
 			output_average_results = dataset_name + average_results_suffix,
 			output_graph = dataset_name + kTerminalExtension,
 			output_graph_bw = dataset_name + "_bw" + kTerminalExtension;
 
-		path dataset_path(cfg_.input_path / path(dataset_name)),
-			is_path = dataset_path / path(cfg_.input_txt), // files.txt path
-			current_output_path(cfg_.output_path / path("GPU") /  path(cfg_.average_folder) / path(dataset_name)),
+		path dataset_path(glob_cfg_.input_path / path(dataset_name)),
+			is_path = dataset_path / path(glob_cfg_.input_txt), // files.txt path
+			current_output_path(glob_cfg_.glob_output_path / mode_cfg_.mode_output_path / path(glob_cfg_.average_folder) / path(dataset_name)),
+            current_latex_path(glob_cfg_.glob_output_path / mode_cfg_.mode_output_path / glob_cfg_.latex_path),
 			output_broad_path = current_output_path / path(dataset_name + complete_results_suffix),
-			output_colored_images_path = current_output_path / path(cfg_.colors_folder),
-			output_middle_results_path = current_output_path / path(cfg_.middle_folder),
+			output_colored_images_path = current_output_path / path(glob_cfg_.colors_folder),
+			output_middle_results_path = current_output_path / path(glob_cfg_.middle_folder),
 			average_os_path = current_output_path / path(output_average_results);
 
 		if (!create_directories(current_output_path)) {
@@ -253,93 +435,81 @@ void YacclabGpuTests::AverageTest()
 		}
 
 		// TODO: remove color labels from this test
-		if (cfg_.average_color_labels) {
+		if (glob_cfg_.average_color_labels) {
 			if (!create_directories(output_colored_images_path)) {
 				ob.Cwarning("Unable to find/create the output path '" + output_colored_images_path.string() + "', colored images won't be saved");
 			}
 		}
 
 		// For AVERAGE
-		ofstream average_os(average_os_path.string());
+		std::ofstream average_os(average_os_path.string());
 		if (!average_os.is_open()) {
 			ob.Cwarning("Unable to open '" + average_os_path.string() + "', skipped", dataset_name);
 			continue;
 		}
 
 		// To save list of filename on which CLLAlgorithms must be tested
-		vector<pair<string, bool>> filenames;  // first: filename, second: state of filename (find or not)
+		std::vector<std::pair<std::string, bool>> filenames;  // first: filename, second: state of filename (find or not)
 		if (!LoadFileList(filenames, is_path)) {
 			ob.Cwarning("Unable to open '" + is_path.string() + "', skipped", dataset_name);
 			continue;
 		}
 
 		// Number of files
-		int filenames_size = static_cast<int>(filenames.size());
+		unsigned filenames_size = static_cast<unsigned>(filenames.size());
 
 		// To save middle/min and average results;
-		Mat1d min_res(filenames_size, static_cast<int>(cfg_.gpu_ccl_average_algorithms.size()), numeric_limits<double>::max());
-		Mat1d current_res(filenames_size, static_cast<int>(cfg_.gpu_ccl_average_algorithms.size()), numeric_limits<double>::max());
-		Mat1i labels(filenames_size, static_cast<int>(cfg_.gpu_ccl_average_algorithms.size()), 0);
-		vector<pair<double, uint16_t>> supp_average(cfg_.gpu_ccl_average_algorithms.size(), make_pair(0.0, 0));
+		cv::Mat1d min_res(filenames_size, static_cast<unsigned>(mode_cfg_.ccl_average_algorithms.size()), std::numeric_limits<double>::max());
+		cv::Mat1d current_res(filenames_size, static_cast<unsigned>(mode_cfg_.ccl_average_algorithms.size()), std::numeric_limits<double>::max());
+		cv::Mat1i labels(filenames_size, static_cast<unsigned>(mode_cfg_.ccl_average_algorithms.size()), 0);
+		std::vector<std::pair<double, uint16_t>> supp_average(mode_cfg_.ccl_average_algorithms.size(), std::make_pair(0.0, 0));
 
 		// Start output message box
-		ob.StartRepeatedBox(dataset_name, filenames_size, cfg_.average_tests_number);
+		ob.StartRepeatedBox(dataset_name, filenames_size, mode_cfg_.average_tests_number);
 
-		if (cfg_.average_ws_save_middle_tests) {
+		if (mode_cfg_.average_ws_save_middle_tests) {
 			if (!create_directories(output_middle_results_path)) {
 				ob.Cwarning("Unable to find/create the output path '" + output_middle_results_path.string() + "', middle results won't be saved");
 			}
 		}
 
-		map<String, unsigned> algo_pos;
-		for (unsigned i = 0; i < static_cast<int>(cfg_.gpu_ccl_average_algorithms.size()); ++i)
-			algo_pos[cfg_.gpu_ccl_average_algorithms[i]] = i;
-		auto shuffled_ccl_average_algorithms = cfg_.gpu_ccl_average_algorithms;
+		std::map<std::string, size_t> algo_pos;
+		for (size_t i = 0; i < mode_cfg_.ccl_average_algorithms.size(); ++i)
+			algo_pos[mode_cfg_.ccl_average_algorithms[i]] = i;
+		auto shuffled_ccl_average_algorithms = mode_cfg_.ccl_average_algorithms;
 
 		// Test is executed n_test times
-		for (unsigned test = 0; test < cfg_.average_tests_number; ++test) {
+		for (unsigned test = 0; test < mode_cfg_.average_tests_number; ++test) {
 			// For every file in list
 			for (unsigned file = 0; file < filenames.size(); ++file) {
 				// Display output message box
 				ob.UpdateRepeatedBox(file);
 
-				string filename = filenames[file].first;
+				std::string filename = filenames[file].first;
 				path filename_path = dataset_path / path(filename);
 
 				// Read and load image
-				if (!GetBinaryImage(filename_path, Labeling::img_)) {
-					ob.Cwarning("Unable to open '" + filename + "', skipped");
+				if (!LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_average_algorithms[0])->GetInput()->ReadBinary(filename_path.string())) {
+					ob.Cmessage("Unable to open '" + filename + "', skipped");
 					continue;
 				}
-
-				// Load input image into device memory
-				GpuLabeling::d_img_.upload(Labeling::img_);
 
 				random_shuffle(begin(shuffled_ccl_average_algorithms), end(shuffled_ccl_average_algorithms));
 
 				// For all the Algorithms in the array
 				for (const auto& algo_name : shuffled_ccl_average_algorithms) {
 					Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
-					// unsigned n_labels;
-					unsigned i = algo_pos[algo_name];
+					unsigned i = static_cast<unsigned>(algo_pos[algo_name]);
 
 					try {
 						// Perform current algorithm on current image and save result.
 						algorithm->perf_.start();
 						algorithm->PerformLabeling();
 						algorithm->perf_.stop();
-
-						// This variable need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
-						// n_labels = algorithm->n_labels_;
 					}
-					catch (const runtime_error& /*e*/) {
-						//ob.Cwarning(algo_name + ": " + e.what()); // Already checked
-						continue;
-					}
-
-					// Save number of labels (we reasonably supposed that labels's number is the same on every #test so only the first time we save it)
-					if (test == 0) {
-						labels(file, i) = 0;		// TODO: remove number of labels from report OR decide to count labels in Gpu algorithms
+					catch (const std::exception& e) {
+						algorithm->FreeLabelingData();
+						ob.Cerror("Something wrong with " + algo_name + ": " + e.what()); // You should check your algorithms' implementation before performing YACCLAB tests  
 					}
 
 					// Save time results
@@ -348,42 +518,38 @@ void YacclabGpuTests::AverageTest()
 						min_res(file, i) = algorithm->perf_.last();
 					}
 
-					// Don't want to save coloured image in order to save time
-					// TODO: Ask for the importance of this feature
+                    YacclabTensorOutput* img_out = algorithm->GetOutput();
 					// If 'at_colorLabels' is enabled only the first time (test == 0) the output is saved
-					//if (cfg_.average_color_labels && test == 0) {
-					//	// Remove gnuplot escape character from output filename
-					//	Mat3b imgColors;
-
-					//	NormalizeLabels(algorithm->img_labels_);
-					//	ColorLabels(algorithm->img_labels_, imgColors);
-					//	String colored_image = (output_colored_images_path / path(filename + "_" + algo_name + ".png")).string();
-					//	imwrite(colored_image, imgColors);
-					//}
-
+					if (glob_cfg_.average_color_labels && test == 0) {
+						// Remove gnuplot escape character from output filename
+                        img_out->PrepareForCheck();
+                        img_out->NormalizeLabels();
+						std::string colored_image = (output_colored_images_path / path(filename + "_" + algo_name + ".png")).string();
+                        img_out->WriteColored(colored_image);
+					}
 					algorithm->FreeLabelingData();
 				} // END ALGORITHMS FOR
 			} // END FILES FOR.
 			ob.StopRepeatedBox(false);
 
 			// Save middle results if necessary (flag 'average_save_middle_tests' enabled)
-			if (cfg_.average_save_middle_tests) {
-				string output_middle_results_file = (output_middle_results_path / path(dataset_name + middle_results_suffix + "_" + to_string(test) + ".txt")).string();
-				if (!SaveBroadOutputResults(current_res, output_middle_results_file, labels, filenames, cfg_.gpu_ccl_average_algorithms)) {
+			if (mode_cfg_.average_save_middle_tests) {
+				std::string output_middle_results_file = (output_middle_results_path / path(dataset_name + middle_results_suffix + "_" + std::to_string(test) + ".txt")).string();
+				if (!SaveBroadOutputResults(current_res, output_middle_results_file, labels, filenames, mode_cfg_.ccl_average_algorithms)) {
 					ob.Cwarning("Unable to save middle results for 'average test'");
 				}
 			}
 		} // END TEST FOR
 
-		  // To write in a file min results
-		if (!SaveBroadOutputResults(min_res, output_broad_path.string(), labels, filenames, cfg_.gpu_ccl_average_algorithms)) {
+		// To write in a file min results
+		if (!SaveBroadOutputResults(min_res, output_broad_path.string(), labels, filenames, mode_cfg_.ccl_average_algorithms)) {
 			ob.Cwarning("Unable to save min results for 'average test'");
 		}
 
 		// To calculate average times and write it on the specified file
 		for (int r = 0; r < min_res.rows; ++r) {
 			for (int c = 0; c < min_res.cols; ++c) {
-				if (min_res(r, c) != numeric_limits<double>::max()) {
+				if (min_res(r, c) != std::numeric_limits<double>::max()) {
 					supp_average[c].first += min_res(r, c);
 					supp_average[c].second++;
 				}
@@ -391,13 +557,13 @@ void YacclabGpuTests::AverageTest()
 		}
 
 		average_os << "#Algorithm" << '\t' << "Average" << '\t' << "Round Average for Graphs" << '\n';
-		for (unsigned i = 0; i < cfg_.gpu_ccl_average_algorithms.size(); ++i) {
+		for (unsigned i = 0; i < mode_cfg_.ccl_average_algorithms.size(); ++i) {
 			// For all the Algorithms in the array
-			const auto& algo_name = cfg_.gpu_ccl_average_algorithms[i];
+			const auto& algo_name = mode_cfg_.ccl_average_algorithms[i];
 
 			// Gnuplot requires double-escaped name in presence of underscores
 			{
-				string algo_name_double_escaped = algo_name;
+				std::string algo_name_double_escaped = algo_name;
 				std::size_t found = algo_name_double_escaped.find_first_of("_");
 				while (found != std::string::npos) {
 					algo_name_double_escaped.insert(found, "\\\\");
@@ -414,31 +580,30 @@ void YacclabGpuTests::AverageTest()
 		}
 
 		{ // GNUPLOT SCRIPT
-			SystemInfo s_info(cfg_);
-			string compiler_name(s_info.compiler_name());
-			string compiler_version(s_info.compiler_version());
+			std::string compiler_name(SystemInfo::compiler_name());
+			std::string compiler_version(SystemInfo::compiler_version());
 			//replace the . with _ for compiler strings
 			std::replace(compiler_version.begin(), compiler_version.end(), '.', '_');
 
-			path script_os_path = current_output_path / path(dataset_name + cfg_.gnuplot_script_extension);
+			path script_os_path = current_output_path / path(dataset_name + glob_cfg_.gnuplot_script_extension);
 
-			ofstream script_os(script_os_path.string());
+			std::ofstream script_os(script_os_path.string());
 			if (!script_os.is_open()) {
 				ob.Cwarning("Unable to create " + script_os_path.string());
 			}
 
 			script_os << "# This is a gnuplot (http://www.gnuplot.info/) script!" << '\n';
-			script_os << "# comment fifth line, open gnuplot's teminal, move to script's path and launch 'load " << dataset_name + cfg_.gnuplot_script_extension << "' if you want to run it" << '\n' << '\n';
+			script_os << "# comment fifth line, open gnuplot's teminal, move to script's path and launch 'load " << dataset_name + glob_cfg_.gnuplot_script_extension << "' if you want to run it" << '\n' << '\n';
 
 			script_os << "reset" << '\n';
-			script_os << "cd '" << current_output_path.string() << "\'" << '\n';
+			script_os << "# cd '" << current_output_path.string() << "\'" << '\n';
 			script_os << "set grid ytic" << '\n';
 			script_os << "set grid" << '\n' << '\n';
 
 			script_os << "# " << dataset_name << "(COLORS)" << '\n';
-			script_os << "set output \"" + output_graph + "\"" << '\n';
+			script_os << "set output '" + (current_output_path / path(output_graph)).string() + "'" << '\n';
 
-			script_os << "set title " << GetGnuplotTitleGpu(cfg_) << '\n' << '\n';
+			script_os << "set title " << LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_average_algorithms[0])->GetTitle() << '\n' << '\n';
 
 			script_os << "# " << kTerminal << " colors" << '\n';
 			script_os << "set terminal " << kTerminal << " enhanced color font ',15'" << '\n' << '\n';
@@ -450,7 +615,7 @@ void YacclabGpuTests::AverageTest()
 			script_os << "set boxwidth 0.9" << '\n' << '\n';
 
 			script_os << "# Get stats to set labels" << '\n';
-			script_os << "stats \"" << output_average_results << "\" using 3 nooutput" << '\n';
+			script_os << "stats '" << (current_output_path / path(output_average_results)).string() << "' using 3 nooutput" << '\n';
 			script_os << "ymax = STATS_max + (STATS_max/100)*10" << '\n';
 			script_os << "xw = 0" << '\n';
 			script_os << "yw = (ymax)/22.0" << '\n' << '\n';
@@ -469,17 +634,18 @@ void YacclabGpuTests::AverageTest()
 			script_os << "# Plot" << '\n';
 			script_os << "plot \\" << '\n';
 
-			script_os << "'" + output_average_results + "' using 3:xtic(1), '" << output_average_results << "' using ($0 - xw) : ($3 + yw) : (stringcolumn(3)) with labels" << '\n' << '\n';
+			script_os << "'" + (current_output_path / path(output_average_results)).string() + "' using 3:xtic(1), '" 
+                << (current_output_path / path(output_average_results)).string() << "' using ($0 - xw) : ($3 + yw) : (stringcolumn(3)) with labels" << '\n' << '\n';
 
 			script_os << "# Replot in latex folder" << '\n';
 			script_os << "set title \"\"" << '\n' << '\n';
-			script_os << "set output \'" << (cfg_.latex_gpu_path / path(compiler_name + compiler_version + "_" + output_graph)).string() << "\'" << '\n';
+			script_os << "set output \'" << (current_latex_path / path(compiler_name + compiler_version + "_" + output_graph)).string() << "\'" << '\n';
 			script_os << "replot" << '\n' << '\n';
 
 			script_os << "# " << dataset_name << "(BLACK AND WHITE)" << '\n';
-			script_os << "set output \"" + output_graph_bw + "\"" << '\n';
+			script_os << "set output '" + (current_output_path / path(output_graph_bw)).string() + "'" << '\n';
 
-			script_os << "set title " << GetGnuplotTitleGpu(cfg_) << '\n' << '\n';
+			script_os << "set title " << LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_average_algorithms[0])->GetTitle() << '\n' << '\n';
 
 			script_os << "# " << kTerminal << " black and white" << '\n';
 			script_os << "set terminal " << kTerminal << " enhanced monochrome dashed font ',15'" << '\n' << '\n';
@@ -492,36 +658,37 @@ void YacclabGpuTests::AverageTest()
 			script_os.close();
 		} // GNUPLOT SCRIPT
 
-		if (0 != std::system(("gnuplot \"" + (current_output_path / path(dataset_name + cfg_.gnuplot_script_extension)).string() + "\" 2> gnuplot_errors.txt").c_str())) {
+		if (0 != std::system(("gnuplot \"" + (current_output_path / path(dataset_name + glob_cfg_.gnuplot_script_extension)).string() + "\" 2> gnuplot_errors.txt").c_str())) {
 			ob.Cwarning("Unable to run gnuplot script");
 		}
 		ob.CloseBox();
 	} // END DATASET FOR
+	// LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_average_algorithms[0])->ReleaseInput();
 }
 
-void YacclabGpuTests::AverageTestWithSteps()
-{
+void TestsPerformer::AverageTestWithSteps() {
 	// Initialize output message box
-	OutputBox ob("GPU Average Test With Steps");
+	OutputBox ob(mode_cfg_.mode + " Average Test With Steps");
 
-	string complete_results_suffix = "_results.txt",
+	std::string complete_results_suffix = "_results.txt",
 		middle_results_suffix = "_run",
 		average_results_suffix = "_average.txt",
 		average_results_rounded_suffix = "_average_rounded.txt";
 
-	for (unsigned d = 0; d < cfg_.average_ws_datasets.size(); ++d) { // For every dataset in the average list
+	for (unsigned d = 0; d < mode_cfg_.average_ws_datasets.size(); ++d) { // For every dataset in the average list
 
-		String dataset_name(cfg_.average_ws_datasets[d]),
+		std::string dataset_name(mode_cfg_.average_ws_datasets[d]),
 			output_average_results = dataset_name + average_results_suffix,
 			output_average_results_rounded = dataset_name + average_results_rounded_suffix,
 			output_graph = dataset_name + kTerminalExtension,
 			output_graph_bw = dataset_name + "_bw" + kTerminalExtension;
 
-		path dataset_path(cfg_.input_path / path(dataset_name)),
-			is_path = dataset_path / path(cfg_.input_txt), // files.txt path
-			current_output_path(cfg_.output_path / path("GPU") / path(cfg_.average_ws_folder) / path(dataset_name)),
+		path dataset_path(glob_cfg_.input_path / path(dataset_name)),
+			is_path = dataset_path / path(glob_cfg_.input_txt), // files.txt path
+			current_output_path(glob_cfg_.glob_output_path / mode_cfg_.mode_output_path / path(glob_cfg_.average_ws_folder) / path(dataset_name)),
+            current_latex_path(glob_cfg_.glob_output_path / mode_cfg_.mode_output_path / glob_cfg_.latex_path),
 			output_broad_path = current_output_path / path(dataset_name + complete_results_suffix),
-			output_middle_results_path = current_output_path / path(cfg_.middle_folder),
+			output_middle_results_path = current_output_path / path(glob_cfg_.middle_folder),
 			average_os_path = current_output_path / path(output_average_results),
 			average_rounded_os_path = current_output_path / path(output_average_results_rounded);
 
@@ -531,89 +698,81 @@ void YacclabGpuTests::AverageTestWithSteps()
 		}
 
 		// Initialize results container
-		average_ws_results_[dataset_name] = Mat1d(static_cast<int>(cfg_.gpu_ccl_average_ws_algorithms.size()), StepType::ST_SIZE, numeric_limits<double>::max());
+		average_ws_results_[dataset_name] = cv::Mat1d(static_cast<unsigned>(mode_cfg_.ccl_average_ws_algorithms.size()), StepType::ST_SIZE, std::numeric_limits<double>::max());
 
 		// To save list of filename on which CLLAlgorithms must be tested
-		vector<pair<string, bool>> filenames;  // first: filename, second: state of filename (find or not)
+		std::vector<std::pair<std::string, bool>> filenames;  // first: filename, second: state of filename (find or not)
 		if (!LoadFileList(filenames, is_path)) {
 			ob.Cwarning("Unable to open '" + is_path.string() + "'", dataset_name);
 			continue;
 		}
 
 		// Number of files
-		int filenames_size = static_cast<int>(filenames.size());
+		unsigned int filenames_size = static_cast<unsigned>(filenames.size());
 
 		// To save middle/min and average results;
-		map<String, Mat1d> current_res;
-		map<String, Mat1d> min_res;
-		Mat1i labels(filenames_size, static_cast<int>(cfg_.gpu_ccl_average_ws_algorithms.size()), 0);
+		std::map<std::string, cv::Mat1d> current_res;
+		std::map<std::string, cv::Mat1d> min_res;
+		cv::Mat1i labels(filenames_size, static_cast<unsigned>(mode_cfg_.ccl_average_ws_algorithms.size()), 0);
 
-		for (const auto& algo_name : cfg_.gpu_ccl_average_ws_algorithms) {
-			current_res[algo_name] = Mat1d(filenames_size, StepType::ST_SIZE, numeric_limits<double>::max());
-			min_res[algo_name] = Mat1d(filenames_size, StepType::ST_SIZE, numeric_limits<double>::max());
+		for (const auto& algo_name : mode_cfg_.ccl_average_ws_algorithms) {
+			current_res[algo_name] = cv::Mat1d(filenames_size, StepType::ST_SIZE, std::numeric_limits<double>::max());
+			min_res[algo_name] = cv::Mat1d(filenames_size, StepType::ST_SIZE, std::numeric_limits<double>::max());
 		}
 
 		// Start output message box
-		ob.StartRepeatedBox(dataset_name, filenames_size, cfg_.average_ws_tests_number);
+		ob.StartRepeatedBox(dataset_name, filenames_size, mode_cfg_.average_ws_tests_number);
 
-		if (cfg_.average_ws_save_middle_tests) {
+		if (mode_cfg_.average_ws_save_middle_tests) {
 			if (!create_directories(output_middle_results_path)) {
 				ob.Cwarning("Unable to find/create the output path '" + output_middle_results_path.string() + "', middle results won't be saved");
 			}
 		}
 
-		map<String, unsigned> algo_pos;
-		for (unsigned i = 0; i < static_cast<unsigned>(cfg_.gpu_ccl_average_ws_algorithms.size()); ++i)
-			algo_pos[cfg_.gpu_ccl_average_ws_algorithms[i]] = i;
-		auto shuffled_ccl_average_ws_algorithms = cfg_.gpu_ccl_average_ws_algorithms;
+		std::map<std::string, size_t> algo_pos;
+		for (size_t i = 0; i < mode_cfg_.ccl_average_ws_algorithms.size(); ++i)
+			algo_pos[mode_cfg_.ccl_average_ws_algorithms[i]] = i;
+		auto shuffled_ccl_average_ws_algorithms = mode_cfg_.ccl_average_ws_algorithms;
 
 		// Test is executed n_test times
-		for (unsigned test = 0; test < cfg_.average_ws_tests_number; ++test) {
+		for (unsigned test = 0; test < mode_cfg_.average_ws_tests_number; ++test) {
 			// For every file in list
 			for (unsigned file = 0; file < filenames.size(); ++file) {
 				// Display output message box
 				ob.UpdateRepeatedBox(file);
 
-				string filename = filenames[file].first;
+				std::string filename = filenames[file].first;
 				path filename_path = dataset_path / path(filename);
 
 				// Read and load image
-				if (!GetBinaryImage(filename_path, Labeling::img_)) {
+				//if (!GetBinaryImage(filename_path, Labeling::img_)) {
+				//	ob.Cwarning("Unable to open '" + filename + "'");
+				//	continue;
+				//}
+				if (!LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_average_ws_algorithms[0])->GetInput()->ReadBinary(filename_path.string())) {
 					ob.Cwarning("Unable to open '" + filename + "'");
 					continue;
 				}
-
-				// Load input image into device memory
-				GpuLabeling::d_img_.upload(Labeling::img_);
 
 				random_shuffle(begin(shuffled_ccl_average_ws_algorithms), end(shuffled_ccl_average_ws_algorithms));
 
 				// For all the Algorithms in the array
 				for (const auto& algo_name : shuffled_ccl_average_ws_algorithms) {
 					Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
-					// unsigned n_labels;
-					unsigned i = algo_pos[algo_name];
+					unsigned i = static_cast<unsigned>(algo_pos[algo_name]);
 
 					try {
 						// Perform current algorithm on current image and save result.
 						algorithm->PerformLabelingWithSteps();
-
-						// This variable need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
-						// n_labels = algorithm->n_labels_;
 					}
-					catch (const runtime_error& /*e*/) {
-						//ob.Cwarning(algo_name + ": " + algo_name + ": " + e.what()); // Already checked!
-						continue;
-					}
-
-					// Save number of labels (we reasonably supposed that labels's number is the same on every #test so only the first time we save it)
-					if (test == 0) {
-						labels(file, i) = 0; // n_labels;
+					catch (const std::exception& e) {
+						algorithm->FreeLabelingData();
+						ob.Cerror("Something wrong with " + algo_name + ": " + e.what()); // You should check your algorithms' implementation before performing YACCLAB tests  
 					}
 
 					// Save time results of all the steps
 					for (int step_number = 0; step_number != StepType::ST_SIZE; ++step_number) {
-						string step = Step(static_cast<StepType>(step_number));
+						std::string step = Step(static_cast<StepType>(step_number));
 
 						// Find if the current algorithm has the current step
 						if (algorithm->perf_.find(step)) {
@@ -629,26 +788,26 @@ void YacclabGpuTests::AverageTestWithSteps()
 			ob.StopRepeatedBox(false);
 
 			// Save middle results if necessary (flag 'average_save_middle_tests' enabled)
-			if (cfg_.average_ws_save_middle_tests) {
-				string output_middle_results_file = (output_middle_results_path / path(dataset_name + middle_results_suffix + "_" + to_string(test) + ".txt")).string();
-				SaveBroadOutputResults(current_res, output_middle_results_file, labels, filenames, cfg_.gpu_ccl_average_ws_algorithms);
+			if (mode_cfg_.average_ws_save_middle_tests) {
+				std::string output_middle_results_file = (output_middle_results_path / path(dataset_name + middle_results_suffix + "_" + std::to_string(test) + ".txt")).string();
+				SaveBroadOutputResults(current_res, output_middle_results_file, labels, filenames, mode_cfg_.ccl_average_ws_algorithms);
 			}
 		}// END TESTS FOR
 
-		 // To write in a file min results
-		SaveBroadOutputResults(min_res, output_broad_path.string(), labels, filenames, cfg_.gpu_ccl_average_ws_algorithms);
+		// To write in a file min results
+		SaveBroadOutputResults(min_res, output_broad_path.string(), labels, filenames, mode_cfg_.ccl_average_ws_algorithms);
 
 		// If true the i-th step is used by all the algorithms
-		vector<bool> steps_presence(StepType::ST_SIZE, false);
+		std::vector<bool> steps_presence(StepType::ST_SIZE, false);
 
 		// To calculate average times and write it on the specified file
-		for (unsigned a = 0; a < cfg_.gpu_ccl_average_ws_algorithms.size(); ++a) {
-			const auto& algo_name(cfg_.gpu_ccl_average_ws_algorithms[a]);
-			vector<pair<double, uint16_t>> supp_average(StepType::ST_SIZE, make_pair(0.0, 0));
+		for (unsigned a = 0; a < mode_cfg_.ccl_average_ws_algorithms.size(); ++a) {
+			const auto& algo_name(mode_cfg_.ccl_average_ws_algorithms[a]);
+			std::vector<std::pair<double, uint16_t>> supp_average(StepType::ST_SIZE, std::make_pair(0.0, 0));
 
 			for (int r = 0; r < min_res.at(algo_name).rows; ++r) {
 				for (int c = 0; c < min_res.at(algo_name).cols; ++c) {
-					if (min_res.at(algo_name)(r, c) != numeric_limits<double>::max()) {
+					if (min_res.at(algo_name)(r, c) != std::numeric_limits<double>::max()) {
 						supp_average[c].first += min_res.at(algo_name)(r, c);
 						supp_average[c].second++;
 					}
@@ -675,31 +834,30 @@ void YacclabGpuTests::AverageTestWithSteps()
 
 		// GNUPLOT SCRIPT
 		{
-			SystemInfo s_info(cfg_);
-			string compiler_name(s_info.compiler_name());
-			string compiler_version(s_info.compiler_version());
+			std::string compiler_name(SystemInfo::compiler_name());
+			std::string compiler_version(SystemInfo::compiler_version());
 			//replace the . with _ for compiler strings
 			std::replace(compiler_version.begin(), compiler_version.end(), '.', '_');
 
-			path script_os_path = current_output_path / path(dataset_name + cfg_.gnuplot_script_extension);
+			path script_os_path = current_output_path / path(dataset_name + glob_cfg_.gnuplot_script_extension);
 
-			ofstream script_os(script_os_path.string());
+			std::ofstream script_os(script_os_path.string());
 			if (!script_os.is_open()) {
 				ob.Cwarning("Unable to create " + script_os_path.string());
 			}
 
 			script_os << "# This is a gnuplot (http://www.gnuplot.info/) script!" << '\n';
-			script_os << "# comment fifth line, open gnuplot's teminal, move to script's path and launch 'load " << dataset_name + cfg_.gnuplot_script_extension << "' if you want to run it" << '\n' << '\n';
+			script_os << "# comment fifth line, open gnuplot's teminal, move to script's path and launch 'load " << dataset_name + glob_cfg_.gnuplot_script_extension << "' if you want to run it" << '\n' << '\n';
 
 			script_os << "reset" << '\n';
-			script_os << "cd '" << current_output_path.string() << "\'" << '\n';
+			script_os << "# cd '" << current_output_path.string() << "\'" << '\n';
 			script_os << "set grid ytic" << '\n';
 			script_os << "set grid" << '\n' << '\n';
 
 			script_os << "# " << dataset_name << "(COLORS)" << '\n';
-			script_os << "set output \"" + output_graph + "\"" << '\n';
+			script_os << "set output '" + (current_output_path / path(output_graph)).string() + "'" << '\n';
 
-			script_os << "set title " << GetGnuplotTitleGpu(cfg_) << '\n' << '\n';
+			script_os << "set title " << LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_average_ws_algorithms[0])->GetTitle() << '\n' << '\n';
 
 			script_os << "# " << kTerminal << " colors" << '\n';
 			script_os << "set terminal " << kTerminal << " enhanced color font ',15'" << '\n' << '\n';
@@ -712,7 +870,7 @@ void YacclabGpuTests::AverageTestWithSteps()
 			script_os << "set boxwidth 0.6" << '\n' << '\n';
 
 			script_os << "# Get stats to set labels" << '\n';
-			script_os << "stats \"" << output_average_results_rounded << "\" using 6 nooutput" << '\n';
+            script_os << "stats '" << (current_output_path / path(output_average_results_rounded)).string() << "' using 6 nooutput" << '\n';
 			script_os << "ymax = STATS_max + (STATS_max/100)*10" << '\n';
 			script_os << "xw = 0" << '\n';
 			script_os << "yw = (ymax)/22.0" << '\n' << '\n';
@@ -731,7 +889,8 @@ void YacclabGpuTests::AverageTestWithSteps()
 			script_os << "# Plot" << '\n';
 			script_os << "plot \\" << '\n';
 
-			script_os << "'" + output_average_results_rounded + "' using 2:xtic(1) title '" << Step(static_cast<StepType>(0)) << "', \\" << '\n';
+			script_os << "'" + (current_output_path / path(output_average_results_rounded)).string() + "' using 2:xtic(1) title '" << 
+                Step(static_cast<StepType>(0)) << "', \\" << '\n';
 			unsigned i = 3;
 			// Start from the second step
 			for (int step_number = 1; step_number != StepType::ST_SIZE; ++step_number, ++i) {
@@ -757,13 +916,13 @@ void YacclabGpuTests::AverageTestWithSteps()
 
 			script_os << "# Replot in latex folder" << '\n';
 			script_os << "set title \"\"" << '\n' << '\n';
-			script_os << "set output \'" << (cfg_.latex_gpu_path / path(compiler_name + compiler_version + "_with_steps_" + output_graph)).string() << "\'" << '\n';
+			script_os << "set output \'" << (current_latex_path / path(compiler_name + compiler_version + "_with_steps_" + output_graph)).string() << "\'" << '\n';
 			script_os << "replot" << '\n' << '\n';
 
 			script_os << "# " << dataset_name << "(BLACK AND WHITE)" << '\n';
-			script_os << "set output \"" + output_graph_bw + "\"" << '\n';
+            script_os << "set output '" + (current_output_path / path(output_graph_bw)).string() + "'" << '\n';
 
-			script_os << "set title " << GetGnuplotTitleGpu(cfg_) << '\n' << '\n';
+			script_os << "set title " << LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_average_ws_algorithms[0])->GetTitle() << '\n' << '\n';
 
 			script_os << "# " << kTerminal << " black and white" << '\n';
 			script_os << "set terminal " << kTerminal << " enhanced monochrome dashed font ',15'" << '\n' << '\n';
@@ -775,18 +934,18 @@ void YacclabGpuTests::AverageTestWithSteps()
 			script_os.close();
 		} // End GNUPLOT SCRIPT
 
-		if (0 != std::system(("gnuplot \"" + (current_output_path / path(dataset_name + cfg_.gnuplot_script_extension)).string() + "\" 2> gnuplot_errors.txt").c_str())) {
+		if (0 != std::system(("gnuplot \"" + (current_output_path / path(dataset_name + glob_cfg_.gnuplot_script_extension)).string() + "\" 2> gnuplot_errors.txt").c_str())) {
 			ob.Cwarning("Unable to run gnuplot script");
 		}
 		ob.CloseBox();
-	}
+	} // END DATASET FOR
+	// LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_average_ws_algorithms[0])->ReleaseInput();
 }
 
-void YacclabGpuTests::DensityTest()
-{
-	OutputBox ob("GPU Density Test");
+void TestsPerformer::DensityTest() {
+	OutputBox ob(mode_cfg_.mode + " Density Test");
 
-	string complete_results_suffix = "_results.txt",
+	std::string complete_results_suffix = "_results.txt",
 		middle_results_suffix = "_run",
 		density_results_suffix = "_density.txt",
 		normalized_density_results_suffix = "_normalized_density.txt",
@@ -794,10 +953,10 @@ void YacclabGpuTests::DensityTest()
 		null_results_suffix = "_null_results.txt";
 
 	// Initialize results container
-	density_results_ = cv::Mat1d(static_cast<int>(cfg_.density_datasets.size()), static_cast<int>(cfg_.gpu_ccl_average_algorithms.size()), std::numeric_limits<double>::max());
+	density_results_ = cv::Mat1d(static_cast<unsigned>(mode_cfg_.density_datasets.size()), static_cast<unsigned>(mode_cfg_.ccl_average_algorithms.size()), std::numeric_limits<double>::max());
 
-	for (unsigned d = 0; d < cfg_.density_datasets.size(); ++d) { // For every dataset in the density list
-		String dataset_name(cfg_.density_datasets[d]),
+	for (unsigned d = 0; d < mode_cfg_.density_datasets.size(); ++d) { // For every dataset in the density list
+		std::string dataset_name(mode_cfg_.density_datasets[d]),
 			output_density_results = dataset_name + density_results_suffix,
 			output_size_results = dataset_name + size_results_suffix,
 			output_density_graph = dataset_name + "_density" + kTerminalExtension,
@@ -806,12 +965,13 @@ void YacclabGpuTests::DensityTest()
 			output_size_bw_graph = dataset_name + "_size_bw" + kTerminalExtension,
 			output_null = dataset_name + null_results_suffix;
 
-		path dataset_path(cfg_.input_path / path("random") / path(dataset_name)),
-			is_path = dataset_path / path(cfg_.input_txt), // files.txt path
-			current_output_path(cfg_.output_path / path("GPU") / path(cfg_.density_folder) / path(dataset_name)),
-			output_broad_path = current_output_path / path(dataset_name + complete_results_suffix),
-			output_colored_images_path = current_output_path / path(cfg_.colors_folder),
-			output_middle_results_path = current_output_path / path(cfg_.middle_folder),
+		path dataset_path(glob_cfg_.input_path / path("random") / path(dataset_name)),
+			is_path = dataset_path / path(glob_cfg_.input_txt), // files.txt path
+			current_output_path(glob_cfg_.glob_output_path / mode_cfg_.mode_output_path / path(glob_cfg_.density_folder) / path(dataset_name)),
+            current_latex_path(glob_cfg_.glob_output_path / mode_cfg_.mode_output_path / glob_cfg_.latex_path),
+            output_broad_path = current_output_path / path(dataset_name + complete_results_suffix),
+			output_colored_images_path = current_output_path / path(glob_cfg_.colors_folder),
+			output_middle_results_path = current_output_path / path(glob_cfg_.middle_folder),
 			density_os_path = current_output_path / path(output_density_results),
 			size_os_path = current_output_path / path(output_size_results),
 			null_os_path = current_output_path / path(output_null);
@@ -822,14 +982,14 @@ void YacclabGpuTests::DensityTest()
 		}
 
 		// TODO: remove color labels from this test
-		if (cfg_.density_color_labels) {
+		if (glob_cfg_.density_color_labels) {
 			if (!create_directories(output_colored_images_path)) {
 				ob.Cwarning("Unable to find/create the output path '" + output_colored_images_path.string() + "', colored images won't be saved");
 			}
 		}
 
 		// To save list of filename on which CLLAlgorithms must be tested
-		vector<pair<string, bool>> filenames;  // first: filename, second: state of filename (find or not)
+		std::vector<std::pair<std::string, bool>> filenames;  // first: filename, second: state of filename (find or not)
 		if (!LoadFileList(filenames, is_path)) {
 			ob.Cwarning("Unable to open '" + is_path.string() + "'", dataset_name);
 			continue;
@@ -840,104 +1000,96 @@ void YacclabGpuTests::DensityTest()
 		}
 
 		// Number of files
-		int filenames_size = static_cast<int>(filenames.size());
+		unsigned int filenames_size = static_cast<unsigned>(filenames.size());
 
 		// To save middle/min and average results;
-		Mat1d min_res(filenames_size, static_cast<int>(cfg_.gpu_ccl_average_algorithms.size()), numeric_limits<double>::max());
-		Mat1d current_res(filenames_size, static_cast<int>(cfg_.gpu_ccl_average_algorithms.size()), numeric_limits<double>::max());
-		Mat1i labels(filenames_size, static_cast<int>(cfg_.gpu_ccl_average_algorithms.size()), 0);
+		cv::Mat1d min_res(filenames_size, static_cast<unsigned>(mode_cfg_.ccl_average_algorithms.size()), std::numeric_limits<double>::max());
+		cv::Mat1d current_res(filenames_size, static_cast<unsigned>(mode_cfg_.ccl_average_algorithms.size()), std::numeric_limits<double>::max());
+		cv::Mat1i labels(filenames_size, static_cast<unsigned>(mode_cfg_.ccl_average_algorithms.size()), 0);
 
 		/*
 		Note that number of random_images is less than 800, this is why the second element of the
-		pair has uint16_t data type. Extern vector represent the algorithms, inner vector represent
+		pair has uint16_t data type. Extern std::vector represent the algorithms, inner std::vector represent
 		density for "supp_density" variable and dimension for "supp_dimension" one. In particular:
 
 		FOR "supp_density" VARIABLE:
-		INNER_VECTOR[0] = { SUM_OF_TIME_FOR_CCL_OF_IMAGES_WITH_0.1_DENSITY, COUNT_OF_THAT_IMAGES }
+		INNER_std::vector[0] = { SUM_OF_TIME_FOR_CCL_OF_IMAGES_WITH_0.1_DENSITY, COUNT_OF_THAT_IMAGES }
 		INNER_VECTPR[1] = { SUM_OF_TIME_FOR_CCL_OF_IMAGES_WITH_0.2_DENSITY, COUNT_OF_THAT_IMAGES }
 		.. and so on;
 
 		SO:
-		supp_density[0][0] represent the pair { SUM_OF_TIME_FOR_CCL_OF_IMAGES_WITH_0.1_DENSITY, COUNT_OF_THAT_IMAGES }
-		for algorithm in position 0;
+		  supp_density[0][0] represent the pair { SUM_OF_TIME_FOR_CCL_OF_IMAGES_WITH_0.1_DENSITY, COUNT_OF_THAT_IMAGES }
+		  for algorithm in position 0;
 
-		supp_density[0][1] represent the pair { SUM_OF_TIME_FOR_CCL_OF_IMAGES_WITH_0.2_DENSITY, COUNT_OF_THAT_IMAGES }
-		for algorithm in position 0;
+		  supp_density[0][1] represent the pair { SUM_OF_TIME_FOR_CCL_OF_IMAGES_WITH_0.2_DENSITY, COUNT_OF_THAT_IMAGES }
+		  for algorithm in position 0;
 
-		supp_density[1][0] represent the pair { SUM_OF_TIME_FOR_CCL_OF_IMAGES_WITH_0.1_DENSITY, COUNT_OF_THAT_IMAGES }
-		for algorithm in position 1;
+		  supp_density[1][0] represent the pair { SUM_OF_TIME_FOR_CCL_OF_IMAGES_WITH_0.1_DENSITY, COUNT_OF_THAT_IMAGES }
+		  for algorithm in position 1;
 		.. and so on
 
 		FOR "SUP_DIMENSION VARIABLE":
-		INNER_VECTOR[0] = { SUM_OF_TIME_FOR_CCL_OF_IMAGES_WITH_32*32_DIMENSION, COUNT_OF_THAT_IMAGES }
-		INNER_VECTOR[1] = { SUM_OF_TIME_FOR_CCL_OF_IMAGES_WITH_64*64_DIMENSION, COUNT_OF_THAT_IMAGES }
+		INNER_std::vector[0] = { SUM_OF_TIME_FOR_CCL_OF_IMAGES_WITH_32*32_DIMENSION, COUNT_OF_THAT_IMAGES }
+		INNER_std::vector[1] = { SUM_OF_TIME_FOR_CCL_OF_IMAGES_WITH_64*64_DIMENSION, COUNT_OF_THAT_IMAGES }
 
 		view "supp_density" explanation for more details;
-		*/
+	   */
 
 		uint8_t density = 9 /*[0.1,0.9]*/, size = 8 /*[32,64,128,256,512,1024,2048,4096]*/;
 
-		using vvp = vector<vector<pair<double, uint16_t>>>;
-		vvp supp_density(cfg_.gpu_ccl_average_algorithms.size(), vector<pair<double, uint16_t>>(density, make_pair(0, 0)));
-		vvp supp_size(cfg_.gpu_ccl_average_algorithms.size(), vector<pair<double, uint16_t>>(size, make_pair(0, 0)));
+		using vvp = std::vector<std::vector<std::pair<double, uint16_t>>>;
+		vvp supp_density(mode_cfg_.ccl_average_algorithms.size(), std::vector<std::pair<double, uint16_t>>(density, std::make_pair(0, 0)));
+		vvp supp_size(mode_cfg_.ccl_average_algorithms.size(), std::vector<std::pair<double, uint16_t>>(size, std::make_pair(0, 0)));
 
 		// Start output message box
-		ob.StartRepeatedBox(dataset_name, filenames_size, cfg_.density_tests_number);
+		ob.StartRepeatedBox(dataset_name, filenames_size, mode_cfg_.density_tests_number);
 
-		if (cfg_.density_save_middle_tests) {
+		if (mode_cfg_.density_save_middle_tests) {
 			if (!create_directories(output_middle_results_path)) {
 				ob.Cwarning("Unable to find/create the output path '" + output_middle_results_path.string() + "', middle results won't be saved");
 			}
 		}
 
-		map<String, unsigned> algo_pos;
-		for (unsigned i = 0; i < static_cast<unsigned>(cfg_.gpu_ccl_average_algorithms.size()); ++i)
-			algo_pos[cfg_.gpu_ccl_average_algorithms[i]] = i;
-		auto shuffled_ccl_average_algorithms = cfg_.gpu_ccl_average_algorithms;
+		std::map<std::string, size_t> algo_pos;
+		for (size_t i = 0; i < mode_cfg_.ccl_average_algorithms.size(); ++i)
+			algo_pos[mode_cfg_.ccl_average_algorithms[i]] = i;
+		auto shuffled_ccl_average_algorithms = mode_cfg_.ccl_average_algorithms;
 
 		// Test is executed n_test times
-		for (unsigned test = 0; test < cfg_.density_tests_number; ++test) {
+		for (unsigned test = 0; test < mode_cfg_.density_tests_number; ++test) {
 			// For every file in list
 			for (unsigned file = 0; file < filenames.size(); ++file) {
 				// Display output message box
 				ob.UpdateRepeatedBox(file);
 
-				string filename = filenames[file].first;
+				std::string filename = filenames[file].first;
 				path filename_path = dataset_path / path(filename);
 
 				// Read and load image
-				if (!GetBinaryImage(filename_path, Labeling::img_)) {
+				//if (!GetBinaryImage(filename_path, Labeling::img_)) {
+				//	ob.Cwarning("Unable to open '" + filename + "'");
+				//	continue;
+				//}
+				if (!LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_average_algorithms[0])->GetInput()->ReadBinary(filename_path.string())) {
 					ob.Cwarning("Unable to open '" + filename + "'");
 					continue;
 				}
 
-				// Load input image into device memory
-				GpuLabeling::d_img_.upload(Labeling::img_);
-				
-				random_shuffle(begin(shuffled_ccl_average_algorithms), end(shuffled_ccl_average_algorithms));
+				std::random_shuffle(begin(shuffled_ccl_average_algorithms), end(shuffled_ccl_average_algorithms));
 
 				for (const auto& algo_name : shuffled_ccl_average_algorithms) {
 					Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
-					unsigned n_labels;
-					unsigned i = algo_pos[algo_name];
+					unsigned i = static_cast<unsigned>(algo_pos[algo_name]);
 
 					try {
 						// Perform current algorithm on current image and save result.
 						algorithm->perf_.start();
 						algorithm->PerformLabeling();
 						algorithm->perf_.stop();
-
-						// This variable need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
-						n_labels = algorithm->n_labels_;
 					}
-					catch (const runtime_error& /*e*/) {
-						//ob.Cwarning(algo_name + ": " + e.what()); // Already checked
-						continue;
-					}
-
-					// Save number of labels (we reasonably supposed that labels's number is the same on every #test so only the first time we save it)
-					if (test == 0) {
-						labels(file, i) = n_labels;
+					catch (const std::exception& e) {
+						algorithm->FreeLabelingData();
+						ob.Cerror("Something wrong with " + algo_name + ": " + e.what()); // You should check your algorithms' implementation before performing YACCLAB tests  
 					}
 
 					// Save time results
@@ -947,14 +1099,13 @@ void YacclabGpuTests::DensityTest()
 					}
 
 					// If 'at_colorLabels' is enabled only the first time (test == 0) the output is saved
-					if (cfg_.density_color_labels && test == 0) {
+					if (glob_cfg_.density_color_labels && test == 0) {
 						// Remove gnuplot escape character from output filename
-						Mat3b imgColors;
-
-						NormalizeLabels(algorithm->img_labels_);
-						ColorLabels(algorithm->img_labels_, imgColors);
-						String colored_image = (output_colored_images_path / path(filename + "_" + algo_name + ".png")).string();
-						imwrite(colored_image, imgColors);
+                        YacclabTensorOutput *img_out = algorithm->GetOutput();
+                        img_out->PrepareForCheck();
+                        img_out->NormalizeLabels();
+						std::string colored_image = (output_colored_images_path / path(filename + "_" + algo_name + ".png")).string();
+                        img_out->WriteColored(colored_image);
 					}
 					algorithm->FreeLabelingData();
 				} // END ALGORITHMS FOR
@@ -962,14 +1113,14 @@ void YacclabGpuTests::DensityTest()
 			ob.StopRepeatedBox(false);
 
 			// Save middle results if necessary (flag 'density_save_middle_tests' enabled)
-			if (cfg_.density_save_middle_tests) {
-				string output_middle_results_file = (output_middle_results_path / path(dataset_name + middle_results_suffix + "_" + to_string(test) + ".txt")).string();
-				SaveBroadOutputResults(current_res, output_middle_results_file, labels, filenames, cfg_.gpu_ccl_average_algorithms);
+			if (mode_cfg_.density_save_middle_tests) {
+				std::string output_middle_results_file = (output_middle_results_path / path(dataset_name + middle_results_suffix + "_" + std::to_string(test) + ".txt")).string();
+				SaveBroadOutputResults(current_res, output_middle_results_file, labels, filenames, mode_cfg_.ccl_average_algorithms);
 			}
 		} // END TEST FOR
 
-		  // To write in a file min results
-		SaveBroadOutputResults(min_res, output_broad_path.string(), labels, filenames, cfg_.gpu_ccl_average_algorithms);
+		// To write in a file min results
+		SaveBroadOutputResults(min_res, output_broad_path.string(), labels, filenames, mode_cfg_.ccl_average_algorithms);
 
 		// To sum min results, in the correct manner, before make average
 		for (unsigned files = 0; files < filenames.size(); ++files) {
@@ -978,7 +1129,7 @@ void YacclabGpuTests::DensityTest()
 				// Add current time to "supp_density" and "supp_size" in the correct position
 				if (isdigit(filenames[files].first[0]) && isdigit(filenames[files].first[1]) && isdigit(filenames[files].first[2]) && filenames[files].second) {
 					// superfluous test?
-					if (min_res(files, c) != numeric_limits<double>::max()) {
+					if (min_res(files, c) != std::numeric_limits<double>::max()) {
 						// For density graph
 						supp_density[c][ctoi(filenames[files].first[1])].first += min_res(files, c);
 						supp_density[c][ctoi(filenames[files].first[1])].second++;
@@ -993,10 +1144,10 @@ void YacclabGpuTests::DensityTest()
 		}
 
 		// To calculate average times
-		vector<vector<long double>> density_average(cfg_.gpu_ccl_average_algorithms.size(), vector<long double>(density));
-		vector<vector<long double>> size_average(cfg_.gpu_ccl_average_algorithms.size(), vector<long double>(size));
+		std::vector<std::vector<long double>> density_average(mode_cfg_.ccl_average_algorithms.size(), std::vector<long double>(density));
+		std::vector<std::vector<long double>> size_average(mode_cfg_.ccl_average_algorithms.size(), std::vector<long double>(size));
 
-		for (unsigned i = 0; i < cfg_.gpu_ccl_average_algorithms.size(); ++i) {
+		for (unsigned i = 0; i < mode_cfg_.ccl_average_algorithms.size(); ++i) {
 			// For all algorithms
 			for (unsigned j = 0; j < density_average[i].size(); ++j) {
 				// For all density and normalized density
@@ -1018,20 +1169,20 @@ void YacclabGpuTests::DensityTest()
 		}
 
 		// For DENSITY RESULT
-		ofstream density_os(density_os_path.string());
+		std::ofstream density_os(density_os_path.string());
 		if (!density_os.is_open()) {
 			ob.Cwarning("Unable to open '" + density_os_path.string() + "'");
 		}
 
 		// For SIZE RESULT
-		ofstream size_os(size_os_path.string());
+		std::ofstream size_os(size_os_path.string());
 		if (!size_os.is_open()) {
 			ob.Cwarning("Unable to open '" + size_os_path.string() + "'");
 		}
 
 		density_os << "# density";
 		size_os << "# size";
-		for (const auto& algo_name : cfg_.gpu_ccl_average_algorithms) {
+		for (const auto& algo_name : mode_cfg_.ccl_average_algorithms) {
 			density_os << '\t' << algo_name;
 			size_os << '\t' << algo_name;
 		}
@@ -1052,7 +1203,7 @@ void YacclabGpuTests::DensityTest()
 			density_os << '\n'; // End of current line (current density)
 		}
 		// To set sizes's label
-		vector <pair<unsigned, double>> supp_size_labels(size, make_pair(0, 0));
+		std::vector<std::pair<unsigned, double>> supp_size_labels(size, std::make_pair(0, 0));
 
 		// To write size result on specified file
 		for (unsigned i = 0; i < size; ++i) {
@@ -1071,32 +1222,31 @@ void YacclabGpuTests::DensityTest()
 
 		// GNUPLOT SCRIPT
 		{
-			SystemInfo s_info(cfg_);
-			string compiler_name(s_info.compiler_name());
-			string compiler_version(s_info.compiler_version());
-			//replace the . with _ for compiler strings
+			std::string compiler_name(SystemInfo::compiler_name());
+			std::string compiler_version(SystemInfo::compiler_version());
+			//replace the . with _ for compiler std::strings
 			std::replace(compiler_version.begin(), compiler_version.end(), '.', '_');
 
-			path script_os_path = current_output_path / path(dataset_name + cfg_.gnuplot_script_extension);
+			path script_os_path = current_output_path / path(dataset_name + glob_cfg_.gnuplot_script_extension);
 
-			ofstream script_os(script_os_path.string());
+			std::ofstream script_os(script_os_path.string());
 			if (!script_os.is_open()) {
 				ob.Cwarning("Unable to create '" + script_os_path.string() + "'");
 			}
 
 			script_os << "# This is a gnuplot (http://www.gnuplot.info/) script!" << '\n';
 			script_os << "# comment fifth line, open gnuplot's terminal, move to script's path and launch 'load ";
-			script_os << dataset_name + cfg_.gnuplot_script_extension << "' if you want to run it" << '\n' << '\n';
+			script_os << dataset_name + glob_cfg_.gnuplot_script_extension << "' if you want to run it" << '\n' << '\n';
 
 			script_os << "reset" << '\n';
-			script_os << "cd '" << current_output_path.string() << "\'" << '\n';
+			script_os << "# cd '" << current_output_path.string() << "\'" << '\n';
 			script_os << "set grid" << '\n' << '\n';
 
 			// DENSITY
 			script_os << "# DENSITY GRAPH (COLORS)" << '\n' << '\n';
 
-			script_os << "set output \"" + output_density_graph + "\"" << '\n';
-			script_os << "set title " << GetGnuplotTitleGpu(cfg_) << '\n' << '\n';
+            script_os << "set output '" + (current_output_path / path(output_density_graph)).string() + "'" << '\n';
+			script_os << "set title " << LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_average_algorithms[0])->GetTitle() << '\n' << '\n';
 
 			script_os << "# " << kTerminal << " colors" << '\n';
 			script_os << "set terminal " << kTerminal << " enhanced color font ',15'" << '\n' << '\n';
@@ -1106,8 +1256,10 @@ void YacclabGpuTests::DensityTest()
 			script_os << "set ylabel \"Execution Time [ms]\"" << '\n' << '\n';
 
 			script_os << "# Get stats to set labels" << '\n';
-			script_os << "stats[1:" << cfg_.gpu_ccl_average_algorithms.size() << "] '" + output_density_results + "' matrix name 'density' noout" << '\n';
-			script_os << "stats[1:" << cfg_.gpu_ccl_average_algorithms.size() << "] '" + output_size_results + "' matrix name 'size' noout" << '\n';
+			script_os << "stats[1:" << mode_cfg_.ccl_average_algorithms.size() << "] '" 
+                + (current_output_path / path(output_density_results)).string() + "' matrix name 'density' noout" << '\n';
+			script_os << "stats[1:" << mode_cfg_.ccl_average_algorithms.size() << "] '" 
+                + (current_output_path / path(output_size_results)).string() + "' matrix name 'size' noout" << '\n';
 			script_os << "ymax = density_max + (density_max / 100) * 10" << '\n';
 			script_os << "ymin = density_min - (density_min / 100) * 10" << '\n';
 
@@ -1121,23 +1273,23 @@ void YacclabGpuTests::DensityTest()
 
 			script_os << "# Plot" << '\n';
 			script_os << "plot \\" << '\n';
-			vector<String>::iterator it; // I need it after the cycle
+			std::vector<std::string>::iterator it; // I need it after the cycle
 			unsigned i = 2;
-			for (it = cfg_.gpu_ccl_average_algorithms.begin(); it != (cfg_.gpu_ccl_average_algorithms.end() - 1); ++it, ++i) {
-				script_os << "\"" + output_density_results + "\" using 1:" << i << " with linespoints title \"" + DoubleEscapeUnderscore(string(*it)) + "\" , \\" << '\n';
+			for (it = mode_cfg_.ccl_average_algorithms.begin(); it != (mode_cfg_.ccl_average_algorithms.end() - 1); ++it, ++i) {
+				script_os << "'" + (current_output_path / path(output_density_results)).string() + "' using 1:" << i << " with linespoints title \"" + DoubleEscapeUnderscore(std::string(*it)) + "\" , \\" << '\n';
 			}
-			script_os << "\"" + output_density_results + "\" using 1:" << i << " with linespoints title \"" + DoubleEscapeUnderscore(string(*it)) + "\"" << '\n' << '\n';
+			script_os << "'" + (current_output_path / path(output_density_results)).string() + "' using 1:" << i << " with linespoints title \"" + DoubleEscapeUnderscore(std::string(*it)) + "\"" << '\n' << '\n';
 
 			script_os << "# Replot in latex folder" << '\n';
 			script_os << "set title \"\"" << '\n' << '\n';
 
-			script_os << "set output \'" << (cfg_.latex_gpu_path / path(compiler_name + compiler_version + output_density_graph)).string() << "\'" << '\n';
+			script_os << "set output \'" << (current_latex_path / path(compiler_name + compiler_version + output_density_graph)).string() << "\'" << '\n';
 			script_os << "replot" << '\n' << '\n';
 
 			script_os << "# DENSITY GRAPH (BLACK AND WHITE)" << '\n' << '\n';
 
-			script_os << "set output \"" + output_density_bw_graph + "\"" << '\n';
-			script_os << "set title " << GetGnuplotTitleGpu(cfg_) << '\n' << '\n';
+			script_os << "set output '" + (current_output_path / path(output_density_bw_graph)).string() + "'" << '\n';
+			script_os << "set title " << LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_average_algorithms[0])->GetTitle() << '\n' << '\n';
 
 			script_os << "# " << kTerminal << " black and white" << '\n';
 			script_os << "set terminal " << kTerminal << " enhanced monochrome dashed font ',15'" << '\n' << '\n';
@@ -1147,8 +1299,8 @@ void YacclabGpuTests::DensityTest()
 			// SIZE
 			script_os << "# SIZE GRAPH (COLORS)" << '\n' << '\n';
 
-			script_os << "set output \"" + output_size_graph + "\"" << '\n';
-			script_os << "set title " << GetGnuplotTitleGpu(cfg_) << '\n' << '\n';
+			script_os << "set output '" + (current_output_path / path(output_size_graph)).string() + "'" << '\n';
+			script_os << "set title " << LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_average_algorithms[0])->GetTitle() << '\n' << '\n';
 
 			script_os << "# " << kTerminal << " colors" << '\n';
 			script_os << "set terminal " << kTerminal << " enhanced color font ',15'" << '\n' << '\n';
@@ -1173,20 +1325,20 @@ void YacclabGpuTests::DensityTest()
 			script_os << "# Plot" << '\n';
 			script_os << "plot \\" << '\n';
 			i = 2;
-			for (it = cfg_.gpu_ccl_average_algorithms.begin(); it != (cfg_.gpu_ccl_average_algorithms.end() - 1); ++it, ++i) {
-				script_os << "\"" + output_size_results + "\" using 1:" << i << " with linespoints title \"" + DoubleEscapeUnderscore(string(*it)) + "\" , \\" << '\n';
+			for (it = mode_cfg_.ccl_average_algorithms.begin(); it != (mode_cfg_.ccl_average_algorithms.end() - 1); ++it, ++i) {
+				script_os << "'" + (current_output_path / path(output_size_results)).string() + "' using 1:" << i << " with linespoints title \"" + DoubleEscapeUnderscore(std::string(*it)) + "\" , \\" << '\n';
 			}
-			script_os << "\"" + output_size_results + "\" using 1:" << i << " with linespoints title \"" + DoubleEscapeUnderscore(string(*it)) + "\"" << '\n' << '\n';
+			script_os << "'" + (current_output_path / path(output_size_results)).string() + "' using 1:" << i << " with linespoints title \"" + DoubleEscapeUnderscore(std::string(*it)) + "\"" << '\n' << '\n';
 
 			script_os << "# Replot in latex folder" << '\n';
 			script_os << "set title \"\"" << '\n';
-			script_os << "set output \'" << (cfg_.latex_gpu_path / path(compiler_name + compiler_version + output_size_graph)).string() << "\'" << '\n';
+			script_os << "set output \'" << (current_latex_path / path(compiler_name + compiler_version + output_size_graph)).string() << "\'" << '\n';
 			script_os << "replot" << '\n' << '\n';
 
 			script_os << "# SIZE (BLACK AND WHITE)" << '\n' << '\n';
 
-			script_os << "set output \"" + output_size_bw_graph + "\"" << '\n';
-			script_os << "set title " << GetGnuplotTitleGpu(cfg_) << '\n' << '\n';
+			script_os << "set output '" + (current_output_path / path(output_size_bw_graph)).string() + "'" << '\n';
+			script_os << "set title " << LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_average_algorithms[0])->GetTitle() << '\n' << '\n';
 
 			script_os << "# " << kTerminal << " black and white" << '\n';
 			script_os << "set terminal " << kTerminal << " enhanced monochrome dashed font ',15'" << '\n' << '\n';
@@ -1201,33 +1353,34 @@ void YacclabGpuTests::DensityTest()
 			// GNUPLOT SCRIPT
 		}
 
-		if (0 != std::system(("gnuplot \"" + (current_output_path / path(dataset_name + cfg_.gnuplot_script_extension)).string() + "\" 2> gnuplot_errors.txt").c_str())) {
+		if (0 != std::system(("gnuplot \"" + (current_output_path / path(dataset_name + glob_cfg_.gnuplot_script_extension)).string() + "\" 2> gnuplot_errors.txt").c_str())) {
 			ob.Cwarning("Unable to run gnuplot script");
 		}
 		ob.CloseBox();
-	}
+	} // END DATASET FOR
+	// LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_average_algorithms[0])->ReleaseInput();
 }
 
-void YacclabGpuTests::GranularityTest()
-{
-	OutputBox ob("GPU Granularity Test");
+void TestsPerformer::GranularityTest() {
+	OutputBox ob(mode_cfg_.mode + " Granularity Test");
 
-	string complete_results_suffix = "_results.txt",
+	std::string complete_results_suffix = "_results.txt",
 		middle_results_suffix = "_run",
 		granularity_results_suffix = "_granularity";
 
-	for (unsigned d = 0; d < cfg_.granularity_datasets.size(); ++d) { // For every dataset in the granularity list
+	for (unsigned d = 0; d < mode_cfg_.granularity_datasets.size(); ++d) { // For every dataset in the granularity list
 
-		String dataset_name(cfg_.granularity_datasets[d]),
+		std::string dataset_name(mode_cfg_.granularity_datasets[d]),
 			output_granularity_results = dataset_name + granularity_results_suffix,
 			output_granularity_graph = dataset_name + "_granularity" + kTerminalExtension,
 			output_granularity_bw_graph = dataset_name + "_granularity_bw" + kTerminalExtension;
 
-		path dataset_path(cfg_.input_path / path("random") / path(dataset_name)),
-			is_path = dataset_path / path(cfg_.input_txt), // files.txt path
-			current_output_path(cfg_.output_path / path("GPU") / path(cfg_.granularity_folder) / path(dataset_name)),
-			output_broad_path = current_output_path / path(dataset_name + complete_results_suffix),
-			output_middle_results_path = current_output_path / path(cfg_.middle_folder),
+		path dataset_path(glob_cfg_.input_path / path("random") / path(dataset_name)),
+			is_path = dataset_path / path(glob_cfg_.input_txt), // files.txt path
+			current_output_path(glob_cfg_.glob_output_path / mode_cfg_.mode_output_path / path(glob_cfg_.granularity_folder) / path(dataset_name)),
+            current_latex_path(glob_cfg_.glob_output_path / mode_cfg_.mode_output_path / glob_cfg_.latex_path),
+            output_broad_path = current_output_path / path(dataset_name + complete_results_suffix),
+			output_middle_results_path = current_output_path / path(glob_cfg_.middle_folder),
 			granularity_os_path = current_output_path / path(output_granularity_results);
 
 		if (!create_directories(current_output_path)) {
@@ -1236,7 +1389,7 @@ void YacclabGpuTests::GranularityTest()
 		}
 
 		// To save list of filename on which CLLAlgorithms must be tested
-		vector<pair<string, bool>> filenames;  // first: filename, second: state of filename (find or not)
+		std::vector<std::pair<std::string, bool>> filenames;  // first: filename, second: state of filename (find or not)
 		if (!LoadFileList(filenames, is_path)) {
 			ob.Cwarning("Unable to open '" + is_path.string() + "', skipped", dataset_name);
 			continue;
@@ -1246,42 +1399,42 @@ void YacclabGpuTests::GranularityTest()
 		}
 
 		// Number of files
-		int filenames_size = static_cast<int>(filenames.size());
+		unsigned int filenames_size = static_cast<unsigned>(filenames.size());
 
 		uint8_t density = 101; // For granularity tests density ranges from 0 to 100 with step 1
 		uint8_t granularity = 16; // For granularity tests granularity ranges from 1 to 16 with step 1
 
-								  // Initialize results container
-		granularity_results_[dataset_name] = cv::Mat(cv::Size(static_cast<int>(cfg_.gpu_ccl_average_algorithms.size()), density), CV_64FC(granularity), cv::Scalar(0)); // To store minimum values 
-		vector<vector<double>> real_densities(granularity, vector<double>(density));
-		Mat1d min_res(filenames_size, static_cast<int>(cfg_.gpu_ccl_average_algorithms.size()), numeric_limits<double>::max());
-		Mat1d current_res(filenames_size, static_cast<int>(cfg_.gpu_ccl_average_algorithms.size()), numeric_limits<double>::max()); // To store current result
-		Mat1i labels(filenames_size, static_cast<int>(cfg_.gpu_ccl_average_algorithms.size()), 0); // To count number of labels for every image and algorithm 
+		// Initialize results container
+		granularity_results_[dataset_name] = cv::Mat(cv::Size(static_cast<unsigned>(mode_cfg_.ccl_average_algorithms.size()), density), CV_64FC(granularity), cv::Scalar(0)); // To store minimum values 
+		// std::vector<std::vector<double>> real_densities(granularity, std::vector<double>(density));
+		cv::Mat1d min_res(filenames_size, static_cast<unsigned>(mode_cfg_.ccl_average_algorithms.size()), std::numeric_limits<double>::max());
+		cv::Mat1d current_res(filenames_size, static_cast<unsigned>(mode_cfg_.ccl_average_algorithms.size()), std::numeric_limits<double>::max()); // To store current result
+		cv::Mat1i labels(filenames_size, static_cast<unsigned>(mode_cfg_.ccl_average_algorithms.size()), 0); // To count number of labels for every image and algorithm 
 
-																			 // Start output message box
-		ob.StartRepeatedBox(dataset_name, filenames_size, cfg_.granularity_tests_number);
+		// Start output message box
+		ob.StartRepeatedBox(dataset_name, filenames_size, mode_cfg_.granularity_tests_number);
 
-		if (cfg_.granularity_save_middle_tests) {
+		if (mode_cfg_.granularity_save_middle_tests) {
 			if (!create_directories(output_middle_results_path)) {
 				ob.Cwarning("Unable to find/create the output path '" + output_middle_results_path.string() + "', middle results won't be saved", dataset_name);
 			}
 		}
 
-		map<String, unsigned> algo_pos;
-		for (unsigned i = 0; i < static_cast<unsigned>(cfg_.gpu_ccl_average_algorithms.size()); ++i)
-			algo_pos[cfg_.gpu_ccl_average_algorithms[i]] = i;
-		auto shuffled_ccl_average_algorithms = cfg_.gpu_ccl_average_algorithms;
+		std::map<std::string, size_t> algo_pos;
+		for (size_t i = 0; i < mode_cfg_.ccl_average_algorithms.size(); ++i)
+			algo_pos[mode_cfg_.ccl_average_algorithms[i]] = i;
+		auto shuffled_ccl_average_algorithms = mode_cfg_.ccl_average_algorithms;
 
 		random_shuffle(begin(filenames), end(filenames));
 
 		// Test is executed n_test times
-		for (unsigned test = 0; test < cfg_.granularity_tests_number; ++test) {
+		for (unsigned test = 0; test < mode_cfg_.granularity_tests_number; ++test) {
 			// For every file in list
 			for (unsigned file = 0; file < filenames.size(); ++file) {
 				// Display output message box
 				ob.UpdateRepeatedBox(file);
 
-				string filename = filenames[file].first;
+				std::string filename = filenames[file].first;
 				path filename_path = dataset_path / path(filename);
 
 				int cur_granularity = stoi(filename.substr(0, 2));
@@ -1289,33 +1442,32 @@ void YacclabGpuTests::GranularityTest()
 				int cur_density = stoi(filename.substr(2, 3));
 
 				// Read and load image
-				if (!GetBinaryImage(filename_path, Labeling::img_)) {
-					ob.Cwarning("Unable to open '" + filename + "', granularity results/charts will miss some data");
+				//if (!GetBinaryImage(filename_path, Labeling::img_)) {
+				//	ob.Cwarning("Unable to open '" + filename + "', granularity results/charts will miss some data");
+				//	continue;
+				//}
+				if (!LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_average_algorithms[0])->GetInput()->ReadBinary(filename_path.string())) {
+					ob.Cwarning("Unable to open '" + filename + "'");
 					continue;
 				}
 
-				// Load input image into device memory
-				GpuLabeling::d_img_.upload(Labeling::img_);
-
-				int nonzero = countNonZero(Labeling::img_);
-				real_densities[cur_granularity - 1][cur_density] = 100.0 * nonzero / (Labeling::img_.rows*Labeling::img_.cols);
+				// int nonzero = countNonZero(Labeling::img_);
+				// real_densities[cur_granularity - 1][cur_density] = 100.0 * nonzero / (Labeling::img_.rows*Labeling::img_.cols);
 				random_shuffle(begin(shuffled_ccl_average_algorithms), end(shuffled_ccl_average_algorithms));
 
 				for (const auto& algo_name : shuffled_ccl_average_algorithms) {
 					Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
-					unsigned n_labels;
-					unsigned i = algo_pos[algo_name];
+					unsigned i = static_cast<unsigned>(algo_pos[algo_name]);
 
-					// Perform current algorithm on current image and save result.
-					algorithm->perf_.start();
-					algorithm->PerformLabeling();
-					algorithm->perf_.stop();
-
-					n_labels = algorithm->n_labels_;
-
-					// Save number of found labels
-					if (test == 0) {
-						labels(file, i) = n_labels;
+					try {
+						// Perform current algorithm on current image and save result.
+						algorithm->perf_.start();
+						algorithm->PerformLabeling();
+						algorithm->perf_.stop();
+					}
+					catch (const std::exception& e) {
+						algorithm->FreeLabelingData();
+						ob.Cerror("Something wrong with " + algo_name + ": " + e.what()); // You should check your algorithms' implementation before performing YACCLAB tests  
 					}
 
 					// Save time results
@@ -1330,24 +1482,24 @@ void YacclabGpuTests::GranularityTest()
 			ob.StopRepeatedBox(false);
 
 			// Save middle results if necessary
-			if (cfg_.granularity_save_middle_tests) {
-				string output_middle_results_file = (output_middle_results_path / path(dataset_name + middle_results_suffix + "_" + to_string(test) + ".txt")).string();
-				SaveBroadOutputResults(current_res, output_middle_results_file, labels, filenames, cfg_.gpu_ccl_average_algorithms);
+			if (mode_cfg_.granularity_save_middle_tests) {
+				std::string output_middle_results_file = (output_middle_results_path / path(dataset_name + middle_results_suffix + "_" + std::to_string(test) + ".txt")).string();
+				SaveBroadOutputResults(current_res, output_middle_results_file, labels, filenames, mode_cfg_.ccl_average_algorithms);
 			}
 		} // END TEST FOR
 
-		  // To write the min results into a file
-		SaveBroadOutputResults(min_res, output_broad_path.string(), labels, filenames, cfg_.gpu_ccl_average_algorithms);
+		// To write the min results into a file
+		SaveBroadOutputResults(min_res, output_broad_path.string(), labels, filenames, mode_cfg_.ccl_average_algorithms);
 
 		for (int r = 0; r < min_res.rows; ++r) {
 			if (filenames[r].second) {
 
-				string cur_filename = filenames[r].first;
+				std::string cur_filename = filenames[r].first;
 				int cur_granularity = stoi(cur_filename.substr(0, 2));
 				int cur_density = stoi(cur_filename.substr(2, 3));
 
 				for (int c = 0; c < min_res.cols; ++c) {
-					granularity_results_[dataset_name].at<Vec<double, 16>>(cur_density, c)[cur_granularity - 1] += min_res(r, c);
+					granularity_results_[dataset_name].at<cv::Vec<double, 16>>(cur_density, c)[cur_granularity - 1] += min_res(r, c);
 				}
 			}
 			else {
@@ -1356,8 +1508,8 @@ void YacclabGpuTests::GranularityTest()
 		}
 
 		// For SCRIPT which runs multiple times the gnuplot script
-		string main_script = (current_output_path / path("main_script" + cfg_.system_script_extension)).string();
-		ofstream main_script_os(main_script);
+		std::string main_script = (current_output_path / path("main_script" + glob_cfg_.system_script_extension)).string();
+		std::ofstream main_script_os(main_script);
 		if (!main_script_os.is_open()) {
 			ob.Cwarning("Unable to open '" + main_script + "'");
 			return;
@@ -1371,37 +1523,37 @@ void YacclabGpuTests::GranularityTest()
 			"#!/bin/sh";
 #endif
 		main_script_os << '\n';
-		//main_script_os << "cd \"" << current_output_path.string() << "\"" << '\n';
+		// main_script_os << "cd \"" << current_output_path.string() << "\"" << '\n';
 
 		// To write granularity results on specified file
 		for (unsigned g = 1; g <= granularity; ++g) {
 
 			// For GRANULARITY RESULT
-			string cur_granularity_os = granularity_os_path.string() + "_" + to_string(g) + ".txt";
-			ofstream granularity_os(cur_granularity_os);
+			std::string cur_granularity_os = granularity_os_path.string() + "_" + std::to_string(g) + ".txt";
+			std::ofstream granularity_os(cur_granularity_os);
 			if (!granularity_os.is_open()) {
 				ob.Cwarning("Unable to open '" + cur_granularity_os + "'");
 				continue;
 			}
 
 			granularity_os << "# density" << '\t';
-			for (const auto& algo : cfg_.gpu_ccl_average_algorithms) {
+			for (const auto& algo : mode_cfg_.ccl_average_algorithms) {
 				granularity_os << algo << '\t';
 			}
 			granularity_os << '\n';
 
 			for (unsigned d = 0; d < density; ++d) {
 				granularity_os << std::fixed << std::setprecision(5) << /*real_densities[g - 1][d]*/ d << '\t';
-				for (unsigned a = 0; a < cfg_.gpu_ccl_average_algorithms.size(); ++a) {
-					granularity_os << std::fixed << std::setprecision(8) << (granularity_results_[dataset_name].at<Vec<double, 16>>(d, a)[g - 1] / 10.0) << '\t';
+				for (unsigned a = 0; a < mode_cfg_.ccl_average_algorithms.size(); ++a) {
+					granularity_os << std::fixed << std::setprecision(8) << (granularity_results_[dataset_name].at<cv::Vec<double, 16>>(d, a)[g - 1] / 10.0) << '\t';
 				}
 				granularity_os << '\n';
 			}
 			granularity_os.close();
 
-			string output_file = output_granularity_results + "_" + to_string(g) + kTerminalExtension;
-			string main_script_error_path = (current_output_path / path("main_script_errors.txt")).string();
-			string gnuplot_script_path = (current_output_path / path(dataset_name + cfg_.gnuplot_script_extension)).string();
+			std::string output_file = output_granularity_results + "_" + std::to_string(g) + kTerminalExtension;
+			std::string main_script_error_path = (current_output_path / path("main_script_errors.txt")).string();
+			std::string gnuplot_script_path = (current_output_path / path(dataset_name + glob_cfg_.gnuplot_script_extension)).string();
 			main_script_os << "gnuplot -e \"input_file='" + cur_granularity_os + "'\" -e \"output_file='" + output_file + "'\" \"" +
 				gnuplot_script_path + "\" 2>>\"" + main_script_error_path + "\"\n";
 		}
@@ -1409,14 +1561,13 @@ void YacclabGpuTests::GranularityTest()
 
 		// GNUPLOT SCRIPT
 		{
-			SystemInfo s_info(cfg_);
-			string compiler_name(s_info.compiler_name());
-			string compiler_version(s_info.compiler_version());
+			std::string compiler_name(SystemInfo::compiler_name());
+			std::string compiler_version(SystemInfo::compiler_version());
 			//replace the . with _ for compiler strings
 			std::replace(compiler_version.begin(), compiler_version.end(), '.', '_');
-			path script_os_path = current_output_path / path(dataset_name + cfg_.gnuplot_script_extension);
+			path script_os_path = current_output_path / path(dataset_name + glob_cfg_.gnuplot_script_extension);
 
-			ofstream script_os(script_os_path.string());
+			std::ofstream script_os(script_os_path.string());
 			if (!script_os.is_open()) {
 				ob.Cwarning("Unable to create '" + script_os_path.string() + "', skipped", dataset_name);
 			}
@@ -1424,14 +1575,20 @@ void YacclabGpuTests::GranularityTest()
 			script_os << "# This is a gnuplot (http://www.gnuplot.info/) script!" << '\n' << '\n';
 
 			script_os << "reset" << '\n';
-			script_os << "cd '" << current_output_path.string() << "\'" << '\n';
+			script_os << "# cd '" << current_output_path.string() << "\'" << '\n';
 			script_os << "set grid" << '\n' << '\n';
 
 			// GRANULARITY
 			script_os << "# GRANULARITY GRAPH (COLORS)" << '\n' << '\n';
 
-			script_os << "set output output_file" << '\n';
-			script_os << "set title " << GetGnuplotTitleGpu(cfg_) << '\n' << '\n';
+            script_os << "set output '" << current_output_path.string() << 
+#ifdef YACCLAB_WINDOWS
+                '\\'
+#else
+                '/'
+#endif
+                << "'.output_file" << '\n';
+			script_os << "set title " << LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_average_algorithms[0])->GetTitle() << '\n' << '\n';
 
 			script_os << "# " << kTerminal << " colors" << '\n';
 			script_os << "set terminal " << kTerminal << " enhanced color font ',15'" << '\n' << '\n';
@@ -1441,7 +1598,7 @@ void YacclabGpuTests::GranularityTest()
 			script_os << "set ylabel \"Execution Time [ms]\"" << '\n' << '\n';
 
 			script_os << "# Get stats to set labels" << '\n';
-			script_os << "stats[1:" << cfg_.gpu_ccl_average_algorithms.size() << "] input_file matrix name 'granularity' noout" << '\n';
+			script_os << "stats[1:" << mode_cfg_.ccl_average_algorithms.size() << "] input_file matrix name 'granularity' noout" << '\n';
 			script_os << " ymax = granularity_max + (granularity_max / 100) * 10" << '\n';
 			script_os << " ymin = granularity_min - (granularity_min / 100) * 10" << '\n';
 
@@ -1455,23 +1612,23 @@ void YacclabGpuTests::GranularityTest()
 
 			script_os << "# Plot" << '\n';
 			script_os << "plot \\" << '\n';
-			vector<String>::iterator it; // I need it after the cycle
+			std::vector<std::string>::iterator it; // I need it after the cycle
 			unsigned i = 2;
-			for (it = cfg_.gpu_ccl_average_algorithms.begin(); it != (cfg_.gpu_ccl_average_algorithms.end() - 1); ++it, ++i) {
-				script_os << "input_file" << " using 1:" << i << " with lines title \"" + DoubleEscapeUnderscore(string(*it)) + "\" , \\" << '\n';
+			for (it = mode_cfg_.ccl_average_algorithms.begin(); it != (mode_cfg_.ccl_average_algorithms.end() - 1); ++it, ++i) {
+				script_os << "input_file" << " using 1:" << i << " with lines title \"" + DoubleEscapeUnderscore(std::string(*it)) + "\" , \\" << '\n';
 			}
-			script_os << "input_file" << " using 1:" << i << " with lines title \"" + DoubleEscapeUnderscore(string(*it)) + "\"" << '\n' << '\n';
+			script_os << "input_file" << " using 1:" << i << " with lines title \"" + DoubleEscapeUnderscore(std::string(*it)) + "\"" << '\n' << '\n';
 
 			script_os << "# Replot in latex folder" << '\n';
 			script_os << "set title \"\"" << '\n' << '\n';
 
-			script_os << "set output \'" << (cfg_.latex_gpu_path / path(compiler_name + compiler_version)).string() << "\'.output_file" << '\n';
+			script_os << "set output \'" << (current_latex_path / path(compiler_name + compiler_version)).string() << "'.output_file" << '\n';
 			script_os << "replot" << '\n' << '\n';
 
 			script_os << "# GRANULARITY GRAPH (BLACK AND WHITE)" << '\n' << '\n';
 
-			script_os << "set output 'bw'.output_file" << '\n';
-			script_os << "set title " << GetGnuplotTitleGpu(cfg_) << '\n' << '\n';
+			script_os << "set output '" << (current_output_path / path("bw")).string() << "'.output_file" << '\n';
+			script_os << "set title " << LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_average_algorithms[0])->GetTitle() << '\n' << '\n';
 
 			script_os << "# " << kTerminal << " black and white" << '\n';
 			script_os << "set terminal " << kTerminal << " enhanced monochrome dashed font ',15'" << '\n' << '\n';
@@ -1482,7 +1639,7 @@ void YacclabGpuTests::GranularityTest()
 			script_os.close();
 			// GNUPLOT SCRIPT
 		}
-		string command = "";
+		std::string command = "";
 #if defined(YACCLAB_LINUX) || defined(YACCLAB_UNIX) || defined(YACCLAB_APPLE)
 		command += "sh ";
 #endif
@@ -1491,17 +1648,17 @@ void YacclabGpuTests::GranularityTest()
 			ob.Cwarning("Unable to run '" + main_script + "' script");
 		}
 		ob.CloseBox();
-	}
+	} // END DATASET FOR
+	// LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_average_algorithms[0])->ReleaseInput();
 }
 
-void YacclabGpuTests::MemoryTest()
-{
+void TestsPerformer::MemoryTest() {
 	// Initialize output message box
-	OutputBox ob("GPU Memory Test");
+	OutputBox ob(mode_cfg_.mode + " Memory Test");
 
-	path current_output_path(cfg_.output_path / path("GPU") / path(cfg_.memory_folder));
+	path current_output_path(glob_cfg_.glob_output_path / mode_cfg_.mode_output_path / path(glob_cfg_.memory_folder));
 
-	String output_file((current_output_path.string() / path(cfg_.memory_file)).string());
+	std::string output_file((current_output_path.string() / path(glob_cfg_.memory_file)).string());
 
 	if (!create_directories(current_output_path)) {
 		ob.Cwarning("Unable to find/create the output path '" + current_output_path.string() + "', 'memory test' skipped");
@@ -1510,7 +1667,7 @@ void YacclabGpuTests::MemoryTest()
 	}
 
 	// To write MEMORY results
-	ofstream os(output_file);
+	std::ofstream os(output_file);
 	if (!os.is_open()) {
 		ob.Cwarning("Unable to open '" + output_file + "', 'memory test' skipped");
 		ob.CloseBox();
@@ -1518,27 +1675,27 @@ void YacclabGpuTests::MemoryTest()
 	}
 	os << "#Average number of accesses" << '\n';
 
-	for (unsigned d = 0; d < cfg_.memory_datasets.size(); ++d) { // For every dataset in the average list
-		String dataset_name(cfg_.memory_datasets[d]);
+	for (unsigned d = 0; d < mode_cfg_.memory_datasets.size(); ++d) { // For every dataset in the average list
+		std::string dataset_name(mode_cfg_.memory_datasets[d]);
 
-		path dataset_path(cfg_.input_path / path(dataset_name)),
-			is_path = dataset_path / path(cfg_.input_txt); // files.txt path
+		path dataset_path(glob_cfg_.input_path / path(dataset_name)),
+			is_path = dataset_path / path(glob_cfg_.input_txt); // files.txt path
 
-														   // To save list of filename on which CLLAlgorithms must be tested
-		vector<pair<string, bool>> filenames;  // first: filename, second: state of filename (find or not)
+		// To save list of filename on which CLLAlgorithms must be tested
+		std::vector<std::pair<std::string, bool>> filenames;  // first: filename, second: state of filename (find or not)
 		if (!LoadFileList(filenames, is_path)) {
 			ob.Cwarning("Unable to open '" + is_path.string() + "', skipped", dataset_name);
 			continue;
 		}
 
 		// Number of files
-		int filenames_size = static_cast<int>(filenames.size());
+		unsigned int filenames_size = static_cast<unsigned>(filenames.size());
 
 		unsigned tot_test = 0; // To count the real number of image on which labeling will be applied for every file in list
 
-							   // Initialize results container
-							   // To store average memory accesses (one column for every data_ structure type: col 1 -> BINARY_MAT, col 2 -> LABELED_MAT, col 3 -> EQUIVALENCE_VET, col 0 -> OTHER)
-		memory_accesses_[dataset_name] = Mat1d(Size(MD_SIZE, static_cast<int>(cfg_.gpu_ccl_mem_algorithms.size())), 0.0);
+		// Initialize results container
+		// To store average memory accesses (one column for every data_ structure type: col 1 -> BINARY_MAT, col 2 -> LABELED_MAT, col 3 -> EQUIVALENCE_VET, col 0 -> OTHER)
+		memory_accesses_[dataset_name] = cv::Mat1d(cv::Size(MD_SIZE, static_cast<unsigned>(mode_cfg_.ccl_mem_algorithms.size())), 0.0);
 
 		// Start output message box
 		ob.StartUnitaryBox(dataset_name, filenames_size);
@@ -1548,27 +1705,35 @@ void YacclabGpuTests::MemoryTest()
 			// Display output message box
 			ob.UpdateUnitaryBox(file);
 
-			string filename = filenames[file].first;
+			std::string filename = filenames[file].first;
 			path filename_path = dataset_path / path(filename);
 
 			// Read and load image
-			if (!GetBinaryImage(filename_path, Labeling::img_)) {
+			//if (!GetBinaryImage(filename_path, Labeling::img_)) {
+			//	ob.Cwarning("Unable to open '" + filename + "'");
+			//	continue;
+			//}
+			if (!LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_mem_algorithms[0])->GetInput()->ReadBinary(filename_path.string())) {
 				ob.Cwarning("Unable to open '" + filename + "'");
 				continue;
 			}
 
-			// Load input image into device memory
-			GpuLabeling::d_img_.upload(Labeling::img_);
-
 			++tot_test;
 
 			// For all the Algorithms in the array
-			for (unsigned i = 0; i < static_cast<unsigned>(cfg_.gpu_ccl_mem_algorithms.size()); ++i) {
-				Labeling *algorithm = LabelingMapSingleton::GetLabeling(cfg_.gpu_ccl_mem_algorithms[i]);
-				// The following data_ structure is used to get the memory access matrices
-				vector<unsigned long int> accesses; // Rows represents algorithms and columns represent data_ structures
+			for (unsigned i = 0; i < static_cast<unsigned>(mode_cfg_.ccl_mem_algorithms.size()); ++i) {
+				Labeling *algorithm = LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_mem_algorithms[i]);
 
-				algorithm->PerformLabelingMem(accesses);
+				// The following data_ structure is used to get the memory access matrices
+				std::vector<unsigned long int> accesses; // Rows represents algorithms and columns represent data_ structures
+
+				try {
+					algorithm->PerformLabelingMem(accesses);
+				}
+				catch (const std::exception& e) {
+					algorithm->FreeLabelingData();
+					ob.Cerror("Something wrong with " + mode_cfg_.ccl_mem_algorithms[i] + ": " + e.what()); // You should check your algorithms' implementation before performing YACCLAB tests  
+				}
 
 				// For every data_ structure "returned" by the algorithm
 				for (unsigned a = 0; a < static_cast<unsigned>(accesses.size()); ++a) {
@@ -1589,9 +1754,9 @@ void YacclabGpuTests::MemoryTest()
 		os << "#" << dataset_name << '\n';
 		os << "Algorithm\tBinary Image\tLabel Image\tEquivalence Vector/s\tOther\tTotal Accesses" << '\n';
 
-		for (unsigned a = 0; a < static_cast<unsigned>(cfg_.gpu_ccl_mem_algorithms.size()); ++a) {
+		for (unsigned a = 0; a < static_cast<unsigned>(mode_cfg_.ccl_mem_algorithms.size()); ++a) {
 			double total_accesses{ 0.0 };
-			os << cfg_.gpu_ccl_mem_algorithms[a] << '\t';
+			os << mode_cfg_.ccl_mem_algorithms[a] << '\t';
 			for (int col = 0; col < memory_accesses_[dataset_name].cols; ++col) {
 				os << std::fixed << std::setprecision(0) << memory_accesses_[dataset_name](a, col);
 				os << '\t';
@@ -1603,26 +1768,26 @@ void YacclabGpuTests::MemoryTest()
 		}
 
 		os << '\n' << '\n';;
-	}
+	} // END DATASET FOR
+	// LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_mem_algorithms[0])->ReleaseInput();
 	os.close();
 }
 
-void YacclabGpuTests::LatexGenerator()
-{
-	OutputBox ob("Generation of Latex file/s");
-	path latex = cfg_.latex_gpu_path / path(cfg_.latex_file);
-	ofstream os(latex.string());
+void TestsPerformer::LatexGenerator() {
+	OutputBox ob("Generation of Latex file/s for mode " + mode_cfg_.mode);
+	path latex = glob_cfg_.glob_output_path / mode_cfg_.mode_output_path / glob_cfg_.latex_path / path(glob_cfg_.latex_file);
+	std::ofstream os(latex.string());
 	if (!os.is_open()) {
 		ob.Cwarning("Unable to open/create '" + latex.string() + "', generation skipped");
 		return;
 	}
 
 	// fixed number of decimal values
-	os << fixed;
-	os << setprecision(3);
+	os << std::fixed;
+	os << std::setprecision(3);
 
 	// Document begin
-	os << "%This file is generated by YACCLAB. Follow our project on GitHub: https://github.com/prittt/YACCLAB" << '\n' << '\n';
+	os << "%These file is generated by YACCLAB. Follow our project on GitHub: https://github.com/prittt/YACCLAB" << '\n' << '\n';
 	os << "\\documentclass{article}" << '\n' << '\n';
 
 	os << "\\usepackage{siunitx}" << '\n';
@@ -1637,7 +1802,7 @@ void YacclabGpuTests::LatexGenerator()
 	os << "\\maketitle" << '\n' << '\n';
 
 	// Section average results table ------------------------------------------------------------------------------------------
-	if (cfg_.gpu_perform_average) {
+	if (mode_cfg_.perform_average) {
 		os << "\\section{Average Table Results}" << '\n' << '\n';
 
 		os << "\\begin{table}[tbh]" << '\n' << '\n';
@@ -1645,23 +1810,23 @@ void YacclabGpuTests::LatexGenerator()
 		os << "\t\\caption{Average Results in ms (Lower is better)}" << '\n';
 		os << "\t\\label{tab:table1}" << '\n';
 		os << "\t\\begin{tabular}{|l|";
-		for (unsigned i = 0; i < cfg_.gpu_ccl_average_algorithms.size(); ++i)
+		for (unsigned i = 0; i < mode_cfg_.ccl_average_algorithms.size(); ++i)
 			os << "S[table-format=2.3]|";
 		os << "}" << '\n';
 		os << "\t\\hline" << '\n';
 		os << '\t';
-		for (unsigned i = 0; i < cfg_.gpu_ccl_average_algorithms.size(); ++i) {
+		for (unsigned i = 0; i < mode_cfg_.ccl_average_algorithms.size(); ++i) {
 			//RemoveCharacter(datasets_name, '\\');
 			//datasets_name.erase(std::remove(datasets_name.begin(), datasets_name.end(), '\\'), datasets_name.end());
-			os << " & {" << EscapeUnderscore(cfg_.gpu_ccl_average_algorithms[i]) << "}"; //Header
+			os << " & {" << EscapeUnderscore(mode_cfg_.ccl_average_algorithms[i]) << "}"; //Header
 		}
 		os << "\\\\" << '\n';
 		os << "\t\\hline" << '\n';
-		for (unsigned i = 0; i < cfg_.average_datasets.size(); ++i) {
-			os << '\t' << cfg_.average_datasets[i];
+		for (unsigned i = 0; i < mode_cfg_.average_datasets.size(); ++i) {
+			os << '\t' << mode_cfg_.average_datasets[i];
 			for (int j = 0; j < average_results_.cols; ++j) {
 				os << " & ";
-				if (average_results_(i, j) != numeric_limits<double>::max())
+				if (average_results_(i, j) != std::numeric_limits<double>::max())
 					os << average_results_(i, j); //Data
 			}
 			os << "\\\\" << '\n';
@@ -1672,22 +1837,21 @@ void YacclabGpuTests::LatexGenerator()
 	}
 
 	{ // CHARTS SECTION ------------------------------------------------------------------------------------------
-		SystemInfo s_info(cfg_);
-		string info_to_latex = s_info.build() + "_" + s_info.compiler_name() + s_info.compiler_version() + "_" + s_info.os();
+		std::string info_to_latex = SystemInfo::build() + "_" + SystemInfo::compiler_name() + SystemInfo::compiler_version() + "_" + SystemInfo::os();
 		std::replace(info_to_latex.begin(), info_to_latex.end(), ' ', '_');
 		info_to_latex = EscapeUnderscore(info_to_latex);
 
-		string chart_size{ "0.45" }, chart_width{ "1" };
+		std::string chart_size{ "0.45" }, chart_width{ "1" };
 		// Get information about date and time
-		string datetime = GetDatetime();
+		std::string datetime = GetDatetime();
 
-		string compiler_name(s_info.compiler_name());
-		string compiler_version(s_info.compiler_version());
+		std::string compiler_name(SystemInfo::compiler_name());
+		std::string compiler_version(SystemInfo::compiler_version());
 		//replace the . with _ for compiler strings
 		std::replace(compiler_version.begin(), compiler_version.end(), '.', '_');
 
 		// SECTION AVERAGE CHARTS  ---------------------------------------------------------------------------
-		if (cfg_.gpu_perform_average) {
+		if (mode_cfg_.perform_average) {
 			os << "\\section{Average Charts}" << '\n' << '\n';
 			os << "\\begin{figure}[tbh]" << '\n' << '\n';
 			// \newcommand{ \machineName }{x86\_MSVC15.0\_Windows\_10\_64\_bit}
@@ -1697,11 +1861,11 @@ void YacclabGpuTests::LatexGenerator()
 			os << "\t\\newcommand{\\compilerName}{" + compiler_name + compiler_version + "}" << '\n';
 			os << "\t\\centering" << '\n';
 
-			for (unsigned i = 0; i < cfg_.average_datasets.size(); ++i) {
+			for (unsigned i = 0; i < mode_cfg_.average_datasets.size(); ++i) {
 				os << "\t\\begin{subfigure}[tbh]{" + chart_size + "\\textwidth}" << '\n';
-				os << "\t\t\\caption{" << cfg_.average_datasets[i] + "}" << '\n';
+				os << "\t\t\\caption{" << mode_cfg_.average_datasets[i] + "}" << '\n';
 				os << "\t\t\\centering" << '\n';
-				os << "\t\t\\includegraphics[width=" + chart_width + "\\textwidth]{\\compilerName_" + cfg_.average_datasets[i] + ".pdf}" << '\n';
+				os << "\t\t\\includegraphics[width=" + chart_width + "\\textwidth]{\\compilerName_" + mode_cfg_.average_datasets[i] + ".pdf}" << '\n';
 				os << "\t\\end{subfigure}" << '\n' << '\n';
 			}
 			os << "\t\\caption{\\machineName \\enspace " + datetime + "}" << '\n' << '\n';
@@ -1709,8 +1873,8 @@ void YacclabGpuTests::LatexGenerator()
 		}
 
 		// SECTION AVERAGE WITH STEPS CHARTS  ---------------------------------------------------------------------------
-		if (cfg_.gpu_perform_average_ws) {
-			string average_ws_suffix{ "_with_steps_" };
+		if (mode_cfg_.perform_average_ws) {
+			std::string average_ws_suffix{ "_with_steps_" };
 
 			os << "\\section{Average With Steps Charts}" << '\n' << '\n';
 			os << "\\begin{figure}[tbh]" << '\n' << '\n';
@@ -1720,11 +1884,11 @@ void YacclabGpuTests::LatexGenerator()
 			// \newcommand{\compilerName}{MSVC15_0}
 			os << "\t\\newcommand{\\compilerName}{" + compiler_name + compiler_version + "}" << '\n';
 			os << "\t\\centering" << '\n';
-			for (unsigned i = 0; i < cfg_.average_ws_datasets.size(); ++i) {
+			for (unsigned i = 0; i < mode_cfg_.average_ws_datasets.size(); ++i) {
 				os << "\t\\begin{subfigure}[tbh]{" + chart_size + "\\textwidth}" << '\n';
-				os << "\t\t\\caption{" << cfg_.average_ws_datasets[i] + "}" << '\n';
+				os << "\t\t\\caption{" << mode_cfg_.average_ws_datasets[i] + "}" << '\n';
 				os << "\t\t\\centering" << '\n';
-				os << "\t\t\\includegraphics[width=" + chart_width + "\\textwidth]{\\compilerName_" + average_ws_suffix + cfg_.average_ws_datasets[i] + ".pdf}" << '\n';
+				os << "\t\t\\includegraphics[width=" + chart_width + "\\textwidth]{\\compilerName_" + average_ws_suffix + mode_cfg_.average_ws_datasets[i] + ".pdf}" << '\n';
 				os << "\t\\end{subfigure}" << '\n' << '\n';
 			}
 			os << "\t\\caption{\\machineName \\enspace " + datetime + "}" << '\n' << '\n';
@@ -1732,8 +1896,8 @@ void YacclabGpuTests::LatexGenerator()
 		}
 
 		// SECTION DENSITY CHARTS  ---------------------------------------------------------------------------
-		if (cfg_.gpu_perform_density) {
-			vector<String> density_datasets{ "density", "size" };
+		if (mode_cfg_.perform_density) {
+			std::vector<std::string> density_datasets{ "density", "size" };
 
 			os << "\\section{Density Charts}" << '\n' << '\n';
 			os << "\\begin{figure}[tbh]" << '\n' << '\n';
@@ -1755,9 +1919,9 @@ void YacclabGpuTests::LatexGenerator()
 			os << "\\end{figure}" << '\n' << '\n';
 		}
 
-		// SECTION DENSITY CHARTS  ---------------------------------------------------------------------------
-		if (cfg_.gpu_perform_granularity) {
-			//vector<String> density_datasets{ "density", "size" };
+		// SECTION GRANULARITY CHARTS  ---------------------------------------------------------------------------
+		if (mode_cfg_.perform_granularity) {
+			//vector<std::string> density_datasets{ "density", "size" };
 
 			os << "\\section{Granularity Charts}" << '\n' << '\n';
 			os << "\\begin{figure}[tbh]" << '\n' << '\n';
@@ -1768,11 +1932,11 @@ void YacclabGpuTests::LatexGenerator()
 			os << "\t\\newcommand{\\compilerName}{" + compiler_name + compiler_version + "}" << '\n';
 			os << "\t\\centering" << '\n';
 
-			for (unsigned i = 0; i < cfg_.granularity_datasets.size(); ++i) {
+			for (unsigned i = 0; i < mode_cfg_.granularity_datasets.size(); ++i) {
 				os << "\t\\begin{subfigure}[tbh]{" + chart_size + "\\textwidth}" << '\n';
-				os << "\t\t\\caption{" << cfg_.granularity_datasets[i] + "}" << '\n';
+				os << "\t\t\\caption{" << mode_cfg_.granularity_datasets[i] + "}" << '\n';
 				os << "\t\t\\centering" << '\n';
-				os << "\t\t\\includegraphics[width=" + chart_width + "\\textwidth]{\\compilerName_" + cfg_.granularity_datasets[i] + ".pdf}" << '\n';
+				os << "\t\t\\includegraphics[width=" + chart_width + "\\textwidth]{\\compilerName_" + mode_cfg_.granularity_datasets[i] + ".pdf}" << '\n';
 				os << "\t\\end{subfigure}" << '\n' << '\n';
 			}
 			os << "\t\\caption{\\machineName \\enspace " + datetime + "}" << '\n' << '\n';
@@ -1780,8 +1944,8 @@ void YacclabGpuTests::LatexGenerator()
 		}
 	} // END CHARTS SECTION
 
-	  // SECTION MEMORY RESULT TABLE ---------------------------------------------------------------------------
-	if (cfg_.gpu_perform_memory) {
+	// SECTION MEMORY RESULT TABLE ---------------------------------------------------------------------------
+	if (mode_cfg_.perform_memory) {
 		os << "\\section{Memory Accesses tests}" << '\n' << '\n';
 		os << "Analysis of memory accesses required by connected components computation. The numbers are given in millions of accesses." << '\n';
 
@@ -1805,9 +1969,9 @@ void YacclabGpuTests::LatexGenerator()
 			os << "\\\\" << '\n';
 			os << "\t\\hline" << '\n';
 
-			for (unsigned i = 0; i < cfg_.gpu_ccl_mem_algorithms.size(); ++i) {
+			for (unsigned i = 0; i < mode_cfg_.ccl_mem_algorithms.size(); ++i) {
 				// For every algorithm escape the underscore
-				const String& alg_name = EscapeUnderscore(cfg_.gpu_ccl_mem_algorithms[i]);
+				const std::string& alg_name = EscapeUnderscore(mode_cfg_.ccl_mem_algorithms[i]);
 				//RemoveCharacter(alg_name, '\\');
 				os << "\t{" << alg_name << "}";
 

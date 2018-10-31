@@ -47,7 +47,7 @@ void cv::cuda::GpuMat3::create(int _x, int _y, int _z, int _type)
 		struct cudaPitchedPtr pitchedPtr;
 		struct cudaExtent extent;
 
-		extent.width = _x;
+		extent.width = _x * esz;     // forse va bene
 		extent.height = _y;
 		extent.depth = _z;
 
@@ -72,17 +72,17 @@ void cv::cuda::GpuMat3::upload(Mat &mat)
 	cudaPitchedPtr srcPtr, dstPtr;
 	srcPtr.pitch = mat.step[1];
 	srcPtr.ptr = mat.data;
-	srcPtr.xsize = mat.size[2];
+	srcPtr.xsize = mat.size[2] * mat.elemSize();
 	srcPtr.ysize = mat.size[1];
 	dstPtr.pitch = stepy;
 	dstPtr.ptr = data;
-	dstPtr.xsize = mat.size[2];
+	dstPtr.xsize = mat.size[2] * elemSize();
 	dstPtr.ysize = mat.size[1];
 
 	cudaMemcpy3DParms params = { 0 };
 	params.srcPtr = srcPtr;
 	params.dstPtr = dstPtr;
-	params.extent = make_cudaExtent(x, y, z);
+	params.extent = make_cudaExtent(x * elemSize(), y, z);
 	params.kind = cudaMemcpyHostToDevice;
 
 	CV_CUDEV_SAFE_CALL(cudaMemcpy3D(&params));
@@ -99,17 +99,17 @@ void cv::cuda::GpuMat3::download(Mat &mat) const
 	cudaPitchedPtr srcPtr, dstPtr;
 	dstPtr.pitch = mat.step[1];
 	dstPtr.ptr = mat.data;
-	dstPtr.xsize = mat.size[2];
+	dstPtr.xsize = mat.size[2] * elemSize();
 	dstPtr.ysize = mat.size[1];
 	srcPtr.pitch = stepy;
 	srcPtr.ptr = data;
-	srcPtr.xsize = mat.size[2];
+	srcPtr.xsize = mat.size[2] * elemSize();
 	srcPtr.ysize = mat.size[1];
 
 	cudaMemcpy3DParms params = { 0 };
 	params.srcPtr = srcPtr;
 	params.dstPtr = dstPtr;
-	params.extent = make_cudaExtent(x, y, z);
+	params.extent = make_cudaExtent(x * elemSize(), y, z);
 	params.kind = cudaMemcpyDeviceToHost;
 
 	CV_CUDEV_SAFE_CALL(cudaMemcpy3D(&params));

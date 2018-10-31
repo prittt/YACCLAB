@@ -137,7 +137,9 @@ private:
 inline path operator/(const path& lhs, const path& rhs) { return path(lhs) /= rhs; }
 
 bool exists(const path& p);
+bool exists(const path& p, bool& is_dir);
 bool exists(const path& p, std::error_code& ec);
+bool exists(const path& p, std::error_code& ec, bool& is_dir);
 
 bool create_directories(const path& p);
 bool create_directories(const path& p, std::error_code& ec);

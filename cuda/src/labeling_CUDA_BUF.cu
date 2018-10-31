@@ -1,23 +1,10 @@
-#include <opencv2/core.hpp>
-
-#include "labeling_algorithms.h"
-#include "labels_solver.h"
-#include "memory_tester.h"
+#include <opencv2\cudafeatures2d.hpp>
 
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
-#include <cuda.h>
 
-#include <cstdio>
-#include <stdlib.h>
-#include <math.h>
-#include <time.h>
-#include <iostream>
-
-#include <opencv2\core.hpp>
-#include <opencv2\cudafeatures2d.hpp>
-#include <opencv2\highgui\highgui.hpp>
-#include <map>
+#include "labeling_algorithms.h"
+#include "register.h"
 
 // Il minimo per entrambi è 4
 #define BLOCK_ROWS 16
@@ -25,7 +12,7 @@
 
 using namespace cv;
 
-namespace CUDA_BUF_namespace {
+namespace {
 
 	// Only use it with unsigned numeric types
 	template <typename T>
@@ -33,9 +20,9 @@ namespace CUDA_BUF_namespace {
 		return (bitmap >> pos) & 1;
 	}
 
-	__device__ __forceinline__ void SetBit(unsigned char &bitmap, unsigned char pos) {
-		bitmap |= (1 << pos);
-	}
+	//__device__ __forceinline__ void SetBit(unsigned char &bitmap, unsigned char pos) {
+	//	bitmap |= (1 << pos);
+	//}
 
 	// Risale alla radice dell'albero a partire da un suo nodo n
 	__device__ unsigned Find(const int *s_buf, unsigned n) {
@@ -140,9 +127,9 @@ namespace CUDA_BUF_namespace {
 			if (row + 1 >= img.rows) {
 				P &= 0xFF;
 			}
-			else if (row + 2 >= img.rows) {
-				P &= 0xFFF;
-			}
+			//else if (row + 2 >= img.rows) {                                           // controlla che vada anche senza
+			//	P &= 0xFFF;
+			//}
 
 			// P is now ready to be used to find neighbour blocks (or it should be)
 			// P value avoids range errors
@@ -230,9 +217,7 @@ namespace CUDA_BUF_namespace {
 
 }
 
-using namespace CUDA_BUF_namespace;
-
-class CUDA_BUF : public GpuLabeling {
+class CUDA_BUF : public GpuLabeling2D<CONN_8> {
 private:
 	dim3 grid_size_;
 	dim3 block_size_;
@@ -295,6 +280,7 @@ private:
 	void AllScans() {
 		grid_size_ = dim3((((d_img_.cols + 1) / 2) + BLOCK_COLS - 1) / BLOCK_COLS, (((d_img_.rows + 1) / 2) + BLOCK_ROWS - 1) / BLOCK_ROWS, 1);
 		block_size_ = dim3(BLOCK_COLS, BLOCK_ROWS, 1);
+
 
 		InitLabeling << <grid_size_, block_size_ >> > (d_img_labels_);
 

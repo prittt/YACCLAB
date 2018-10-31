@@ -36,7 +36,7 @@
 #include "memory_tester.h"
 
 template <typename LabelsSolver>
-class SAUF : public Labeling {
+class SAUF : public Labeling2D<CONN_8> {
 public:
     SAUF() {}
 

@@ -31,10 +31,14 @@ namespace cv {
 			void download(Mat &mat) const;
 
 			template <class T>
-			operator PtrStepSz3<T>() const;
+            operator PtrStepSz3<T>() const {            
+                return PtrStepSz3<T>(x, y, z, (T*)data, stepy, stepz);                
+            }
 
 			template <class T>
-			operator PtrStep3<T>() const;
+            operator PtrStep3<T>() const {
+                return PtrStep3<T>((T*)data, stepy, stepz);
+            }
 
 			int type() const;
 

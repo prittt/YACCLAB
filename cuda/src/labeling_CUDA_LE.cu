@@ -1,23 +1,10 @@
-#include <opencv2/core.hpp>
-
-#include "labeling_algorithms.h"
-#include "labels_solver.h"
-#include "memory_tester.h"
+#include <opencv2\cudafeatures2d.hpp>
 
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
-#include <cuda.h>
 
-#include <cstdio>
-#include <stdlib.h>
-#include <math.h>
-#include <time.h>
-#include <iostream>
-
-#include <opencv2\core.hpp>
-#include <opencv2\cudafeatures2d.hpp>
-#include <opencv2\highgui\highgui.hpp>
-#include <map>
+#include "labeling_algorithms.h"
+#include "register.h"
 
 // Il minimo per entrambi è 4
 #define BLOCK_ROWS 16
@@ -25,7 +12,7 @@
 
 using namespace cv;
 
-namespace CUDA_LE_namespace {
+namespace {
 
 	// Init phase.
 	// Labels start at value 1, to differentiate them from background, that has value 0.
@@ -128,9 +115,7 @@ namespace CUDA_LE_namespace {
 
 }
 
-using namespace CUDA_LE_namespace;
-
-class CUDA_LE : public GpuLabeling {
+class CUDA_LE : public GpuLabeling2D<CONN_8> {
 private:
 	dim3 grid_size_;
 	dim3 block_size_;
