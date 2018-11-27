@@ -130,7 +130,7 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Directed Rooted Acyclic Graph</td>
-    <td align="center">F. Bolelli,</br>L. Baraldi,</br>C. Grana <sup><a href="#DRAG">[18]</a></sup></td>
+    <td align="center">F. Bolelli,</br>L. Baraldi,</br>C. Grana <sup><a href="#DRAG">[19]</a></sup></td>
     <td align="center">2018</td>
     <td align="center">DRAG</td>
     <td align="center"><i>labeling_bolelli_2018.h</i>, <i>labeling_grana_2018_drag.inc</i></td>
@@ -138,7 +138,7 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Null Labeling</td>
-    <td align="center">F. Bolelli,</br>M. Cancilla,</br>L. Baraldi,</br>C. Grana <sup><a href="#YACCLAB_JRTIP">[17]</a></sup></td>
+    <td align="center">F. Bolelli,</br>M. Cancilla,</br>L. Baraldi,</br>C. Grana <sup><a href="#YACCLAB_JRTIP">[18]</a></sup></td>
     <td align="center">2018</td>
     <td align="center">NULL<small><sup>V</sup></small></td>
     <td align="center"><i>labeling_null.h</i></td>
@@ -771,5 +771,5 @@ Based  Connected-Component  Labeling, IEEE  Transactions  on  Image Processing, 
 <p align="justify"><em><a name="FINGERPRINTS">[16]</a> D. Maltoni, D. Maio, A. Jain, and S. Prabhakar, Handbook of fingerprint
 recognition. Springer Science & Business Media, 2009.</em></p>
 <p align="justify"><em><a name="YACCLAB">[17]</a> C.Grana, F.Bolelli, L.Baraldi, and R.Vezzani, YACCLAB - Yet Another Connected Components Labeling Benchmark, Proceedings of the 23rd International Conference on Pattern Recognition, Cancun, Mexico, 4-8 Dec 2016.</em></p>
-<p align="justify"><em><a name="YACCLAB_JRTIP">[17]</a> Bolelli, Federico; Cancilla, Michele; Baraldi, Lorenzo; Grana, Costantino "Towards Reliable Experiments on the Performance of Connected Components Labeling Algorithms" Journal of Real-Time Image Processing, 2018.</em></p>
-<p align="justify"><em><a name="DRAG">[18]</a> Bolelli, Federico; Baraldi, Lorenzo; Cancilla, Michele; Grana, Costantino "Connected Components Labeling on DRAGs" Proceedings of the 23rd International Conference on Pattern Recognition, Beijing, China, 20-24 Aug 2018.</em></p>
+<p align="justify"><em><a name="YACCLAB_JRTIP">[18]</a> Bolelli, Federico; Cancilla, Michele; Baraldi, Lorenzo; Grana, Costantino "Towards Reliable Experiments on the Performance of Connected Components Labeling Algorithms" Journal of Real-Time Image Processing, 2018.</em></p>
+<p align="justify"><em><a name="DRAG">[19]</a> Bolelli, Federico; Baraldi, Lorenzo; Cancilla, Michele; Grana, Costantino "Connected Components Labeling on DRAGs" Proceedings of the 23rd International Conference on Pattern Recognition, Beijing, China, 20-24 Aug 2018.</em></p>
