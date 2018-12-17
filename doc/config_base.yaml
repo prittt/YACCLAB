@@ -1,15 +1,18 @@
 %YAML:1.2
 ---
+##########################################
+# THIS IS THE YACCLAB CONFIGURATION FILE #
+##########################################
 
-##########################################
-# This is the YACCLAB configuration file #
-##########################################
+# -------------------- #
+#   Benchmark Tests    #
+# -------------------- #
 
 ${YACCLAB_CONFIG_2D}${YACCLAB_CONFIG_CUDA_2D}${YACCLAB_CONFIG_3D}${YACCLAB_CONFIG_CUDA_3D}
 
-# -------------------------------------------------------------------------------------
-# Additional utilities
-# -------------------------------------------------------------------------------------
+# -------------------- #
+# Additional utilities #
+# -------------------- #
 
 # Directory for input/output paths
 paths: {input: "${YACCLAB_INPUT_DATASET_PATH}", output: "${YACCLAB_OUTPUT_RESULTS_PATH}"}

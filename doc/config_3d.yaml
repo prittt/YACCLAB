@@ -1,16 +1,11 @@
 
-#-----------------------------------------------------------------------------------------------------------------------------------------------
-# 3D CPU CCL 26
-#-----------------------------------------------------------------------------------------------------------------------------------------------
-
-CPU 3D 8-way connectivity:
+CPU 3D 26-way connectivity:
+  
   execute: false
   
-  # ------------------------------------------------------------------------------
   # Tests to perform and their number of repetitions
-  # ------------------------------------------------------------------------------
+  # ------------------------------------------------
   
-  # Kind of tests to execute
   perform: 
     correctness:        false
     average:            true
@@ -24,39 +19,32 @@ CPU 3D 8-way connectivity:
     eight_connectivity_steps:    true
     eight_connectivity_memory:   true
   
-  # Number of tests repetitions 
   tests_number: 
     average:             5 
     average_with_steps:  5
     density:            10
     granularity:        10 
   
-  # ------------------------------------------------------------------------------
   # List of 3D CPU CCL algorithms to test
-  # ------------------------------------------------------------------------------
+  # -------------------------------------
   
-  algorithms: []
-  # - 3D_labeling_CUDA_NULL
-  
-  
-  # ------------------------------------------------------------------------------
+  algorithms:
+   - 3D_labeling_CUDA_NULL
+    
   # Datasets to use for each test
-  # ------------------------------------------------------------------------------
+  # -----------------------------
   
-  # Note that perform correctness tests on labeling_NULL algorithm does not make sense
-  #check_datasets: ["check", "3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800", "xdocs"]
-  check_datasets: ["check"]
+  # Note that perform correctness tests on labeling_CUDA_NULL algorithm does not make sense
+  check_datasets: ["check3D"]
   
   # List of datasets on which "Average Runtime Tests" shall be run
-  #average_datasets: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800", "xdocs"]
-  average_datasets: ["fingerprints"]
+  average_datasets: ["check3D"]
   
   # List of datasets on which "Average Runtime Tests With Steps" shall be run
-  #average_datasets_with_steps: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800", "xdocs"]
-  average_datasets_with_steps: ["fingerprints"]
+  average_datasets_with_steps: ["check3D"]
   
   # List of datasets on which "Memory Tests" shall be run
-  memory_datasets: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800", "xdocs"]
-  
+  memory_datasets: ["check3D"]
+
   # Save the results of each run test
   save_middle_tests: {average: false, average_with_steps: false, density: false, granularity: false}

@@ -1,15 +1,10 @@
 
-#-----------------------------------------------------------------------------------------------------------------------------------------------
-# 2D CPU CCL 8
-#-----------------------------------------------------------------------------------------------------------------------------------------------
-
 CPU 2D 8-way connectivity:
-  # Set to true to execute 2D CPU tests
+
   execute: true
   
-  # ------------------------------------------------------------------------------
   # Tests to perform and their number of repetitions
-  # ------------------------------------------------------------------------------
+  # ------------------------------------------------
   
   perform: 
     correctness:        false
@@ -24,16 +19,14 @@ CPU 2D 8-way connectivity:
     eight_connectivity_steps:    true
     eight_connectivity_memory:   true
   
-  # Number of tests repetitions 
   tests_number: 
     average:             1 
     average_with_steps:  3
     density:             1
     granularity:         1 
   
-  # ------------------------------------------------------------------------------
   # List of 2D CPU CCL algorithms to test
-  # ------------------------------------------------------------------------------
+  # -------------------------------------
   
   algorithms: 
   #  - SAUF_RemSP
@@ -78,9 +71,8 @@ CPU 2D 8-way connectivity:
   # LSL requires also a version specifier: STD, STDZ, RLE, RLEZ; only UF and TTA solvers can be used with LSL
   # Algorithms which don't require to specify a labels solver are: DiStefano, CT, SBLA, NULL
   
-  # -------------------------------------------------------------------------------------
   # Datasets to use for each test
-  # -------------------------------------------------------------------------------------
+  # -----------------------------
   
   # Note that perform correctness tests on labeling_NULL algorithm does not make sense
   check_datasets: ["check", "3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800", "xdocs"]
