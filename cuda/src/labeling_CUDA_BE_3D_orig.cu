@@ -640,8 +640,8 @@ private:
     }
 
     void AllScans() {
-        grid_size_ = dim3((d_img_.x + BLOCK_X - 1) / BLOCK_X, (d_img_.y + BLOCK_Y - 1) / BLOCK_Y, (d_img_.z + BLOCK_Z - 1) / BLOCK_Z);
-        block_size_ = dim3(BLOCK_X, BLOCK_Y, BLOCK_Z);
+		grid_size_ = dim3((d_block_labels_.x + BLOCK_X - 1) / BLOCK_X, (d_block_labels_.y + BLOCK_Y - 1) / BLOCK_Y, (d_block_labels_.z + BLOCK_Z - 1) / BLOCK_Z);
+		block_size_ = dim3(BLOCK_X, BLOCK_Y, BLOCK_Z);
 
         Init << <grid_size_, block_size_ >> > (d_img_, d_connections_, d_block_labels_);
         // La Init esplode

@@ -13,7 +13,7 @@ void TestsPerformer::InitialOperations() {
 
     // Check if all the specified algorithms exist
     CheckAlgorithmsExistence();
-    ob_.Cmessage("Checked algorithm existance");
+    ob_.Cmessage("Checked algorithm existence");
 
     // Check if labeling methods of the specified algorithms exist
     Labeling *first_algo = LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_existing_algorithms[0]);
@@ -23,7 +23,7 @@ void TestsPerformer::InitialOperations() {
     ob_.Cmessage("Created input");
 
     CheckMethodsExistence();
-    ob_.Cmessage("Checked methods existance");
+    ob_.Cmessage("Checked methods existence");
 
     // Check datasets existence
     CheckDatasets();
@@ -965,7 +965,16 @@ void TestsPerformer::DensityTest() {
 			output_size_bw_graph = dataset_name + "_size_bw" + kTerminalExtension,
 			output_null = dataset_name + null_results_suffix;
 
-		path dataset_path(glob_cfg_.input_path / path("random") / path(dataset_name)),
+		path father_dir_path;
+		unsigned int dims = LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_average_algorithms[0])->GetInput()->Dims();
+		if (dims == 2) {
+			father_dir_path = "random";
+		}
+		else if (dims == 3) {
+			father_dir_path = "random3D";
+		}
+
+		path dataset_path(glob_cfg_.input_path / father_dir_path / path(dataset_name)),
 			is_path = dataset_path / path(glob_cfg_.input_txt), // files.txt path
 			current_output_path(glob_cfg_.glob_output_path / mode_cfg_.mode_output_path / path(glob_cfg_.density_folder) / path(dataset_name)),
             current_latex_path(glob_cfg_.glob_output_path / mode_cfg_.mode_output_path / glob_cfg_.latex_path),
@@ -1035,7 +1044,10 @@ void TestsPerformer::DensityTest() {
 		view "supp_density" explanation for more details;
 	   */
 
-		uint8_t density = 9 /*[0.1,0.9]*/, size = 8 /*[32,64,128,256,512,1024,2048,4096]*/;
+		uint8_t density = 9 /*[0.1,0.9]*/, size = 8 /*[32,64,128,256,512,1024,2048,4096]*/;													//////////////////////////////////////////////////
+		if (dims == 3) {
+			size = 6;
+		}
 
 		using vvp = std::vector<std::vector<std::pair<double, uint16_t>>>;
 		vvp supp_density(mode_cfg_.ccl_average_algorithms.size(), std::vector<std::pair<double, uint16_t>>(density, std::make_pair(0, 0)));
@@ -1210,9 +1222,9 @@ void TestsPerformer::DensityTest() {
 			// For every size
 			if (size_average[0][i] == 0.0) // Check it only for the first algorithm (it is the same for the others)
 				size_os << "#"; // It means that there is no element with this size characteristic
-			supp_size_labels[i].first = (int)(pow(2, i + 5));
+			supp_size_labels[i].first = (int)(pow(2, i + (9 - 2 * dims)));		// dim = 2 -> 5 --- dim = 3 -> 3
 			supp_size_labels[i].second = size_average[0][i];
-			size_os << (int)pow(supp_size_labels[i].first, 2) << '\t'; //Size value
+			size_os << (int)pow(supp_size_labels[i].first, dims) << '\t'; //Size value
 			for (unsigned j = 0; j < size_average.size(); ++j) {
 				// For every algorithms
 				size_os << size_average[j][i] << '\t';
@@ -1375,7 +1387,16 @@ void TestsPerformer::GranularityTest() {
 			output_granularity_graph = dataset_name + "_granularity" + kTerminalExtension,
 			output_granularity_bw_graph = dataset_name + "_granularity_bw" + kTerminalExtension;
 
-		path dataset_path(glob_cfg_.input_path / path("random") / path(dataset_name)),
+		path father_dir_path;
+		unsigned int dims = (LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_average_algorithms[0]))->GetInput()->Dims();
+		if (dims == 2) {
+			father_dir_path = "random";
+		}
+		else if (dims == 3) {
+			father_dir_path = "random3D";
+		}
+
+		path dataset_path(glob_cfg_.input_path / father_dir_path / path(dataset_name)),
 			is_path = dataset_path / path(glob_cfg_.input_txt), // files.txt path
 			current_output_path(glob_cfg_.glob_output_path / mode_cfg_.mode_output_path / path(glob_cfg_.granularity_folder) / path(dataset_name)),
             current_latex_path(glob_cfg_.glob_output_path / mode_cfg_.mode_output_path / glob_cfg_.latex_path),
@@ -1403,6 +1424,9 @@ void TestsPerformer::GranularityTest() {
 
 		uint8_t density = 101; // For granularity tests density ranges from 0 to 100 with step 1
 		uint8_t granularity = 16; // For granularity tests granularity ranges from 1 to 16 with step 1
+		if (dims == 3) {
+			granularity = 1;
+		}
 
 		// Initialize results container
 		granularity_results_[dataset_name] = cv::Mat(cv::Size(static_cast<unsigned>(mode_cfg_.ccl_average_algorithms.size()), density), CV_64FC(granularity), cv::Scalar(0)); // To store minimum values 
@@ -1499,7 +1523,12 @@ void TestsPerformer::GranularityTest() {
 				int cur_density = stoi(cur_filename.substr(2, 3));
 
 				for (int c = 0; c < min_res.cols; ++c) {
-					granularity_results_[dataset_name].at<cv::Vec<double, 16>>(cur_density, c)[cur_granularity - 1] += min_res(r, c);
+					if (dims == 2) {
+						granularity_results_[dataset_name].at<cv::Vec<double, 16>>(cur_density, c)[cur_granularity - 1] += min_res(r, c);
+					}
+					else if (dims == 3) {
+						granularity_results_[dataset_name].at<cv::Vec<double, 1>>(cur_density, c)[cur_granularity - 1] += min_res(r, c);
+					}
 				}
 			}
 			else {
@@ -1545,7 +1574,12 @@ void TestsPerformer::GranularityTest() {
 			for (unsigned d = 0; d < density; ++d) {
 				granularity_os << std::fixed << std::setprecision(5) << /*real_densities[g - 1][d]*/ d << '\t';
 				for (unsigned a = 0; a < mode_cfg_.ccl_average_algorithms.size(); ++a) {
-					granularity_os << std::fixed << std::setprecision(8) << (granularity_results_[dataset_name].at<cv::Vec<double, 16>>(d, a)[g - 1] / 10.0) << '\t';
+					if (dims == 2) {
+						granularity_os << std::fixed << std::setprecision(8) << (granularity_results_[dataset_name].at<cv::Vec<double, 16>>(d, a)[g - 1] / 10.0) << '\t';
+					}
+					else if (dims == 3) {
+						granularity_os << std::fixed << std::setprecision(8) << (granularity_results_[dataset_name].at<cv::Vec<double, 1>>(d, a)[g - 1] / 3.0) << '\t';
+					}
 				}
 				granularity_os << '\n';
 			}

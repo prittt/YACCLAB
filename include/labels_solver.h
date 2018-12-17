@@ -96,6 +96,7 @@ public:
             return P_[j] = i;
         return P_[i] = j;
     }
+
     static unsigned Flatten()
     {
         unsigned k = 1;

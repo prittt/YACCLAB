@@ -40,7 +40,6 @@ using namespace cv;
 class YacclabTensor {
 public:
     virtual void Release() = 0;
-
     // Possibly add some descriptive fields
 };
 
@@ -48,6 +47,7 @@ class YacclabTensorInput : public YacclabTensor {
 public:
     virtual void Create() = 0;
     virtual bool ReadBinary(const std::string &filename) = 0;
+	virtual unsigned int Dims() = 0;
 };
 
 class YacclabTensorInput2D : public YacclabTensorInput {
@@ -59,6 +59,7 @@ public:
     virtual bool ReadBinary(const std::string &filename);
     virtual Mat& GetMat() {  return mat_;  }
     virtual Mat1b& Raw() {  return mat_;  }
+	virtual unsigned int Dims() { return 2; };
 };
 
 class YacclabTensorInput3D : public YacclabTensorInput {
@@ -70,6 +71,7 @@ public:
     virtual bool ReadBinary(const std::string &filename);
     virtual Mat& GetMat() {  return mat_;  }
     virtual Mat& Raw() {  return mat_;  }
+	virtual unsigned int Dims() { return 3; };
 };
 
 

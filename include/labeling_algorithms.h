@@ -52,8 +52,13 @@
 
 #include "performance_evaluator.h"
 
-#define UPPER_BOUND_8_CONNECTIVITY ((size_t)((img_.rows + 1) / 2) * (size_t)((img_.cols + 1) / 2) + 1)
 #define UPPER_BOUND_4_CONNECTIVITY (((size_t)img_.rows * (size_t)img_.cols + 1) / 2 + 1)
+#define UPPER_BOUND_8_CONNECTIVITY ((size_t)((img_.rows + 1) / 2) * (size_t)((img_.cols + 1) / 2) + 1)
+
+#define UPPER_BOUND_6_CONNECTIVITY (((size_t)img_.size[0] * (size_t)img_.size[1] * (size_t)img_.size[2] + 1) / 2 + 1)
+#define UPPER_BOUND_26_CONNECTIVITY ((size_t)((img_.size[0] + 1) / 2) * (size_t)((img_.size[1] + 1) / 2) * (size_t)((img_.size[2] + 1) / 2) + 1)
+
+
 
 
 class Labeling {
@@ -154,7 +159,7 @@ public:
     virtual std::string GetTitle() const { return GetGnuplotTitleGpu(); }
 };
 
-#endif
+#endif // USE_CUDA
 
 class LabelingMapSingleton {
 public:

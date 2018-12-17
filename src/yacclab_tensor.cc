@@ -116,14 +116,14 @@ void YacclabTensorOutput3D::WriteColored(const std::string &filename) const {
     cv::Mat img_out(3, mat_.size.p, CV_8UC3);
     for (int z = 0; z < mat_.size[0]; z++) {
         for (int y = 0; y < mat_.size[1]; y++) {
-            unsigned int * img_labels_row = reinterpret_cast<unsigned int *>(mat_.data + z * mat_.step[0] + y * mat_.step[1]);
-            Vec3b * img_out_row = reinterpret_cast<Vec3b *>(img_out.data + z * img_out.step[0] + y * img_out.step[1]);
+			unsigned int const * const img_labels_row = mat_.ptr<unsigned int>(z, y);
+            Vec3b * const img_out_row = img_out.ptr<Vec3b>(z, y);
             for (int x = 0; x < mat_.size[2]; x++) {
                 img_out_row[x] = Vec3b(img_labels_row[x] * 131 % 255, img_labels_row[x] * 241 % 255, img_labels_row[x] * 251 % 255);
             }
         }
     }
-    imwrite(filename, img_out);
+    volwrite(filename, img_out);
 }
 
 
