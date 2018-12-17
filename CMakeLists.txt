@@ -44,7 +44,7 @@ set(YACCLAB_DOWNLOAD_DATASET OFF CACHE BOOL "If flagged the YACCLAB dataset will
 set(YACCLAB_INPUT_DATASET_PATH "${CMAKE_INSTALL_PREFIX}/input" CACHE PATH "'input' dataset path") 
 set(YACCLAB_OUTPUT_RESULTS_PATH "${CMAKE_INSTALL_PREFIX}/output" CACHE PATH "'output' results path") 
 set(YACCLAB_OS "${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_VERSION}" CACHE STRING "" FORCE)
-set(YACCLAB_IS_TRAVIS_CI OFF CACHE BOOL "This variable is used to handle travis-ci parameters, do not change its value")
+set(YACCLAB_IS_TRAVIS_CI OFF CACHE INTERNAL "This variable is used to handle travis-ci parameters, do not change its value")
 
 if(MSVC)
   set(CMAKE_USE_RELATIVE_PATHS ON CACHE INTERNAL "" FORCE)
@@ -136,8 +136,9 @@ endif()
 # --------------------
 
 set(OpenCV_REQUIRED_PACKAGES "core;imgcodecs;imgproc" CACHE STRING "OpenCV packages required by YACCLAB are already set")
-if (CMAKE_CUDA_COMPILER) 
-	set(OpenCV_REQUIRED_PACKAGES "${OpenCV_REQUIRED_PACKAGES};cudafeatures2d")
+string(FIND "${OpenCV_REQUIRED_PACKAGES}" "cudafeatures2d" cudafeatures2d_pos)
+if (CMAKE_CUDA_COMPILER AND ${cudafeatures2d_pos} EQUAL -1) 
+	set(OpenCV_REQUIRED_PACKAGES "${OpenCV_REQUIRED_PACKAGES};cudafeatures2d" CACHE STRING "OpenCV packages required by YACCLAB are already set" FORCE)
 endif()
 FIND_PACKAGE(OpenCV REQUIRED ${OpenCV_REQUIRED_PACKAGES})
 include_directories( ${OpenCV_INCLUDE_DIRS} )
