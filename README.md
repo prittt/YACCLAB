@@ -17,7 +17,7 @@ Notice that 8-connectivity is always used in the project.
 <p align="justify">To correctly install and run YACCLAB following packages, libraries and utility are needed:</p>
 
 - CMake 3.0.0 or higher (https://cmake.org),
-- OpenCV 3.0 or higher, <u>but not OpenCV 4.0</u> (http://opencv.org),
+- OpenCV 3.0 or higher (http://opencv.org),
 - Gnuplot (http://www.gnuplot.info/), 
 - One of your favourite IDE/compiler: Visual Studio 2013 or higher, Xcode 5.0.1, gcc 4.7 or higher, .. (with C++11 support)
 
