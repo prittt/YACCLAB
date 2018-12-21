@@ -1,4 +1,4 @@
-# Copyright(c) 2016 - 2018 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
+# Copyright(c) 2016 - 2019 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -41,11 +41,10 @@ set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE PATH "Install prefix" FORCE
 set(YACCLAB_DOWNLOAD_DATASET OFF CACHE BOOL "If flagged the YACCLAB dataset will be automatically downloaded")
 set(YACCLAB_INPUT_DATASET_PATH "${CMAKE_INSTALL_PREFIX}/input" CACHE PATH "'input' dataset path") 
 set(YACCLAB_OUTPUT_RESULTS_PATH "${CMAKE_INSTALL_PREFIX}/output" CACHE PATH "'output' results path") 
-set(YACCLAB_OS "${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_VERSION}" CACHE STRING "" FORCE)
 set(YACCLAB_IS_TRAVIS_CI OFF CACHE BOOL "This variable is used to handle travis-ci parameters, do not change its value")
 
 if(MSVC)
-  set(CMAKE_USE_RELATIVE_PATHS ON CACHE INTERNAL "" FORCE)
+    set(CMAKE_USE_RELATIVE_PATHS ON CACHE INTERNAL "" FORCE)
 endif()
 
 # ----------------------------------------------------------------------------
@@ -57,7 +56,7 @@ CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
 CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
 
 if(DEFINED CMAKE_BUILD_TYPE)
-  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${CMAKE_CONFIGURATION_TYPES})
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${CMAKE_CONFIGURATION_TYPES})
 endif()
 
 message(STATUS "Compiler ID: ${CMAKE_CXX_COMPILER_ID}")
@@ -72,27 +71,27 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang" OR CMAKE_C_COMPILER_ID M
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
-	if(COMPILER_SUPPORTS_CXX11 AND NOT CMAKE_CXX_FLAGS MATCHES "-std=c\\+\\+11")
-		set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}" CACHE STRING "Enable c++11" FORCE)
-	elseif(COMPILER_SUPPORTS_CXX0X AND NOT CMAKE_CXX_FLAGS MATCHES "-std=c\\+\\+11")
-		set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS}" CACHE STRING "Enable c++11" FORCE)
-	elseif(NOT COMPILER_SUPPORTS_CXX11)
-		message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no complete C++11 support. Please use a different C++ compiler.")
-	endif()
-	# Set compilation flag to avoid creation of debug info in release configuration under Linux
-	#if(CMAKE_COMPILER_IS_GNUCC)
-	#	message(STATUS "Removed debug info in release mode")
-	#	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
-	#	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2")
-	#endif()
+    if(COMPILER_SUPPORTS_CXX11 AND NOT CMAKE_CXX_FLAGS MATCHES "-std=c\\+\\+11")
+        set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}" CACHE STRING "Enable c++11" FORCE)
+    elseif(COMPILER_SUPPORTS_CXX0X AND NOT CMAKE_CXX_FLAGS MATCHES "-std=c\\+\\+11")
+        set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS}" CACHE STRING "Enable c++11" FORCE)
+    elseif(NOT COMPILER_SUPPORTS_CXX11)
+        message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no complete C++11 support. Please use a different C++ compiler.")
+    endif()
+    # Set compilation flag to avoid creation of debug info in release configuration under Linux
+    #if(CMAKE_COMPILER_IS_GNUCC)
+    #    message(STATUS "Removed debug info in release mode")
+    #    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
+    #    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2")
+    #endif()
 else()
-	if(MSVC)
-		if(MSVC_VERSION LESS 1800)
-			message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no complete C++11 support. Please use a different C++ compiler.")
-		endif()
-	else()
-		message(STATUS "We are not able to check if ${CMAKE_CXX_COMPILER} compiler has complete C++11 support. YACCLAB may not work properly.")
-	endif()
+    if(MSVC)
+        if(MSVC_VERSION LESS 1800)
+            message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no complete C++11 support. Please use a different C++ compiler.")
+        endif()
+    else()
+        message(STATUS "We are not able to check if ${CMAKE_CXX_COMPILER} compiler has complete C++11 support. YACCLAB may not work properly.")
+    endif()
 endif()
 message(STATUS "C++ flags: ${CMAKE_CXX_FLAGS}")
 message(STATUS "C flags: ${CMAKE_C_FLAGS}")
@@ -109,8 +108,8 @@ set(YACCLAB_EXECUTABLE_OUTPUT_PATH "${CMAKE_INSTALL_PREFIX}" CACHE PATH "Output 
 # Solution folders
 # ----------------------------------------------------------------------------
 if(ENABLE_SOLUTION_FOLDERS)
-  set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-  set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMakeTargets")
+    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+    set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMakeTargets")
 endif()
 
 # --------------------
@@ -122,13 +121,20 @@ FIND_PACKAGE(OpenCV REQUIRED ${OpenCV_REQUIRED_PACKAGES})
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 
 if(MSVC)
-	if("${OpenCV_STATIC}" STREQUAL "ON" OR "${OpenCV_SHARED}" STREQUAL "OFF")
-		message(STATUS "Setting static runtime for MSVC")
-		foreach(flag_var CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO) 
-			string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
-		endforeach(flag_var)
-	endif()
+    if("${OpenCV_STATIC}" STREQUAL "ON" OR "${OpenCV_SHARED}" STREQUAL "OFF")
+        message(STATUS "Setting static runtime for MSVC")
+        foreach(flag_var CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO) 
+            string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+        endforeach(flag_var)
+    endif()
 endif()
+
+# --------------------
+# Utility
+# --------------------
+set(YACCLAB_OS "${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_VERSION}" CACHE INTERNAL "")
+message(STATUS "OS: ${YACCLAB_OS}, OpenCV: ${OpenCV_VERSION}")
+add_definitions(-DOPENCV_VERSION_MAJOR=${OpenCV_VERSION_MAJOR})
 
 # --------------------
 # Project
@@ -141,11 +147,11 @@ file(GLOB HFILES ${HFILES} "include/*.h" "include/*.hpp")
 file(GLOB INCFILES ${INCFILES} "include/*.inc")
 
 add_definitions(-D_CRT_SECURE_NO_WARNINGS) #To suppress 'fopen' opencv warning/bug  
-# Set configuration file	
-if(YACCLAB_IS_TRAVIS_CI)	
-	configure_file("${CMAKE_SOURCE_DIR}/doc/config_travis.yaml" "${CMAKE_INSTALL_PREFIX}/config.yaml")
+# Set configuration file    
+if(YACCLAB_IS_TRAVIS_CI)    
+    configure_file("${CMAKE_SOURCE_DIR}/doc/config_travis.yaml" "${CMAKE_INSTALL_PREFIX}/config.yaml")
 else()
-	configure_file("${CMAKE_SOURCE_DIR}/doc/config_base.yaml" "${CMAKE_INSTALL_PREFIX}/config.yaml")
+    configure_file("${CMAKE_SOURCE_DIR}/doc/config_base.yaml" "${CMAKE_INSTALL_PREFIX}/config.yaml")
 endif()
 source_group("Include Files" FILES ${INCFILES})
 source_group("Header Files" FILES ${HFILES})
@@ -158,36 +164,36 @@ target_link_libraries (${ProjectName}  ${OpenCV_LIBS})
 
 # Creation of output directory
 if (NOT EXISTS "${YACCLAB_OUTPUT_RESULTS_PATH}")
-		file(MAKE_DIRECTORY ${YACCLAB_OUTPUT_RESULTS_PATH})
+        file(MAKE_DIRECTORY ${YACCLAB_OUTPUT_RESULTS_PATH})
 endif()
-	
+    
 # Download and unpack dataset if necessary
 if(YACCLAB_DOWNLOAD_DATASET)
-	# Creation of input directory
-	if (NOT EXISTS "${YACCLAB_INPUT_DATASET_PATH}")
-		file(MAKE_DIRECTORY ${YACCLAB_INPUT_DATASET_PATH})
-	endif()
-	
-	if (EXISTS "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip")
-		message(STATUS "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip already exists, download skipped!")
-	else()
-		message(STATUS "Downloading dataset...")
-		file(DOWNLOAD http://imagelab.ing.unimore.it/files/YACCLAB_dataset_new.zip "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip" STATUS status SHOW_PROGRESS)
-		list( GET status 0 error_code )
-		if( error_code )
-			message(ERROR " Cmake is not able to download the YACCLAB dataset. \nPlease, retry or download it manually and put all unzipped dataset directories in the 'input' path:\n'" ${YACCLAB_INPUT_DATASET_PATH} "'. \n(The dataset is available at http://imagelab.ing.unimore.it/files/YACCLAB_dataset_new.zip).")
-			if(EXISTS "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip")
-				file(REMOVE "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip")
-			endif()
-		else()
-			message(STATUS "Downloading done.")
-		endif()
-		
-		if(EXISTS "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip")
-			message(STATUS "Unpacking (it may take a while)...")
-			execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip" WORKING_DIRECTORY "${YACCLAB_INPUT_DATASET_PATH}" OUTPUT_QUIET)
-			message(STATUS "Unpacking done.")
-		endif()
-	endif()
-	
+    # Creation of input directory
+    if (NOT EXISTS "${YACCLAB_INPUT_DATASET_PATH}")
+        file(MAKE_DIRECTORY ${YACCLAB_INPUT_DATASET_PATH})
+    endif()
+    
+    if (EXISTS "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip")
+        message(STATUS "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip already exists, download skipped!")
+    else()
+        message(STATUS "Downloading dataset...")
+        file(DOWNLOAD http://imagelab.ing.unimore.it/files/YACCLAB_dataset_new.zip "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip" STATUS status SHOW_PROGRESS)
+        list( GET status 0 error_code )
+        if( error_code )
+            message(ERROR " Cmake is not able to download the YACCLAB dataset. \nPlease, retry or download it manually and put all unzipped dataset directories in the 'input' path:\n'" ${YACCLAB_INPUT_DATASET_PATH} "'. \n(The dataset is available at http://imagelab.ing.unimore.it/files/YACCLAB_dataset_new.zip).")
+            if(EXISTS "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip")
+                file(REMOVE "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip")
+            endif()
+        else()
+            message(STATUS "Downloading done.")
+        endif()
+        
+        if(EXISTS "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip")
+            message(STATUS "Unpacking (it may take a while)...")
+            execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip" WORKING_DIRECTORY "${YACCLAB_INPUT_DATASET_PATH}" OUTPUT_QUIET)
+            message(STATUS "Unpacking done.")
+        endif()
+    endif()
+    
 endif()

@@ -1,4 +1,4 @@
-// Copyright(c) 2016 - 2018 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
+// Copyright(c) 2016 - 2019 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ public:
     void CheckPerformLabelingMem()
     {
         std::string title = "Checking Correctness of 'PerformLabelingMem()' (8-Connectivity)";
-        std::vector<unsigned long int> unused;
+        std::vector<uint64_t> unused;
         CheckAlgorithms(title, cfg_.ccl_mem_algorithms, &Labeling::PerformLabelingMem, unused);
     }
 
@@ -103,7 +103,7 @@ private:
             }
 
             // Number of files
-            unsigned filenames_size = filenames.size();
+            unsigned filenames_size = static_cast<unsigned>(filenames.size());
             ob.StartUnitaryBox(dataset_name, filenames_size);
 
             for (unsigned file = 0; file < filenames_size && !stop; ++file) { // For each file in list
@@ -143,10 +143,10 @@ private:
 
                         NormalizeLabels(labeled_img_to_control);
                         const auto diff = CompareMat(labeled_img_correct, labeled_img_to_control);
-						
-						algorithm->FreeLabelingData(); // Free algorithm's data
-						
-						if (n_labels_correct != n_labels_to_control || !diff) {
+
+                        algorithm->FreeLabelingData(); // Free algorithm's data
+
+                        if (n_labels_correct != n_labels_to_control || !diff) {
                             stats[j] = false;
                             first_fail[j] = (path(dataset_name) / path(filename)).string();
 
@@ -165,7 +165,7 @@ private:
 
          // To display report of correctness test
         std::vector<std::string> messages(ccl_algorithms.size());
-        unsigned longest_name = max_element(ccl_algorithms.begin(), ccl_algorithms.end(), CompareLengthCvString)->length();
+        unsigned longest_name = static_cast<unsigned>(max_element(ccl_algorithms.begin(), ccl_algorithms.end(), CompareLengthCvString)->length());
 
         unsigned j = 0;
         for (const auto& algo_name : ccl_algorithms) {

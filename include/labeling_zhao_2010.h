@@ -1,4 +1,4 @@
-// Copyright(c) 2016 - 2018 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
+// Copyright(c) 2016 - 2019 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -54,18 +54,18 @@ public:
         if (firstpixel) {
             const_cast<cv::Mat1b&>(img_)(0, 0) = 0;
 
-			if (M == 1) {
-				if (N == 1) 
-					n_labels_ = 1;
-				else 
-					n_labels_ = img_(0, 1) == 0;
-			}
-			else {
-				if (N == 1) 
-					n_labels_ = img_(1, 0) == 0;
-				else 
-					n_labels_ = img_(0, 1) == 0 && img_(1, 0) == 0 && img_(1, 1) == 0;
-			}
+            if (M == 1) {
+                if (N == 1)
+                    n_labels_ = 1;
+                else
+                    n_labels_ = img_(0, 1) == 0;
+            }
+            else {
+                if (N == 1)
+                    n_labels_ = img_(1, 0) == 0;
+                else
+                    n_labels_ = img_(0, 1) == 0 && img_(1, 0) == 0 && img_(1, 1) == 0;
+            }
         }
 
         // Stripe extraction and representation
@@ -74,11 +74,11 @@ public:
         int r1N = N;
         int N2 = N * 2;
 
-		int e_rows = img_labels_.rows & 0xfffffffe;
-		bool o_rows = img_labels_.rows % 2 == 1;
+        int e_rows = img_labels_.rows & 0xfffffffe;
+        bool o_rows = img_labels_.rows % 2 == 1;
 
-		int r = 0;
-		for (; r < e_rows; r += 2) {
+        int r = 0;
+        for (; r < e_rows; r += 2) {
             const unsigned char* const img_row = img_.ptr<unsigned char>(r);
             const unsigned char* const img_row_fol = (unsigned char *)(((char *)img_row) + img_.step.p[0]);
             unsigned int* const img_labels_row = img_labels_.ptr<unsigned int>(r);
@@ -163,74 +163,74 @@ public:
             rN += N2;
             r1N += N2;
         }
-		// Last row if the number of rows is odd
-		if (o_rows) {
-			const unsigned char* const img_row = img_.ptr<unsigned char>(r);
-			unsigned int* const img_labels_row = img_labels_.ptr<unsigned int>(r);
-			for (int c = 0; c < N; ++c) {
-				img_labels_row[c] = img_row[c];
-			}
+        // Last row if the number of rows is odd
+        if (o_rows) {
+            const unsigned char* const img_row = img_.ptr<unsigned char>(r);
+            unsigned int* const img_labels_row = img_labels_.ptr<unsigned int>(r);
+            for (int c = 0; c < N; ++c) {
+                img_labels_row[c] = img_row[c];
+            }
 
-			for (int c = 0; c < N; ++c) {
-				// Step 1
-				int evenpix = img_labels_row[c];
+            for (int c = 0; c < N; ++c) {
+                // Step 1
+                int evenpix = img_labels_row[c];
 
-				// Step 2
-				int Gp;
-				if (evenpix)
-					img_labels_row[c] = Gp = -(rN + c);
-				else
-					continue;
+                // Step 2
+                int Gp;
+                if (evenpix)
+                    img_labels_row[c] = Gp = -(rN + c);
+                else
+                    continue;
 
-				// Step 3
-				int stripestart = c;
-				while (++c < N) {
-					int evenpix = img_labels_row[c];
+                // Step 3
+                int stripestart = c;
+                while (++c < N) {
+                    int evenpix = img_labels_row[c];
 
-					if (evenpix)
-						img_labels_row[c] = Gp;
-					else
-						break;
-				}
-				int stripestop = c;
+                    if (evenpix)
+                        img_labels_row[c] = Gp;
+                    else
+                        break;
+                }
+                int stripestop = c;
 
-				if (r == 0)
-					continue;
+                if (r == 0)
+                    continue;
 
-				// Stripe union
-				int lastroot = INT_MIN;
-				for (int i = stripestart; i < stripestop; ++i) {
-					int linepix = img_labels_row[i];
-					if (!linepix)
-						continue;
+                // Stripe union
+                int lastroot = INT_MIN;
+                for (int i = stripestart; i < stripestop; ++i) {
+                    int linepix = img_labels_row[i];
+                    if (!linepix)
+                        continue;
 
-					int runstart = std::max(0, i - 1);
-					do
-						i++;
-					while (i < N && img_labels_row[i]);
-					int runstop = std::min(N - 1, i);
+                    int runstart = std::max(0, i - 1);
+                    do
+                        i++;
+                    while (i < N && img_labels_row[i]);
+                    int runstop = std::min(N - 1, i);
 
-					for (int j = runstart; j <= runstop; ++j) {
-						int curpix = img_labels_row_prev[j];
-						if (!curpix)
-							continue;
+                    for (int j = runstart; j <= runstop; ++j) {
+                        int curpix = img_labels_row_prev[j];
+                        if (!curpix)
+                            continue;
 
-						int newroot = FindRoot(reinterpret_cast<int*>(img_labels_.data), curpix);
-						if (newroot > lastroot) {
-							lastroot = newroot;
-							FindRootAndCompress(reinterpret_cast<int*>(img_labels_.data), Gp, lastroot);
-						}
-						else if (newroot < lastroot) {
-							FindRootAndCompress(reinterpret_cast<int*>(img_labels_.data), newroot, lastroot);
-						}
+                        int newroot = FindRoot(reinterpret_cast<int*>(img_labels_.data), curpix);
+                        if (newroot > lastroot) {
+                            lastroot = newroot;
+                            FindRootAndCompress(reinterpret_cast<int*>(img_labels_.data), Gp, lastroot);
+                        }
+                        else if (newroot < lastroot) {
+                            FindRootAndCompress(reinterpret_cast<int*>(img_labels_.data), newroot, lastroot);
+                        }
 
-						do
-							++j;
-						while (j <= runstop && img_labels_row_prev[j]);
-					}
-				}
-			}
-		}
+                        do
+                            ++j;
+                        while (j <= runstop && img_labels_row_prev[j]);
+                    }
+                }
+            }
+        }
 
         // Label assignment
         int *img_labelsdata = reinterpret_cast<int*>(img_labels_.data);
@@ -261,7 +261,7 @@ public:
                 img_labels_(0, 0) = img_labels_(0, 1);
             else if (M > 1 && img_labels_(1, 0))
                 img_labels_(0, 0) = img_labels_(1, 0);
-			else if (N > 1 && M > 1 && img_labels_(1, 1))
+            else if (N > 1 && M > 1 && img_labels_(1, 1))
                 img_labels_(0, 0) = img_labels_(1, 1);
             else
                 img_labels_(0, 0) = 1;
@@ -291,7 +291,7 @@ public:
 
     }
 
-    void PerformLabelingMem(std::vector<unsigned long int>& accesses)
+    void PerformLabelingMem(std::vector<uint64_t>& accesses)
     {
 
         MemMat<unsigned char> img(img_);
@@ -470,7 +470,7 @@ public:
 
                         do
                             ++j;
-                        while (j <= runstop && img_labels(r -1, j));
+                        while (j <= runstop && img_labels(r - 1, j));
                     }
                 }
             }
@@ -513,10 +513,10 @@ public:
         n_labels_++; // To count also background
 
         // Store total accesses in the output vector 'accesses'
-        accesses = std::vector<unsigned long int>((int)MD_SIZE, 0);
+        accesses = std::vector<uint64_t>((int)MD_SIZE, 0);
 
-        accesses[MD_BINARY_MAT] = (unsigned long int)img.GetTotalAccesses();
-        accesses[MD_LABELED_MAT] = (unsigned long int)img_labels.GetTotalAccesses();
+        accesses[MD_BINARY_MAT] = (uint64_t)img.GetTotalAccesses();
+        accesses[MD_LABELED_MAT] = (uint64_t)img_labels.GetTotalAccesses();
 
         img_labels_ = img_labels.GetImage();
     }

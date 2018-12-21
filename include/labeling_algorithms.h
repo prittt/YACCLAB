@@ -1,4 +1,4 @@
-// Copyright(c) 2016 - 2018 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
+// Copyright(c) 2016 - 2019 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ public:
 
     virtual void PerformLabeling() { throw std::runtime_error("'PerformLabeling()' not implemented"); }
     virtual void PerformLabelingWithSteps() { throw std::runtime_error("'PerformLabelingWithSteps()' not implemented"); }
-    virtual void PerformLabelingMem(std::vector<unsigned long>& accesses) { throw std::runtime_error("'PerformLabelingMem(...)' not implemented"); }
+    virtual void PerformLabelingMem(std::vector<uint64_t>& accesses) { throw std::runtime_error("'PerformLabelingMem(...)' not implemented"); }
 
     virtual void FreeLabelingData() { img_labels_.release(); }
     //static void SetImg(const cv::Mat1b& img) { img_ = img.clone(); }

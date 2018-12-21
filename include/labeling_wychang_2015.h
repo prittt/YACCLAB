@@ -1,4 +1,4 @@
-// Copyright(c) 2016 - 2018 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
+// Copyright(c) 2016 - 2019 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -98,7 +98,7 @@ public:
 #define LOAD_RV v = img_labels_row_prev_prev[x+2]
 #define LOAD_RK k = img_labels_row_prev_prev[x+2]
 #define NEW_LABEL lx = img_labels_row[x] = LabelsSolver::NewLabel();
-#define RESOLVE_2(u, v) LabelsSolver::Merge(u,v); 		
+#define RESOLVE_2(u, v) LabelsSolver::Merge(u,v);
 #define RESOLVE_3(u, v, k) LabelsSolver::Merge(u,LabelsSolver::Merge(v,k));
 
         bool nextprocedure2;
@@ -107,7 +107,7 @@ public:
         const unsigned char* const img_row = img_.ptr<unsigned char>(y);
         const unsigned char* const img_row_fol = (unsigned char *)(((char *)img_row) + img_.step.p[0]);
         unsigned int* const img_labels_row = img_labels_.ptr<unsigned int>(y);
-        
+
         // Process first two rows
         for (int x = 0; x < w; x += 2) {
 
@@ -125,113 +125,113 @@ public:
 
 #include "labeling_wychang_2015_tree.inc"
 
-			}
+            }
         }
-        
-		// Second scan (changed with better performing strategy to handle odd rows and columns)
-		n_labels_ = LabelsSolver::Flatten();
 
-		int e_rows = img_labels_.rows & 0xfffffffe;
-		bool o_rows = img_labels_.rows % 2 == 1;
-		int e_cols = img_labels_.cols & 0xfffffffe;
-		bool o_cols = img_labels_.cols % 2 == 1;
+        // Second scan (changed with better performing strategy to handle odd rows and columns)
+        n_labels_ = LabelsSolver::Flatten();
 
-		int r = 0;
-		for (; r < e_rows; r += 2) {
-			// Get rows pointer
-			const unsigned char* const img_row = img_.ptr<unsigned char>(r);
-			const unsigned char* const img_row_fol = (unsigned char *)(((char *)img_row) + img_.step.p[0]);
+        int e_rows = img_labels_.rows & 0xfffffffe;
+        bool o_rows = img_labels_.rows % 2 == 1;
+        int e_cols = img_labels_.cols & 0xfffffffe;
+        bool o_cols = img_labels_.cols % 2 == 1;
 
-			unsigned* const img_labels_row = img_labels_.ptr<unsigned>(r);
-			unsigned* const img_labels_row_fol = (unsigned *)(((char *)img_labels_row) + img_labels_.step.p[0]);
-			int c = 0;
-			for (; c < e_cols; c += 2) {
-				int iLabel = img_labels_row[c];
-				if (iLabel > 0) {
-					iLabel = LabelsSolver::GetLabel(iLabel);
-					if (img_row[c] > 0)
-						img_labels_row[c] = iLabel;
-					else
-						img_labels_row[c] = 0;
-					if (img_row[c + 1] > 0)
-						img_labels_row[c + 1] = iLabel;
-					else
-						img_labels_row[c + 1] = 0;
-					if (img_row_fol[c] > 0)
-						img_labels_row_fol[c] = iLabel;
-					else
-						img_labels_row_fol[c] = 0;
-					if (img_row_fol[c + 1] > 0)
-						img_labels_row_fol[c + 1] = iLabel;
-					else
-						img_labels_row_fol[c + 1] = 0;
-				}
-				else {
-					img_labels_row[c] = 0;
-					img_labels_row[c + 1] = 0;
-					img_labels_row_fol[c] = 0;
-					img_labels_row_fol[c + 1] = 0;
-				}
-			}
-			// Last column if the number of columns is odd
-			if (o_cols) {
-				int iLabel = img_labels_row[c];
-				if (iLabel > 0) {
-					iLabel = LabelsSolver::GetLabel(iLabel);
-					if (img_row[c] > 0)
-						img_labels_row[c] = iLabel;
-					else
-						img_labels_row[c] = 0;
-					if (img_row_fol[c] > 0)
-						img_labels_row_fol[c] = iLabel;
-					else
-						img_labels_row_fol[c] = 0;
-				}
-				else {
-					img_labels_row[c] = 0;
-					img_labels_row_fol[c] = 0;
-				}
-			}
-		}
-		// Last row if the number of rows is odd
-		if (o_rows) {
-			// Get rows pointer
-			const unsigned char* const img_row = img_.ptr<unsigned char>(r);
-			unsigned* const img_labels_row = img_labels_.ptr<unsigned>(r);
-			int c = 0;
-			for (; c < e_cols; c += 2) {
-				int iLabel = img_labels_row[c];
-				if (iLabel > 0) {
-					iLabel = LabelsSolver::GetLabel(iLabel);
-					if (img_row[c] > 0)
-						img_labels_row[c] = iLabel;
-					else
-						img_labels_row[c] = 0;
-					if (img_row[c + 1] > 0)
-						img_labels_row[c + 1] = iLabel;
-					else
-						img_labels_row[c + 1] = 0;
-				}
-				else {
-					img_labels_row[c] = 0;
-					img_labels_row[c + 1] = 0;
-				}
-			}
-			// Last column if the number of columns is odd
-			if (o_cols) {
-				int iLabel = img_labels_row[c];
-				if (iLabel > 0) {
-					iLabel = LabelsSolver::GetLabel(iLabel);
-					if (img_row[c] > 0)
-						img_labels_row[c] = iLabel;
-					else
-						img_labels_row[c] = 0;
-				}
-				else {
-					img_labels_row[c] = 0;
-				}
-			}
-		}
+        int r = 0;
+        for (; r < e_rows; r += 2) {
+            // Get rows pointer
+            const unsigned char* const img_row = img_.ptr<unsigned char>(r);
+            const unsigned char* const img_row_fol = (unsigned char *)(((char *)img_row) + img_.step.p[0]);
+
+            unsigned* const img_labels_row = img_labels_.ptr<unsigned>(r);
+            unsigned* const img_labels_row_fol = (unsigned *)(((char *)img_labels_row) + img_labels_.step.p[0]);
+            int c = 0;
+            for (; c < e_cols; c += 2) {
+                int iLabel = img_labels_row[c];
+                if (iLabel > 0) {
+                    iLabel = LabelsSolver::GetLabel(iLabel);
+                    if (img_row[c] > 0)
+                        img_labels_row[c] = iLabel;
+                    else
+                        img_labels_row[c] = 0;
+                    if (img_row[c + 1] > 0)
+                        img_labels_row[c + 1] = iLabel;
+                    else
+                        img_labels_row[c + 1] = 0;
+                    if (img_row_fol[c] > 0)
+                        img_labels_row_fol[c] = iLabel;
+                    else
+                        img_labels_row_fol[c] = 0;
+                    if (img_row_fol[c + 1] > 0)
+                        img_labels_row_fol[c + 1] = iLabel;
+                    else
+                        img_labels_row_fol[c + 1] = 0;
+                }
+                else {
+                    img_labels_row[c] = 0;
+                    img_labels_row[c + 1] = 0;
+                    img_labels_row_fol[c] = 0;
+                    img_labels_row_fol[c + 1] = 0;
+                }
+            }
+            // Last column if the number of columns is odd
+            if (o_cols) {
+                int iLabel = img_labels_row[c];
+                if (iLabel > 0) {
+                    iLabel = LabelsSolver::GetLabel(iLabel);
+                    if (img_row[c] > 0)
+                        img_labels_row[c] = iLabel;
+                    else
+                        img_labels_row[c] = 0;
+                    if (img_row_fol[c] > 0)
+                        img_labels_row_fol[c] = iLabel;
+                    else
+                        img_labels_row_fol[c] = 0;
+                }
+                else {
+                    img_labels_row[c] = 0;
+                    img_labels_row_fol[c] = 0;
+                }
+            }
+        }
+        // Last row if the number of rows is odd
+        if (o_rows) {
+            // Get rows pointer
+            const unsigned char* const img_row = img_.ptr<unsigned char>(r);
+            unsigned* const img_labels_row = img_labels_.ptr<unsigned>(r);
+            int c = 0;
+            for (; c < e_cols; c += 2) {
+                int iLabel = img_labels_row[c];
+                if (iLabel > 0) {
+                    iLabel = LabelsSolver::GetLabel(iLabel);
+                    if (img_row[c] > 0)
+                        img_labels_row[c] = iLabel;
+                    else
+                        img_labels_row[c] = 0;
+                    if (img_row[c + 1] > 0)
+                        img_labels_row[c + 1] = iLabel;
+                    else
+                        img_labels_row[c + 1] = 0;
+                }
+                else {
+                    img_labels_row[c] = 0;
+                    img_labels_row[c + 1] = 0;
+                }
+            }
+            // Last column if the number of columns is odd
+            if (o_cols) {
+                int iLabel = img_labels_row[c];
+                if (iLabel > 0) {
+                    iLabel = LabelsSolver::GetLabel(iLabel);
+                    if (img_row[c] > 0)
+                        img_labels_row[c] = iLabel;
+                    else
+                        img_labels_row[c] = 0;
+                }
+                else {
+                    img_labels_row[c] = 0;
+                }
+            }
+        }
 
         LabelsSolver::Dealloc();
 
@@ -261,40 +261,40 @@ public:
 #undef RESOLVE_3
     }
 
-	void PerformLabelingWithSteps()
-	{
+    void PerformLabelingWithSteps()
+    {
         double alloc_timing = Alloc();
 
-		perf_.start();
-		FirstScan();
-		perf_.stop();
-		perf_.store(Step(StepType::FIRST_SCAN), perf_.last());
+        perf_.start();
+        FirstScan();
+        perf_.stop();
+        perf_.store(Step(StepType::FIRST_SCAN), perf_.last());
 
-		perf_.start();
-		SecondScan();
-		perf_.stop();
-		perf_.store(Step(StepType::SECOND_SCAN), perf_.last());
+        perf_.start();
+        SecondScan();
+        perf_.stop();
+        perf_.store(Step(StepType::SECOND_SCAN), perf_.last());
 
-		perf_.start();
-		Dealloc();
-		perf_.stop();
-		perf_.store(Step(StepType::ALLOC_DEALLOC), perf_.last() + alloc_timing);
-	}
+        perf_.start();
+        Dealloc();
+        perf_.stop();
+        perf_.store(Step(StepType::ALLOC_DEALLOC), perf_.last() + alloc_timing);
+    }
 
-	void PerformLabelingMem(std::vector<unsigned long int>& accesses)
-	{
+    void PerformLabelingMem(std::vector<uint64_t>& accesses)
+    {
 
-		MemMat<unsigned char> img(img_);
-		MemMat<int> img_labels(img_.size(), 0);
+        MemMat<unsigned char> img(img_);
+        MemMat<int> img_labels(img_.size(), 0);
 
-		LabelsSolver::MemAlloc(UPPER_BOUND_8_CONNECTIVITY);
-		LabelsSolver::MemSetup();
+        LabelsSolver::MemAlloc(UPPER_BOUND_8_CONNECTIVITY);
+        LabelsSolver::MemSetup();
 
-		// First scan
-		int w(img_.cols);
-		int h(img_.rows);
+        // First scan
+        int w(img_.cols);
+        int h(img_.rows);
 
-		int lx, u, v, k;
+        int lx, u, v, k;
 
 #define CONDITION_B1 img(y, x) > 0 
 #define CONDITION_B2 x+1<w && img(y, x+1) > 0                // WRONG in the original code -> add missing condition 
@@ -318,88 +318,88 @@ public:
 #define LOAD_RV v = img_labels(y - 2, x+2)
 #define LOAD_RK k = img_labels(y - 2, x+2)
 #define NEW_LABEL lx = img_labels(y, x) = LabelsSolver::MemNewLabel();
-#define RESOLVE_2(u, v) LabelsSolver::MemMerge(u,v); 		
+#define RESOLVE_2(u, v) LabelsSolver::MemMerge(u,v);
 #define RESOLVE_3(u, v, k) LabelsSolver::MemMerge(u,LabelsSolver::MemMerge(v,k));
 
-		bool nextprocedure2;
+        bool nextprocedure2;
 
-		int y = 0; // Extract from the first for
-		// Process first two rows
-		for (int x = 0; x < w; x += 2) {
+        int y = 0; // Extract from the first for
+        // Process first two rows
+        for (int x = 0; x < w; x += 2) {
 
 #include "labeling_wychang_2015_tree_0.inc"
 
-		}
+        }
 
-		for (int y = 2; y < h; y += 2) {
-			for (int x = 0; x < w; x += 2) {
+        for (int y = 2; y < h; y += 2) {
+            for (int x = 0; x < w; x += 2) {
 
 #include "labeling_wychang_2015_tree.inc"
 
-			}
-		}
+            }
+        }
 
-		n_labels_ = LabelsSolver::MemFlatten();
+        n_labels_ = LabelsSolver::MemFlatten();
 
-		// Second scan
-		for (int r = 0; r < h; r += 2) {
-			for (int c = 0; c < w; c += 2) {
-				int iLabel = img_labels(r, c);
-				if (iLabel > 0) {
-					iLabel = LabelsSolver::MemGetLabel(iLabel);
-					if (img(r, c) > 0)
-						img_labels(r, c) = iLabel;
-					else
-						img_labels(r, c) = 0;
-					if (c + 1 < w) {
-						if (img(r, c + 1) > 0)
-							img_labels(r, c + 1) = iLabel;
-						else
-							img_labels(r, c + 1) = 0;
-						if (r + 1 < h) {
-							if (img(r + 1, c) > 0)
-								img_labels(r + 1, c) = iLabel;
-							else
-								img_labels(r + 1, c) = 0;
-							if (img(r + 1, c + 1) > 0)
-								img_labels(r + 1, c + 1) = iLabel;
-							else
-								img_labels(r + 1, c + 1) = 0;
-						}
-					}
-					else if (r + 1 < h) {
-						if (img(r + 1, c) > 0)
-							img_labels(r + 1, c) = iLabel;
-						else
-							img_labels(r + 1, c) = 0;
-					}
-				}
-				else {
-					img_labels(r, c) = 0;
-					if (c + 1 < w) {
-						img_labels(r, c + 1) = 0;
-						if (r + 1 < h) {
-							img_labels(r + 1, c) = 0;
-							img_labels(r + 1, c + 1) = 0;
-						}
-					}
-					else if (r + 1 < h) {
-						img_labels(r + 1, c) = 0;
-					}
-				}
-			}
-		}
+        // Second scan
+        for (int r = 0; r < h; r += 2) {
+            for (int c = 0; c < w; c += 2) {
+                int iLabel = img_labels(r, c);
+                if (iLabel > 0) {
+                    iLabel = LabelsSolver::MemGetLabel(iLabel);
+                    if (img(r, c) > 0)
+                        img_labels(r, c) = iLabel;
+                    else
+                        img_labels(r, c) = 0;
+                    if (c + 1 < w) {
+                        if (img(r, c + 1) > 0)
+                            img_labels(r, c + 1) = iLabel;
+                        else
+                            img_labels(r, c + 1) = 0;
+                        if (r + 1 < h) {
+                            if (img(r + 1, c) > 0)
+                                img_labels(r + 1, c) = iLabel;
+                            else
+                                img_labels(r + 1, c) = 0;
+                            if (img(r + 1, c + 1) > 0)
+                                img_labels(r + 1, c + 1) = iLabel;
+                            else
+                                img_labels(r + 1, c + 1) = 0;
+                        }
+                    }
+                    else if (r + 1 < h) {
+                        if (img(r + 1, c) > 0)
+                            img_labels(r + 1, c) = iLabel;
+                        else
+                            img_labels(r + 1, c) = 0;
+                    }
+                }
+                else {
+                    img_labels(r, c) = 0;
+                    if (c + 1 < w) {
+                        img_labels(r, c + 1) = 0;
+                        if (r + 1 < h) {
+                            img_labels(r + 1, c) = 0;
+                            img_labels(r + 1, c + 1) = 0;
+                        }
+                    }
+                    else if (r + 1 < h) {
+                        img_labels(r + 1, c) = 0;
+                    }
+                }
+            }
+        }
 
-		// Store total accesses in the output vector 'accesses'
-		accesses = std::vector<unsigned long int>((int)MD_SIZE, 0);
+        // Store total accesses in the output vector 'accesses'
+        accesses = std::vector<uint64_t>((int)MD_SIZE, 0);
 
-		accesses[MD_BINARY_MAT] = (unsigned long int)img.GetTotalAccesses();
-		accesses[MD_LABELED_MAT] = (unsigned long int)img_labels.GetTotalAccesses();
-		accesses[MD_EQUIVALENCE_VEC] = (unsigned long int)LabelsSolver::MemTotalAccesses();
+        accesses[MD_BINARY_MAT] = (uint64_t)img.GetTotalAccesses();
+        accesses[MD_LABELED_MAT] = (uint64_t)img_labels.GetTotalAccesses();
+        accesses[MD_EQUIVALENCE_VEC] = (uint64_t)LabelsSolver::MemTotalAccesses();
 
-		img_labels_ = img_labels.GetImage();
+        img_labels_ = img_labels.GetImage();
 
-		LabelsSolver::MemDealloc();
+        LabelsSolver::MemDealloc();
 
 #undef CONDITION_B1 
 #undef CONDITION_B2 
@@ -425,7 +425,7 @@ public:
 #undef NEW_LABEL
 #undef RESOLVE_2
 #undef RESOLVE_3
-	}
+    }
 
 
 private:
@@ -447,20 +447,20 @@ private:
         return ls_t + ma_t;
     }
     void Dealloc()
-	{
-		LabelsSolver::Dealloc();
-		// No free for img_labels_ because it is required at the end of the algorithm 
-	}
-	void FirstScan()
-	{
+    {
+        LabelsSolver::Dealloc();
+        // No free for img_labels_ because it is required at the end of the algorithm 
+    }
+    void FirstScan()
+    {
         memset(img_labels_.data, 0, img_labels_.dataend - img_labels_.datastart); // Initialization
-		LabelsSolver::Setup();
+        LabelsSolver::Setup();
 
-		// First Scan
-		int w = img_labels_.cols;
-		int h = img_labels_.rows;
+        // First Scan
+        int w = img_labels_.cols;
+        int h = img_labels_.rows;
 
-		int lx, u, v, k;
+        int lx, u, v, k;
 
 #define CONDITION_B1 img_row[x] > 0 
 #define CONDITION_B2 x+1<w && img_row[x+1] > 0              // WRONG in the original code -> add missing condition 
@@ -484,35 +484,35 @@ private:
 #define LOAD_RV v = img_labels_row_prev_prev[x+2]
 #define LOAD_RK k = img_labels_row_prev_prev[x+2]
 #define NEW_LABEL lx = img_labels_row[x] = LabelsSolver::NewLabel();
-#define RESOLVE_2(u, v) LabelsSolver::Merge(u,v); 		
+#define RESOLVE_2(u, v) LabelsSolver::Merge(u,v);
 #define RESOLVE_3(u, v, k) LabelsSolver::Merge(u,LabelsSolver::Merge(v,k));
 
-		bool nextprocedure2;
+        bool nextprocedure2;
 
-		int y = 0; // Extract from the first for
-		const unsigned char* const img_row = img_.ptr<unsigned char>(y);
-		const unsigned char* const img_row_fol = (unsigned char *)(((char *)img_row) + img_.step.p[0]);
-		unsigned int* const img_labels_row = img_labels_.ptr<unsigned int>(y);
+        int y = 0; // Extract from the first for
+        const unsigned char* const img_row = img_.ptr<unsigned char>(y);
+        const unsigned char* const img_row_fol = (unsigned char *)(((char *)img_row) + img_.step.p[0]);
+        unsigned int* const img_labels_row = img_labels_.ptr<unsigned int>(y);
 
-		// Process first two rows
-		for (int x = 0; x < w; x += 2) {
+        // Process first two rows
+        for (int x = 0; x < w; x += 2) {
 
 #include "labeling_wychang_2015_tree_0.inc"
 
-		}
+        }
 
-		for (int y = 2; y < h; y += 2) {
-			const unsigned char* const img_row = img_.ptr<unsigned char>(y);
-			const unsigned char* const img_row_prev = (unsigned char *)(((char *)img_row) - img_.step.p[0]);
-			const unsigned char* const img_row_fol = (unsigned char *)(((char *)img_row) + img_.step.p[0]);
-			unsigned int* const img_labels_row = img_labels_.ptr<unsigned int>(y);
-			unsigned int* const img_labels_row_prev_prev = (unsigned int *)(((char *)img_labels_row) - img_labels_.step.p[0] - img_labels_.step.p[0]);
-			for (int x = 0; x < w; x += 2) {
+        for (int y = 2; y < h; y += 2) {
+            const unsigned char* const img_row = img_.ptr<unsigned char>(y);
+            const unsigned char* const img_row_prev = (unsigned char *)(((char *)img_row) - img_.step.p[0]);
+            const unsigned char* const img_row_fol = (unsigned char *)(((char *)img_row) + img_.step.p[0]);
+            unsigned int* const img_labels_row = img_labels_.ptr<unsigned int>(y);
+            unsigned int* const img_labels_row_prev_prev = (unsigned int *)(((char *)img_labels_row) - img_labels_.step.p[0] - img_labels_.step.p[0]);
+            for (int x = 0; x < w; x += 2) {
 
 #include "labeling_wychang_2015_tree.inc"
 
-			}
-		}
+            }
+        }
 
 #undef CONDITION_B1 
 #undef CONDITION_B2 
@@ -538,115 +538,115 @@ private:
 #undef NEW_LABEL
 #undef RESOLVE_2
 #undef RESOLVE_3
-	}
+    }
 
-	void SecondScan()
-	{
-		// Second scan (changed with better performing strategy to handle odd rows and columns)
-		n_labels_ = LabelsSolver::Flatten();
+    void SecondScan()
+    {
+        // Second scan (changed with better performing strategy to handle odd rows and columns)
+        n_labels_ = LabelsSolver::Flatten();
 
-		int e_rows = img_labels_.rows & 0xfffffffe;
-		bool o_rows = img_labels_.rows % 2 == 1;
-		int e_cols = img_labels_.cols & 0xfffffffe;
-		bool o_cols = img_labels_.cols % 2 == 1;
+        int e_rows = img_labels_.rows & 0xfffffffe;
+        bool o_rows = img_labels_.rows % 2 == 1;
+        int e_cols = img_labels_.cols & 0xfffffffe;
+        bool o_cols = img_labels_.cols % 2 == 1;
 
-		int r = 0;
-		for (; r < e_rows; r += 2) {
-			// Get rows pointer
-			const unsigned char* const img_row = img_.ptr<unsigned char>(r);
-			const unsigned char* const img_row_fol = (unsigned char *)(((char *)img_row) + img_.step.p[0]);
+        int r = 0;
+        for (; r < e_rows; r += 2) {
+            // Get rows pointer
+            const unsigned char* const img_row = img_.ptr<unsigned char>(r);
+            const unsigned char* const img_row_fol = (unsigned char *)(((char *)img_row) + img_.step.p[0]);
 
-			unsigned* const img_labels_row = img_labels_.ptr<unsigned>(r);
-			unsigned* const img_labels_row_fol = (unsigned *)(((char *)img_labels_row) + img_labels_.step.p[0]);
-			int c = 0;
-			for (; c < e_cols; c += 2) {
-				int iLabel = img_labels_row[c];
-				if (iLabel > 0) {
-					iLabel = LabelsSolver::GetLabel(iLabel);
-					if (img_row[c] > 0)
-						img_labels_row[c] = iLabel;
-					else
-						img_labels_row[c] = 0;
-					if (img_row[c + 1] > 0)
-						img_labels_row[c + 1] = iLabel;
-					else
-						img_labels_row[c + 1] = 0;
-					if (img_row_fol[c] > 0)
-						img_labels_row_fol[c] = iLabel;
-					else
-						img_labels_row_fol[c] = 0;
-					if (img_row_fol[c + 1] > 0)
-						img_labels_row_fol[c + 1] = iLabel;
-					else
-						img_labels_row_fol[c + 1] = 0;
-				}
-				else {
-					img_labels_row[c] = 0;
-					img_labels_row[c + 1] = 0;
-					img_labels_row_fol[c] = 0;
-					img_labels_row_fol[c + 1] = 0;
-				}
-			}
-			// Last column if the number of columns is odd
-			if (o_cols) {
-				int iLabel = img_labels_row[c];
-				if (iLabel > 0) {
-					iLabel = LabelsSolver::GetLabel(iLabel);
-					if (img_row[c] > 0)
-						img_labels_row[c] = iLabel;
-					else
-						img_labels_row[c] = 0;
-					if (img_row_fol[c] > 0)
-						img_labels_row_fol[c] = iLabel;
-					else
-						img_labels_row_fol[c] = 0;
-				}
-				else {
-					img_labels_row[c] = 0;
-					img_labels_row_fol[c] = 0;
-				}
-			}
-		}
-		// Last row if the number of rows is odd
-		if (o_rows) {
-			// Get rows pointer
-			const unsigned char* const img_row = img_.ptr<unsigned char>(r);
-			unsigned* const img_labels_row = img_labels_.ptr<unsigned>(r);
-			int c = 0;
-			for (; c < e_cols; c += 2) {
-				int iLabel = img_labels_row[c];
-				if (iLabel > 0) {
-					iLabel = LabelsSolver::GetLabel(iLabel);
-					if (img_row[c] > 0)
-						img_labels_row[c] = iLabel;
-					else
-						img_labels_row[c] = 0;
-					if (img_row[c + 1] > 0)
-						img_labels_row[c + 1] = iLabel;
-					else
-						img_labels_row[c + 1] = 0;
-				}
-				else {
-					img_labels_row[c] = 0;
-					img_labels_row[c + 1] = 0;
-				}
-			}
-			// Last column if the number of columns is odd
-			if (o_cols) {
-				int iLabel = img_labels_row[c];
-				if (iLabel > 0) {
-					iLabel = LabelsSolver::GetLabel(iLabel);
-					if (img_row[c] > 0)
-						img_labels_row[c] = iLabel;
-					else
-						img_labels_row[c] = 0;
-				}
-				else {
-					img_labels_row[c] = 0;
-				}
-			}
-		}
-	}
+            unsigned* const img_labels_row = img_labels_.ptr<unsigned>(r);
+            unsigned* const img_labels_row_fol = (unsigned *)(((char *)img_labels_row) + img_labels_.step.p[0]);
+            int c = 0;
+            for (; c < e_cols; c += 2) {
+                int iLabel = img_labels_row[c];
+                if (iLabel > 0) {
+                    iLabel = LabelsSolver::GetLabel(iLabel);
+                    if (img_row[c] > 0)
+                        img_labels_row[c] = iLabel;
+                    else
+                        img_labels_row[c] = 0;
+                    if (img_row[c + 1] > 0)
+                        img_labels_row[c + 1] = iLabel;
+                    else
+                        img_labels_row[c + 1] = 0;
+                    if (img_row_fol[c] > 0)
+                        img_labels_row_fol[c] = iLabel;
+                    else
+                        img_labels_row_fol[c] = 0;
+                    if (img_row_fol[c + 1] > 0)
+                        img_labels_row_fol[c + 1] = iLabel;
+                    else
+                        img_labels_row_fol[c + 1] = 0;
+                }
+                else {
+                    img_labels_row[c] = 0;
+                    img_labels_row[c + 1] = 0;
+                    img_labels_row_fol[c] = 0;
+                    img_labels_row_fol[c + 1] = 0;
+                }
+            }
+            // Last column if the number of columns is odd
+            if (o_cols) {
+                int iLabel = img_labels_row[c];
+                if (iLabel > 0) {
+                    iLabel = LabelsSolver::GetLabel(iLabel);
+                    if (img_row[c] > 0)
+                        img_labels_row[c] = iLabel;
+                    else
+                        img_labels_row[c] = 0;
+                    if (img_row_fol[c] > 0)
+                        img_labels_row_fol[c] = iLabel;
+                    else
+                        img_labels_row_fol[c] = 0;
+                }
+                else {
+                    img_labels_row[c] = 0;
+                    img_labels_row_fol[c] = 0;
+                }
+            }
+        }
+        // Last row if the number of rows is odd
+        if (o_rows) {
+            // Get rows pointer
+            const unsigned char* const img_row = img_.ptr<unsigned char>(r);
+            unsigned* const img_labels_row = img_labels_.ptr<unsigned>(r);
+            int c = 0;
+            for (; c < e_cols; c += 2) {
+                int iLabel = img_labels_row[c];
+                if (iLabel > 0) {
+                    iLabel = LabelsSolver::GetLabel(iLabel);
+                    if (img_row[c] > 0)
+                        img_labels_row[c] = iLabel;
+                    else
+                        img_labels_row[c] = 0;
+                    if (img_row[c + 1] > 0)
+                        img_labels_row[c + 1] = iLabel;
+                    else
+                        img_labels_row[c + 1] = 0;
+                }
+                else {
+                    img_labels_row[c] = 0;
+                    img_labels_row[c + 1] = 0;
+                }
+            }
+            // Last column if the number of columns is odd
+            if (o_cols) {
+                int iLabel = img_labels_row[c];
+                if (iLabel > 0) {
+                    iLabel = LabelsSolver::GetLabel(iLabel);
+                    if (img_row[c] > 0)
+                        img_labels_row[c] = iLabel;
+                    else
+                        img_labels_row[c] = 0;
+                }
+                else {
+                    img_labels_row[c] = 0;
+                }
+            }
+        }
+    }
 };
 
 #endif //YACCLAB_LABELING_WYCHANG_2015_H_

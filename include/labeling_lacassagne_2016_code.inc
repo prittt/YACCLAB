@@ -1,4 +1,4 @@
-// Copyright(c) 2016 - 2018 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
+// Copyright(c) 2016 - 2019 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -180,7 +180,7 @@ public:
         perf_.store(Step(StepType::ALLOC_DEALLOC), perf_.last() + alloc_timing);
     }
 
-    void PerformLabelingMem(std::vector<unsigned long int>& accesses) {
+    void PerformLabelingMem(std::vector<uint64_t>& accesses) {
         int rows = img_.rows;
         int cols = img_.cols;
 
@@ -285,12 +285,12 @@ public:
         }
 
         // Store total accesses in the output vector 'accesses'
-        accesses = vector<unsigned long int>((int)MD_SIZE, 0);
+        accesses = vector<uint64_t>((int)MD_SIZE, 0);
 
-        accesses[MD_BINARY_MAT] = (unsigned long int)img.GetTotalAccesses();
-        accesses[MD_LABELED_MAT] = (unsigned long int)labels.GetTotalAccesses();
-        accesses[MD_EQUIVALENCE_VEC] = (unsigned long int)LabelsSolver::MemTotalAccesses();
-        accesses[MD_OTHER] = (unsigned long int)(ER.GetTotalAccesses() + RLC.GetTotalAccesses() + ner.GetTotalAccesses() + ERA.GetTotalAccesses());
+        accesses[MD_BINARY_MAT] = (uint64_t)img.GetTotalAccesses();
+        accesses[MD_LABELED_MAT] = (uint64_t)labels.GetTotalAccesses();
+        accesses[MD_EQUIVALENCE_VEC] = (uint64_t)LabelsSolver::MemTotalAccesses();
+        accesses[MD_OTHER] = (uint64_t)(ER.GetTotalAccesses() + RLC.GetTotalAccesses() + ner.GetTotalAccesses() + ERA.GetTotalAccesses());
 
         img_labels_ = labels.GetImage();
 

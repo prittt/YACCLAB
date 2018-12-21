@@ -1,4 +1,4 @@
-// Copyright(c) 2016 - 2018 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
+// Copyright(c) 2016 - 2019 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -98,7 +98,11 @@ bool YacclabTests::SaveBroadOutputResults(map<String, Mat1d>& results, const str
 
         // Calculate the max of the columns to find unused steps
         Mat1d results_reduced(1, results.at(algo_name).cols);
+#if OPENCV_VERSION_MAJOR >= 4
+        cv::reduce(results.at(algo_name), results_reduced, 0, REDUCE_MAX);
+#else
         cv::reduce(results.at(algo_name), results_reduced, 0, CV_REDUCE_MAX);
+#endif
 
         for (int step_number = 0; step_number != StepType::ST_SIZE; ++step_number) {
             StepType step = static_cast<StepType>(step_number);
@@ -230,7 +234,7 @@ void YacclabTests::AverageTest()
         average_results_suffix = "_average.txt";
 
     // Initialize results container
-    average_results_ = cv::Mat1d(cfg_.average_datasets.size(), cfg_.ccl_average_algorithms.size(), std::numeric_limits<double>::max());
+    average_results_ = cv::Mat1d(static_cast<unsigned>(cfg_.average_datasets.size()), static_cast<unsigned>(cfg_.ccl_average_algorithms.size()), std::numeric_limits<double>::max());
 
     for (unsigned d = 0; d < cfg_.average_datasets.size(); ++d) { // For every dataset in the average list
 
@@ -274,12 +278,12 @@ void YacclabTests::AverageTest()
         }
 
         // Number of files
-        int filenames_size = filenames.size();
+        int filenames_size = static_cast<unsigned>(filenames.size());
 
         // To save middle/min and average results;
-        Mat1d min_res(filenames_size, cfg_.ccl_average_algorithms.size(), numeric_limits<double>::max());
-        Mat1d current_res(filenames_size, cfg_.ccl_average_algorithms.size(), numeric_limits<double>::max());
-        Mat1i labels(filenames_size, cfg_.ccl_average_algorithms.size(), 0);
+        Mat1d min_res(filenames_size, static_cast<unsigned>(cfg_.ccl_average_algorithms.size()), numeric_limits<double>::max());
+        Mat1d current_res(filenames_size, static_cast<unsigned>(cfg_.ccl_average_algorithms.size()), numeric_limits<double>::max());
+        Mat1i labels(filenames_size, static_cast<unsigned>(cfg_.ccl_average_algorithms.size()), 0);
         vector<pair<double, uint16_t>> supp_average(cfg_.ccl_average_algorithms.size(), make_pair(0.0, 0));
 
         // Start output message box
@@ -291,9 +295,9 @@ void YacclabTests::AverageTest()
             }
         }
 
-        map<String, size_t> algo_pos;
+        map<String, unsigned> algo_pos;
         for (size_t i = 0; i < cfg_.ccl_average_algorithms.size(); ++i)
-            algo_pos[cfg_.ccl_average_algorithms[i]] = i;
+            algo_pos[cfg_.ccl_average_algorithms[i]] = static_cast<unsigned>(i);
         auto shuffled_ccl_average_algorithms = cfg_.ccl_average_algorithms;
 
         // Test is executed n_test times
@@ -320,19 +324,19 @@ void YacclabTests::AverageTest()
                     unsigned n_labels;
                     unsigned i = algo_pos[algo_name];
 
-					try {
-						// Perform current algorithm on current image and save result.
-						algorithm->perf_.start();
-						algorithm->PerformLabeling();
-						algorithm->perf_.stop();
+                    try {
+                        // Perform current algorithm on current image and save result.
+                        algorithm->perf_.start();
+                        algorithm->PerformLabeling();
+                        algorithm->perf_.stop();
 
-						// This variable need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
-						n_labels = algorithm->n_labels_;
-					}
-					catch (const exception& e) {
-						algorithm->FreeLabelingData();
-						ob.Cerror("Something wrong with " + algo_name + ": " + e.what()); // You should check your algorithms' implementation before performing YACCLAB tests  
-					}
+                        // This variable need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
+                        n_labels = algorithm->n_labels_;
+                    }
+                    catch (const exception& e) {
+                        algorithm->FreeLabelingData();
+                        ob.Cerror("Something wrong with " + algo_name + ": " + e.what()); // You should check your algorithms' implementation before performing YACCLAB tests  
+                    }
 
                     // Save number of labels (we reasonably supposed that labels's number is the same on every #test so only the first time we save it)
                     if (test == 0) {
@@ -525,7 +529,7 @@ void YacclabTests::AverageTestWithSteps()
         }
 
         // Initialize results container
-        average_ws_results_[dataset_name] = Mat1d(cfg_.ccl_average_ws_algorithms.size(), StepType::ST_SIZE, numeric_limits<double>::max());
+        average_ws_results_[dataset_name] = Mat1d(static_cast<unsigned>(cfg_.ccl_average_ws_algorithms.size()), StepType::ST_SIZE, numeric_limits<double>::max());
 
         // To save list of filename on which CLLAlgorithms must be tested
         vector<pair<string, bool>> filenames;  // first: filename, second: state of filename (find or not)
@@ -535,12 +539,12 @@ void YacclabTests::AverageTestWithSteps()
         }
 
         // Number of files
-        int filenames_size = filenames.size();
+        unsigned filenames_size = static_cast<unsigned>(filenames.size());
 
         // To save middle/min and average results;
         map<String, Mat1d> current_res;
         map<String, Mat1d> min_res;
-        Mat1i labels(filenames_size, cfg_.ccl_average_ws_algorithms.size(), 0);
+        Mat1i labels(filenames_size, static_cast<unsigned>(cfg_.ccl_average_ws_algorithms.size()), 0);
 
         for (const auto& algo_name : cfg_.ccl_average_ws_algorithms) {
             current_res[algo_name] = Mat1d(filenames_size, StepType::ST_SIZE, numeric_limits<double>::max());
@@ -556,9 +560,9 @@ void YacclabTests::AverageTestWithSteps()
             }
         }
 
-        map<String, size_t> algo_pos;
+        map<String, unsigned> algo_pos;
         for (size_t i = 0; i < cfg_.ccl_average_ws_algorithms.size(); ++i)
-            algo_pos[cfg_.ccl_average_ws_algorithms[i]] = i;
+            algo_pos[cfg_.ccl_average_ws_algorithms[i]] = static_cast<unsigned>(i);
         auto shuffled_ccl_average_ws_algorithms = cfg_.ccl_average_ws_algorithms;
 
         // Test is executed n_test times
@@ -592,10 +596,10 @@ void YacclabTests::AverageTestWithSteps()
                         // This variable need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
                         n_labels = algorithm->n_labels_;
                     }
-					catch (const exception& e) {
-						algorithm->FreeLabelingData();
-						ob.Cerror("Something wrong with " + algo_name + ": " + e.what()); // You should check your algorithms' implementation before performing YACCLAB tests  
-					}
+                    catch (const exception& e) {
+                        algorithm->FreeLabelingData();
+                        ob.Cerror("Something wrong with " + algo_name + ": " + e.what()); // You should check your algorithms' implementation before performing YACCLAB tests  
+                    }
 
                     // Save number of labels (we reasonably supposed that labels's number is the same on every #test so only the first time we save it)
                     if (test == 0) {
@@ -785,7 +789,7 @@ void YacclabTests::DensityTest()
         null_results_suffix = "_null_results.txt";
 
     // Initialize results container
-    density_results_ = cv::Mat1d(cfg_.density_datasets.size(), cfg_.ccl_average_algorithms.size(), std::numeric_limits<double>::max());
+    density_results_ = cv::Mat1d(static_cast<unsigned>(cfg_.density_datasets.size()), static_cast<unsigned>(cfg_.ccl_average_algorithms.size()), std::numeric_limits<double>::max());
 
     for (unsigned d = 0; d < cfg_.density_datasets.size(); ++d) { // For every dataset in the density list
         String dataset_name(cfg_.density_datasets[d]),
@@ -831,12 +835,12 @@ void YacclabTests::DensityTest()
         }
 
         // Number of files
-        int filenames_size = filenames.size();
+        unsigned filenames_size = static_cast<unsigned>(filenames.size());
 
         // To save middle/min and average results;
-        Mat1d min_res(filenames_size, cfg_.ccl_average_algorithms.size(), numeric_limits<double>::max());
-        Mat1d current_res(filenames_size, cfg_.ccl_average_algorithms.size(), numeric_limits<double>::max());
-        Mat1i labels(filenames_size, cfg_.ccl_average_algorithms.size(), 0);
+        Mat1d min_res(filenames_size, static_cast<unsigned>(cfg_.ccl_average_algorithms.size()), numeric_limits<double>::max());
+        Mat1d current_res(filenames_size, static_cast<unsigned>(cfg_.ccl_average_algorithms.size()), numeric_limits<double>::max());
+        Mat1i labels(filenames_size, static_cast<unsigned>(cfg_.ccl_average_algorithms.size()), 0);
 
         /*
         Note that number of random_images is less than 800, this is why the second element of the
@@ -881,9 +885,9 @@ void YacclabTests::DensityTest()
             }
         }
 
-        map<String, size_t> algo_pos;
+        map<String, unsigned> algo_pos;
         for (size_t i = 0; i < cfg_.ccl_average_algorithms.size(); ++i)
-            algo_pos[cfg_.ccl_average_algorithms[i]] = i;
+            algo_pos[cfg_.ccl_average_algorithms[i]] = static_cast<unsigned>(i);
         auto shuffled_ccl_average_algorithms = cfg_.ccl_average_algorithms;
 
         // Test is executed n_test times
@@ -918,10 +922,10 @@ void YacclabTests::DensityTest()
                         // This variable need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
                         n_labels = algorithm->n_labels_;
                     }
-					catch (const exception& e) {
-						algorithm->FreeLabelingData();
-						ob.Cerror("Something wrong with " + algo_name + ": " + e.what()); // You should check your algorithms' implementation before performing YACCLAB tests  
-					}
+                    catch (const exception& e) {
+                        algorithm->FreeLabelingData();
+                        ob.Cerror("Something wrong with " + algo_name + ": " + e.what()); // You should check your algorithms' implementation before performing YACCLAB tests  
+                    }
 
                     // Save number of labels (we reasonably supposed that labels's number is the same on every #test so only the first time we save it)
                     if (test == 0) {
@@ -1020,7 +1024,7 @@ void YacclabTests::DensityTest()
         density_os << "# density";
         size_os << "# size";
         for (const auto& algo_name : cfg_.ccl_average_algorithms) {
-            density_os << '\t' << algo_name ;
+            density_os << '\t' << algo_name;
             size_os << '\t' << algo_name;
         }
         density_os << '\n';
@@ -1119,7 +1123,7 @@ void YacclabTests::DensityTest()
             script_os << "# Replot in latex folder" << '\n';
             script_os << "set title \"\"" << '\n' << '\n';
 
-            script_os << "set output \'" << (cfg_.latex_path / path(compiler_name + compiler_version + output_density_graph)).string() << "\'" << '\n';
+            script_os << "set output \'" << (cfg_.latex_path / path(compiler_name + compiler_version + '_' + output_density_graph)).string() << "\'" << '\n';
             script_os << "replot" << '\n' << '\n';
 
             script_os << "# DENSITY GRAPH (BLACK AND WHITE)" << '\n' << '\n';
@@ -1168,7 +1172,7 @@ void YacclabTests::DensityTest()
 
             script_os << "# Replot in latex folder" << '\n';
             script_os << "set title \"\"" << '\n';
-            script_os << "set output \'" << (cfg_.latex_path / path(compiler_name + compiler_version + output_size_graph)).string() << "\'" << '\n';
+            script_os << "set output \'" << (cfg_.latex_path / path(compiler_name + compiler_version + '_' + output_size_graph)).string() << "\'" << '\n';
             script_os << "replot" << '\n' << '\n';
 
             script_os << "# SIZE (BLACK AND WHITE)" << '\n' << '\n';
@@ -1202,7 +1206,7 @@ void YacclabTests::GranularityTest()
 
     string complete_results_suffix = "_results.txt",
         middle_results_suffix = "_run",
-        granularity_results_suffix = "_granularity";
+        granularity_results_suffix = "";
 
     for (unsigned d = 0; d < cfg_.granularity_datasets.size(); ++d) { // For every dataset in the granularity list
 
@@ -1213,7 +1217,7 @@ void YacclabTests::GranularityTest()
 
         path dataset_path(cfg_.input_path / path("random") / path(dataset_name)),
             is_path = dataset_path / path(cfg_.input_txt), // files.txt path
-            current_output_path(cfg_.output_path / path(cfg_.granularity_folder) / path(dataset_name)),
+            current_output_path(cfg_.output_path / path(cfg_.granularity_folder)),
             output_broad_path = current_output_path / path(dataset_name + complete_results_suffix),
             output_middle_results_path = current_output_path / path(cfg_.middle_folder),
             granularity_os_path = current_output_path / path(output_granularity_results);
@@ -1232,19 +1236,19 @@ void YacclabTests::GranularityTest()
         if (!CheckFileList(dataset_path, filenames)) {
             ob.Cwarning("Missing some files in dataset folder", dataset_name);
         }
-        
-        // Number of files
-        int filenames_size = filenames.size();
 
-        uint8_t density = 101; // For granularity tests density ranges from 0 to 100 with step 1
-        uint8_t granularity = 16; // For granularity tests granularity ranges from 1 to 16 with step 1
+        // Number of files
+        unsigned filenames_size = static_cast<unsigned>(filenames.size());
+
+        uint8_t density = 101; // For granularity tests density ranges from 0 to 100 with fixed step 1
+        uint8_t granularity = 16; // For granularity tests granularity ranges from 1 to 16 with fixed step 1
 
         // Initialize results container
-        granularity_results_[dataset_name] = cv::Mat(cv::Size(cfg_.ccl_average_algorithms.size(), density), CV_64FC(granularity), cv::Scalar(0)); // To store minimum values 
-        vector<vector<double>> real_densities(granularity, vector<double>(density)); 
-        Mat1d min_res(filenames_size, cfg_.ccl_average_algorithms.size(), numeric_limits<double>::max());
-        Mat1d current_res(filenames_size, cfg_.ccl_average_algorithms.size(), numeric_limits<double>::max()); // To store current result
-        Mat1i labels(filenames_size, cfg_.ccl_average_algorithms.size(), 0); // To count number of labels for every image and algorithm 
+        granularity_results_[dataset_name] = cv::Mat(cv::Size(static_cast<unsigned>(cfg_.ccl_average_algorithms.size()), density), CV_64FC(granularity), cv::Scalar(0)); // To store minimum values 
+        vector<vector<double>> real_densities(granularity, vector<double>(density));
+        Mat1d min_res(filenames_size, static_cast<unsigned>(cfg_.ccl_average_algorithms.size()), numeric_limits<double>::max());
+        Mat1d current_res(filenames_size, static_cast<unsigned>(cfg_.ccl_average_algorithms.size()), numeric_limits<double>::max()); // To store current result
+        Mat1i labels(filenames_size, static_cast<unsigned>(cfg_.ccl_average_algorithms.size()), 0); // To count number of labels for every image and algorithm 
 
         // Start output message box
         ob.StartRepeatedBox(dataset_name, filenames_size, cfg_.granularity_tests_number);
@@ -1255,9 +1259,9 @@ void YacclabTests::GranularityTest()
             }
         }
 
-        map<String, size_t> algo_pos;
+        map<String, unsigned> algo_pos;
         for (size_t i = 0; i < cfg_.ccl_average_algorithms.size(); ++i)
-            algo_pos[cfg_.ccl_average_algorithms[i]] = i;
+            algo_pos[cfg_.ccl_average_algorithms[i]] = static_cast<unsigned>(i);
         auto shuffled_ccl_average_algorithms = cfg_.ccl_average_algorithms;
 
         random_shuffle(begin(filenames), end(filenames));
@@ -1283,7 +1287,7 @@ void YacclabTests::GranularityTest()
                 }
 
                 int nonzero = countNonZero(Labeling::img_);
-                real_densities[cur_granularity-1][cur_density] = 100.0 * nonzero / (Labeling::img_.rows*Labeling::img_.cols);
+                real_densities[cur_granularity - 1][cur_density] = 100.0 * nonzero / (Labeling::img_.rows*Labeling::img_.cols);
                 random_shuffle(begin(shuffled_ccl_average_algorithms), end(shuffled_ccl_average_algorithms));
 
                 for (const auto& algo_name : shuffled_ccl_average_algorithms) {
@@ -1291,19 +1295,19 @@ void YacclabTests::GranularityTest()
                     unsigned n_labels;
                     unsigned i = algo_pos[algo_name];
 
-					try {
-						// Perform current algorithm on current image and save result.
-						algorithm->perf_.start();
-						algorithm->PerformLabeling();
-						algorithm->perf_.stop();
+                    try {
+                        // Perform current algorithm on current image and save result.
+                        algorithm->perf_.start();
+                        algorithm->PerformLabeling();
+                        algorithm->perf_.stop();
 
-						// This variable need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
-						n_labels = algorithm->n_labels_;
-					}
-					catch (const exception& e) {
-						algorithm->FreeLabelingData();
-						ob.Cerror("Something wrong with " + algo_name + ": " + e.what()); // You should check your algorithms' implementation before performing YACCLAB tests  
-					}
+                        // This variable need to be redefined for every algorithms to uniform performance result (in particular this is true for labeledMat?)
+                        n_labels = algorithm->n_labels_;
+                    }
+                    catch (const exception& e) {
+                        algorithm->FreeLabelingData();
+                        ob.Cerror("Something wrong with " + algo_name + ": " + e.what()); // You should check your algorithms' implementation before performing YACCLAB tests  
+                    }
 
                     // Save number of found labels
                     if (test == 0) {
@@ -1337,7 +1341,7 @@ void YacclabTests::GranularityTest()
                 string cur_filename = filenames[r].first;
                 int cur_granularity = stoi(cur_filename.substr(0, 2));
                 int cur_density = stoi(cur_filename.substr(2, 3));
-                
+
                 for (int c = 0; c < min_res.cols; ++c) {
                     granularity_results_[dataset_name].at<Vec<double, 16>>(cur_density, c)[cur_granularity - 1] += min_res(r, c);
                 }
@@ -1346,7 +1350,7 @@ void YacclabTests::GranularityTest()
                 throw;
             }
         }
-        
+
         // For SCRIPT which runs multiple times the gnuplot script
         string main_script = (current_output_path / path("main_script" + cfg_.system_script_extension)).string();
         ofstream main_script_os(main_script);
@@ -1455,7 +1459,7 @@ void YacclabTests::GranularityTest()
             script_os << "# Replot in latex folder" << '\n';
             script_os << "set title \"\"" << '\n' << '\n';
 
-            script_os << "set output \'" << (cfg_.latex_path / path(compiler_name + compiler_version)).string() << "\'.output_file" << '\n';
+            script_os << "set output \'" << (cfg_.latex_path / path(compiler_name + compiler_version)).string() << "_\'.output_file" << '\n';
             script_os << "replot" << '\n' << '\n';
 
             script_os << "# GRANULARITY GRAPH (BLACK AND WHITE)" << '\n' << '\n';
@@ -1522,13 +1526,13 @@ void YacclabTests::MemoryTest()
         }
 
         // Number of files
-        int filenames_size = filenames.size();
+        unsigned filenames_size = static_cast<unsigned>(filenames.size());
 
         unsigned tot_test = 0; // To count the real number of image on which labeling will be applied for every file in list
 
         // Initialize results container
         // To store average memory accesses (one column for every data_ structure type: col 1 -> BINARY_MAT, col 2 -> LABELED_MAT, col 3 -> EQUIVALENCE_VET, col 0 -> OTHER)
-        memory_accesses_[dataset_name] = Mat1d(Size(MD_SIZE, cfg_.ccl_mem_algorithms.size()), 0.0);
+        memory_accesses_[dataset_name] = Mat1d(Size(MD_SIZE, static_cast<unsigned>(cfg_.ccl_mem_algorithms.size())), 0.0);
 
         // Start output message box
         ob.StartUnitaryBox(dataset_name, filenames_size);
@@ -1550,22 +1554,22 @@ void YacclabTests::MemoryTest()
             ++tot_test;
 
             // For all the Algorithms in the array
-            for (size_t i = 0; i < cfg_.ccl_mem_algorithms.size(); ++i) {
+            for (unsigned i = 0; i < cfg_.ccl_mem_algorithms.size(); ++i) {
                 Labeling *algorithm = LabelingMapSingleton::GetLabeling(cfg_.ccl_mem_algorithms[i]);
-                
-				// The following data_ structure is used to get the memory access matrices
-                vector<unsigned long int> accesses; // Rows represents algorithms and columns represent data_ structures
 
-				try {
-					algorithm->PerformLabelingMem(accesses);
-				}
-				catch (const exception& e) {
-					algorithm->FreeLabelingData();
-					ob.Cerror("Something wrong with " + cfg_.ccl_mem_algorithms[i] + ": " + e.what()); // You should check your algorithms' implementation before performing YACCLAB tests  
-				}
+                // The following data_ structure is used to get the memory access matrices
+                vector<uint64_t> accesses; // Rows represents algorithms and columns represent data_ structures
+
+                try {
+                    algorithm->PerformLabelingMem(accesses);
+                }
+                catch (const exception& e) {
+                    algorithm->FreeLabelingData();
+                    ob.Cerror("Something wrong with " + cfg_.ccl_mem_algorithms[i] + ": " + e.what()); // You should check your algorithms' implementation before performing YACCLAB tests  
+                }
 
                 // For every data_ structure "returned" by the algorithm
-                for (size_t a = 0; a < accesses.size(); ++a) {
+                for (unsigned a = 0; a < accesses.size(); ++a) {
                     memory_accesses_[dataset_name](i, a) += accesses[a];
                 }
                 algorithm->FreeLabelingData();
@@ -1583,7 +1587,7 @@ void YacclabTests::MemoryTest()
         os << "#" << dataset_name << '\n';
         os << "Algorithm\tBinary Image\tLabel Image\tEquivalence Vector/s\tOther\tTotal Accesses" << '\n';
 
-        for (size_t a = 0; a < cfg_.ccl_mem_algorithms.size(); ++a) {
+        for (unsigned a = 0; a < cfg_.ccl_mem_algorithms.size(); ++a) {
             double total_accesses{ 0.0 };
             os << cfg_.ccl_mem_algorithms[a] << '\t';
             for (int col = 0; col < memory_accesses_[dataset_name].cols; ++col) {
@@ -1704,7 +1708,7 @@ void YacclabTests::LatexGenerator()
 
         // SECTION AVERAGE WITH STEPS CHARTS  ---------------------------------------------------------------------------
         if (cfg_.perform_average_ws) {
-            string average_ws_suffix{ "_with_steps_" };
+            string average_ws_suffix{ "with_steps_" };
 
             os << "\\section{Average With Steps Charts}" << '\n' << '\n';
             os << "\\begin{figure}[tbh]" << '\n' << '\n';
@@ -1727,7 +1731,7 @@ void YacclabTests::LatexGenerator()
 
         // SECTION DENSITY CHARTS  ---------------------------------------------------------------------------
         if (cfg_.perform_density) {
-            vector<String> density_datasets{ "density", "size" };
+            vector<String> density_datasets{ "classical_density", "classical_size" };
 
             os << "\\section{Density Charts}" << '\n' << '\n';
             os << "\\begin{figure}[tbh]" << '\n' << '\n';
@@ -1740,7 +1744,7 @@ void YacclabTests::LatexGenerator()
 
             for (unsigned i = 0; i < density_datasets.size(); ++i) {
                 os << "\t\\begin{subfigure}[tbh]{" + chart_size + "\\textwidth}" << '\n';
-                os << "\t\t\\caption{" << density_datasets[i] + "}" << '\n';
+                os << "\t\t\\caption{" << EscapeUnderscore(density_datasets[i]) + "}" << '\n';
                 os << "\t\t\\centering" << '\n';
                 os << "\t\t\\includegraphics[width=" + chart_width + "\\textwidth]{\\compilerName_" + density_datasets[i] + ".pdf}" << '\n';
                 os << "\t\\end{subfigure}" << '\n' << '\n';
@@ -1749,9 +1753,10 @@ void YacclabTests::LatexGenerator()
             os << "\\end{figure}" << '\n' << '\n';
         }
 
-        // SECTION DENSITY CHARTS  ---------------------------------------------------------------------------
+        // SECTION GRANULARITY CHARTS  ---------------------------------------------------------------------------
         if (cfg_.perform_granularity) {
-            //vector<String> density_datasets{ "density", "size" };
+            uint8_t granularity = 16;
+            string granularity_dataset_name = cfg_.granularity_datasets[0];
 
             os << "\\section{Granularity Charts}" << '\n' << '\n';
             os << "\\begin{figure}[tbh]" << '\n' << '\n';
@@ -1762,11 +1767,11 @@ void YacclabTests::LatexGenerator()
             os << "\t\\newcommand{\\compilerName}{" + compiler_name + compiler_version + "}" << '\n';
             os << "\t\\centering" << '\n';
 
-            for (unsigned i = 0; i < cfg_.granularity_datasets.size(); ++i) {
+            for (unsigned i = 1; i <= granularity; ++i) {
                 os << "\t\\begin{subfigure}[tbh]{" + chart_size + "\\textwidth}" << '\n';
-                os << "\t\t\\caption{" << cfg_.granularity_datasets[i] + "}" << '\n';
+                os << "\t\t\\caption{" << granularity_dataset_name + " with blocks " << i << "x" << i << "}" << '\n';
                 os << "\t\t\\centering" << '\n';
-                os << "\t\t\\includegraphics[width=" + chart_width + "\\textwidth]{\\compilerName_" + cfg_.granularity_datasets[i] + ".pdf}" << '\n';
+                os << "\t\t\\includegraphics[width=" + chart_width + "\\textwidth]{\\compilerName_" + granularity_dataset_name + '_' << i << ".pdf}" << '\n';
                 os << "\t\\end{subfigure}" << '\n' << '\n';
             }
             os << "\t\\caption{\\machineName \\enspace " + datetime + "}" << '\n' << '\n';
@@ -1785,7 +1790,7 @@ void YacclabTests::LatexGenerator()
 
             os << "\\begin{table}[tbh]" << '\n' << '\n';
             os << "\t\\centering" << '\n';
-            os << "\t\\caption{Memory accesses on ``" << dataset_name << "'' dataset " << '\n';
+            os << "\t\\caption{Memory accesses on ``" << dataset_name << "'' dataset}" << '\n';
             os << "\t\\label{tab:table_" << dataset_name << "}" << '\n';
             os << "\t\\begin{tabular}{|l|";
             for (int i = 0; i < accesses.cols + 1; ++i)

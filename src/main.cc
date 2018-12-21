@@ -1,4 +1,4 @@
-// Copyright(c) 2016 - 2018 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
+// Copyright(c) 2016 - 2019 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@
 #include "config_data.h"
 #include "file_manager.h"
 #include "labeling_algorithms.h"
-#include "latex_generator.h"
+//#include "latex_generator.h"
 #include "memory_tester.h"
 #include "performance_evaluator.h"
 #include "progress_bar.h"
@@ -56,7 +56,11 @@ using namespace cv;
 int main()
 {
     // Redirect cv exceptions
+#if OPENCV_VERSION_MAJOR >= 4
+    redirectError(RedirectCvError);
+#else
     cvRedirectError(RedirectCvError);
+#endif
 
     // Hide cursor from console
     HideConsoleCursor();
@@ -138,7 +142,7 @@ int main()
         }
         if (cfg.perform_memory || (cfg.perform_correctness && cfg.perform_check_8connectivity_mem)) {
             try {
-                vector<unsigned long int> temp;
+                vector<uint64_t> temp;
                 algorithm->PerformLabelingMem(temp);
                 cfg.ccl_mem_algorithms.push_back(algo_name);
             }
