@@ -162,10 +162,10 @@ namespace {
 		unsigned labels_index = row * (labels.step / labels.elem_size) + col;
 
 		if (row < labels.rows && col < labels.cols) {
-			unsigned label = labels.data[labels_index];
-			if (label < labels_index) {
-				labels[labels_index] = Find(labels.data, label);
-			}
+			//unsigned label = labels.data[labels_index];
+			//if (label < labels_index) {
+				labels[labels_index] = Find(labels.data, labels_index);
+			//}
 		}
 	}
 

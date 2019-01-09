@@ -28,8 +28,7 @@ CPU 3D 26-way connectivity:
   # List of 3D CPU CCL algorithms to test
   # -------------------------------------
   
-  algorithms:
-   - 3D_labeling_CUDA_NULL
+  algorithms: []
     
   # Datasets to use for each test
   # -----------------------------

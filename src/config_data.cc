@@ -88,14 +88,14 @@ ConfigData::ConfigData(const cv::FileStorage& fs) : global_config(fs) {
 
 	std::vector<std::string> modes;
 	modes.push_back("CPU 2D 8-way connectivity");
-	modes.push_back("CPU 3D 8-way connectivity");
+	modes.push_back("CPU 3D 26-way connectivity");
     modes.push_back("CPU 2D 4-way connectivity");
-	modes.push_back("CPU 3D 4-way connectivity");
+	modes.push_back("CPU 3D 6-way connectivity");
 #if defined USE_CUDA
 	modes.push_back("GPU 2D 8-way connectivity");
-	modes.push_back("GPU 3D 8-way connectivity");
+	modes.push_back("GPU 3D 26-way connectivity");
     modes.push_back("GPU 2D 4-way connectivity");
-	modes.push_back("GPU 3D 4-way connectivity");
+	modes.push_back("GPU 3D 6-way connectivity");
 #endif
 
 	for (const std::string& mode : modes) {
