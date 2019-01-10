@@ -6,6 +6,10 @@
 #include "labeling_algorithms.h"
 #include "register.h"
 
+// Simplified version of UF that doesn't make use of the Tile Merging technique.
+// The initial phase which performs labeling inside tiles is avoided.
+// This variation performs worse than the original one which uses Tiles Merging.
+
 // Il minimo per entrambi è 4
 #define BLOCK_X 16
 #define BLOCK_Y 16

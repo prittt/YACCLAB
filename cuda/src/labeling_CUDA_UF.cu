@@ -6,6 +6,8 @@
 #include "labeling_algorithms.h"
 #include "register.h"
 
+// Oliveira classico
+
 // Il minimo per entrambi è 4
 #define BLOCK_ROWS 16
 #define BLOCK_COLS 16

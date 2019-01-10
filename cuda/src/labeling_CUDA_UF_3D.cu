@@ -7,6 +7,8 @@
 #include "labeling_algorithms.h"
 #include "register.h"
 
+// Oliveira in 3D (nostro, pensiamo di essere i primi)
+
 #define BLOCK_X 4
 #define BLOCK_Y 4
 #define BLOCK_Z 4
