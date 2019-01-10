@@ -30,6 +30,7 @@
 #define YACCLAB_TENSOR_H_
 
 #include <string>
+#include <memory>
 
 #include "cuda_mat3.hpp"
 #include "volume_util.h"
@@ -41,6 +42,9 @@ class YacclabTensor {
 public:
     virtual void Release() = 0;
     // Possibly add some descriptive fields
+
+    //virtual ~YacclabTensor() { this->Release(); };
+    virtual ~YacclabTensor() = default;
 };
 
 class YacclabTensorInput : public YacclabTensor {
