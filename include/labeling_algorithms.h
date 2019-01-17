@@ -129,13 +129,16 @@ public:
 template <Connectivity2D Conn>
 class GpuLabeling2D : public Labeling2D<Conn> {
 public:
+	using Labeling2D<Conn>::input_;
+	using Labeling2D<Conn>::output_;
+
 	cv::cuda::GpuMat &d_img_;
 	cv::cuda::GpuMat &d_img_labels_;
 
-    GpuLabeling2D() :
-        Labeling2D(std::make_unique<YacclabTensorInput2DCuda>(), std::make_unique<YacclabTensorOutput2DCuda>()),
-        d_img_((dynamic_cast<YacclabTensorInput2DCuda*>(input_.get()))->GpuRaw()),
-        d_img_labels_((dynamic_cast<YacclabTensorOutput2DCuda*>(output_.get()))->GpuRaw()) {}
+    GpuLabeling2D() : 
+	Labeling2D<Conn>(std::make_unique<YacclabTensorInput2DCuda>(), std::make_unique<YacclabTensorOutput2DCuda>()), 
+	d_img_(dynamic_cast<YacclabTensorInput2DCuda*>(input_.get())->GpuRaw()), 
+	d_img_labels_(dynamic_cast<YacclabTensorOutput2DCuda*>(output_.get())->GpuRaw()) {}
 
 	virtual ~GpuLabeling2D() = default;
 	
@@ -146,11 +149,14 @@ public:
 template <Connectivity3D Conn>
 class GpuLabeling3D : public Labeling3D<Conn> {
 public:
+	using Labeling3D<Conn>::input_;
+	using Labeling3D<Conn>::output_;
+
 	cv::cuda::GpuMat3 &d_img_;
 	cv::cuda::GpuMat3 &d_img_labels_;
 
     GpuLabeling3D() :
-        Labeling3D(std::make_unique<YacclabTensorInput3DCuda>(), std::make_unique<YacclabTensorOutput3DCuda>()),
+        Labeling3D<Conn>(std::make_unique<YacclabTensorInput3DCuda>(), std::make_unique<YacclabTensorOutput3DCuda>()),
         d_img_((dynamic_cast<YacclabTensorInput3DCuda*>(input_.get()))->GpuRaw()),
         d_img_labels_((dynamic_cast<YacclabTensorOutput3DCuda*>(output_.get()))->GpuRaw()) {}
 
