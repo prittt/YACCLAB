@@ -2,7 +2,7 @@
 #include "device_launch_parameters.h"
 
 #include <opencv2/core.hpp>
-#include <opencv2\cudafeatures2d.hpp>
+#include <opencv2/cudafeatures2d.hpp>
 
 #include "labeling_algorithms.h"
 #include "register.h"
