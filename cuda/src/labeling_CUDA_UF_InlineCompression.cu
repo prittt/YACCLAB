@@ -6,9 +6,23 @@
 #include "labeling_algorithms.h"
 #include "register.h"
 
+// Questo algoritmo è una modifica dell' Union Find (BUF) che esegue usa la FindAndCompress al posto della 
+// find usata dall'UF. La FindAndCompress aggiorna la label del pixel di partenza ad ogni iterazione della 
+// procedura di ricerca della label root. Ovvert se l'albero di equivalenza è così costruito: 
+
+//       A
+//     /
+//    B
+//   /
+//  C
+
+// allora all prima iterazione aggiorno la label di C sostituendola con B e all'iterazione successiva con A.
+// In questo modo se un altro thread legge il mio valore a metà trova già B ed evita un passaggio. Funziona meglio 
+// dell'UF. 
+
 // Il minimo per entrambi è 4
-#define BLOCK_ROWS 1
-#define BLOCK_COLS 256
+#define BLOCK_ROWS 16
+#define BLOCK_COLS 16
 
 using namespace cv;
 
@@ -107,11 +121,33 @@ namespace {
 
         unsigned char v = s_img[local_index];
 
-        if (in_limits && local_col > 0) {
+        if (in_limits) {
 
-            if (v && s_img[local_index - 1]) {
+            if (v) {
 
-                s_buf[local_index] = s_buf[local_index - 1];
+                if (local_col > 0 && s_img[local_index - 1]) {
+                    Union(s_buf, local_index, local_index - 1);
+                }
+
+
+                if (local_row > 0 && s_img[local_index - BLOCK_COLS]) {
+                    Union(s_buf, local_index, local_index - BLOCK_COLS);
+                }
+
+            }
+
+            else {
+                if (local_row > 0 && s_img[local_index - BLOCK_COLS]) {
+
+                    if (local_col > 0 && s_img[local_index - 1]) {
+                        Union(s_buf, local_index - 1, local_index - BLOCK_COLS);
+                    }
+
+
+                    if (local_col < BLOCK_COLS - 1 && s_img[local_index + 1]) {
+                        Union(s_buf, local_index + 1, local_index - BLOCK_COLS);
+                    }
+                }
 
             }
 
@@ -199,13 +235,13 @@ namespace {
 
 }
 
-class CUDA_LBUF : public GpuLabeling2D<CONN_8> {
+class CUDA_UF_InlineCompression : public GpuLabeling2D<CONN_8> {
 private:
     dim3 grid_size_;
     dim3 block_size_;
 
 public:
-    CUDA_LBUF() {}
+    CUDA_UF_InlineCompression() {}
 
     void PerformLabeling() {
 
@@ -306,5 +342,5 @@ public:
 
 };
 
-REGISTER_LABELING(CUDA_LBUF);
+REGISTER_LABELING(CUDA_UF_InlineCompression);
 

@@ -52,12 +52,29 @@ if(MSVC)
 endif()
 
 # ----------------------------------------------------------------------------
-#  Check for c++11 support
+#  Check for CUDA support
+# ----------------------------------------------------------------------------
+
+
+if(YACCLAB_ENABLE_CUDA)
+	include(CheckLanguage)
+	check_language(CUDA)	
+	if(CMAKE_CUDA_COMPILER)
+		enable_language(CUDA)
+		add_definitions(-DUSE_CUDA)
+	else()
+		message(WARNING "No CUDA support")
+	endif()
+endif()
+
+
+# ----------------------------------------------------------------------------
+#  Check for c++14 support
 # ----------------------------------------------------------------------------
 
 include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
+CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
+#CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
 
 if(DEFINED CMAKE_BUILD_TYPE)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${CMAKE_CONFIGURATION_TYPES})
@@ -70,17 +87,21 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang" OR CMAKE_C_COMPILER_ID M
         set(CMAKE_CXX_FLAGS "-m32 ${CMAKE_CXX_FLAGS}" CACHE STRING "32-bit compiled" FORCE)
     endif()
     if(NOT CMAKE_C_FLAGS MATCHES "-m32" AND NOT CMAKE_C_FLAGS MATCHES "-m64")
-        set(CMAKE_C_FLAGS "-m32 ${CMAKE_C_FLAGS}" CACHE STRING "32-bit compiled" FORCE)
+	set(CMAKE_C_FLAGS "-m32 ${CMAKE_C_FLAGS}" CACHE STRING "32-bit compiled" FORCE)
     endif()
 endif()
 
+if(YACCLAB_ENABLE_CUDA AND CMAKE_CUDA_COMPILER)
+   
+endif()
+
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
-	if(COMPILER_SUPPORTS_CXX11 AND NOT CMAKE_CXX_FLAGS MATCHES "-std=c\\+\\+11")
-		set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}" CACHE STRING "Enable c++11" FORCE)
-	elseif(COMPILER_SUPPORTS_CXX0X AND NOT CMAKE_CXX_FLAGS MATCHES "-std=c\\+\\+11")
-		set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS}" CACHE STRING "Enable c++11" FORCE)
-	elseif(NOT COMPILER_SUPPORTS_CXX11)
-		message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no complete C++11 support. Please use a different C++ compiler.")
+	if(COMPILER_SUPPORTS_CXX14 AND NOT CMAKE_CXX_FLAGS MATCHES "-std=c\\+\\+14")
+		set(CMAKE_CXX_FLAGS "-std=c++14 ${CMAKE_CXX_FLAGS}" CACHE STRING "Enable c++14" FORCE)
+	#elseif(COMPILER_SUPPORTS_CXX0X AND NOT CMAKE_CXX_FLAGS MATCHES "-std=c\\+\\+14")
+	#	set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS}" CACHE STRING "Enable c++14" FORCE)
+	elseif(NOT COMPILER_SUPPORTS_CXX14)
+		message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no complete C++14 support. Please use a different C++ compiler.")
 	endif()
 	# Set compilation flag to avoid creation of debug info in release configuration under Linux
 	#if(CMAKE_COMPILER_IS_GNUCC)
@@ -99,23 +120,6 @@ else()
 endif()
 message(STATUS "C++ flags: ${CMAKE_CXX_FLAGS}")
 message(STATUS "C flags: ${CMAKE_C_FLAGS}")
-
-# ----------------------------------------------------------------------------
-#  Check for CUDA support
-# ----------------------------------------------------------------------------
-
-
-if(YACCLAB_ENABLE_CUDA)
-	include(CheckLanguage)
-	check_language(CUDA)	
-	if(CMAKE_CUDA_COMPILER)
-		enable_language(CUDA)
-		add_definitions(-DUSE_CUDA)
-	else()
-		message(WARNING "No CUDA support")
-	endif()
-endif()
-
 
 # ----------------------------------------------------------------------------
 #  Build & install layouts
@@ -207,7 +211,11 @@ if (YACCLAB_ENABLE_CUDA AND CMAKE_CUDA_COMPILER)
 endif()
 
 set (addExe ${SRCFILES} ${HFILES} ${INCFILES} ${CUDAFILES} "${CMAKE_INSTALL_PREFIX}/config.yaml")
-add_executable(${ProjectName} ${addExe})
+if(YACCLAB_ENABLE_CUDA AND CMAKE_CUDA_COMPILER)
+	cuda_add_executable(${ProjectName} ${addExe})
+else()
+	add_executable(${ProjectName} ${addExe})
+endif()
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${ProjectName}) # Set YACCLAB as startup group instead of ALL_BUILD
 target_link_libraries (${ProjectName}  ${OpenCV_LIBS})
 

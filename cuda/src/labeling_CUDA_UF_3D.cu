@@ -1,4 +1,4 @@
-#include <opencv2\cudafeatures2d.hpp>
+#include <opencv2/cudafeatures2d.hpp>
 #include <opencv2/features2d.hpp>
 
 #include "cuda_runtime.h"

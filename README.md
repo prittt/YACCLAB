@@ -19,7 +19,7 @@ Notice that 8-connectivity is always used in the project.
 - CMake 3.0.0 or higher (https://cmake.org),
 - OpenCV 3.0 or higher (http://opencv.org),
 - Gnuplot (http://www.gnuplot.info/), 
-- One of your favourite IDE/compiler: Visual Studio 2013 or higher, Xcode 5.0.1, gcc 4.7 or higher, .. (with C++11 support)
+- One of your favourite IDE/compiler: Visual Studio 2013 or higher, Xcode 5.0.1, gcc 4.7 or higher, .. (with C++14 support)
 
 Notes for gnuplot:
 - on Windows system: be sure add gnuplot to system path if you want YACCLAB automatically generates charts.
