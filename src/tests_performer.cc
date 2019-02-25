@@ -1374,6 +1374,13 @@ void TestsPerformer::DensityTest() {
 }
 
 void TestsPerformer::GranularityTest() {
+
+    constexpr uint8_t kGranularities2D = 16;
+    constexpr uint8_t kSamples2D = 10;
+                
+    constexpr uint8_t kGranularities3D = 16;
+    constexpr uint8_t kSamples3D = 3;
+
 	OutputBox ob(mode_cfg_.mode + " Granularity Test");
 
 	std::string complete_results_suffix = "_results.txt",
@@ -1423,9 +1430,12 @@ void TestsPerformer::GranularityTest() {
 		unsigned int filenames_size = static_cast<unsigned>(filenames.size());
 
 		uint8_t density = 101; // For granularity tests density ranges from 0 to 100 with step 1
-		uint8_t granularity = 16; // For granularity tests granularity ranges from 1 to 16 with step 1
-		if (dims == 3) {
-			granularity = 1;
+        uint8_t granularity;
+        if (dims == 2) {
+            granularity = kGranularities2D; // For granularity tests granularity ranges from 1 to 16 with step 1
+        }
+        if (dims == 3) {
+			granularity = kGranularities3D;
 		}
 
 		// Initialize results container
@@ -1524,10 +1534,10 @@ void TestsPerformer::GranularityTest() {
 
 				for (int c = 0; c < min_res.cols; ++c) {
 					if (dims == 2) {
-						granularity_results_[dataset_name].at<cv::Vec<double, 16>>(cur_density, c)[cur_granularity - 1] += min_res(r, c);
+						granularity_results_[dataset_name].at<cv::Vec<double, kGranularities2D>>(cur_density, c)[cur_granularity - 1] += min_res(r, c);
 					}
 					else if (dims == 3) {
-						granularity_results_[dataset_name].at<cv::Vec<double, 1>>(cur_density, c)[cur_granularity - 1] += min_res(r, c);
+						granularity_results_[dataset_name].at<cv::Vec<double, kGranularities3D>>(cur_density, c)[cur_granularity - 1] += min_res(r, c);
 					}
 				}
 			}
@@ -1575,10 +1585,10 @@ void TestsPerformer::GranularityTest() {
 				granularity_os << std::fixed << std::setprecision(5) << /*real_densities[g - 1][d]*/ d << '\t';
 				for (unsigned a = 0; a < mode_cfg_.ccl_average_algorithms.size(); ++a) {
 					if (dims == 2) {
-						granularity_os << std::fixed << std::setprecision(8) << (granularity_results_[dataset_name].at<cv::Vec<double, 16>>(d, a)[g - 1] / 10.0) << '\t';
+						granularity_os << std::fixed << std::setprecision(8) << (granularity_results_[dataset_name].at<cv::Vec<double, kGranularities2D>>(d, a)[g - 1] / (float) kSamples2D) << '\t';
 					}
 					else if (dims == 3) {
-						granularity_os << std::fixed << std::setprecision(8) << (granularity_results_[dataset_name].at<cv::Vec<double, 1>>(d, a)[g - 1] / 3.0) << '\t';
+						granularity_os << std::fixed << std::setprecision(8) << (granularity_results_[dataset_name].at<cv::Vec<double, kGranularities3D>>(d, a)[g - 1] / (float) kSamples3D) << '\t';
 					}
 				}
 				granularity_os << '\n';
