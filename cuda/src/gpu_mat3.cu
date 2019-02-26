@@ -47,7 +47,7 @@ void cv::cuda::GpuMat3::create(int _x, int _y, int _z, int _type)
 		struct cudaPitchedPtr pitchedPtr;
 		struct cudaExtent extent;
 
-		extent.width = _x * esz;     // forse va bene
+		extent.width = _x * esz;     
 		extent.height = _y;
 		extent.depth = _z;
 
