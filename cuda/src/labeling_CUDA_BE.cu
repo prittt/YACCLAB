@@ -292,7 +292,7 @@ namespace {
 
 }
 
-class CUDA_BE : public GpuLabeling2D<CONN_8> {
+class CUDA_BE_LIGHT : public GpuLabeling2D<CONN_8> {
 private:
 	dim3 grid_size_;
 	dim3 block_size_;
@@ -302,7 +302,7 @@ private:
 	unsigned char *last_pixel_;
 
 public:
-	CUDA_BE() {}
+	CUDA_BE_LIGHT() {}
 
 	void PerformLabeling() {
 
@@ -497,5 +497,4 @@ public:
 
 };
 
-REGISTER_LABELING(CUDA_BE);
-
+REGISTER_LABELING(CUDA_BE_LIGHT);
