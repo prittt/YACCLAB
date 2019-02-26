@@ -1,4 +1,4 @@
-#include <opencv2/cudafeatures2d.hpp>
+#include <opencv2\cudafeatures2d.hpp>
 
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
@@ -8,7 +8,7 @@
 
 // Il minimo per entrambi è 4
 #define BLOCK_X 8
-#define BLOCK_Y 8
+#define BLOCK_Y 4
 #define BLOCK_Z 4
 
 
@@ -76,7 +76,7 @@ namespace {
         }
     }
 
-    __global__ void Merge(const cuda::PtrStepSz3b img, cuda::PtrStepSz3i labels) {
+    __global__ void Merge(const cuda::PtrStepSz3b img, cuda::PtrStepSz3i labels, unsigned char* last_cube_fg) {
 
         unsigned x = (blockIdx.x * BLOCK_X + threadIdx.x) * 2;
         unsigned y = (blockIdx.y * BLOCK_Y + threadIdx.y) * 2;
@@ -86,22 +86,111 @@ namespace {
 
         if (x < labels.x && y < labels.y && z < labels.z) {
 
-#define P0 0x77707770777
+#define P0 0x77707770777ULL
 
-            unsigned long long P = 0L;
+            unsigned long long P = 0ULL;
+            unsigned char foreground = 0;
+            unsigned short buffer;
 
+            {
+            if (x + 1 < img.x) {
+                buffer = *reinterpret_cast<unsigned short *>(img.data + img_index);
+                if (buffer & 1) {
+                    P |= P0;
+                    foreground |= 1;
+                }
+                if (buffer & (1 << 8)) {
+                    P |= (P0 << 1);
+                    foreground |= (1 << 1);
+                }
+
+                if (y + 1 < img.y) {
+                    buffer = *reinterpret_cast<unsigned short *>(img.data + img_index + img.stepy / img.elem_size);
+                    if (buffer & 1) {
+                        P |= (P0 << 4);
+                        foreground |= (1 << 2);
+                    }
+                    if (buffer & (1 << 8)) {
+                        P |= (P0 << 5);
+                        foreground |= (1 << 3);
+                    }
+                }
+
+                if (z + 1 < img.z) {
+                    buffer = *reinterpret_cast<unsigned short *>(img.data + img_index + img.stepz / img.elem_size);
+                    if (buffer & 1) {
+                        P |= (P0 << 16);
+                        foreground |= (1 << 4);
+                    }
+                    if (buffer & (1 << 8)) {
+                        P |= (P0 << 17);
+                        foreground |= (1 << 5);
+                    }
+
+                    if (y + 1 < img.y) {
+                        buffer = *reinterpret_cast<unsigned short *>(img.data + img_index + img.stepz / img.elem_size + img.stepy / img.elem_size);
+                        if (buffer & 1) {
+                            P |= (P0 << 20);
+                            foreground |= (1 << 6);
+                        }
+                        if (buffer & (1 << 8)) {
+                            P |= (P0 << 21);
+                            foreground |= (1 << 7);
+                        }
+
+                    }
+
+                }
+
+            }
+            else {
+                if (img[img_index]) {
+                    P |= P0;
+                    foreground |= 1;
+                }
+
+                if (y + 1 < labels.y) {
+                    if (img[img_index + img.stepy / img.elem_size]) {
+                        P |= (P0 << 4);
+                        foreground |= (1 << 2);
+                    }
+                }
+
+                if (z + 1 < labels.z) {
+
+                    if (img[img_index + img.stepz / img.elem_size]) {
+                        P |= (P0 << 16);
+                        foreground |= (1 << 4);
+                    }
+
+                    if (y + 1 < labels.y) {
+                        if (img[img_index + img.stepz / img.elem_size + img.stepy / img.elem_size]) {
+                            P |= (P0 << 20);
+                            foreground |= (1 << 6);
+                        }
+                    }
+
+                }
+            }
+        }
+
+
+           /* {
             if (img[img_index]) {
                 P |= P0;
+                foreground |= 1;
             }
 
             if (x + 1 < img.x) {
 
                 if (img[img_index + 1]) {
                     P |= (P0 << 1);
+                    foreground |= (1 << 1);
                 }
 
                 if (y + 1 < img.y && img[img_index + img.stepy / img.elem_size + 1]) {
                     P |= (P0 << 5);
+                    foreground |= (1 << 3);
                 }
 
             }
@@ -110,6 +199,7 @@ namespace {
 
                 if (img[img_index + img.stepy / img.elem_size]) {
                     P |= (P0 << 4);
+                    foreground |= (1 << 2);
                 }
 
             }
@@ -117,17 +207,20 @@ namespace {
             if (z + 1 < img.z) {
                 if (img[img_index + img.stepz / img.elem_size]) {
                     P |= (P0 << 16);
+                    foreground |= (1 << 4);
                 }
 
                 if (x + 1 < img.x) {
 
                     if (img[img_index + img.stepz / img.elem_size + 1]) {
                         P |= (P0 << 17);
+                        foreground |= (1 << 5);
                     }
 
-                    //if (y + 1 < img.y && img[img_index + img.stepz / img.elem_size + img.stepy / img.elem_size + 1]) {
-                    //    P |= (P0 << 21);
-                    //}
+                    if (y + 1 < img.y && img[img_index + img.stepz / img.elem_size + img.stepy / img.elem_size + 1]) {
+                        P |= (P0 << 21);
+                        foreground |= (1 << 7);
+                    }
 
                 }
 
@@ -135,12 +228,29 @@ namespace {
 
                     if (img[img_index + img.stepz / img.elem_size + img.stepy / img.elem_size]) {
                         P |= (P0 << 20);
+                        foreground |= (1 << 6);
                     }
 
                 }
             }
+        }*/
 
 #undef P0
+
+            // Store foreground voxels bitmask into memory
+            if (x + 1 < labels.x) {
+                labels[labels_index + 1] = foreground;
+            }
+            else if (y + 1 < labels.y) {
+                labels[labels_index + labels.stepy / labels.elem_size] = foreground;
+            }
+            else if (z + 1 < labels.z) {
+                labels[labels_index + labels.stepz / labels.elem_size] = foreground;
+            }
+            else {
+                *last_cube_fg = foreground;
+            }
+
 
             // checks on borders
 
@@ -174,7 +284,7 @@ namespace {
             //    P &= 0x0000FFFFFFFFFFFF;
             //}
 
-            // P is now ready to be used to find neighbour blocks (or it should be)
+            // P is now ready to be used to find neighbour blocks
             // P value avoids range errors
 
             if (P > 0) {
@@ -257,84 +367,69 @@ namespace {
         }
     }
 
-
-    __global__ void FinalLabeling(const cuda::PtrStepSz3b img, cuda::PtrStepSz3i labels) {
+    __global__ void FinalLabeling(const cuda::PtrStepSz3b img, cuda::PtrStepSz3i labels, unsigned char* last_cube_fg) {
 
         unsigned x = 2 * (blockIdx.x * BLOCK_X + threadIdx.x);
         unsigned y = 2 * (blockIdx.y * BLOCK_Y + threadIdx.y);
         unsigned z = 2 * (blockIdx.z * BLOCK_Z + threadIdx.z);
         unsigned labels_index = z * (labels.stepz / labels.elem_size) + y * (labels.stepy / labels.elem_size) + x;
-        unsigned img_index = z * (img.stepz / img.elem_size) + y * (img.stepy / img.elem_size) + x;
 
         if (x < labels.x && y < labels.y && z < labels.z) {
 
-            int label = labels[labels_index] + 1;
+            int label;
+            int foreground;
+            long long buffer;
 
-            // Current plane
-            if (img[img_index]) {
-                labels[labels_index] = label;
+            if (x + 1 < labels.x) {
+                buffer = *reinterpret_cast<long long *>(labels.data + labels_index);
+                label = (buffer & (0xFFFFFFFF)) + 1;
+                foreground = (buffer >> 32) & 0xFFFFFFFF;
             }
             else {
-                labels[labels_index] = 0;
+                label = labels[labels_index] + 1;
+                if (y + 1 < labels.y) {
+                    foreground = labels[labels_index + labels.stepy / labels.elem_size];
+                }
+                else if (z + 1 < labels.z) {
+                    foreground = labels[labels_index + labels.stepz / labels.elem_size];
+                }
+                else {
+                    foreground = *last_cube_fg;
+                }
             }
 
             if (x + 1 < labels.x) {
-                if (img[img_index + 1])
-                    labels[labels_index + 1] = label;
-                else {
-                    labels[labels_index + 1] = 0;
-                }
+                *reinterpret_cast<long long *>(labels.data + labels_index) = (static_cast<long long>(((foreground << 30) >> 31) & label) << 32) | (((foreground << 31) >> 31) & label);
 
                 if (y + 1 < labels.y) {
-                    if (img[img_index + img.stepy + 1])
-                        labels[labels_index + (labels.stepy / labels.elem_size) + 1] = label;
-                    else {
-                        labels[labels_index + (labels.stepy / labels.elem_size) + 1] = 0;
+                    *reinterpret_cast<long long *>(labels.data + labels_index + labels.stepy / labels.elem_size) = (static_cast<long long>(((foreground << 28) >> 31) & label) << 32) | (((foreground << 29) >> 31) & label);
+                }
+
+                if (z + 1 < labels.z) {
+                    *reinterpret_cast<long long *>(labels.data + labels_index + labels.stepz / labels.elem_size) = (static_cast<long long>(((foreground << 26) >> 31) & label) << 32) | (((foreground << 27) >> 31) & label);
+                    
+                    if (y + 1 < labels.y) {
+                        *reinterpret_cast<long long *>(labels.data + labels_index + labels.stepz / labels.elem_size + (labels.stepy / labels.elem_size)) = (static_cast<long long>(((foreground << 24) >> 31) & label) << 32) | (((foreground << 25) >> 31) & label);
                     }
+                    
                 }
             }
+            else {
+                labels[labels_index] = ((foreground << 31) >> 31) & label;
 
-            if (y + 1 < labels.y) {
-                if (img[img_index + img.stepy])
-                    labels[labels_index + (labels.stepy / labels.elem_size)] = label;
-                else {
-                    labels[labels_index + (labels.stepy / labels.elem_size)] = 0;
-                }
-            }
-
-            // Upper plane
-            if (z + 1 < labels.z) {
-
-                if (img[img_index + img.stepz / img.elem_size])
-                    labels[labels_index + labels.stepz / labels.elem_size] = label;
-                else {
-                    labels[labels_index + labels.stepz / labels.elem_size] = 0;
+                if (y + 1 < labels.y) {
+                    labels[labels_index + (labels.stepy / labels.elem_size)] = ((foreground << 29) >> 31) & label;
                 }
 
-                if (x + 1 < labels.x) {
-                    if (img[img_index + img.stepz / img.elem_size + 1])
-                        labels[labels_index + labels.stepz / labels.elem_size + 1] = label;
-                    else {
-                        labels[labels_index + labels.stepz / labels.elem_size + 1] = 0;
-                    }
+                if (z + 1 < labels.z) {
+
+                    labels[labels_index + labels.stepz / labels.elem_size] = ((foreground << 27) >> 31) & label;
 
                     if (y + 1 < labels.y) {
-                        if (img[img_index + img.stepz / img.elem_size + img.stepy / img.elem_size + 1])
-                            labels[labels_index + labels.stepz / labels.elem_size + (labels.stepy / labels.elem_size) + 1] = label;
-                        else {
-                            labels[labels_index + labels.stepz / labels.elem_size + (labels.stepy / labels.elem_size) + 1] = 0;
-                        }
+                        labels[labels_index + labels.stepz / labels.elem_size + (labels.stepy / labels.elem_size)] = ((foreground << 25) >> 31) & label;
                     }
-                }
 
-                if (y + 1 < labels.y) {
-                    if (img[img_index + img.stepz / img.elem_size + img.stepy / img.elem_size])
-                        labels[labels_index + labels.stepz / labels.elem_size + (labels.stepy / labels.elem_size)] = label;
-                    else {
-                        labels[labels_index + labels.stepz / labels.elem_size + (labels.stepy / labels.elem_size)] = 0;
-                    }
                 }
-
             }
 
         }
@@ -347,6 +442,8 @@ class CUDA_BUF_3D : public GpuLabeling3D<CONN_26> {
 private:
     dim3 grid_size_;
     dim3 block_size_;
+    unsigned char* last_cube_fg_;
+    bool allocated_last_cude_fg_;
 
 public:
     CUDA_BUF_3D() {}
@@ -355,7 +452,24 @@ public:
 
         d_img_labels_.create(d_img_.x, d_img_.y, d_img_.z, CV_32SC1);
 
-        grid_size_ = dim3((d_img_.x + BLOCK_X - 1) / BLOCK_X, (d_img_.y + BLOCK_Y - 1) / BLOCK_Y, (d_img_.z + BLOCK_Z - 1) / BLOCK_Z);
+        allocated_last_cude_fg_ = false;
+        if ((d_img_.x % 2 == 1) && (d_img_.y % 2 == 1) && (d_img_.z % 2 == 1)) {
+            if (d_img_.x > 1 && d_img_.y > 1) {
+                last_cube_fg_ = reinterpret_cast<unsigned char*>(d_img_labels_.data + (d_img_labels_.z - 1) * d_img_labels_.stepz + (d_img_labels_.y - 2) * d_img_labels_.stepy) + d_img_labels_.x - 2;
+            }
+            else if (d_img_.x > 1 && d_img_.z > 1) {
+                last_cube_fg_ = reinterpret_cast<unsigned char*>(d_img_labels_.data + (d_img_labels_.z - 2) * d_img_labels_.stepz + (d_img_labels_.y - 1) * d_img_labels_.stepy) + d_img_labels_.x - 2;
+            }
+            else if (d_img_.y > 1 && d_img_.z > 1) {
+                last_cube_fg_ = reinterpret_cast<unsigned char*>(d_img_labels_.data + (d_img_labels_.z - 2) * d_img_labels_.stepz + (d_img_labels_.y - 2) * d_img_labels_.stepy) + d_img_labels_.x - 1;
+            }
+            else {
+                cudaMalloc(&last_cube_fg_, sizeof(unsigned char));
+                allocated_last_cude_fg_ = true;
+            }
+        }
+
+        grid_size_ = dim3(((d_img_.x + 1) / 2 + BLOCK_X - 1) / BLOCK_X, ((d_img_.y + 1) / 2 + BLOCK_Y - 1) / BLOCK_Y, ((d_img_.z + 1) / 2 + BLOCK_Z - 1) / BLOCK_Z);
         block_size_ = dim3(BLOCK_X, BLOCK_Y, BLOCK_Z);
 
         InitLabeling << <grid_size_, block_size_ >> > (d_img_labels_);
@@ -370,14 +484,18 @@ public:
         //Mat1i init_labels;
         //d_block_labels_.download(init_labels);
 
-        Merge << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
+        Merge << <grid_size_, block_size_ >> > (d_img_, d_img_labels_, last_cube_fg_);
 
         //Mat1i block_info_final;
         //d_img_labels_.download(block_info_final);		
 
         PathCompression << <grid_size_, block_size_ >> > (d_img_labels_);
 
-        FinalLabeling << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
+        FinalLabeling << <grid_size_, block_size_ >> > (d_img_, d_img_labels_, last_cube_fg_);
+
+        if (allocated_last_cude_fg_) {
+            cudaFree(last_cube_fg_);
+        }
 
         // d_img_labels_.download(img_labels_);
         cudaDeviceSynchronize();
@@ -387,9 +505,29 @@ public:
 private:
     void Alloc() {
         d_img_labels_.create(d_img_.x, d_img_.y, d_img_.z, CV_32SC1);
+
+        allocated_last_cude_fg_ = false;
+        if ((d_img_.x % 2 == 1) && (d_img_.y % 2 == 1) && (d_img_.z % 2 == 1)) {
+            if (d_img_.x > 1 && d_img_.y > 1) {
+                last_cube_fg_ = reinterpret_cast<unsigned char*>(d_img_labels_.data + (d_img_labels_.z - 1) * d_img_labels_.stepz + (d_img_labels_.y - 2) * d_img_labels_.stepy) + d_img_labels_.x - 2;
+            }
+            else if (d_img_.x > 1 && d_img_.z > 1) {
+                last_cube_fg_ = reinterpret_cast<unsigned char*>(d_img_labels_.data + (d_img_labels_.z - 2) * d_img_labels_.stepz + (d_img_labels_.y - 1) * d_img_labels_.stepy) + d_img_labels_.x - 2;
+            }
+            else if (d_img_.y > 1 && d_img_.z > 1) {
+                last_cube_fg_ = reinterpret_cast<unsigned char*>(d_img_labels_.data + (d_img_labels_.z - 2) * d_img_labels_.stepz + (d_img_labels_.y - 2) * d_img_labels_.stepy) + d_img_labels_.x - 1;
+            }
+            else {
+                cudaMalloc(&last_cube_fg_, sizeof(unsigned char));
+                allocated_last_cude_fg_ = true;
+            }
+        }
     }
 
     void Dealloc() {
+        if (allocated_last_cude_fg_) {
+            cudaFree(last_cube_fg_);
+        }
     }
 
     double MemoryTransferHostToDevice() {
@@ -404,9 +542,8 @@ private:
     }
 
     void AllScans() {
-        grid_size_ = dim3((d_img_.x + BLOCK_X - 1) / BLOCK_X, (d_img_.y + BLOCK_Y - 1) / BLOCK_Y, (d_img_.z + BLOCK_Z - 1) / BLOCK_Z);
+        grid_size_ = dim3(((d_img_.x + 1) / 2 + BLOCK_X - 1) / BLOCK_X, ((d_img_.y + 1) / 2 + BLOCK_Y - 1) / BLOCK_Y, ((d_img_.z + 1) / 2 + BLOCK_Z - 1) / BLOCK_Z);
         block_size_ = dim3(BLOCK_X, BLOCK_Y, BLOCK_Z);
-
 
         InitLabeling << <grid_size_, block_size_ >> > (d_img_labels_);
 
@@ -420,14 +557,14 @@ private:
         //Mat1i init_labels;
         //d_block_labels_.download(init_labels);
 
-        Merge << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
+        Merge << <grid_size_, block_size_ >> > (d_img_, d_img_labels_, last_cube_fg_);
 
         //Mat1i block_info_final;
         //d_img_labels_.download(block_info_final);		
 
         PathCompression << <grid_size_, block_size_ >> > (d_img_labels_);
 
-        FinalLabeling << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
+        FinalLabeling << <grid_size_, block_size_ >> > (d_img_, d_img_labels_, last_cube_fg_);
 
         cudaDeviceSynchronize();
     }
