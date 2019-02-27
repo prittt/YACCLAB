@@ -86,156 +86,154 @@ namespace {
 
         if (x < labels.x && y < labels.y && z < labels.z) {
 
-#define P0 0x77707770777ULL
+            const unsigned long long P0 = 0x77707770777;
 
             unsigned long long P = 0ULL;
             unsigned char foreground = 0;
             unsigned short buffer;
 
             {
-            if (x + 1 < img.x) {
-                buffer = *reinterpret_cast<unsigned short *>(img.data + img_index);
-                if (buffer & 1) {
-                    P |= P0;
-                    foreground |= 1;
-                }
-                if (buffer & (1 << 8)) {
-                    P |= (P0 << 1);
-                    foreground |= (1 << 1);
-                }
-
-                if (y + 1 < img.y) {
-                    buffer = *reinterpret_cast<unsigned short *>(img.data + img_index + img.stepy / img.elem_size);
+                if (x + 1 < img.x) {
+                    buffer = *reinterpret_cast<unsigned short *>(img.data + img_index);
                     if (buffer & 1) {
-                        P |= (P0 << 4);
-                        foreground |= (1 << 2);
+                        P |= P0;
+                        foreground |= 1;
                     }
                     if (buffer & (1 << 8)) {
-                        P |= (P0 << 5);
-                        foreground |= (1 << 3);
-                    }
-                }
-
-                if (z + 1 < img.z) {
-                    buffer = *reinterpret_cast<unsigned short *>(img.data + img_index + img.stepz / img.elem_size);
-                    if (buffer & 1) {
-                        P |= (P0 << 16);
-                        foreground |= (1 << 4);
-                    }
-                    if (buffer & (1 << 8)) {
-                        P |= (P0 << 17);
-                        foreground |= (1 << 5);
+                        P |= (P0 << 1);
+                        foreground |= (1 << 1);
                     }
 
                     if (y + 1 < img.y) {
-                        buffer = *reinterpret_cast<unsigned short *>(img.data + img_index + img.stepz / img.elem_size + img.stepy / img.elem_size);
+                        buffer = *reinterpret_cast<unsigned short *>(img.data + img_index + img.stepy / img.elem_size);
                         if (buffer & 1) {
-                            P |= (P0 << 20);
-                            foreground |= (1 << 6);
+                            P |= (P0 << 4);
+                            foreground |= (1 << 2);
                         }
                         if (buffer & (1 << 8)) {
-                            P |= (P0 << 21);
-                            foreground |= (1 << 7);
+                            P |= (P0 << 5);
+                            foreground |= (1 << 3);
+                        }
+                    }
+
+                    if (z + 1 < img.z) {
+                        buffer = *reinterpret_cast<unsigned short *>(img.data + img_index + img.stepz / img.elem_size);
+                        if (buffer & 1) {
+                            P |= (P0 << 16);
+                            foreground |= (1 << 4);
+                        }
+                        if (buffer & (1 << 8)) {
+                            P |= (P0 << 17);
+                            foreground |= (1 << 5);
+                        }
+
+                        if (y + 1 < img.y) {
+                            buffer = *reinterpret_cast<unsigned short *>(img.data + img_index + img.stepz / img.elem_size + img.stepy / img.elem_size);
+                            if (buffer & 1) {
+                                P |= (P0 << 20);
+                                foreground |= (1 << 6);
+                            }
+                            if (buffer & (1 << 8)) {
+                                P |= (P0 << 21);
+                                foreground |= (1 << 7);
+                            }
+
                         }
 
                     }
 
                 }
-
-            }
-            else {
-                if (img[img_index]) {
-                    P |= P0;
-                    foreground |= 1;
-                }
-
-                if (y + 1 < labels.y) {
-                    if (img[img_index + img.stepy / img.elem_size]) {
-                        P |= (P0 << 4);
-                        foreground |= (1 << 2);
-                    }
-                }
-
-                if (z + 1 < labels.z) {
-
-                    if (img[img_index + img.stepz / img.elem_size]) {
-                        P |= (P0 << 16);
-                        foreground |= (1 << 4);
+                else {
+                    if (img[img_index]) {
+                        P |= P0;
+                        foreground |= 1;
                     }
 
                     if (y + 1 < labels.y) {
-                        if (img[img_index + img.stepz / img.elem_size + img.stepy / img.elem_size]) {
-                            P |= (P0 << 20);
-                            foreground |= (1 << 6);
+                        if (img[img_index + img.stepy / img.elem_size]) {
+                            P |= (P0 << 4);
+                            foreground |= (1 << 2);
                         }
                     }
 
-                }
-            }
-        }
+                    if (z + 1 < labels.z) {
 
+                        if (img[img_index + img.stepz / img.elem_size]) {
+                            P |= (P0 << 16);
+                            foreground |= (1 << 4);
+                        }
 
-           /* {
-            if (img[img_index]) {
-                P |= P0;
-                foreground |= 1;
-            }
+                        if (y + 1 < labels.y) {
+                            if (img[img_index + img.stepz / img.elem_size + img.stepy / img.elem_size]) {
+                                P |= (P0 << 20);
+                                foreground |= (1 << 6);
+                            }
+                        }
 
-            if (x + 1 < img.x) {
-
-                if (img[img_index + 1]) {
-                    P |= (P0 << 1);
-                    foreground |= (1 << 1);
-                }
-
-                if (y + 1 < img.y && img[img_index + img.stepy / img.elem_size + 1]) {
-                    P |= (P0 << 5);
-                    foreground |= (1 << 3);
-                }
-
-            }
-
-            if (y + 1 < img.y) {
-
-                if (img[img_index + img.stepy / img.elem_size]) {
-                    P |= (P0 << 4);
-                    foreground |= (1 << 2);
-                }
-
-            }
-
-            if (z + 1 < img.z) {
-                if (img[img_index + img.stepz / img.elem_size]) {
-                    P |= (P0 << 16);
-                    foreground |= (1 << 4);
-                }
-
-                if (x + 1 < img.x) {
-
-                    if (img[img_index + img.stepz / img.elem_size + 1]) {
-                        P |= (P0 << 17);
-                        foreground |= (1 << 5);
                     }
-
-                    if (y + 1 < img.y && img[img_index + img.stepz / img.elem_size + img.stepy / img.elem_size + 1]) {
-                        P |= (P0 << 21);
-                        foreground |= (1 << 7);
-                    }
-
-                }
-
-                if (y + 1 < img.y) {
-
-                    if (img[img_index + img.stepz / img.elem_size + img.stepy / img.elem_size]) {
-                        P |= (P0 << 20);
-                        foreground |= (1 << 6);
-                    }
-
                 }
             }
-        }*/
 
-#undef P0
+
+            /* {
+             if (img[img_index]) {
+                 P |= P0;
+                 foreground |= 1;
+             }
+
+             if (x + 1 < img.x) {
+
+                 if (img[img_index + 1]) {
+                     P |= (P0 << 1);
+                     foreground |= (1 << 1);
+                 }
+
+                 if (y + 1 < img.y && img[img_index + img.stepy / img.elem_size + 1]) {
+                     P |= (P0 << 5);
+                     foreground |= (1 << 3);
+                 }
+
+             }
+
+             if (y + 1 < img.y) {
+
+                 if (img[img_index + img.stepy / img.elem_size]) {
+                     P |= (P0 << 4);
+                     foreground |= (1 << 2);
+                 }
+
+             }
+
+             if (z + 1 < img.z) {
+                 if (img[img_index + img.stepz / img.elem_size]) {
+                     P |= (P0 << 16);
+                     foreground |= (1 << 4);
+                 }
+
+                 if (x + 1 < img.x) {
+
+                     if (img[img_index + img.stepz / img.elem_size + 1]) {
+                         P |= (P0 << 17);
+                         foreground |= (1 << 5);
+                     }
+
+                     if (y + 1 < img.y && img[img_index + img.stepz / img.elem_size + img.stepy / img.elem_size + 1]) {
+                         P |= (P0 << 21);
+                         foreground |= (1 << 7);
+                     }
+
+                 }
+
+                 if (y + 1 < img.y) {
+
+                     if (img[img_index + img.stepz / img.elem_size + img.stepy / img.elem_size]) {
+                         P |= (P0 << 20);
+                         foreground |= (1 << 6);
+                     }
+
+                 }
+             }
+         }*/
 
             // Store foreground voxels bitmask into memory
             if (x + 1 < labels.x) {
@@ -346,9 +344,9 @@ namespace {
 
                 if ((HasBit(P, 20) && plane_data[-1]) || (HasBit(P, 24) && plane_data[img.stepy - 1]) || (HasBit(P, 36) && plane_data[img.stepz - 1]) || (HasBit(P, 40) && plane_data[img.stepz + img.stepy - 1])) {
                     Union(labels.data, labels_index, labels_index - 2);
-                }                
+                }
             }
-            
+
         }
     }
 
@@ -377,11 +375,11 @@ namespace {
         if (x < labels.x && y < labels.y && z < labels.z) {
 
             int label;
-            int foreground;
-            long long buffer;
+            unsigned char foreground;
+            unsigned long long buffer;
 
             if (x + 1 < labels.x) {
-                buffer = *reinterpret_cast<long long *>(labels.data + labels_index);
+                buffer = *reinterpret_cast<unsigned long long *>(labels.data + labels_index);
                 label = (buffer & (0xFFFFFFFF)) + 1;
                 foreground = (buffer >> 32) & 0xFFFFFFFF;
             }
@@ -399,34 +397,38 @@ namespace {
             }
 
             if (x + 1 < labels.x) {
-                *reinterpret_cast<long long *>(labels.data + labels_index) = (static_cast<long long>(((foreground << 30) >> 31) & label) << 32) | (((foreground << 31) >> 31) & label);
+                *reinterpret_cast<unsigned long long *>(labels.data + labels_index) =
+                    (static_cast<unsigned long long>(((foreground >> 1) & 1) * label) << 32) | (((foreground >> 0) & 1) * label);
 
                 if (y + 1 < labels.y) {
-                    *reinterpret_cast<long long *>(labels.data + labels_index + labels.stepy / labels.elem_size) = (static_cast<long long>(((foreground << 28) >> 31) & label) << 32) | (((foreground << 29) >> 31) & label);
+                    *reinterpret_cast<unsigned long long *>(labels.data + labels_index + labels.stepy / labels.elem_size) =
+                        (static_cast<unsigned long long>(((foreground >> 3) & 1) * label) << 32) | (((foreground >> 2) & 1) * label);
                 }
 
                 if (z + 1 < labels.z) {
-                    *reinterpret_cast<long long *>(labels.data + labels_index + labels.stepz / labels.elem_size) = (static_cast<long long>(((foreground << 26) >> 31) & label) << 32) | (((foreground << 27) >> 31) & label);
-                    
+                    *reinterpret_cast<unsigned long long *>(labels.data + labels_index + labels.stepz / labels.elem_size) =
+                        (static_cast<unsigned long long>(((foreground >> 5) & 1) * label) << 32) | (((foreground >> 4) & 1) * label);
+
                     if (y + 1 < labels.y) {
-                        *reinterpret_cast<long long *>(labels.data + labels_index + labels.stepz / labels.elem_size + (labels.stepy / labels.elem_size)) = (static_cast<long long>(((foreground << 24) >> 31) & label) << 32) | (((foreground << 25) >> 31) & label);
+                        *reinterpret_cast<unsigned long long *>(labels.data + labels_index + labels.stepz / labels.elem_size + (labels.stepy / labels.elem_size)) =
+                            (static_cast<unsigned long long>(((foreground >> 7) & 1) * label) << 32) | (((foreground >> 6) & 1) * label);
                     }
-                    
+
                 }
             }
             else {
-                labels[labels_index] = ((foreground << 31) >> 31) & label;
+                labels[labels_index] = ((foreground >> 0) & 1) * label;
 
                 if (y + 1 < labels.y) {
-                    labels[labels_index + (labels.stepy / labels.elem_size)] = ((foreground << 29) >> 31) & label;
+                    labels[labels_index + (labels.stepy / labels.elem_size)] = ((foreground >> 2) & 1) * label;
                 }
 
                 if (z + 1 < labels.z) {
 
-                    labels[labels_index + labels.stepz / labels.elem_size] = ((foreground << 27) >> 31) & label;
+                    labels[labels_index + labels.stepz / labels.elem_size] = ((foreground >> 4) & 1) * label;
 
                     if (y + 1 < labels.y) {
-                        labels[labels_index + labels.stepz / labels.elem_size + (labels.stepy / labels.elem_size)] = ((foreground << 25) >> 31) & label;
+                        labels[labels_index + labels.stepz / labels.elem_size + (labels.stepy / labels.elem_size)] = ((foreground >> 6) & 1) * label;
                     }
 
                 }
