@@ -14,9 +14,8 @@
 #include <time.h>
 #include <iostream>
 
-#include <opencv2\core.hpp>
-#include <opencv2\cudafeatures2d.hpp>
-#include <opencv2\highgui\highgui.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/cudafeatures2d.hpp>
 #include <map>
 
 // Il minimo per entrambi è 4
