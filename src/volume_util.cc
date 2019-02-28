@@ -80,7 +80,7 @@ bool volwrite(const cv::String& filename, const cv::Mat& volume) {
 
 	path files_path = vol_path / path("files.txt");
 
-	std::ofstream os(files_path.string());							// text mode shoud translate \n into \r\n on Windows
+	std::ofstream os(files_path.string(), std::ios::binary);
 	if (!os)
 		return false;
 
