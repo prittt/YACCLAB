@@ -561,6 +561,8 @@ public:
 		//Mat1i init_labels;
 		//d_block_labels_.download(init_labels);
 
+		PathCompression << <grid_size_, block_size_ >> > (d_img_labels_);
+
 		Merge << <grid_size_, block_size_ >> > (d_img_labels_, last_voxel_conn_);
 
 		//Mat1i block_info_final;
@@ -636,6 +638,9 @@ private:
 
 		//Mat1i init_labels;
 		//d_block_labels_.download(init_labels);
+
+        PathCompression << <grid_size_, block_size_ >> > (d_img_labels_);
+
 
 		Merge << <grid_size_, block_size_ >> > (d_img_labels_, last_voxel_conn_);
 
