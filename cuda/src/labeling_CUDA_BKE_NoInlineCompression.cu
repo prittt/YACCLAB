@@ -48,10 +48,6 @@ namespace {
         bitmap |= (1 << static_cast<unsigned char>(pos));
     }
 
-    __device__ __forceinline__ void SetBit(unsigned char &bitmap, unsigned char pos) {
-        bitmap |= (1 << pos);
-    }
-
     // Risale alla radice dell'albero a partire da un suo nodo n
     __device__ unsigned Find(const int *s_buf, unsigned n) {
         while (s_buf[n] != n) {
@@ -176,13 +172,13 @@ namespace {
 
             // P square
             if (HasBit(P, 0) && img.data[img_index - img.step - 1]) {
-                father_offset = - (2 * (labels.step / labels.elem_size) + 2);
+                father_offset = -(2 * (labels.step / labels.elem_size) + 2);
             }
 
             // Q square
             if ((HasBit(P, 1) && img.data[img_index - img.step]) || (HasBit(P, 2) && img.data[img_index + 1 - img.step])) {
                 if (!father_offset) {
-                    father_offset = - (2 * (labels.step / labels.elem_size));
+                    father_offset = -(2 * (labels.step / labels.elem_size));
                 }
                 else {
                     SetBit(info, Info::Q);
@@ -192,7 +188,7 @@ namespace {
             // R square
             if (HasBit(P, 3) && img.data[img_index + 2 - img.step]) {
                 if (!father_offset) {
-                    father_offset = - (2 * (labels.step / labels.elem_size) - 2);
+                    father_offset = -(2 * (labels.step / labels.elem_size) - 2);
                 }
                 else {
                     SetBit(info, Info::R);
@@ -308,7 +304,7 @@ namespace {
 
 }
 
-class CUDA_BKE : public GpuLabeling2D<CONN_8> {
+class CUDA_BKE_NoInlineCompression : public GpuLabeling2D<CONN_8> {
 private:
     dim3 grid_size_;
     dim3 block_size_;
@@ -316,7 +312,7 @@ private:
     bool last_pixel_allocated_;
 
 public:
-    CUDA_BKE() {}
+    CUDA_BKE_NoInlineCompression() {}
 
     void PerformLabeling() {
 
@@ -471,4 +467,4 @@ public:
 
 };
 
-REGISTER_LABELING(CUDA_BKE);
+REGISTER_LABELING(CUDA_BKE_NoInlineCompression);
