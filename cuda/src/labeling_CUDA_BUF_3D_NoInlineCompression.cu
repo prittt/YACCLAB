@@ -36,15 +36,6 @@ namespace {
         return n;
     }
 
-    __device__ unsigned FindAndCompress(int *s_buf, unsigned n) {
-        unsigned id = n;
-        while (s_buf[n] != n) {
-            n = s_buf[n];
-            s_buf[id] = n;
-        }
-        return n;
-    }
-
     // Unisce gli alberi contenenti i nodi a e b, collegandone le radici
     __device__ void Union(int *s_buf, unsigned a, unsigned b) {
 
@@ -244,7 +235,7 @@ namespace {
              }
          }*/
 
-         // Store foreground voxels bitmask into memory
+            // Store foreground voxels bitmask into memory
             if (x + 1 < labels.x) {
                 labels[labels_index + 1] = foreground;
             }
@@ -367,7 +358,10 @@ namespace {
         unsigned labels_index = z * (labels.stepz / labels.elem_size) + y * (labels.stepy / labels.elem_size) + x;
 
         if (x < labels.x && y < labels.y && z < labels.z) {
-            FindAndCompress(labels.data, labels_index);
+            int val = labels[labels_index];
+            if (val < labels_index) {
+                labels[labels_index] = Find(labels.data, val);
+            }
         }
     }
 
@@ -446,7 +440,7 @@ namespace {
 
 }
 
-class CUDA_BUF_3D : public GpuLabeling3D<CONN_26> {
+class CUDA_BUF_3D_NoInlineCompression : public GpuLabeling3D<CONN_26> {
 private:
     dim3 grid_size_;
     dim3 block_size_;
@@ -454,7 +448,7 @@ private:
     bool allocated_last_cude_fg_;
 
 public:
-    CUDA_BUF_3D() {}
+    CUDA_BUF_3D_NoInlineCompression() {}
 
     void PerformLabeling() {
 
@@ -600,4 +594,4 @@ public:
 
 };
 
-REGISTER_LABELING(CUDA_BUF_3D);
+REGISTER_LABELING(CUDA_BUF_3D_NoInlineCompression);
