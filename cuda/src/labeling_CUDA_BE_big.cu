@@ -27,7 +27,7 @@ using namespace cv;
 
 // Algorithm itself has good performances, but memory allocation is a problem.
 // I will try to reduce it.
-namespace CUDA_BE_namespace {
+namespace {
 
 	// Only use it with unsigned numeric types
 	template <typename T>
@@ -371,8 +371,6 @@ namespace CUDA_BE_namespace {
 
 }
 
-using namespace CUDA_BE_namespace;
-
 class CUDA_BE : public GpuLabeling2D<CONN_8> {
 private:
 	dim3 grid_size_;
@@ -432,6 +430,8 @@ public:
 
 		//d_img_labels_.download(img_labels_);
 
+        cudaDeviceSynchronize();
+
 		cudaFree(d_changes);
 		d_connections_.release();
 		d_block_labels_.release();
@@ -485,7 +485,7 @@ private:
 
 		//assert(cudaDeviceSynchronize() == cudaSuccess);
 
-		// Immagine di debug della inizializzazione
+		//Immagine di debug della inizializzazione
 		//Mat1i init_labels;
 		//d_block_labels_.download(init_labels);
 
@@ -508,6 +508,8 @@ private:
 		//d_block_labels_.download(block_labels);
 
 		FinalLabeling << <grid_size_, block_size_ >> >(d_block_labels_, d_img_labels_, d_img_);
+
+        cudaDeviceSynchronize();
 	}
 
 public:
