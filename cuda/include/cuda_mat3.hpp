@@ -19,6 +19,7 @@ namespace cv {
 			// GpuMat3(Mat &mat);
 			
 			GpuMat3();
+            ~GpuMat3() { release(); }
 
 			size_t elemSize() const;
 
