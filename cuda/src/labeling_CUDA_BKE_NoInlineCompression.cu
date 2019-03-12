@@ -56,14 +56,6 @@ namespace {
         return n;
     }
 
-    __device__ unsigned FindAndCompress(int *s_buf, unsigned n) {
-        unsigned id = n;
-        while (s_buf[n] != n) {
-            n = s_buf[n];
-            s_buf[id] = n;
-        }
-        return n;
-    }
 
     // Unisce gli alberi contenenti i nodi a e b, collegandone le radici
     __device__ void Union(int *s_buf, unsigned a, unsigned b) {
@@ -245,12 +237,16 @@ namespace {
     }
 
     __global__ void Compression(cuda::PtrStepSzi labels) {
+
         unsigned row = (blockIdx.y * BLOCK_ROWS + threadIdx.y) * 2;
         unsigned col = (blockIdx.x * BLOCK_COLS + threadIdx.x) * 2;
         unsigned labels_index = row * (labels.step / labels.elem_size) + col;
 
         if (row < labels.rows && col < labels.cols) {
-            FindAndCompress(labels.data, labels_index);
+            //unsigned label = labels.data[labels_index];
+            //if (label < labels_index) {
+            labels[labels_index] = Find(labels.data, labels_index);
+            //}
         }
     }
 
