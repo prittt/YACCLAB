@@ -1,8 +1,7 @@
+#include <opencv2/cudafeatures2d.hpp>
+
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
-
-#include <opencv2/core.hpp>
-#include <opencv2/cudafeatures2d.hpp>
 
 #include "labeling_algorithms.h"
 #include "register.h"
@@ -533,7 +532,7 @@ namespace {
 }
 
 
-class CUDA_BE_3D : public GpuLabeling3D<CONN_26> {
+class BE_3D : public GpuLabeling3D<CONN_26> {
 private:
     dim3 grid_size_;
     dim3 block_size_;
@@ -544,7 +543,7 @@ private:
     cuda::GpuMat3 d_block_labels_;
 
 public:
-    CUDA_BE_3D() {}
+    BE_3D() {}
 
     void PerformLabeling() {
 
@@ -698,5 +697,5 @@ public:
 
 };
 
-REGISTER_LABELING(CUDA_BE_3D);
+REGISTER_LABELING(BE_3D);
 

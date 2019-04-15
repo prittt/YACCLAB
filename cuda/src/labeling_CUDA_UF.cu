@@ -8,7 +8,7 @@
 
 // Oliveira classico
 
-// Il minimo per entrambi è 4
+
 #define BLOCK_ROWS 16
 #define BLOCK_COLS 16
 
@@ -203,13 +203,13 @@ namespace {
 
 }
 
-class CUDA_UF : public GpuLabeling2D<CONN_8> {
+class UF : public GpuLabeling2D<CONN_8> {
 private:
 	dim3 grid_size_;
 	dim3 block_size_;
 
 public:
-	CUDA_UF() {}
+	UF() {}
 
 	void PerformLabeling() {
 
@@ -310,5 +310,5 @@ public:
 
 };
 
-REGISTER_LABELING(CUDA_UF);
+REGISTER_LABELING(UF);
 

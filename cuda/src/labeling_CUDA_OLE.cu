@@ -8,7 +8,7 @@
 
 // Label Equivalence con ottimizzazioni introdotte da Kalentev (OLE stand for Optimized Label Equivalence or equivalently for Oleksander (Kalentev) Label Equivalence)
 
-// Il minimo per entrambi è 4
+
 #define BLOCK_ROWS 16
 #define BLOCK_COLS 16
 
@@ -117,7 +117,7 @@ namespace {
 
 }
 
-class CUDA_OLE : public GpuLabeling2D<CONN_8> {
+class OLE : public GpuLabeling2D<CONN_8> {
 private:
 	dim3 grid_size_;
 	dim3 block_size_;
@@ -125,7 +125,7 @@ private:
 	char *d_changes;
 
 public:
-	CUDA_OLE() {}
+	OLE() {}
 
 	void PerformLabeling() {
 
@@ -227,5 +227,5 @@ public:
 
 };
 
-REGISTER_LABELING(CUDA_OLE);
+REGISTER_LABELING(OLE);
 

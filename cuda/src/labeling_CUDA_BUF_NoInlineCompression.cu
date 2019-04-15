@@ -6,7 +6,7 @@
 #include "labeling_algorithms.h"
 #include "register.h"
 
-// Il minimo per entrambi è 4
+
 #define BLOCK_ROWS 16
 #define BLOCK_COLS 16
 
@@ -217,13 +217,13 @@ namespace {
 
 }
 
-class CUDA_BUF_NoInlineCompression : public GpuLabeling2D<CONN_8> {
+class BUF_NoInlineCompression : public GpuLabeling2D<CONN_8> {
 private:
 	dim3 grid_size_;
 	dim3 block_size_;
 
 public:
-	CUDA_BUF_NoInlineCompression() {}
+	BUF_NoInlineCompression() {}
 
 	void PerformLabeling() {
 
@@ -329,4 +329,4 @@ public:
 
 };
 
-REGISTER_LABELING(CUDA_BUF_NoInlineCompression);
+REGISTER_LABELING(BUF_NoInlineCompression);

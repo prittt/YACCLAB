@@ -1,27 +1,16 @@
-#include <opencv2/core.hpp>
-
-#include "labeling_algorithms.h"
-#include "labels_solver.h"
-#include "memory_tester.h"
+#include <opencv2/cudafeatures2d.hpp>
 
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
-#include <cuda.h>
 
-#include <cstdio>
-#include <stdlib.h>
-#include <math.h>
-#include <time.h>
-#include <iostream>
-
-#include <opencv2/cudafeatures2d.hpp>
-#include <map>
+#include "labeling_algorithms.h"
+#include "register.h"
 
 // Questo algoritmo è una modifica del Block Union Find (BUF) che esegue le operazioni in due livelli (stage). 
 // Inizialmente esegue le operazioni nel blocco usando la shared memory e poi merga le etichette sui bordi dei 
 // blocchi. Varie prove hanno mostrato che sulla quadro va peggio della versione BUF.
 
-// Il minimo per entrambi è 4
+
 #define BLOCK_ROWS 32
 #define BLOCK_COLS 32
 
@@ -316,13 +305,13 @@ namespace {
 
 }
 
-class CUDA_BUF_2S : public GpuLabeling2D<CONN_8> {
+class BUF_2S : public GpuLabeling2D<CONN_8> {
 private:
     dim3 grid_size_;
     dim3 block_size_;
 
 public:
-    CUDA_BUF_2S() {}
+    BUF_2S() {}
 
     void PerformLabeling() {
 
@@ -432,4 +421,4 @@ public:
 
 };
 
-REGISTER_LABELING(CUDA_BUF_2S);
+REGISTER_LABELING(BUF_2S);

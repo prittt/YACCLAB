@@ -9,7 +9,7 @@
 // Modifica dell' 8DLS (8 Directional Label equivalence Solution). La modifica proposta rispetto a DLS non è chiara, da quello che 
 // abbiamo capito dal paper non sempre porta alla soluzione corretta. Abbiamo scritto una mail agli autori, attendiamo risposta.
 
-// Il minimo per entrambi è 4
+
 #define BLOCK_ROWS 16
 #define BLOCK_COLS 16
 
@@ -146,7 +146,7 @@ namespace {
 
 }
 
-class CUDA_M8DLS : public GpuLabeling2D<CONN_8> {
+class M8DLS : public GpuLabeling2D<CONN_8> {
 private:
     dim3 grid_size_;
     dim3 block_size_;
@@ -154,7 +154,7 @@ private:
     char *d_changes;
 
 public:
-    CUDA_M8DLS() {}
+    M8DLS() {}
 
     void PerformLabeling() {
 
@@ -261,5 +261,5 @@ public:
 
 };
 
-REGISTER_LABELING(CUDA_M8DLS);
+REGISTER_LABELING(M8DLS);
 

@@ -1,5 +1,4 @@
 #include <opencv2/cudafeatures2d.hpp>
-#include <opencv2/features2d.hpp>
 
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
@@ -174,13 +173,13 @@ namespace {
 }
 
 
-class CUDA_UF_3D : public GpuLabeling3D<CONN_26> {
+class UF_3D : public GpuLabeling3D<CONN_26> {
 private:
     dim3 grid_size_;
     dim3 block_size_;
 
 public:
-    CUDA_UF_3D() {}
+    UF_3D() {}
 
     void PerformLabeling() {
 
@@ -288,4 +287,4 @@ public:
 
 };
 
-REGISTER_LABELING(CUDA_UF_3D);
+REGISTER_LABELING(UF_3D);

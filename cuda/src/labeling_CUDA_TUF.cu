@@ -8,7 +8,7 @@
 
 // SAUF in GPU
 
-// Il minimo per entrambi è 4
+
 #define BLOCK_ROWS 16
 #define BLOCK_COLS 16
 
@@ -216,13 +216,13 @@ namespace {
 
 }
 
-class CUDA_TUF : public GpuLabeling2D<CONN_8> {
+class TUF : public GpuLabeling2D<CONN_8> {
 private:
 	dim3 grid_size_;
 	dim3 block_size_;
 
 public:
-	CUDA_TUF() {}
+	TUF() {}
 
 	void PerformLabeling() {
 
@@ -321,5 +321,5 @@ public:
 
 };
 
-REGISTER_LABELING(CUDA_TUF);
+REGISTER_LABELING(TUF);
 

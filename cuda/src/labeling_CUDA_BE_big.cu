@@ -1,24 +1,12 @@
-#include <opencv2/core.hpp>
-
-#include "labeling_algorithms.h"
-#include "labels_solver.h"
-#include "memory_tester.h"
+#include <opencv2/cudafeatures2d.hpp>
 
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
-#include <cuda.h>
 
-#include <cstdio>
-#include <stdlib.h>
-#include <math.h>
-#include <time.h>
-#include <iostream>
+#include "labeling_algorithms.h"
+#include "register.h"
 
-#include <opencv2/core.hpp>
-#include <opencv2/cudafeatures2d.hpp>
-#include <map>
 
-// Il minimo per entrambi è 4
 #define BLOCK_ROWS 16
 #define BLOCK_COLS 16
 
@@ -371,7 +359,7 @@ namespace {
 
 }
 
-class CUDA_BE : public GpuLabeling2D<CONN_8> {
+class BE : public GpuLabeling2D<CONN_8> {
 private:
 	dim3 grid_size_;
 	dim3 block_size_;
@@ -382,7 +370,7 @@ private:
 	cuda::GpuMat d_block_labels_;
 
 public:
-	CUDA_BE() {}
+	BE() {}
 
 	void PerformLabeling() {
 
@@ -530,5 +518,5 @@ public:
 
 };
 
-REGISTER_LABELING(CUDA_BE);
+REGISTER_LABELING(BE);
 

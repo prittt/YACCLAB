@@ -6,7 +6,7 @@
 #include "labeling_algorithms.h"
 #include "register.h"
 
-// Il minimo per entrambi è 4
+
 #define BLOCK_ROWS 16
 #define BLOCK_COLS 16
 
@@ -102,68 +102,68 @@ namespace {
 #define CONDITION_T col+1<img.cols && row+1<img.rows && img.data[img_index + img.step + 1]
 
 			// Action 1: No action
-#define ACTION_0  
+#define ACTION_1  
 //			// Action 2: New label (the block has foreground pixels and is not connected to anything else)
-//#define ACTION_2  
+#define ACTION_2  
 			//Action P: Merge with block P
-#define ACTION_P Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2); 
+#define ACTION_3 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2); 
 			// Action Q: Merge with block Q
-#define ACTION_Q Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size));	
+#define ACTION_4 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size));	
 			// Action R: Merge with block R
-#define ACTION_R Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2); 
+#define ACTION_5 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2); 
 			// Action S: Merge with block S
-#define ACTION_S Union(labels.data, labels_index, labels_index - 2);  
-//			// Action 7: Merge labels of block P and Q
-//#define ACTION_7 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2); \
-//			Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size));			
-//			//Action 8: Merge labels of block P and R
-//#define ACTION_8 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2); \
-//			Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2);			
-//			// Action 9 Merge labels of block P and S
-//#define ACTION_9 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2); \
-//			Union(labels.data, labels_index, labels_index - 2);			
-//			// Action 10 Merge labels of block Q and R
-//#define ACTION_10 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size)); \
-//			Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2);			
-//			// Action 11: Merge labels of block Q and S
-//#define ACTION_11 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size)); \
-//			Union(labels.data, labels_index, labels_index - 2);			
-//			// Action 12: Merge labels of block R and S
-//#define ACTION_12 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2); \
-//			Union(labels.data, labels_index, labels_index - 2);			
-//			// Action 13: not used
-//#define ACTION_13 
-//			// Action 14: Merge labels of block P, Q and S
-//#define ACTION_14 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2); \
-//			Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size)); \
-//			Union(labels.data, labels_index, labels_index - 2);		
-//			//Action 15: Merge labels of block P, R and S
-//#define ACTION_15 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2); \
-//			Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2); \
-//            Union(labels.data, labels_index, labels_index - 2);			
-//			//Action 16: labels of block Q, R and S
-//#define ACTION_16 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size)); \
-//			Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2); \
-//			Union(labels.data, labels_index, labels_index - 2);			
+#define ACTION_6 Union(labels.data, labels_index, labels_index - 2);  
+			// Action 7: Merge labels of block P and Q
+#define ACTION_7 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2); \
+			Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size));			
+			//Action 8: Merge labels of block P and R
+#define ACTION_8 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2); \
+			Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2);			
+			// Action 9 Merge labels of block P and S
+#define ACTION_9 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2); \
+			Union(labels.data, labels_index, labels_index - 2);			
+			// Action 10 Merge labels of block Q and R
+#define ACTION_10 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size)); \
+			Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2);			
+			// Action 11: Merge labels of block Q and S
+#define ACTION_11 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size)); \
+			Union(labels.data, labels_index, labels_index - 2);			
+			// Action 12: Merge labels of block R and S
+#define ACTION_12 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2); \
+			Union(labels.data, labels_index, labels_index - 2);			
+			// Action 13: not used
+#define ACTION_13 
+			// Action 14: Merge labels of block P, Q and S
+#define ACTION_14 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2); \
+			Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size)); \
+			Union(labels.data, labels_index, labels_index - 2);		
+			//Action 15: Merge labels of block P, R and S
+#define ACTION_15 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2); \
+			Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2); \
+            Union(labels.data, labels_index, labels_index - 2);			
+			//Action 16: labels of block Q, R and S
+#define ACTION_16 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size)); \
+			Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2); \
+			Union(labels.data, labels_index, labels_index - 2);			
 
-#include "labeling_CUDA_DRAG.inc"
+#include "labeling_bolelli_2018_drag.inc"
 
 #undef ACTION_0
-//#undef ACTION_2
+#undef ACTION_2
 #undef ACTION_P
 #undef ACTION_Q
 #undef ACTION_R
 #undef ACTION_S
-//#undef ACTION_7
-//#undef ACTION_8
-//#undef ACTION_9
-//#undef ACTION_10
-//#undef ACTION_11
-//#undef ACTION_12
-//#undef ACTION_13
-//#undef ACTION_14
-//#undef ACTION_15
-//#undef ACTION_16
+#undef ACTION_7
+#undef ACTION_8
+#undef ACTION_9
+#undef ACTION_10
+#undef ACTION_11
+#undef ACTION_12
+#undef ACTION_13
+#undef ACTION_14
+#undef ACTION_15
+#undef ACTION_16
 
 
 #undef CONDITION_B
@@ -248,13 +248,13 @@ namespace {
 
 }
 
-class CUDA_DRAG : public GpuLabeling2D<CONN_8> {
+class C_DRAG : public GpuLabeling2D<CONN_8> {
 private:
 	dim3 grid_size_;
 	dim3 block_size_;
 
 public:
-	CUDA_DRAG() {}
+	C_DRAG() {}
 
 	void PerformLabeling() {
 
@@ -359,4 +359,4 @@ public:
 
 };
 
-REGISTER_LABELING(CUDA_DRAG);
+REGISTER_LABELING(C_DRAG);

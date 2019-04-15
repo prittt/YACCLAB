@@ -1,22 +1,10 @@
-#include <opencv2/core.hpp>
-
-#include "labeling_algorithms.h"
-#include "labels_solver.h"
-#include "memory_tester.h"
+#include <opencv2/cudafeatures2d.hpp>
 
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
-#include <cuda.h>
 
-#include <cstdio>
-#include <stdlib.h>
-#include <math.h>
-#include <time.h>
-#include <iostream>
-
-#include <opencv2/core.hpp>
-#include <opencv2/cudafeatures2d.hpp>
-#include <map>
+#include "labeling_algorithms.h"
+#include "register.h"
 
 
 // Questo algoritmo è una modifica del Komura Equivalence (KE) che esegue le operazioni in due livelli (stage). 
@@ -24,7 +12,7 @@
 // blocchi. Varie prove hanno mostrato che sulla quadro va peggio della versione BUF.
 
 
-// Il minimo per entrambi è 4
+
 #define BLOCK_ROWS 16
 #define BLOCK_COLS 16
 
@@ -309,7 +297,7 @@ namespace {
 
 }
 
-class CUDA_BKE_2S : public GpuLabeling2D<CONN_8> {
+class BKE_2S : public GpuLabeling2D<CONN_8> {
 private:
     dim3 grid_size_;
     dim3 block_size_;
@@ -317,7 +305,7 @@ private:
     bool last_pixel_allocated_;
 
 public:
-    CUDA_BKE_2S() {}
+    BKE_2S() {}
 
     void PerformLabeling() {
 
@@ -440,4 +428,4 @@ public:
 
 };
 
-REGISTER_LABELING(CUDA_BKE_2S);
+REGISTER_LABELING(BKE_2S);

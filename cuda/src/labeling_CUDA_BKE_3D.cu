@@ -6,7 +6,7 @@
 #include "labeling_algorithms.h"
 #include "register.h"
 
-// Il minimo per entrambi è 4
+
 #define BLOCK_X 8
 #define BLOCK_Y 8
 #define BLOCK_Z 4
@@ -513,7 +513,7 @@ namespace {
 
 }
 
-class CUDA_BKE_3D : public GpuLabeling3D<CONN_26> {
+class BKE_3D : public GpuLabeling3D<CONN_26> {
 private:
 	dim3 grid_size_;
 	dim3 block_size_;
@@ -521,7 +521,7 @@ private:
 	bool allocated_last_conn_;
 
 public:
-	CUDA_BKE_3D() {}
+	BKE_3D() {}
 
 	void PerformLabeling() {
 
@@ -677,4 +677,4 @@ public:
 
 };
 
-REGISTER_LABELING(CUDA_BKE_3D);
+REGISTER_LABELING(BKE_3D);

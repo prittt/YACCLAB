@@ -6,7 +6,7 @@
 #include "labeling_algorithms.h"
 #include "register.h"
 
-// Il minimo per entrambi è 4
+
 #define BLOCK_ROWS 16
 #define BLOCK_COLS 16
 
@@ -189,13 +189,13 @@ namespace {
 
 }
 
-class CUDA_KE : public GpuLabeling2D<CONN_8> {
+class KE : public GpuLabeling2D<CONN_8> {
 private:
 	dim3 grid_size_;
 	dim3 block_size_;
 
 public:
-	CUDA_KE() {}
+	KE() {}
 
 	void PerformLabeling() {
 
@@ -301,5 +301,5 @@ public:
 
 };
 
-REGISTER_LABELING(CUDA_KE);
+REGISTER_LABELING(KE);
 

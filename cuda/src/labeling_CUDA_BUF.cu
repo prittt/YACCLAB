@@ -20,7 +20,7 @@
 // In questo modo se un altro thread legge il mio valore a metà trova già B ed evita un passaggio. Funziona meglio 
 // del BUF solo a volte (raramente?). 
 
-// Il minimo per entrambi è 4
+
 #define BLOCK_ROWS 16
 #define BLOCK_COLS 16
 
@@ -237,13 +237,13 @@ namespace {
 
 }
 
-class CUDA_BUF : public GpuLabeling2D<CONN_8> {
+class BUF : public GpuLabeling2D<CONN_8> {
 private:
     dim3 grid_size_;
     dim3 block_size_;
 
 public:
-    CUDA_BUF() {}
+    BUF() {}
 
     void PerformLabeling() {
 
@@ -349,4 +349,4 @@ public:
 
 };
 
-REGISTER_LABELING(CUDA_BUF);
+REGISTER_LABELING(BUF);
