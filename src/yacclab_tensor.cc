@@ -48,7 +48,7 @@ bool YacclabTensorInput3D::ReadBinary(const std::string &filename) {
     }
 
     // Adjust the threshold to make it binary
-    // threshold(image, binary_mat, 100, 1, THRESH_BINARY);			// non funziona con i volumi, vanno sogliati in altro modo
+    // threshold(image, binary_mat, 100, 1, THRESH_BINARY);			
     mat_ = original_mat;
     return true;
 }
