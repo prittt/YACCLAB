@@ -1,4 +1,4 @@
-# Copyright(c) 2016 - 2018 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
+# Copyright(c) 2016 - 2019 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,11 @@
 
 cmake_minimum_required(VERSION 3.8.2)
 
+
+# ----------------------------------------------------------------------------
+#  Base variables
+# ----------------------------------------------------------------------------
+
 set (ProjectName "YACCLAB")
 project (${ProjectName})
 
@@ -44,17 +49,17 @@ set(YACCLAB_DOWNLOAD_DATASET OFF CACHE BOOL "If flagged the YACCLAB dataset will
 set(YACCLAB_DOWNLOAD_DATASET_3D OFF CACHE BOOL "If flagged the YACCLAB 3D dataset will be automatically downloaded")
 set(YACCLAB_INPUT_DATASET_PATH "${CMAKE_INSTALL_PREFIX}/input" CACHE PATH "'input' dataset path") 
 set(YACCLAB_OUTPUT_RESULTS_PATH "${CMAKE_INSTALL_PREFIX}/output" CACHE PATH "'output' results path") 
-set(YACCLAB_OS "${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_VERSION}" CACHE STRING "" FORCE)
+set(YACCLAB_OS "${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_VERSION}" CACHE INTERNAL STRING)
 set(YACCLAB_IS_TRAVIS_CI OFF CACHE INTERNAL "This variable is used to handle travis-ci parameters, do not change its value")
 
 if(MSVC)
   set(CMAKE_USE_RELATIVE_PATHS ON CACHE INTERNAL "" FORCE)
 endif()
 
+
 # ----------------------------------------------------------------------------
 #  Check for CUDA support
 # ----------------------------------------------------------------------------
-
 
 if(YACCLAB_ENABLE_CUDA)
 	include(CheckLanguage)
@@ -72,10 +77,6 @@ endif()
 #  Check for c++14 support
 # ----------------------------------------------------------------------------
 
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
-#CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-
 if(DEFINED CMAKE_BUILD_TYPE)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${CMAKE_CONFIGURATION_TYPES})
 endif()
@@ -91,35 +92,31 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang" OR CMAKE_C_COMPILER_ID M
     endif()
 endif()
 
-if(YACCLAB_ENABLE_CUDA AND CMAKE_CUDA_COMPILER)
+# The following commands would serve to simplify the check on the compiler version but do not yet seem to work perfectly
+#set(CMAKE_CXX_STANDARD_REQUIRED YES) # Force the following command to generate an error when it fails
+#set(CMAKE_CXX_STANDARD 14)
+#set(CMAKE_CXX_EXTENSIONS NO)
    
-endif()
-
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
+    include(CheckCXXCompilerFlag)
+    CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
+
 	if(COMPILER_SUPPORTS_CXX14 AND NOT CMAKE_CXX_FLAGS MATCHES "-std=c\\+\\+14")
 		set(CMAKE_CXX_FLAGS "-std=c++14 ${CMAKE_CXX_FLAGS}" CACHE STRING "Enable c++14" FORCE)
-	#elseif(COMPILER_SUPPORTS_CXX0X AND NOT CMAKE_CXX_FLAGS MATCHES "-std=c\\+\\+14")
-	#	set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS}" CACHE STRING "Enable c++14" FORCE)
 	elseif(NOT COMPILER_SUPPORTS_CXX14)
-		message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no complete C++14 support. Please use a different C++ compiler.")
+		message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support. Please use a different C++ compiler.")
 	endif()
-	# Set compilation flag to avoid creation of debug info in release configuration under Linux
-	#if(CMAKE_COMPILER_IS_GNUCC)
-	#	message(STATUS "Removed debug info in release mode")
-	#	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
-	#	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2")
-	#endif()
-else()
-	if(MSVC)
-		if(MSVC_VERSION LESS 1800)
-			message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no complete C++11 support. Please use a different C++ compiler.")
+	
+	message(STATUS "C++ flags: ${CMAKE_CXX_FLAGS}")
+	message(STATUS "C flags: ${CMAKE_C_FLAGS}")
+elseif(MSVC)
+		if(MSVC_VERSION LESS 1900)
+			message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support. Please use a different C++ compiler.")
 		endif()
-	else()
-		message(STATUS "We are not able to check if ${CMAKE_CXX_COMPILER} compiler has complete C++11 support. YACCLAB may not work properly.")
-	endif()
+else()
+	message(STATUS "We are not able to check if ${CMAKE_CXX_COMPILER} compiler has C++14 support. YACCLAB may not work properly.")
 endif()
-message(STATUS "C++ flags: ${CMAKE_CXX_FLAGS}")
-message(STATUS "C flags: ${CMAKE_C_FLAGS}")
+
 
 # ----------------------------------------------------------------------------
 #  Build & install layouts
@@ -128,17 +125,20 @@ message(STATUS "C flags: ${CMAKE_C_FLAGS}")
 # Save libs and executables in the same place
 set(YACCLAB_EXECUTABLE_OUTPUT_PATH "${CMAKE_INSTALL_PREFIX}" CACHE PATH "Output directory for applications" )
 
+
 # ----------------------------------------------------------------------------
 # Solution folders
 # ----------------------------------------------------------------------------
+
 if(ENABLE_SOLUTION_FOLDERS)
   set_property(GLOBAL PROPERTY USE_FOLDERS ON)
   set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMakeTargets")
 endif()
 
-# --------------------
+
+# ----------------------------------------------------------------------------
 # OpenCV 
-# --------------------
+# ----------------------------------------------------------------------------
 
 set(OpenCV_REQUIRED_PACKAGES "core;imgcodecs;imgproc" CACHE STRING "OpenCV packages required by YACCLAB are already set")
 string(FIND "${OpenCV_REQUIRED_PACKAGES}" "cudafeatures2d" cudafeatures2d_pos)
@@ -162,9 +162,10 @@ if(MSVC)
 	endif()
 endif()
 
-# --------------------
+
+# ----------------------------------------------------------------------------
 # Project
-# --------------------
+# ----------------------------------------------------------------------------
 
 include_directories("${CMAKE_SOURCE_DIR}/include")
 include_directories("${CMAKE_SOURCE_DIR}/cuda/include")
@@ -182,7 +183,10 @@ endif()
 
 add_definitions(-D_CRT_SECURE_NO_WARNINGS) #To suppress 'fopen' opencv warning/bug  
 
-# Set configuration file
+
+# ----------------------------------------------------------------------------
+# Configuration file
+# ----------------------------------------------------------------------------
 
 file(READ "${CMAKE_SOURCE_DIR}/doc/config_2d.yaml" YACCLAB_CONFIG_2D)
 
@@ -219,14 +223,19 @@ endif()
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${ProjectName}) # Set YACCLAB as startup group instead of ALL_BUILD
 target_link_libraries (${ProjectName}  ${OpenCV_LIBS})
 
-# Creation of output directory
+
+# ----------------------------------------------------------------------------
+# Output and datasests
+# ----------------------------------------------------------------------------
+
+# Creation of the output directory
 if (NOT EXISTS "${YACCLAB_OUTPUT_RESULTS_PATH}")
 		file(MAKE_DIRECTORY ${YACCLAB_OUTPUT_RESULTS_PATH})
 endif()
 	
 # Download and unpack dataset if necessary
 if(YACCLAB_DOWNLOAD_DATASET)
-	# Creation of input directory
+	# Creation of the input directory
 	if (NOT EXISTS "${YACCLAB_INPUT_DATASET_PATH}")
 		file(MAKE_DIRECTORY ${YACCLAB_INPUT_DATASET_PATH})
 	endif()
