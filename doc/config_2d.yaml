@@ -1,29 +1,29 @@
 
 CPU 2D 8-way connectivity:
 
-  execute: true
+  execute: false
   
   # Tests to perform and their number of repetitions
   # ------------------------------------------------
   
   perform: 
-    correctness:        false
+    correctness:        true
     average:            true
     average_with_steps: false
     density:            false
-    granularity:        false
+    granularity:        true
     memory:             false
     
   correctness_tests: 
     eight_connectivity_standard: true
     eight_connectivity_steps:    true
-    eight_connectivity_memory:   true
+    eight_connectivity_memory:   false
   
   tests_number: 
-    average:             1 
-    average_with_steps:  3
-    density:             1
-    granularity:         1 
+    average:             10 
+    average_with_steps:  10
+    density:             10
+    granularity:         10
   
   # List of 2D CPU CCL algorithms to test
   # -------------------------------------
@@ -88,4 +88,3 @@ CPU 2D 8-way connectivity:
     
   # Save the results of each run test
   save_middle_tests: {average: false, average_with_steps: false, density: false, granularity: false}
-  

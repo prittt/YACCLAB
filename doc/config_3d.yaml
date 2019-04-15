@@ -7,43 +7,48 @@ CPU 3D 26-way connectivity:
   # ------------------------------------------------
   
   perform: 
-    correctness:        false
+    correctness:        true
     average:            true
     average_with_steps: false
     density:            false
-    granularity:        false
+    granularity:        true
     memory:             false
   
   correctness_tests: 
     eight_connectivity_standard: true
     eight_connectivity_steps:    true
-    eight_connectivity_memory:   true
+    eight_connectivity_memory:   false
   
   tests_number: 
-    average:             5 
-    average_with_steps:  5
+    average:            10 
+    average_with_steps: 10
     density:            10
     granularity:        10 
   
   # List of 3D CPU CCL algorithms to test
   # -------------------------------------
   
-  algorithms: []
+  algorithms: 
+    - naive_3D_UF
+    - naive_3D_UFPC
+    - naive_3D_TTA
+    - naive_3D_remSP
+  
     
   # Datasets to use for each test
   # -----------------------------
   
-  # Note that perform correctness tests on labeling_CUDA_NULL algorithm does not make sense
-  check_datasets: ["check3D"]
+  # Note that perform correctness tests on labeling_NULL algorithm does not make sense
+  check_datasets: ["check3D", "hilbert", "mitochondria", "oasis"]
   
   # List of datasets on which "Average Runtime Tests" shall be run
-  average_datasets: ["check3D"]
+  average_datasets: ["hilbert", "mitochondria", "oasis"]
   
   # List of datasets on which "Average Runtime Tests With Steps" shall be run
-  average_datasets_with_steps: ["check3D"]
+  average_datasets_with_steps: ["hilbert", "mitochondria", "oasis"]
   
   # List of datasets on which "Memory Tests" shall be run
-  memory_datasets: ["check3D"]
+  memory_datasets: ["hilbert", "mitochondria", "oasis"]
 
   # Save the results of each run test
   save_middle_tests: {average: false, average_with_steps: false, density: false, granularity: false}

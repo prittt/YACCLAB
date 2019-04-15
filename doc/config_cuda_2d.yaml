@@ -1,15 +1,15 @@
-
+  
 GPU 2D 8-way connectivity:
    
-  execute: false
+  execute: true
   
   #  Tests to perform and their number of repetitions
   # -------------------------------------------------
   
   perform: 
-    correctness:        false
+    correctness:        true
     average:            true
-    average_with_steps: false
+    average_with_steps: true
     density:            false
     granularity:        true
     memory:             false
@@ -17,27 +17,29 @@ GPU 2D 8-way connectivity:
   correctness_tests: 
     eight_connectivity_standard: true
     eight_connectivity_steps:    true
-    eight_connectivity_memory:   true
+    eight_connectivity_memory:   false
    
   tests_number: 
-    average:             5 
-    average_with_steps:  1
-    density:             1
-    granularity:         1 
+    average:             10
+    average_with_steps:  10
+    density:             10
+    granularity:         10
   
   # List of 2D GPU CCL algorithms to test
   # -------------------------------------
   
   algorithms:
-    - CUDA_LE
-    - CUDA_BE
-    - CUDA_KE
-  #  - CUDA_DLP
-  #  - CUDA_UF
-  #  - CUDA_UF_naive
-  #  - CUDA_TUF
-  #  - CUDA_BUF
-  #  - CUDA_TBUF 
+    - BUF_NoInlineCompression
+    - BUF
+    - BKE_NoInlineCompression
+    - BKE
+    - BE
+    - UF
+    - OLE
+    - LBUF
+    - KE
+    - DLP
+
   
   # Datasets to use for each test
   # -----------------------------
