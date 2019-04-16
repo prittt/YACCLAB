@@ -1,7 +1,7 @@
 
 GPU 3D 26-way connectivity:
 
-  execute: true
+  execute: false
   
   # Tests to perform and their number of repetitions
   # ------------------------------------------------
@@ -29,10 +29,6 @@ GPU 3D 26-way connectivity:
   # -------------------------------------
   
   algorithms:
-    - BUF_3D
-    - BUF_3D_NoInlineCompression
-    - BKE_3D
-    - BKE_3D_NoInlineCompression
     - BE_3D
     - UF_3D
   
