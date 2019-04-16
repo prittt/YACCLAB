@@ -66,18 +66,18 @@ function install_linux_environment()
 {  
   echo "############################################### Install Linux Environment ###############################################"
 
-  echo -e "\n\n------------------------------------------> Install ubuntu-toolchain for gcc-5:"
+  echo -e "\n\n------------------------------------------> Install ubuntu-toolchain for gcc-5.4:"
   sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   echo -e "------------------------------------------> DONE!" 
   
-  echo -e "\n\n------------------------------------------> Update apt"
-  sudo apt-get -qq update -y
-  echo -e "------------------------------------------> DONE!" 
+  #echo -e "\n\n------------------------------------------> Update apt"
+  #sudo apt-get -qq update -y
+  #echo -e "------------------------------------------> DONE!" 
   
-  echo -e "\n\n------------------------------------------> Install gcc-5:"
-  if [ "$CXX" = "g++" ]; then sudo apt-get -qq install g++-5; fi
-  if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
-  sudo update-alternatives --quiet --install /usr/bin/g++ g++ /usr/bin/g++-5 1
+  echo -e "\n\n------------------------------------------> Install gcc-5.4:"
+  if [ "$CXX" = "g++" ]; then sudo apt-get -qq install g++-5.4; fi
+  if [ "$CXX" = "g++" ]; then export CXX="g++-5.4" CC="gcc-5.4"; fi
+  sudo update-alternatives --quiet --install /usr/bin/g++ g++ /usr/bin/g++-5.4 90
   echo -e "------------------------------------------> DONE!" 
   
   #echo -e "\n\n------------------------------------------> Install dependencies and libs to build x86 program on x64 architecture (Ubuntu bug)"
