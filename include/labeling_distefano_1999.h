@@ -1,4 +1,4 @@
-// Copyright(c) 2016 - 2018 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
+// Copyright(c) 2016 - 2019 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -52,9 +52,9 @@ public:
         // lp,lq,lx: labels assigned to p,q,x
 
         // First scan
-        int *a_class= new int[UPPER_BOUND_8_CONNECTIVITY];
-        bool *a_single= new bool[UPPER_BOUND_8_CONNECTIVITY];
-		int *a_renum = new int[UPPER_BOUND_8_CONNECTIVITY];
+        int *a_class = new int[UPPER_BOUND_8_CONNECTIVITY];
+        bool *a_single = new bool[UPPER_BOUND_8_CONNECTIVITY];
+        int *a_renum = new int[UPPER_BOUND_8_CONNECTIVITY];
 
         for (int y = 0; y < img_.rows; y++) {
 
@@ -175,27 +175,27 @@ public:
         delete[] a_renum;
     }
 
-	void PerformLabelingWithSteps()
-	{
+    void PerformLabelingWithSteps()
+    {
         double alloc_timing = Alloc();
 
-		perf_.start();
-		FirstScan();
-		perf_.stop();
-		perf_.store(Step(StepType::FIRST_SCAN), perf_.last());
+        perf_.start();
+        FirstScan();
+        perf_.stop();
+        perf_.store(Step(StepType::FIRST_SCAN), perf_.last());
 
-		perf_.start();
-		SecondScan();
-		perf_.stop();
-		perf_.store(Step(StepType::SECOND_SCAN), perf_.last());
+        perf_.start();
+        SecondScan();
+        perf_.stop();
+        perf_.store(Step(StepType::SECOND_SCAN), perf_.last());
 
-		perf_.start();
-		Dealloc();
-		perf_.stop();
-		perf_.store(Step(StepType::ALLOC_DEALLOC), perf_.last() + alloc_timing);
-	}
+        perf_.start();
+        Dealloc();
+        perf_.stop();
+        perf_.store(Step(StepType::ALLOC_DEALLOC), perf_.last() + alloc_timing);
+    }
 
-    void PerformLabelingMem(std::vector<unsigned long int>& accesses)
+    void PerformLabelingMem(std::vector<uint64_t>& accesses)
     {
         MemMat<uchar> img(img_);
         MemMat<int> img_labels(img_.size());
@@ -204,11 +204,11 @@ public:
         // p q r		  p
         // s x			q x
         // lp,lq,lx: labels assigned to p,q,x
-        
+
         // First scan:
         MemVector<int> a_class(UPPER_BOUND_8_CONNECTIVITY);
         MemVector<char> a_single(UPPER_BOUND_8_CONNECTIVITY);
-		MemVector<int> a_renum(UPPER_BOUND_8_CONNECTIVITY);
+        MemVector<int> a_renum(UPPER_BOUND_8_CONNECTIVITY);
 
         for (int y = 0; y < img.rows; y++) {
             for (int x = 0; x < img.cols; x++) {
@@ -313,22 +313,22 @@ public:
         }
 
         // Store total accesses in the output vector 'accesses'
-        accesses = std::vector<unsigned long int>((int)MD_SIZE, 0);
+        accesses = std::vector<uint64_t>((int)MD_SIZE, 0);
 
-        accesses[MD_BINARY_MAT] = (unsigned long int)img.GetTotalAccesses();
-        accesses[MD_LABELED_MAT] = (unsigned long int)img_labels.GetTotalAccesses();
-        accesses[MD_EQUIVALENCE_VEC] = (unsigned long int)(a_class.GetTotalAccesses() + a_single.GetTotalAccesses() + a_renum.GetTotalAccesses());
+        accesses[MD_BINARY_MAT] = (uint64_t)img.GetTotalAccesses();
+        accesses[MD_LABELED_MAT] = (uint64_t)img_labels.GetTotalAccesses();
+        accesses[MD_EQUIVALENCE_VEC] = (uint64_t)(a_class.GetTotalAccesses() + a_single.GetTotalAccesses() + a_renum.GetTotalAccesses());
 
-        img_labels_ = img_labels.GetImage(); 
+        img_labels_ = img_labels.GetImage();
 
         n_labels_++;
     }
 
 private:
-	int *a_class;
-	bool *a_single;
-	int *a_renum;
-	int i_new_label;
+    int *a_class;
+    bool *a_single;
+    int *a_renum;
+    int i_new_label;
 
     double Alloc()
     {
@@ -339,149 +339,149 @@ private:
         a_single = new bool[UPPER_BOUND_8_CONNECTIVITY];
         a_renum = new int[UPPER_BOUND_8_CONNECTIVITY];
         memset(img_labels_.data, 0, img_labels_.dataend - img_labels_.datastart);
-        memset(a_class, 0, UPPER_BOUND_8_CONNECTIVITY*sizeof(int));
-        memset(a_single, 0, UPPER_BOUND_8_CONNECTIVITY*sizeof(bool));
-        memset(a_renum, 0, UPPER_BOUND_8_CONNECTIVITY*sizeof(int));
+        memset(a_class, 0, UPPER_BOUND_8_CONNECTIVITY * sizeof(int));
+        memset(a_single, 0, UPPER_BOUND_8_CONNECTIVITY * sizeof(bool));
+        memset(a_renum, 0, UPPER_BOUND_8_CONNECTIVITY * sizeof(int));
         perf_.stop();
         double t = perf_.last();
         perf_.start();
         memset(img_labels_.data, 0, img_labels_.dataend - img_labels_.datastart);
-        memset(a_class, 0, UPPER_BOUND_8_CONNECTIVITY*sizeof(int));
-        memset(a_single, 0, UPPER_BOUND_8_CONNECTIVITY*sizeof(bool));
-        memset(a_renum, 0, UPPER_BOUND_8_CONNECTIVITY*sizeof(int));
+        memset(a_class, 0, UPPER_BOUND_8_CONNECTIVITY * sizeof(int));
+        memset(a_single, 0, UPPER_BOUND_8_CONNECTIVITY * sizeof(bool));
+        memset(a_renum, 0, UPPER_BOUND_8_CONNECTIVITY * sizeof(int));
         perf_.stop();
         double ma_t = t - perf_.last();
         // Return total time
         return ma_t;
     }
     void Dealloc()
-	{
-		delete[] a_class;
-		delete[] a_single;
-		delete[] a_renum;
-		// No free for img_labels_ because it is required at the end of the algorithm 
-	}
-	void FirstScan()
-	{
-		i_new_label = 0;
+    {
+        delete[] a_class;
+        delete[] a_single;
+        delete[] a_renum;
+        // No free for img_labels_ because it is required at the end of the algorithm 
+    }
+    void FirstScan()
+    {
+        i_new_label = 0;
 
-		for (int y = 0; y < img_.rows; y++) {
+        for (int y = 0; y < img_.rows; y++) {
 
-			// Get rows pointer
-			const unsigned char* const img_row = img_.ptr<unsigned char>(y);
-			unsigned int* const img_labels_row = img_labels_.ptr<unsigned int>(y);
-			unsigned int* const img_labels_row_prev = (unsigned int *)(((char *)img_labels_row) - img_labels_.step.p[0]);
+            // Get rows pointer
+            const unsigned char* const img_row = img_.ptr<unsigned char>(y);
+            unsigned int* const img_labels_row = img_labels_.ptr<unsigned int>(y);
+            unsigned int* const img_labels_row_prev = (unsigned int *)(((char *)img_labels_row) - img_labels_.step.p[0]);
 
-			for (int x = 0; x < img_.cols; x++) {
-				if (img_row[x]) {
+            for (int x = 0; x < img_.cols; x++) {
+                if (img_row[x]) {
 
-					int lp(0), lq(0), lr(0), ls(0), lx(0); // lMin(INT_MAX);
-					if (y > 0) {
-						if (x > 0)
-							lp = img_labels_row_prev[x - 1];
-						lq = img_labels_row_prev[x];
-						if (x < img_.cols - 1)
-							lr = img_labels_row_prev[x + 1];
-					}
-					if (x > 0)
-						ls = img_labels_row[x - 1];
+                    int lp(0), lq(0), lr(0), ls(0), lx(0); // lMin(INT_MAX);
+                    if (y > 0) {
+                        if (x > 0)
+                            lp = img_labels_row_prev[x - 1];
+                        lq = img_labels_row_prev[x];
+                        if (x < img_.cols - 1)
+                            lr = img_labels_row_prev[x + 1];
+                    }
+                    if (x > 0)
+                        ls = img_labels_row[x - 1];
 
-					// If everything around is background
-					if (lp == 0 && lq == 0 && lr == 0 && ls == 0) {
-						lx = ++i_new_label;
-						a_class[lx] = lx;
-						a_single[lx] = true;
-					}
-					else {
-						// p
-						lx = lp;
-						// q
-						if (lx == 0)
-							lx = lq;
-						// r
-						if (lx > 0) {
-							if (lr > 0 && a_class[lx] != a_class[lr]) {
-								if (a_single[a_class[lx]]) {
-									a_class[lx] = a_class[lr];
-									a_single[a_class[lr]] = false;
-								}
-								else if (a_single[a_class[lr]]) {
-									a_class[lr] = a_class[lx];
-									a_single[a_class[lx]] = false;
-								}
-								else {
-									int i_class = a_class[lr];
-									for (int k = 1; k <= i_new_label; k++) {
-										if (a_class[k] == i_class) {
-											a_class[k] = a_class[lx];
-										}
-									}
-								}
-							}
-						}
-						else
-							lx = lr;
-						// s
-						if (lx > 0) {
-							if (ls > 0 && a_class[lx] != a_class[ls]) {
-								if (a_single[a_class[lx]]) {
-									a_class[lx] = a_class[ls];
-									a_single[a_class[ls]] = false;
-								}
-								else if (a_single[a_class[ls]]) {
-									a_class[ls] = a_class[lx];
-									a_single[a_class[lx]] = false;
-								}
-								else {
-									int i_class = a_class[ls];
-									for (int k = 1; k <= i_new_label; k++) {
-										if (a_class[k] == i_class) {
-											a_class[k] = a_class[lx];
-										}
-									}
-								}
-							}
-						}
-						else
-							lx = ls;
-					}
+                    // If everything around is background
+                    if (lp == 0 && lq == 0 && lr == 0 && ls == 0) {
+                        lx = ++i_new_label;
+                        a_class[lx] = lx;
+                        a_single[lx] = true;
+                    }
+                    else {
+                        // p
+                        lx = lp;
+                        // q
+                        if (lx == 0)
+                            lx = lq;
+                        // r
+                        if (lx > 0) {
+                            if (lr > 0 && a_class[lx] != a_class[lr]) {
+                                if (a_single[a_class[lx]]) {
+                                    a_class[lx] = a_class[lr];
+                                    a_single[a_class[lr]] = false;
+                                }
+                                else if (a_single[a_class[lr]]) {
+                                    a_class[lr] = a_class[lx];
+                                    a_single[a_class[lx]] = false;
+                                }
+                                else {
+                                    int i_class = a_class[lr];
+                                    for (int k = 1; k <= i_new_label; k++) {
+                                        if (a_class[k] == i_class) {
+                                            a_class[k] = a_class[lx];
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else
+                            lx = lr;
+                        // s
+                        if (lx > 0) {
+                            if (ls > 0 && a_class[lx] != a_class[ls]) {
+                                if (a_single[a_class[lx]]) {
+                                    a_class[lx] = a_class[ls];
+                                    a_single[a_class[ls]] = false;
+                                }
+                                else if (a_single[a_class[ls]]) {
+                                    a_class[ls] = a_class[lx];
+                                    a_single[a_class[lx]] = false;
+                                }
+                                else {
+                                    int i_class = a_class[ls];
+                                    for (int k = 1; k <= i_new_label; k++) {
+                                        if (a_class[k] == i_class) {
+                                            a_class[k] = a_class[lx];
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else
+                            lx = ls;
+                    }
 
-					img_labels_row[x] = lx;
-				}
-				else
-					img_labels_row[x] = 0;
-			}
-		}
-	}
+                    img_labels_row[x] = lx;
+                }
+                else
+                    img_labels_row[x] = 0;
+            }
+        }
+    }
 
-	void SecondScan()
-	{
-		// Renumbering of labels
-		n_labels_ = 0;
-		for (int k = 1; k <= i_new_label; k++) {
-			if (a_class[k] == k) {
-				n_labels_++;
-				a_renum[k] = n_labels_;
-			}
-		}
-		for (int k = 1; k <= i_new_label; k++)
-			a_class[k] = a_renum[a_class[k]];
+    void SecondScan()
+    {
+        // Renumbering of labels
+        n_labels_ = 0;
+        for (int k = 1; k <= i_new_label; k++) {
+            if (a_class[k] == k) {
+                n_labels_++;
+                a_renum[k] = n_labels_;
+            }
+        }
+        for (int k = 1; k <= i_new_label; k++)
+            a_class[k] = a_renum[a_class[k]];
 
-		// Second scan
-		for (int y = 0; y < img_labels_.rows; y++) {
+        // Second scan
+        for (int y = 0; y < img_labels_.rows; y++) {
 
-			// Get rows pointer
-			unsigned int* const img_labels_row = img_labels_.ptr<unsigned int>(y);
+            // Get rows pointer
+            unsigned int* const img_labels_row = img_labels_.ptr<unsigned int>(y);
 
-			for (int x = 0; x < img_labels_.cols; x++) {
-				int iLabel = img_labels_row[x];
-				if (iLabel > 0)
-					img_labels_row[x] = a_class[iLabel];
-			}
-		}
+            for (int x = 0; x < img_labels_.cols; x++) {
+                int iLabel = img_labels_row[x];
+                if (iLabel > 0)
+                    img_labels_row[x] = a_class[iLabel];
+            }
+        }
 
-		n_labels_++; // To count also background
-	}
+        n_labels_++; // To count also background
+    }
 };
 
 #endif // !YACCLAB_LABELING_DISTEFANO_H_
