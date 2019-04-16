@@ -30,6 +30,7 @@
 #define YACCLAB_LABELING_CHECK_H_
 
 #include <map>
+#include <string>
 
 enum Connectivity2D {
     CONN_4 = 4,
