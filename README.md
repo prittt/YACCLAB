@@ -155,7 +155,7 @@ Notes for gnuplot:
 
 
   <tr>
-    <td align="center" rowspan="5">GPU</td>
+    <td align="center" rowspan="7">GPU</td>
     <td align="center">Union Find</td>
     <td align="center">V. Oliveira,</br>R. Lotufo<sup><a href="#UF">[18]</a></sup></td>
     <td align="center">2010</td>
