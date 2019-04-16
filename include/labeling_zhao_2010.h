@@ -38,7 +38,7 @@
 #include "labels_solver.h"
 #include "memory_tester.h"
 
-class SBLA : public Labeling {
+class SBLA : public Labeling2D<CONN_8> {
 public:
     SBLA() {}
 
@@ -50,21 +50,21 @@ public:
 
         // Fix for first pixel!
         n_labels_ = 0;
-        uchar firstpixel = img_(0, 0);
+        uchar firstpixel = img_.data[0];
         if (firstpixel) {
-            const_cast<cv::Mat1b&>(img_)(0, 0) = 0;
+            const_cast<cv::Mat1b&>(img_).data[0] = 0;
 
 			if (M == 1) {
 				if (N == 1) 
 					n_labels_ = 1;
 				else 
-					n_labels_ = img_(0, 1) == 0;
+					n_labels_ = img_.data[1] == 0;
 			}
 			else {
 				if (N == 1) 
-					n_labels_ = img_(1, 0) == 0;
+					n_labels_ = img_.data[img_.step[0]] == 0;
 				else 
-					n_labels_ = img_(0, 1) == 0 && img_(1, 0) == 0 && img_(1, 1) == 0;
+					n_labels_ = img_.data[1] == 0 && img_.data[img_.step[0]] == 0 && img_.data[img_.step[0] + 1] == 0;
 			}
         }
 
@@ -256,15 +256,15 @@ public:
 
         // Fix for first pixel!
         if (firstpixel) {
-            const_cast<cv::Mat1b&>(img_)(0, 0) = firstpixel;
-            if (N > 1 && img_labels_(0, 1))
-                img_labels_(0, 0) = img_labels_(0, 1);
-            else if (M > 1 && img_labels_(1, 0))
-                img_labels_(0, 0) = img_labels_(1, 0);
-			else if (N > 1 && M > 1 && img_labels_(1, 1))
-                img_labels_(0, 0) = img_labels_(1, 1);
+            const_cast<cv::Mat1b&>(img_).data[0] = firstpixel;
+            if (N > 1 && img_labels_.data[1])
+                img_labels_.data[0] = img_labels_.data[1];
+            else if (M > 1 && img_labels_.data[img_.step[0]])
+                img_labels_.data[0] = img_labels_.data[img_.step[0]];
+			else if (N > 1 && M > 1 && img_labels_.data[img_.step[0] + 1])
+                img_labels_.data[0] = img_labels_.data[img_.step[0] + 1];
             else
-                img_labels_(0, 0) = 1;
+                img_labels_.data[0] = 1;
         }
 
         n_labels_++; // To count also background
@@ -600,21 +600,21 @@ private:
 
         // Fix for first pixel!
         n_labels_ = 0;
-        firstpixel = img_(0, 0);
+        firstpixel = img_.data[0];
         if (firstpixel) {
-            const_cast<cv::Mat1b&>(img_)(0, 0) = 0;
+            const_cast<cv::Mat1b&>(img_).data[0] = 0;
 
             if (M == 1) {
                 if (N == 1)
                     n_labels_ = 1;
                 else
-                    n_labels_ = img_(0, 1) == 0;
+                    n_labels_ = img_.data[1] == 0;
             }
             else {
                 if (N == 1)
-                    n_labels_ = img_(1, 0) == 0;
+                    n_labels_ = img_.data[img_.step[0]] == 0;
                 else
-                    n_labels_ = img_(0, 1) == 0 && img_(1, 0) == 0 && img_(1, 1) == 0;
+                    n_labels_ = img_.data[1] == 0 && img_.data[img_.step[0]] == 0 && img_.data[img_.step[0] + 1] == 0;
             }
         }
 
@@ -808,15 +808,15 @@ private:
 
         // Fix for first pixel!
         if (firstpixel) {
-            const_cast<cv::Mat1b&>(img_)(0, 0) = firstpixel;
-            if (N > 1 && img_labels_(0, 1))
-                img_labels_(0, 0) = img_labels_(0, 1);
-            else if (M > 1 && img_labels_(1, 0))
-                img_labels_(0, 0) = img_labels_(1, 0);
-            else if (N > 1 && M > 1 && img_labels_(1, 1))
-                img_labels_(0, 0) = img_labels_(1, 1);
+            const_cast<cv::Mat1b&>(img_).data[0] = firstpixel;
+            if (N > 1 && img_labels_.data[1])
+                img_labels_.data[0] = img_labels_.data[1];
+            else if (M > 1 && img_labels_.data[img_.step[0]])
+                img_labels_.data[0] = img_labels_.data[img_.step[0]];
+            else if (N > 1 && M > 1 && img_labels_.data[img_.step[0] + 1])
+                img_labels_.data[0] = img_labels_.data[img_.step[0] + 1];
             else
-                img_labels_(0, 0) = 1;
+                img_labels_.data[0] = 1;
         }
 
         n_labels_++; // To count also background

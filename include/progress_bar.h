@@ -250,7 +250,7 @@ public:
     {
         PrintData(dataset_name + ":");
         std::string complete_pre_message = std::string(pre_spaces_, ' ') + "|  ";
-        pb = ProgressBar(n_things_todo, 4, bar_width_ + pre_spaces_, complete_pre_message, " |");
+        pb = ProgressBar(n_things_todo, 1, bar_width_ + pre_spaces_, complete_pre_message, " |");
         pb.Start();
     }
 

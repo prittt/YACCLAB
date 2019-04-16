@@ -1,41 +1,20 @@
-#include <opencv2/core.hpp>
-
-#include "labeling_algorithms.h"
-#include "labels_solver.h"
-#include "memory_tester.h"
+#include <opencv2/cudafeatures2d.hpp>
 
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
-#include <cuda.h>
 
-#include <cstdio>
-#include <stdlib.h>
-#include <math.h>
-#include <time.h>
-#include <iostream>
+#include "labeling_algorithms.h"
+#include "register.h"
 
-#include <opencv2\core.hpp>
-#include <opencv2\cudafeatures2d.hpp>
-#include <opencv2\highgui\highgui.hpp>
-#include <map>
+// BBDT in GPU
 
-// Il minimo per entrambi è 4
+
 #define BLOCK_ROWS 16
 #define BLOCK_COLS 16
 
 using namespace cv;
 
-namespace CUDA_TBUF_namespace {
-
-	// Only use it with unsigned numeric types
-	template <typename T>
-	__device__ __forceinline__ unsigned char HasBit(T bitmap, unsigned char pos) {
-		return (bitmap >> pos) & 1;
-	}
-
-	__device__ __forceinline__ void SetBit(unsigned char &bitmap, unsigned char pos) {
-		bitmap |= (1 << pos);
-	}
+namespace {
 
 	// Risale alla radice dell'albero a partire da un suo nodo n
 	__device__ unsigned Find(const int *s_buf, unsigned n) {
@@ -261,15 +240,13 @@ namespace CUDA_TBUF_namespace {
 
 }
 
-using namespace CUDA_TBUF_namespace;
-
-class CUDA_TBUF : public GpuLabeling {
+class TBUF : public GpuLabeling2D<CONN_8> {
 private:
 	dim3 grid_size_;
 	dim3 block_size_;
 
 public:
-	CUDA_TBUF() {}
+	TBUF() {}
 
 	void PerformLabeling() {
 
@@ -374,4 +351,4 @@ public:
 
 };
 
-REGISTER_LABELING(CUDA_TBUF);
+REGISTER_LABELING(TBUF);

@@ -60,7 +60,7 @@
 #include "memory_tester.h"
 
 template <typename LabelsSolver>
-class CCIT : public Labeling {
+class CCIT : public Labeling2D<CONN_8> {
 public:
     CCIT() {}
 

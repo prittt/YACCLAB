@@ -1,26 +1,12 @@
-#include <opencv2/core.hpp>
-
-#include "labeling_algorithms.h"
-#include "labels_solver.h"
-#include "memory_tester.h"
+#include <opencv2/cudafeatures2d.hpp>
 
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
-#include <cuda.h>
 
-#include <cstdio>
-#include <stdlib.h>
-#include <math.h>
-#include <time.h>
-#include <iostream>
-#include <cassert>
+#include "labeling_algorithms.h"
+#include "register.h"
 
-#include <opencv2\core.hpp>
-#include <opencv2\cudafeatures2d.hpp>
-#include <opencv2\highgui\highgui.hpp>
-#include <map>
 
-// Il minimo per entrambi è 4
 #define BLOCK_ROWS 16
 #define BLOCK_COLS 16
 
@@ -32,7 +18,7 @@
 
 using namespace cv;
 
-namespace CUDA_DLP_namespace {
+namespace {
 
 
 	// Risale alla radice dell'albero a partire da un suo nodo n
@@ -270,15 +256,14 @@ namespace CUDA_DLP_namespace {
 
 }
 
-using namespace CUDA_DLP_namespace;
 
-class CUDA_DLP : public GpuLabeling {
+class DLP : public GpuLabeling2D<CONN_8> {
 private:
 	dim3 grid_size_;
 	dim3 block_size_;
 
 public:
-	CUDA_DLP() {}
+	DLP() {}
 
 	void PerformLabeling() {
 
@@ -380,5 +365,5 @@ public:
 
 };
 
-REGISTER_LABELING(CUDA_DLP);
+REGISTER_LABELING(DLP);
 

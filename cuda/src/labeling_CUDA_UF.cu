@@ -1,32 +1,20 @@
-#include <opencv2/core.hpp>
-
-#include "labeling_algorithms.h"
-#include "labels_solver.h"
-#include "memory_tester.h"
+#include <opencv2/cudafeatures2d.hpp>
 
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
-#include <cuda.h>
 
-#include <cstdio>
-#include <stdlib.h>
-#include <math.h>
-#include <time.h>
-#include <iostream>
-#include <cassert>
+#include "labeling_algorithms.h"
+#include "register.h"
 
-#include <opencv2\core.hpp>
-#include <opencv2\cudafeatures2d.hpp>
-#include <opencv2\highgui\highgui.hpp>
-#include <map>
+// Oliveira classico
 
-// Il minimo per entrambi è 4
+
 #define BLOCK_ROWS 16
 #define BLOCK_COLS 16
 
 using namespace cv;
 
-namespace CUDA_UF_namespace {
+namespace {
 
 	// Risale alla radice dell'albero a partire da un suo nodo n
 	__device__ unsigned Find(const int *s_buf, unsigned n) {
@@ -103,14 +91,14 @@ namespace CUDA_UF_namespace {
 
 		if (in_limits) {
 
-			if (v == 1) {
+			if (v) {
 
-				if (local_col > 0 && s_img[local_index - 1] == 1) {
+				if (local_col > 0 && s_img[local_index - 1]) {
 					Union(s_buf, local_index, local_index - 1);
 				}
 
 
-				if (local_row > 0 && s_img[local_index - BLOCK_COLS] == 1) {
+				if (local_row > 0 && s_img[local_index - BLOCK_COLS]) {
 					Union(s_buf, local_index, local_index - BLOCK_COLS);
 				}
 
@@ -119,12 +107,12 @@ namespace CUDA_UF_namespace {
 			else {
 				if (local_row > 0 && s_img[local_index - BLOCK_COLS]) {
 
-					if (local_col > 0 && s_img[local_index - 1] == 1) {
+					if (local_col > 0 && s_img[local_index - 1]) {
 						Union(s_buf, local_index - 1, local_index - BLOCK_COLS);
 					}
 
 
-					if (local_col < BLOCK_COLS - 1 && s_img[local_index + 1] == 1) {
+					if (local_col < BLOCK_COLS - 1 && s_img[local_index + 1]) {
 						Union(s_buf, local_index + 1, local_index - BLOCK_COLS);
 					}
 				}
@@ -169,13 +157,13 @@ namespace CUDA_UF_namespace {
 
 			unsigned char v = img[img_index];
 
-			if (v == 1) {
+			if (v) {
 
-				if (global_col > 0 && local_col == 0 && img[img_index - 1] == 1) {
+				if (global_col > 0 && local_col == 0 && img[img_index - 1]) {
 					Union(labels.data, labels_index, labels_index - 1);
 				}
 
-				if (global_row > 0 && local_row == 0 && img[img_index - img.step] == 1) {
+				if (global_row > 0 && local_row == 0 && img[img_index - img.step]) {
 					Union(labels.data, labels_index, labels_index - labels.step / sizeof(int));
 				}
 
@@ -215,15 +203,13 @@ namespace CUDA_UF_namespace {
 
 }
 
-using namespace CUDA_UF_namespace;
-
-class CUDA_UF : public GpuLabeling {
+class UF : public GpuLabeling2D<CONN_8> {
 private:
 	dim3 grid_size_;
 	dim3 block_size_;
 
 public:
-	CUDA_UF() {}
+	UF() {}
 
 	void PerformLabeling() {
 
@@ -324,5 +310,5 @@ public:
 
 };
 
-REGISTER_LABELING(CUDA_UF);
+REGISTER_LABELING(UF);
 

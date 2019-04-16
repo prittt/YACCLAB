@@ -1,0 +1,109 @@
+#include "config_data.h"
+
+bool ReadBool(const cv::FileNode& node_list)
+{
+	bool b = false;
+	if (!node_list.empty()) {
+		//The entry is found
+		std::string s((std::string)node_list);
+		std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+		std::istringstream(s) >> std::boolalpha >> b;
+	}
+	return b;
+}
+
+ModeConfig::ModeConfig(std::string _mode, const cv::FileNode& fn) : mode(_mode) {
+	perform_correctness		=		ReadBool(fn["perform"]["correctness"]);
+	perform_average			=		ReadBool(fn["perform"]["average"]);
+	perform_average_ws		=		ReadBool(fn["perform"]["average_with_steps"]);
+	perform_density			=		ReadBool(fn["perform"]["density"]);
+	perform_granularity		=		ReadBool(fn["perform"]["granularity"]);
+	perform_memory			=		ReadBool(fn["perform"]["memory"]);
+
+	perform_check_8connectivity_std =	ReadBool(fn["correctness_tests"]["eight_connectivity_standard"]);
+	perform_check_8connectivity_ws =	ReadBool(fn["correctness_tests"]["eight_connectivity_steps"]);
+	perform_check_8connectivity_mem =	ReadBool(fn["correctness_tests"]["eight_connectivity_memory"]);
+
+	average_save_middle_tests =			ReadBool(fn["save_middle_tests"]["average"]);
+	average_ws_save_middle_tests =		ReadBool(fn["save_middle_tests"]["average_with_steps"]);
+	density_save_middle_tests =			ReadBool(fn["save_middle_tests"]["density"]);
+	granularity_save_middle_tests =		ReadBool(fn["save_middle_tests"]["granularity"]);
+
+	average_tests_number = static_cast<int>(fn["tests_number"]["average"]);
+	average_ws_tests_number = static_cast<int>(fn["tests_number"]["average_with_steps"]);
+	density_tests_number = static_cast<int>(fn["tests_number"]["density"]);
+	granularity_tests_number = static_cast<int>(fn["tests_number"]["granularity"]);
+
+	density_datasets = { "classical" };
+	granularity_datasets = { "granularity" };
+	cv::read(fn["check_datasets"], check_datasets);
+	cv::read(fn["average_datasets"], average_datasets);
+	cv::read(fn["average_datasets_with_steps"], average_ws_datasets);
+	cv::read(fn["memory_datasets"], memory_datasets);
+
+	cv::read(fn["algorithms"], ccl_algorithms);
+
+	mode_output_path = path(mode);
+}
+
+GlobalConfig::GlobalConfig(const cv::FileStorage& fs) {
+
+	average_color_labels = ReadBool(fs["color_labels"]["average"]);
+	density_color_labels = ReadBool(fs["color_labels"]["density"]);
+
+	write_n_labels = ReadBool(fs["write_n_labels"]);
+
+	input_txt = "files.txt";
+	gnuplot_script_extension = ".gnuplot";
+	system_script_extension =
+#ifdef YACCLAB_WINDOWS
+		".bat";
+#elif defined(YACCLAB_LINUX) || defined(YACCLAB_UNIX) || defined(YACCLAB_APPLE)
+		".sh";
+#endif
+	colors_folder = "colors";
+	middle_folder = "middle_results";
+	latex_file = "yacclab_results.tex";
+	latex_charts = "averageCharts.tex";
+	latex_memory_file = "memoryAccesses.tex";
+	memory_file = "memory_accesses.txt";
+
+	average_folder = "average_tests";
+	average_ws_folder = "average_tests_with_steps";
+	density_folder = "density_tests";
+	granularity_folder = "granularity";
+	memory_folder = "memory_tests";
+
+	glob_output_path = path(fs["paths"]["output"]) / path(GetDatetimeWithoutSpecialChars());
+	input_path = path(fs["paths"]["input"]);
+	latex_path = path("latex");
+
+
+	yacclab_os = static_cast<std::string>(fs["os"]);
+    SystemInfo::set_os(yacclab_os);
+
+}
+
+ConfigData::ConfigData(const cv::FileStorage& fs) : global_config(fs) {
+
+	std::vector<std::string> modes;
+	modes.push_back("CPU 2D 8-way connectivity");
+	modes.push_back("CPU 3D 26-way connectivity");
+    modes.push_back("CPU 2D 4-way connectivity");
+	modes.push_back("CPU 3D 6-way connectivity");
+#if defined USE_CUDA
+	modes.push_back("GPU 2D 8-way connectivity");
+	modes.push_back("GPU 3D 26-way connectivity");
+    modes.push_back("GPU 2D 4-way connectivity");
+	modes.push_back("GPU 3D 6-way connectivity");
+#endif
+
+	for (const std::string& mode : modes) {
+
+		// If "execute" is false, LocalConfig struct for current mode isn't added to local_config_map
+		if (ReadBool(fs[mode]["execute"])) {
+			mode_config_vector.emplace_back(mode, fs[mode]);
+		}
+	}
+
+}

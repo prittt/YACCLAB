@@ -1,25 +1,12 @@
-#include <opencv2/core.hpp>
-
-#include "labeling_algorithms.h"
-#include "labels_solver.h"
-#include "memory_tester.h"
+#include <opencv2/cudafeatures2d.hpp>
 
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
-#include <cuda.h>
 
-#include <cstdio>
-#include <stdlib.h>
-#include <time.h>
-#include <iostream>
+#include "labeling_algorithms.h"
+#include "register.h"
 
-#include <opencv2\core.hpp>
-#include <opencv2\cudafeatures2d.hpp>
-#include <opencv2\highgui\highgui.hpp>
-#include <map>
-#include <math.h>
 
-// Il minimo per entrambi è 4
 #define BLOCK_ROWS 16
 #define BLOCK_COLS 16
 
@@ -28,7 +15,7 @@ using namespace cv;
 
 // Algorithm itself has good performances, but memory allocation is a problem.
 // I will try to reduce it.
-namespace CUDA_BE_namespace {
+namespace {
 
 	// Only use it with unsigned numeric types
 	template <typename T>
@@ -305,9 +292,7 @@ namespace CUDA_BE_namespace {
 
 }
 
-using namespace CUDA_BE_namespace;
-
-class CUDA_BE : public GpuLabeling {
+class BE_LIGHT : public GpuLabeling2D<CONN_8> {
 private:
 	dim3 grid_size_;
 	dim3 block_size_;
@@ -317,7 +302,7 @@ private:
 	unsigned char *last_pixel_;
 
 public:
-	CUDA_BE() {}
+	BE_LIGHT() {}
 
 	void PerformLabeling() {
 
@@ -512,5 +497,4 @@ public:
 
 };
 
-REGISTER_LABELING(CUDA_BE);
-
+REGISTER_LABELING(BE_LIGHT);
