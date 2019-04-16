@@ -71,13 +71,13 @@ function install_linux_environment()
   echo -e "------------------------------------------> DONE!" 
   
   echo -e "\n\n------------------------------------------> Update apt"
-  #sudo apt-get -qq update -y
+  sudo apt-get -qq update -y
   echo -e "------------------------------------------> DONE!" 
   
   echo -e "\n\n------------------------------------------> Install gcc-5:"
   if [ "$CXX" = "g++" ]; then sudo apt-get -qq install g++-5; fi
   if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
-  sudo update-alternatives --quiet --install /usr/bin/g++ g++ /usr/bin/g++-5 90
+  sudo update-alternatives --quiet --install /usr/bin/g++ g++ /usr/bin/g++-5 1
   echo -e "------------------------------------------> DONE!" 
   
   #echo -e "\n\n------------------------------------------> Install dependencies and libs to build x86 program on x64 architecture (Ubuntu bug)"
