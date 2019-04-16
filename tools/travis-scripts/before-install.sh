@@ -66,7 +66,7 @@ function install_linux_environment()
 {  
   echo "############################################### Install Linux Environment ###############################################"
 
-  echo -e "\n\n------------------------------------------> Install ubuntu-toolchain for gcc-4.8:"
+  echo -e "\n\n------------------------------------------> Install ubuntu-toolchain for gcc-5:"
   sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   echo -e "------------------------------------------> DONE!" 
   
@@ -74,10 +74,10 @@ function install_linux_environment()
   #sudo apt-get -qq update -y
   echo -e "------------------------------------------> DONE!" 
   
-  echo -e "\n\n------------------------------------------> Install gcc-4.8:"
-  if [ "$CXX" = "g++" ]; then sudo apt-get -qq install g++-4.8; fi
-  if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
-  sudo update-alternatives --quiet --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
+  echo -e "\n\n------------------------------------------> Install gcc-5:"
+  if [ "$CXX" = "g++" ]; then sudo apt-get -qq install g++-5; fi
+  if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
+  sudo update-alternatives --quiet --install /usr/bin/g++ g++ /usr/bin/g++-5 90
   echo -e "------------------------------------------> DONE!" 
   
   #echo -e "\n\n------------------------------------------> Install dependencies and libs to build x86 program on x64 architecture (Ubuntu bug)"
