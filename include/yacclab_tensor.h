@@ -36,8 +36,6 @@
 #include "volume_util.h"
 
 
-using namespace cv;
-
 class YacclabTensor {
 public:
     virtual void Release() = 0;
@@ -56,25 +54,25 @@ public:
 
 class YacclabTensorInput2D : public YacclabTensorInput {
 protected:
-    static Mat1b mat_;
+    static cv::Mat1b mat_;
 public:
     virtual void Create() override { mat_.create(1, 1); }
     virtual void Release() override { mat_.release(); }
     virtual bool ReadBinary(const std::string &filename) override;
-    virtual Mat& GetMat() {  return mat_;  }
-    virtual Mat1b& Raw() {  return mat_;  }
+    virtual cv::Mat& GetMat() {  return mat_;  }
+    virtual cv::Mat1b& Raw() {  return mat_;  }
 	virtual unsigned int Dims() override { return 2; };
 };
 
 class YacclabTensorInput3D : public YacclabTensorInput {
 protected:
-    static Mat mat_;
+    static cv::Mat mat_;
 public:
     virtual void Create() override {    int sz[] = { 1, 1, 1 };    mat_.create(3, sz, CV_8UC1);    }
     virtual void Release() override {  mat_.release(); }
     virtual bool ReadBinary(const std::string &filename) override;
-    virtual Mat& GetMat() {  return mat_;  }
-    virtual Mat& Raw() {  return mat_;  }
+    virtual cv::Mat& GetMat() {  return mat_;  }
+    virtual cv::Mat& Raw() {  return mat_;  }
 	virtual unsigned int Dims() override { return 3; };
 };
 
@@ -82,24 +80,24 @@ public:
 #if defined USE_CUDA
 class YacclabTensorInput2DCuda : public YacclabTensorInput2D {
 protected:
-    static cuda::GpuMat d_mat_;
+    static cv::cuda::GpuMat d_mat_;
 public:
     virtual void Create() override {   YacclabTensorInput2D::Create();   d_mat_.upload(mat_);   }
     virtual void Release() override { YacclabTensorInput2D::Release();  d_mat_.release(); }
     virtual bool ReadBinary(const std::string &filename) override;
-    virtual Mat& GetMat() {  return mat_;  }
-    virtual cuda::GpuMat& GpuRaw() {  return d_mat_;  }
+    virtual cv::Mat& GetMat() {  return mat_;  }
+    virtual cv::cuda::GpuMat& GpuRaw() {  return d_mat_;  }
 };
 
 class YacclabTensorInput3DCuda : public YacclabTensorInput3D {
 protected:
-    static cuda::GpuMat3 d_mat_;
+    static cv::cuda::GpuMat3 d_mat_;
 public:
     virtual void Create() override { YacclabTensorInput3D::Create();   d_mat_.upload(mat_); }
     virtual void Release() override { YacclabTensorInput3D::Release();  d_mat_.release(); }
     virtual bool ReadBinary(const std::string &filename) override;
-    virtual Mat& GetMat() {  return mat_;  }
-    virtual cuda::GpuMat3& GpuRaw() {  return d_mat_;  }
+    virtual cv::Mat& GetMat() {  return mat_;  }
+    virtual cv::cuda::GpuMat3& GpuRaw() {  return d_mat_;  }
 };
 
 #endif
@@ -110,7 +108,7 @@ public:
     virtual void WriteColored(const std::string &filename) const = 0;
     virtual void PrepareForCheck() = 0;
 
-    virtual const Mat& GetMat() = 0;
+    virtual const cv::Mat& GetMat() = 0;
 
     virtual bool Equals(YacclabTensorOutput *other);
     virtual std::unique_ptr<YacclabTensorOutput> Copy() const = 0;
@@ -118,55 +116,55 @@ public:
 
 class YacclabTensorOutput2D : public YacclabTensorOutput {
 protected:
-    Mat1i mat_;
+    cv::Mat1i mat_;
 public:
     YacclabTensorOutput2D() {}
-    YacclabTensorOutput2D(Mat1i mat) : mat_(std::move(mat)) {}
+    YacclabTensorOutput2D(cv::Mat1i mat) : mat_(std::move(mat)) {}
 
     virtual void NormalizeLabels() override;
     virtual void WriteColored(const std::string &filename) const override;
     virtual void PrepareForCheck() override {}
     virtual void Release() override {  mat_.release();  }
-    virtual const Mat& GetMat() {  return mat_;  }
-    virtual Mat1i& Raw() {  return mat_;  }
+    virtual const cv::Mat& GetMat() {  return mat_;  }
+    virtual cv::Mat1i& Raw() {  return mat_;  }
     virtual std::unique_ptr<YacclabTensorOutput> Copy() const override {  return std::make_unique<YacclabTensorOutput2D>(mat_);  }
 };
 
 class YacclabTensorOutput3D : public YacclabTensorOutput {
 protected:
-    Mat mat_;
+    cv::Mat mat_;
 public:
     YacclabTensorOutput3D() {}
-    YacclabTensorOutput3D(Mat mat) : mat_(std::move(mat)) {}
+    YacclabTensorOutput3D(cv::Mat mat) : mat_(std::move(mat)) {}
 
     virtual void NormalizeLabels() override;
     virtual void WriteColored(const std::string &filename) const override;
     virtual void PrepareForCheck() override {}
     virtual void Release() override {  mat_.release();  }
-    virtual const Mat& GetMat() {  return mat_;  }
-    virtual Mat& Raw() {  return mat_;  }
+    virtual const cv::Mat& GetMat() {  return mat_;  }
+    virtual cv::Mat& Raw() {  return mat_;  }
     virtual std::unique_ptr<YacclabTensorOutput> Copy() const override {  return std::make_unique<YacclabTensorOutput3D>(mat_); }
 };
 
 #if defined USE_CUDA
 class YacclabTensorOutput2DCuda : public YacclabTensorOutput2D {
 protected:
-    cuda::GpuMat d_mat_;
+    cv::cuda::GpuMat d_mat_;
 public:
     virtual void PrepareForCheck() override {  d_mat_.download(YacclabTensorOutput2D::mat_);  }
     virtual void Release() override {  YacclabTensorOutput2D::Release();  d_mat_.release();  }
-    virtual const Mat& GetMat() {  return YacclabTensorOutput2D::mat_;  }
-    virtual cuda::GpuMat& GpuRaw() {  return d_mat_;  }
+    virtual const cv::Mat& GetMat() {  return YacclabTensorOutput2D::mat_;  }
+    virtual cv::cuda::GpuMat& GpuRaw() {  return d_mat_;  }
 };
 
 class YacclabTensorOutput3DCuda : public YacclabTensorOutput3D {
 protected:
-    cuda::GpuMat3 d_mat_;
+    cv::cuda::GpuMat3 d_mat_;
 public:
     virtual void PrepareForCheck() override {  d_mat_.download(YacclabTensorOutput3D::mat_);  }
     virtual void Release() override {  YacclabTensorOutput3D::Release();  d_mat_.release();  }
-    virtual const Mat& GetMat() {  return YacclabTensorOutput3D::mat_;  }
-    virtual cuda::GpuMat3& GpuRaw() {  return d_mat_;  }
+    virtual const cv::Mat& GetMat() {  return YacclabTensorOutput3D::mat_;  }
+    virtual cv::cuda::GpuMat3& GpuRaw() {  return d_mat_;  }
 };
 #endif
 
