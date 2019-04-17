@@ -1,5 +1,10 @@
 #include "volume_util.h"
 
+#include <fstream>
+#include <iomanip>
+
+#include "file_manager.h"
+
 using namespace cv;
 using namespace filesystem;
 
