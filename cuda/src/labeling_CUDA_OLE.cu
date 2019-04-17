@@ -101,7 +101,7 @@ namespace {
 
 			unsigned label = labels[labels_index];
 
-			if (label) {								// Performances are the same as the paper variant
+			if (label) {								
 
 				unsigned index = labels_index;
 
@@ -185,11 +185,6 @@ private:
 	void AllScans() {
 		grid_size_ = dim3((d_img_.cols + BLOCK_COLS - 1) / BLOCK_COLS, (d_img_.rows + BLOCK_ROWS - 1) / BLOCK_ROWS, 1);
 		block_size_ = dim3(BLOCK_COLS, BLOCK_ROWS, 1);
-
-		char changes = 1;
-		char *d_changes;
-		cudaMalloc(&d_changes, sizeof(char));
-		// cudaMemcpy(d_changes, &changes, sizeof(char), cudaMemcpyHostToDevice);
 
 		Init << <grid_size_, block_size_ >> >(d_img_, d_img_labels_);
 
