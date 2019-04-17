@@ -5,13 +5,14 @@
 #include <iostream>
 
 #include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
 
 #include "file_manager.h"
 
+using namespace cv;
+
 Mat1b YacclabTensorInput2D::mat_;
-
 Mat YacclabTensorInput3D::mat_;
-
 
 bool YacclabTensorInput2D::ReadBinary(const std::string &filename) {
     if (!filesystem::exists(filesystem::path(filename))) {

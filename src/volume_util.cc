@@ -3,6 +3,8 @@
 #include <fstream>
 #include <iomanip>
 
+#include <opencv2/imgcodecs.hpp>
+
 #include "file_manager.h"
 
 using namespace cv;
