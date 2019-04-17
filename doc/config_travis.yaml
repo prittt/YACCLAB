@@ -97,7 +97,7 @@ CPU 2D 8-way connectivity:
 # -------------------------------------------------------------------------------------
 
 # Directory for input/output paths
-paths: {input: "/home/federico/Desktop/YACCLAB-indentazione sbagliata/YACCLAB/bin/input", output: "/home/federico/Desktop/YACCLAB-indentazione sbagliata/YACCLAB/bin/output"}
+paths: {input: "${YACCLAB_INPUT_DATASET_PATH}", output: "${YACCLAB_OUTPUT_RESULTS_PATH}"}
 
 # Save the returned number of components in output files
 write_n_labels: false
@@ -105,8 +105,7 @@ write_n_labels: false
 # Save labeled image (TODO: remove this option from tests and add a specific tools for doing that in YACCLAB) 
 color_labels: {average: false, density: false} #TODO
 
-
-os: "Linux 4.15.0-47-generic"
+os: "${YACCLAB_OS}"
 
 ##########################################
 # This is the YACCLAB configuration file #
