@@ -40,8 +40,9 @@ matrix:
       #      packages:
       env: 
         - BUILD_TARGET=mac 
-    # linux (x64 build)
+    # linux 16.04 (x64 build)
     - os: linux
+      dist: xenial
       addons:
          apt:
             sources:
