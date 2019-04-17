@@ -29,7 +29,7 @@
 #ifndef YACCLAB_VOLUME_UTIL_H_
 #define YACCLAB_VOLUME_UTIL_H_
 
-#include <opencv2/opencv.hpp>
+#include <opencv2/core.hpp>
 
 // Reads a 3d tensor (volume) from a directory containing the volume divided into slices, with their names listed in files.txt, and store the tensor into a cv::Mat.
 cv::Mat volread(const cv::String &filename, int flags = 1);
