@@ -1,18 +1,21 @@
 #include "config_data.h"
 
-bool ReadBool(const cv::FileNode& node_list)
+using namespace cv;
+using namespace std;
+
+bool ReadBool(const FileNode& node_list)
 {
 	bool b = false;
 	if (!node_list.empty()) {
 		//The entry is found
-		std::string s((std::string)node_list);
-		std::transform(s.begin(), s.end(), s.begin(), ::tolower);
-		std::istringstream(s) >> std::boolalpha >> b;
+		string s((string)node_list);
+		transform(s.begin(), s.end(), s.begin(), ::tolower);
+		istringstream(s) >> boolalpha >> b;
 	}
 	return b;
 }
 
-ModeConfig::ModeConfig(std::string _mode, const cv::FileNode& fn) : mode(_mode) {
+ModeConfig::ModeConfig(string _mode, const FileNode& fn) : mode(_mode) {
 	perform_correctness		=		ReadBool(fn["perform"]["correctness"]);
 	perform_average			=		ReadBool(fn["perform"]["average"]);
 	perform_average_ws		=		ReadBool(fn["perform"]["average_with_steps"]);
@@ -36,17 +39,17 @@ ModeConfig::ModeConfig(std::string _mode, const cv::FileNode& fn) : mode(_mode) 
 
 	density_datasets = { "classical" };
 	granularity_datasets = { "granularity" };
-	cv::read(fn["check_datasets"], check_datasets);
-	cv::read(fn["average_datasets"], average_datasets);
-	cv::read(fn["average_datasets_with_steps"], average_ws_datasets);
-	cv::read(fn["memory_datasets"], memory_datasets);
+	read(fn["check_datasets"], check_datasets);
+	read(fn["average_datasets"], average_datasets);
+	read(fn["average_datasets_with_steps"], average_ws_datasets);
+	read(fn["memory_datasets"], memory_datasets);
 
-	cv::read(fn["algorithms"], ccl_algorithms);
+	read(fn["algorithms"], ccl_algorithms);
 
 	mode_output_path = path(mode);
 }
 
-GlobalConfig::GlobalConfig(const cv::FileStorage& fs) {
+GlobalConfig::GlobalConfig(const FileStorage& fs) {
 
 	average_color_labels = ReadBool(fs["color_labels"]["average"]);
 	density_color_labels = ReadBool(fs["color_labels"]["density"]);
@@ -79,14 +82,14 @@ GlobalConfig::GlobalConfig(const cv::FileStorage& fs) {
 	latex_path = path("latex");
 
 
-	yacclab_os = static_cast<std::string>(fs["os"]);
+	yacclab_os = static_cast<string>(fs["os"]);
     SystemInfo::set_os(yacclab_os);
 
 }
 
-ConfigData::ConfigData(const cv::FileStorage& fs) : global_config(fs) {
+ConfigData::ConfigData(const FileStorage& fs) : global_config(fs) {
 
-	std::vector<std::string> modes;
+	vector<string> modes;
 	modes.push_back("CPU 2D 8-way connectivity");
 	modes.push_back("CPU 3D 26-way connectivity");
     modes.push_back("CPU 2D 4-way connectivity");
@@ -98,10 +101,10 @@ ConfigData::ConfigData(const cv::FileStorage& fs) : global_config(fs) {
 	modes.push_back("GPU 3D 6-way connectivity");
 #endif
 
-	for (const std::string& mode : modes) {
+	for (const string& mode : modes) {
 
 		// If "execute" is false, LocalConfig struct for current mode isn't added to local_config_map
-		if (ReadBool(fs[mode]["execute"])) {
+		if (ReadBool(fs[mode.c_str()]["execute"])) {
 			mode_config_vector.emplace_back(mode, fs[mode]);
 		}
 	}

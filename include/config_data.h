@@ -66,14 +66,14 @@ struct ModeConfig {
 	unsigned density_tests_number;        // Reps of density tests (only the minimum will be considered)
 	unsigned granularity_tests_number;    // Reps of density tests (only the minimum will be considered)
 
-	std::vector<std::string> check_datasets;       // List of datasets on which check tests will be performed
-	std::vector<std::string> memory_datasets;      // List of datasets on which memory tests will be perform
-	std::vector<std::string> density_datasets;     // List of datasets on which density tests will be performed
-	std::vector<std::string> granularity_datasets; // List of datasets on which granularity tests will be performed
-	std::vector<std::string> average_datasets;     // Lists of dataset on which average tests will be performed
-	std::vector<std::string> average_ws_datasets;  // Lists of dataset on which average tests whit steps will be performed
+	std::vector<cv::String> check_datasets;       // List of datasets on which check tests will be performed
+	std::vector<cv::String> memory_datasets;      // List of datasets on which memory tests will be perform
+	std::vector<cv::String> density_datasets;     // List of datasets on which density tests will be performed
+	std::vector<cv::String> granularity_datasets; // List of datasets on which granularity tests will be performed
+	std::vector<cv::String> average_datasets;     // Lists of dataset on which average tests will be performed
+	std::vector<cv::String> average_ws_datasets;  // Lists of dataset on which average tests whit steps will be performed
 
-	std::vector<std::string> ccl_algorithms;          // Lists of algorithms specified by the user in the config.yaml
+	std::vector<cv::String> ccl_algorithms;          // Lists of algorithms specified by the user in the config.yaml
 	std::vector<std::string> ccl_existing_algorithms; // Lists of 'ccl_algorithms' actually existing
 
 	std::vector<std::string> ccl_mem_algorithms;        // List of algorithms which actually support memory tests
@@ -126,7 +126,6 @@ struct ConfigData {
 	GlobalConfig global_config;
 
 	ConfigData(const cv::FileStorage& fs);
-
 };
 
 

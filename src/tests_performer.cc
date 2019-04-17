@@ -2,6 +2,7 @@
 
 #include <cstdint>
 
+#include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 
 #include "memory_tester.h"
@@ -150,7 +151,7 @@ public:
 	CheckDatasetsExistence(const path &input_path, const std::string &input_txt, OutputBox &ob, std::error_code& ec) :
 		input_path_(input_path), input_txt_(input_txt), ob_(ob), ec_(ec) {}
 
-	bool operator()(const std::vector<std::string>& dataset, bool print_message) {
+	bool operator()(const std::vector<cv::String>& dataset, bool print_message) {
 		// Check if all the datasets' files.txt exist
 		bool exists_one_dataset = false;
 		for (auto& x : dataset) {
