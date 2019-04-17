@@ -32,7 +32,9 @@
 #include <string>
 #include <memory>
 
+#ifdef YACCLAB_WITH_CUDA
 #include <opencv2/cudafeatures2d.hpp>
+#endif
 
 #include "cuda_mat3.hpp"
 #include "volume_util.h"
@@ -79,7 +81,7 @@ public:
 };
 
 
-#if defined USE_CUDA
+#if defined YACCLAB_WITH_CUDA
 class YacclabTensorInput2DCuda : public YacclabTensorInput2D {
 protected:
     static cv::cuda::GpuMat d_mat_;
@@ -148,7 +150,7 @@ public:
     virtual std::unique_ptr<YacclabTensorOutput> Copy() const override {  return std::make_unique<YacclabTensorOutput3D>(mat_); }
 };
 
-#if defined USE_CUDA
+#if defined YACCLAB_WITH_CUDA
 class YacclabTensorOutput2DCuda : public YacclabTensorOutput2D {
 protected:
     cv::cuda::GpuMat d_mat_;

@@ -235,7 +235,7 @@ void SystemInfo::SetCompiler()
 #endif
 }
 
-#if defined USE_CUDA
+#if defined YACCLAB_WITH_CUDA
 CudaInfo& CudaInfo::GetInstance()
 {
     static CudaInfo instance;

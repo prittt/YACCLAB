@@ -46,7 +46,7 @@
 
 
 // gpu include
-#if defined USE_CUDA
+#if defined YACCLAB_WITH_CUDA
 #include <opencv2/cudafeatures2d.hpp>
 #endif
 
@@ -125,7 +125,7 @@ public:
 };
 
 
-#if defined USE_CUDA
+#if defined YACCLAB_WITH_CUDA
 template <Connectivity2D Conn>
 class GpuLabeling2D : public Labeling2D<Conn> {
 public:
@@ -165,7 +165,7 @@ public:
     virtual std::string GetTitle() const { return GetGnuplotTitleGpu(); }
 };
 
-#endif // USE_CUDA
+#endif // YACCLAB_WITH_CUDA
 
 class LabelingMapSingleton {
 public:

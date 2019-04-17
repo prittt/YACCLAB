@@ -43,7 +43,7 @@
 #include "system_info.h"
 #include "volume_util.h"
 
-#if defined USE_CUDA
+#if defined YACCLAB_WITH_CUDA
 #include "device_launch_parameters.h"
 #include "cuda_runtime.h"
 #endif
@@ -363,7 +363,7 @@ int RedirectCvError(int status, const char* func_name, const char* err_msg, cons
 //    return s;
 //}
 //
-//#if defined USE_CUDA
+//#if defined YACCLAB_WITH_CUDA
 //string cudaBeautifyVersionNumber(int v) {
 //	int minor = (v / 10) % 10;
 //	int major = v / 1000;
@@ -389,7 +389,7 @@ std::string GetGnuplotTitle() {
     return s;
 }
 
-#if defined USE_CUDA
+#if defined YACCLAB_WITH_CUDA
 std::string GetGnuplotTitleGpu() {
     std::string s = "\"{/:Bold GPU}: " + CudaInfo::device_name() + " {/:Bold CUDA Capability}: " + CudaInfo::cuda_capability() +
         " {/:Bold Runtime}: " + CudaInfo::runtime_version() + " {/:Bold Driver}: " + CudaInfo::driver_version();

@@ -94,7 +94,7 @@ ConfigData::ConfigData(const FileStorage& fs) : global_config(fs) {
 	modes.push_back("CPU 3D 26-way connectivity");
     modes.push_back("CPU 2D 4-way connectivity");
 	modes.push_back("CPU 3D 6-way connectivity");
-#if defined USE_CUDA
+#if defined YACCLAB_WITH_CUDA
 	modes.push_back("GPU 2D 8-way connectivity");
 	modes.push_back("GPU 3D 26-way connectivity");
     modes.push_back("GPU 2D 4-way connectivity");

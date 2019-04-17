@@ -31,7 +31,7 @@
 #include "opencv2/imgcodecs.hpp"
 #include "volume_util.h"
 
-//#if defined USE_CUDA
+//#if defined YACCLAB_WITH_CUDA
 //#include "cuda_runtime.h"
 //#endif
 
@@ -40,7 +40,7 @@
 //template <Connectivity Conn>
 //cv::Mat Labeling3D<Conn>::img_;
 //
-//#if defined USE_CUDA
+//#if defined YACCLAB_WITH_CUDA
 //template <Connectivity Conn>
 //cv::cuda::GpuMat GpuLabeling2D<Conn>::d_img_;
 //template <Connectivity Conn>
@@ -60,7 +60,7 @@
 //    return s;
 //}
 
-//#if defined USE_CUDA
+//#if defined YACCLAB_WITH_CUDA
 //template <Connectivity Conn>
 //std::string GpuLabeling2D<Conn>::GetTitle(const SystemInfo& s_info) {
 //    CudaInfo cuda_info;

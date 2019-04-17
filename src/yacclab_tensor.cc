@@ -128,7 +128,7 @@ void YacclabTensorOutput3D::WriteColored(const std::string &filename) const {
 }
 
 
-#if defined USE_CUDA
+#if defined YACCLAB_WITH_CUDA
 
 cuda::GpuMat YacclabTensorInput2DCuda::d_mat_;
 

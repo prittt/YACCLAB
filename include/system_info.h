@@ -34,7 +34,7 @@
 
 #include <config_data.h>
 
-#if defined USE_CUDA
+#if defined YACCLAB_WITH_CUDA
 #include "cuda_runtime.h"
 #endif
 
@@ -116,7 +116,7 @@ private:
 
 
 
-#if defined USE_CUDA
+#if defined YACCLAB_WITH_CUDA
 struct CudaInfo {
 public: 
     static CudaInfo& GetInstance();

@@ -107,11 +107,11 @@ int RedirectCvError(int status, const char* func_name, const char* err_msg, cons
 */
 //std::string GetGnuplotTitle(const SystemInfo& s_info);
 //
-//#if defined USE_CUDA
+//#if defined YACCLAB_WITH_CUDA
 //std::string GetGnuplotTitleGpu(const SystemInfo& s_info);
 //#endif
 std::string GetGnuplotTitle();
-#if defined USE_CUDA
+#if defined YACCLAB_WITH_CUDA
 std::string GetGnuplotTitleGpu();
 #endif
 

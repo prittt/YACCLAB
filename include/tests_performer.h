@@ -227,7 +227,7 @@ private:
 //	else if (mode_cfg.mode == "3D_CPU") {
 //		ptr = std::make_unique<TestsPerformer>(mode_cfg, glob_cfg, ec);
 //	}
-//#if defined USE_CUDA
+//#if defined YACCLAB_WITH_CUDA
 //	else if (mode_cfg.mode == "2D_GPU") {
 //		ptr = std::make_unique<TestsPerformer>(mode_cfg, glob_cfg, ec);
 //	}
