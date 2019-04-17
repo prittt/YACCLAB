@@ -32,6 +32,8 @@
 #include <string>
 #include <memory>
 
+#include <opencv2/cudafeatures2d.hpp>
+
 #include "cuda_mat3.hpp"
 #include "volume_util.h"
 
