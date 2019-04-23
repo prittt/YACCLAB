@@ -160,7 +160,11 @@ struct ConfigData {
         cv::read(fs["memory_datasets"], memory_datasets);
         cv::read(fs["algorithms"], ccl_algorithms);
 
-        yacclab_os                   = static_cast<std::string>(fs["os"]);
+#ifdef YACCLAB_OS
+        yacclab_os                   = std::string(YACCLAB_OS);
+#else
+        yacclab_os = "";
+#endif
     }
 
     bool ReadBool(const cv::FileNode& node_list)
