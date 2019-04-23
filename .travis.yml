@@ -42,13 +42,13 @@ matrix:
         - BUILD_TARGET=mac 
     # linux (x64 build)
     - os: linux
-     #addons:
-     #   apt:
-     #      sources:
-     #          - george-edison55-precise-backports #To install cmake 3.2.3 / doxygen 1.8.3
-     #      packages:
-     #         - cmake
-     #         - cmake-data
+      addons:
+        apt:
+          sources:
+            - george-edison55-precise-backports
+         #packages:
+           #- cmake
+           #- cmake-data
       env: 
         - BUILD_TARGET=linux 
 
