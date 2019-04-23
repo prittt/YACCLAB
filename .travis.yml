@@ -42,10 +42,10 @@ matrix:
         - BUILD_TARGET=mac 
     # linux (x64 build)
     - os: linux
-      addons:
-        apt:
-          sources:
-            - george-edison55-precise-backports
+      #addons:
+        #apt:
+          #sources:
+            #- george-edison55-precise-backports
          #packages:
            #- cmake
            #- cmake-data
