@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------------------
 
 # Kind of tests to execute
-perform: 
+perform:
   correctness:        false
   average:            true
   average_with_steps: true
@@ -17,23 +17,23 @@ perform:
   granularity:        true
   memory:             false
 
-correctness_tests: 
+correctness_tests:
   eight_connectivity_standard: true
   eight_connectivity_steps:    true
   eight_connectivity_memory:   true
 
-# Number of tests repetitions 
-tests_number: 
-  average:            10 
+# Number of tests repetitions
+tests_number:
+  average:            10
   average_with_steps: 10
   density:            10
-  granularity:        10 
+  granularity:        10
 
 # -------------------------------------------------------------------------------------
 # List of CCL algorithms to test
 # -------------------------------------------------------------------------------------
 
-algorithms: 
+algorithms:
 #  - SAUF_RemSP
 #  - SAUF_TTA
   - SAUF_UFPC
@@ -102,13 +102,11 @@ paths: {input: "${YACCLAB_INPUT_DATASET_PATH}", output: "${YACCLAB_OUTPUT_RESULT
 # Save the returned number of components in output files
 write_n_labels: false
 
-# Save labeled image (TODO: remove this option from tests and add a specific tools for doing that in YACCLAB) 
+# Save labeled image (TODO: remove this option from tests and add a specific tools for doing that in YACCLAB)
 color_labels: {average: false, density: false}
 
 # Save the results of each run test
 save_middle_tests: {average: false, average_with_steps: false, density: false, granularity: false}
-
-os: "${YACCLAB_OS}"
 
 ##########################################
 # This is the YACCLAB configuration file #

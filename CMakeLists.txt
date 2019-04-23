@@ -135,6 +135,7 @@ endif()
 set(YACCLAB_OS "${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_VERSION}" CACHE INTERNAL "")
 message(STATUS "OS: ${YACCLAB_OS}, OpenCV: ${OpenCV_VERSION}")
 add_definitions(-DOPENCV_VERSION_MAJOR=${OpenCV_VERSION_MAJOR})
+add_definitions(-DYACCLAB_OS="${YACCLAB_OS}")
 
 # --------------------
 # Project
