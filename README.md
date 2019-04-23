@@ -6,7 +6,7 @@
 
 - <p align="justify"> Grana, Costantino; Bolelli, Federico; Baraldi, Lorenzo; Vezzani, Roberto "YACCLAB - Yet Another Connected Components Labeling Benchmark" Proceedings of the 23rd International Conference on Pattern Recognition, Cancun, Mexico, 4-8 Dec 2016. <a title="BibTex" href="http://imagelab.ing.unimore.it/files2/yacclab/YACCLAB_ICPR2016_BibTex.html">BibTex</a>. <a title="Download" href="http://imagelab.ing.unimore.it/imagelab/pubblicazioni/2016-icpr-yacclab.pdf"><img src="https://raw.githubusercontent.com/prittt/YACCLAB/master/doc/pdf_logo.png" alt="Download." /></a></p>
 
-<p align="justify"> 
+<p align="justify">
 YACCLAB is an open source <i>C++</i> project that enables researchers to test CCL algorithms under extremely variable points of view, running and testing algorithms on a collection of datasets described below. The benchmark performs the following tests which will be described later in this readme: <i>correctness</i>, average run-time (<i>average</i>), average run-time with steps (<i>average_ws</i>), <i>density</i>, <i>size</i>, <i>granularity</i> and memory accesses (<i>memory</i>).
 
 Notice that 8-connectivity is always used in the project.
@@ -16,9 +16,9 @@ Notice that 8-connectivity is always used in the project.
 
 <p align="justify">To correctly install and run YACCLAB following packages, libraries and utility are needed:</p>
 
-- CMake 3.0.0 or higher (https://cmake.org),
+- CMake 3.13 or higher (https://cmake.org),
 - OpenCV 3.0 or higher (http://opencv.org),
-- Gnuplot (http://www.gnuplot.info/), 
+- Gnuplot (http://www.gnuplot.info/),
 - One of your favourite IDE/compiler: Visual Studio 2013 or higher, Xcode 5.0.1, gcc 4.7 or higher, .. (with C++11 support)
 
 Notes for gnuplot:
@@ -144,7 +144,7 @@ Notes for gnuplot:
     <td align="center"><i>labeling_null.h</i></td>
     <td align="center">NO</td>
   </tr>
-</table> 
+</table>
 
 (<small>I</small>) standard version </br>
 (<small>II</small>) with zero-offset optimization </br>
@@ -167,12 +167,12 @@ int main()
 {
     BBDT<UFPC> BBDT_UFPC; // To create an object of the desired algorithm (BBDT in this example)
                           // templated on the labels solving strategy. See the README for the
-                          // complete list of the available labels solvers, available algorithms 
-                          // (N.B. non all the algorithms are templated on the solver) and their 
+                          // complete list of the available labels solvers, available algorithms
+                          // (N.B. non all the algorithms are templated on the solver) and their
                           // acronyms.
-    
-    BBDT_UFPC.img_ = imread("test_image.png", IMREAD_GRAYSCALE); // To load into the CCL object 
-                                                                 // the BINARY image to be labeled 
+
+    BBDT_UFPC.img_ = imread("test_image.png", IMREAD_GRAYSCALE); // To load into the CCL object
+                                                                 // the BINARY image to be labeled
 
     threshold(BBDT_UFPC.img_, BBDT_UFPC.img_, 100, 1, THRESH_BINARY); // Just to be sure that the
                                                                       // loaded image is binary
@@ -190,9 +190,9 @@ int main()
 ## Configuration File
 <p align="justify">A <tt>YAML</tt> configuration file placed in the installation folder lets you to specify which kind of tests should be performed, on which datasets and on which algorithms. A complete description of all configuration parameters is reported below.</p>
 
-- <i>perform</i> - dictionary which specifies the <a href="#conf">kind of tests</a> to perform: 
+- <i>perform</i> - dictionary which specifies the <a href="#conf">kind of tests</a> to perform:
 ```yaml
-perform: 
+perform:
   correctness:        false
   average:            true
   average_with_steps: false
@@ -203,7 +203,7 @@ perform:
 
 - <i>correctness_tests</i> - dictionary indicating the kind of correctness tests to perform:
 ```yaml
-correctness_tests: 
+correctness_tests:
   eight_connectivity_standard: true
   eight_connectivity_steps:    true
   eight_connectivity_memory:   true
@@ -211,16 +211,16 @@ correctness_tests:
 
 - <i>tests_number</i> - dictionary which sets the number of runs for each test available:
 ```yaml
-tests_number: 
-  average:            10 
+tests_number:
+  average:            10
   average_with_steps: 10
   density:            10
-  granularity:        10 
+  granularity:        10
 ```
 
 - <i>algorithms</i> - list of algorithms on which apply the chosen tests:
 ```yaml
-algorithms: 
+algorithms:
   - SAUF_RemSP
   - SAUF_TTA
   - BBDT_RemSP
@@ -230,7 +230,7 @@ algorithms:
 ```
 
 - <i>check_datasets</i>, <i>average_datasets</i>, <i>average_ws_datasets</i> and <i>memory_datasets</i> - lists of <a href="#conf">datasets</a> on which, respectively, correctness, average, average_ws and memory tests should be run:
-<!-- 
+<!--
 - <i>check_datasets:</i> list of datasets on which CCL algorithms should be checked.
 - <i>average_datasets:</i> list of datasets on which average test should be run.
 - <i>average_ws_datasets:</i> list of datasets on which <i>average_ws</i> test should be run.
@@ -301,7 +301,7 @@ int MyLabelingAlgorithm(const cv::Mat1b& img,cv::Mat1i &imgLabels);
 - <b>Synthetic Images</b>:
 	- <b>Classical:<sup><a href="#BBDT">4</a></sup></b><p align="justify"> A set of synthetic random noise images who contain black and white random noise with 9 different foreground densities (10% up to 90%), from a low resolution of 32x32 pixels to a maximum resolution of 4096x4096 pixels, allowing to test the scalability and the effectiveness of different approaches when the number of labels gets high. For every combination of size and density, 10 images are provided for a total of 720 images. The resulting subset allows to evaluate performance both in terms of scalability on the number of pixels and on the number of labels (density). </p>
 	- <b>Granularity:<sup><a href="#LSL">4</a></sup></b><p align="justify"> This dataset allows to test algorithms varying not only the pixels density but also their granularity <i>g</i> (<i>i.e.</i>, dimension of minimum foreground block), underlying the behaviour of different proposals when the number of provisional labels changes. All the images have a resolution of 2048x2048 and are generated with the Mersenne Twister MT19937 random number generator implemented in the <i>C++</i> standard and starting with a "seed" equal to zero. Density of the images ranges from 0% to 100% with step of 1% and for every density value 16 images with pixels blocks of <i>gxg</i> with <i>g</i> ∈ [1,16] are generated. Moreover, the procedure has been repeated 10 times for every couple of density-granularity for a total of 16160 images.</p>
-	
+
 - <b>MIRflickr:<sup><a href="#MIRFLICKR">10</a></sup></b><p align="justify"> Otsu-binarized version of the MIRflickr dataset, publicly available under a Creative Commons License. It contains 25,000 standard resolution images taken from Flickr. These images have an average resolution of 0.17 megapixels, there are few connected components (495 on average) and are generally composed of not too complex patterns, so the labeling is quite easy and fast.</p>
 
 - <b>Hamlet:</b><p align="justify"> A set of 104 images scanned from a version of the Hamlet found on Project Gutenberg (http://www.gutenberg.org). Images have an average amount of 2.71 million of pixels to analyze and 1447 components to label, with an average foreground density of 0.0789. </p>
@@ -310,9 +310,9 @@ int MyLabelingAlgorithm(const cv::Mat1b& img,cv::Mat1i &imgLabels);
 
 - <b>3DPeS:<sup><a href="#3DPES">14</a></sup></b> <p align="justify"> It comes from 3DPeS (3D People Surveillance Dataset), a surveillance dataset designed mainly for people re-identification in multi camera systems with non-overlapped fields of view. 3DPeS can be also exploited to test many other tasks, such as people detection, tracking, action analysis and trajectory analysis. The background models for all cameras are provided, so a very basic technique of motion segmentation has been applied to generate the foreground binary masks, i.e.,  background subtraction and fixed thresholding. The analysis of the foreground masks to remove small connected components and for nearest neighbor matching is a common application for CCL. </p>
 
-- <b>Medical:<sup><a href="#MEDICAL">15</a></sup></b><p align="justify"> This dataset is composed by histological images and allow us to cover this fundamental medical field. The process used for nuclei segmentation and binarization is described in  <a href="#MEDICAL">[12]</a>. The resulting dataset is a collection of 343 binary histological images with an average amount of 1.21 million of pixels to analyze and 484 components to label. </p> 
+- <b>Medical:<sup><a href="#MEDICAL">15</a></sup></b><p align="justify"> This dataset is composed by histological images and allow us to cover this fundamental medical field. The process used for nuclei segmentation and binarization is described in  <a href="#MEDICAL">[12]</a>. The resulting dataset is a collection of 343 binary histological images with an average amount of 1.21 million of pixels to analyze and 484 components to label. </p>
 
-- <b>Fingerprints:<sup><a href="#FINGERPRINTS">16</a></sup></b><p align="justify"> This dataset counts 960 fingerprint images collected by using low-cost optical sensors or synthetically generated. These images were taken from the three Verification Competitions FCV2000, FCV2002 and FCV2004. In order to fit CCL application, fingerprints have been binarized using an adaptive threshold and then negated in order to have foreground pixel with value 255. Most of the original images have a resolution of 500 DPI and their dimensions range from 240 by 320 up to 640 by 480 pixels. </p> 
+- <b>Fingerprints:<sup><a href="#FINGERPRINTS">16</a></sup></b><p align="justify"> This dataset counts 960 fingerprint images collected by using low-cost optical sensors or synthetically generated. These images were taken from the three Verification Competitions FCV2000, FCV2002 and FCV2004. In order to fit CCL application, fingerprints have been binarized using an adaptive threshold and then negated in order to have foreground pixel with value 255. Most of the original images have a resolution of 500 DPI and their dimensions range from 240 by 320 up to 640 by 480 pixels. </p>
 
 <a name="tests"></a>
 ## Available Tests
@@ -323,24 +323,24 @@ int MyLabelingAlgorithm(const cv::Mat1b& img,cv::Mat1i &imgLabels);
 
 - <b>Memory tests:</b> <p align="justify"> are useful to understand the reason for the good performances of an algorithm or in general to explain its behavior. Memory tests compute the average number of accesses to the label image (i.e the image used to store the provisional and then the final labels for the connected components), the average number of accesses to the binary image to be labeled, and, finally, the average number of accesses to data structures used to solve the equivalences between label classes. Moreover, if an algorithm requires extra data, memory tests summarize them as ``other'' accesses and return the average. Furthermore, all average contributions of an algorithm and dataset are summed together in order to show the total amount of memory accesses. Since counting the number of memory accesses imposes additional computations, functions implementing memory access tests are different from those implementing run-time and density tests, to keep run-time tests as objective as possible.</p>
 
-## Examples of YACCLAB Output Results 
+## Examples of YACCLAB Output Results
 Work in progress.
 <!--
 ## Results ...
 
 In this section we use  acronyms  to  refer  to  the  available  algorithms:  
-- CT  is  the  Contour  Tracing  approach  by Fu  Chang et al.<sup>[1](#CT)</sup>; 
-- CCIT  is  the  algorithm  by  Wan-Yu Chang et al. <sup>[2](#CCIT)</sup>; 
-- DiStefano is the algorithm in <sup>[3](#DiStefano)</sup>; 
-- BBDT is the  Block  Based  with  Decision  Trees  algorithm  by  Grana et al. <sup>[4](#BBDT)</sup>; 
-- LSL STD  is  the  Light  Speed  Labeling  algorithm  by Lacassagne et al. <sup>[5](#LSL_STD)</sup>; 
-- SAUF  is  the  Scan  Array  Union  Find algorithm by Wu et al. <sup>[6](#SAUF)</sup>; 
+- CT  is  the  Contour  Tracing  approach  by Fu  Chang et al.<sup>[1](#CT)</sup>;
+- CCIT  is  the  algorithm  by  Wan-Yu Chang et al. <sup>[2](#CCIT)</sup>;
+- DiStefano is the algorithm in <sup>[3](#DiStefano)</sup>;
+- BBDT is the  Block  Based  with  Decision  Trees  algorithm  by  Grana et al. <sup>[4](#BBDT)</sup>;
+- LSL STD  is  the  Light  Speed  Labeling  algorithm  by Lacassagne et al. <sup>[5](#LSL_STD)</sup>;
+- SAUF  is  the  Scan  Array  Union  Find algorithm by Wu et al. <sup>[6](#SAUF)</sup>;
 - CTB is the Configuration-Transition-Based algorithm by He et al. <sup>[7](#CTB)</sup>;  
-- SBLA is the stripe-based algorithm by Zhao et al.<sup>[8](#SBLA)</sup>; 
+- SBLA is the stripe-based algorithm by Zhao et al.<sup>[8](#SBLA)</sup>;
 - PRED is the Optimized Pixel Prediction by Grana et al. <sup>[9](#PRED)</sup>;
-- NULL labeling is an algorithm that defines a lower bound limit for the execution time of CCL algorithms on a given machine and dataset. As the name suggests, this algorithm does not provide the correct connected components for a given image. It only checks the pixels of that image and sets almost randomly the value of the output. 
+- NULL labeling is an algorithm that defines a lower bound limit for the execution time of CCL algorithms on a given machine and dataset. As the name suggests, this algorithm does not provide the correct connected components for a given image. It only checks the pixels of that image and sets almost randomly the value of the output.
 
-SAUF and BBDT are the algorithms currently included in OpenCV. 
+SAUF and BBDT are the algorithms currently included in OpenCV.
 
 ### ... on 04/21/2016
 
@@ -631,7 +631,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
 
 <table>
 <caption><h4>Analysis of memory accesses required by connected components computation for 'Random' dataset. The numbers are given in millions of accesses</h4></caption>
-	<tr>	
+	<tr>
    <td align="center">Algorithm           </td>
    <td align="center">Total Accesses      </td>
    <td align="center">Binary Image        </td>
@@ -639,7 +639,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
    <td align="center">Equivalence Vector/s</td>
    <td align="center">Other               </td>
 	</tr>
- <tr>	
+ <tr>
    <td align="center">SAUF  </td>
    <td align="center">20.963</td>
    <td align="center">5.475 </td>
@@ -647,7 +647,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
    <td align="center">4.200 </td>
    <td align="center">-     </td>
 	</tr>
-	<tr>	
+	<tr>
    <td align="center">DiStefano</td>
    <td align="center">187.512  </td>
    <td align="center">2.796    </td>
@@ -655,7 +655,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
    <td align="center">171.972  </td>
    <td align="center">0.164    </td>
 	</tr>
-	<tr>	
+	<tr>
    <td align="center">BBDT  </td>
    <td align="center">12.237</td>
    <td align="center">6.012 </td>
@@ -663,7 +663,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
    <td align="center">1.468	</td>
    <td align="center">-     </td>
 	</tr>
-	<tr>	
+	<tr>
    <td align="center">LSL_STD</td>
    <td align="center">27.792  </td>
    <td align="center">2.796	  </td>
@@ -671,7 +671,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
    <td align="center">1.616	  </td>
    <td align="center">20.584  </td>
 	</tr>
- 	<tr>	
+ 	<tr>
    <td align="center">PRED  </td>
    <td align="center">20.194</td>
    <td align="center">4.706	</td>
@@ -679,7 +679,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
    <td align="center">4.200	</td>
    <td align="center">-     </td>
 	</tr>
- 	<tr>	
+ 	<tr>
    <td align="center">NULL </td>
    <td align="center">5.592</td>
    <td align="center">2.796</td>
@@ -691,7 +691,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
 
 <table>
 <caption><h4>Analysis of memory accesses required by connected components computation for 'Tobacco800' dataset. The numbers are given in millions of accesses</h4></caption>
-	<tr>	
+	<tr>
    <td align="center">Algorithm           </td>
    <td align="center">Total Accesses      </td>
    <td align="center">Binary Image        </td>
@@ -699,7 +699,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
    <td align="center">Equivalence Vector/s</td>
    <td align="center">Other               </td>
 	</tr>
-  <tr>	
+  <tr>
    <td align="center">SAUF  </td>
    <td align="center">23.874</td>
    <td align="center">4.935 </td>
@@ -707,7 +707,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
    <td align="center">4.653 </td>
    <td align="center">-     </td>
 	</tr>
-  <tr>	
+  <tr>
    <td align="center">DiStefano</td>
    <td align="center">17.041   </td>
    <td align="center">4.604    </td>
@@ -715,7 +715,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
    <td align="center">2.037    </td>
    <td align="center">0.007    </td>
 	</tr>
-  <tr>	
+  <tr>
    <td align="center">BBDT  </td>
    <td align="center">12.046</td>
    <td align="center">4.942 </td>
@@ -723,7 +723,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
    <td align="center">0.122 </td>
    <td align="center">-     </td>
 	</tr>
-   <tr>	
+   <tr>
    <td align="center">LSL_STD</td>
    <td align="center">38.267 </td>
    <td align="center">4.604  </td>
@@ -731,7 +731,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
    <td align="center">1.189  </td>
    <td align="center">27.870 </td>
 	</tr>
-  <tr>	
+  <tr>
    <td align="center">PRED  </td>
    <td align="center">23.799</td>
    <td align="center">4.860 </td>
@@ -739,7 +739,7 @@ SAUF and BBDT are the algorithms currently included in OpenCV.
    <td align="center">4.653 </td>
    <td align="center">-     </td>
 	</tr>
-  <tr>	
+  <tr>
    <td align="center">NULL </td>
    <td align="center">9.208</td>
    <td align="center">4.604</td>
