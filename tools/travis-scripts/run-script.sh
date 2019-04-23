@@ -33,6 +33,9 @@ set -e
 
 function build_linux(){
 
+   export DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
+   export PATH=${DEPS_DIR}/cmake-install:${DEPS_DIR}/cmake-install/bin:$PATH
+
    echo -e "############################################### Build and Test ###############################################"
 
    echo -e "\n\n------------------------------------------> YACCLAB configuration" 
@@ -68,6 +71,9 @@ function build_linux(){
 }
 
 function build_mac(){
+
+   export DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
+   export PATH=${DEPS_DIR}/cmake-install/CMake.app/Contents/bin:$PATH
 
    echo -e "############################################### Build and Test ###############################################"
  
