@@ -56,14 +56,16 @@ function install_linux_environment()
   #echo -e "------------------------------------------> DONE!"
   
   echo -e "\n\n------------------------------------------> Install cmake-3.13:"
+  pwd
   export DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
   mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
   curl -L https://cmake.org/files/v3.13/cmake-3.13.0-Linux-x86_64.tar.gz > cmake-3.13.tar.gz
   echo -e "    DONE"
-  tar -xzvf cmake-3.13.tar.gz
+  tar -xzf cmake-3.13.tar.gz
   mv cmake-3.13.0-Linux-x86_64 cmake-install
   export PATH=${DEPS_DIR}/cmake-install:${DEPS_DIR}/cmake-install/bin:$PATH
   cd ${TRAVIS_BUILD_DIR}
+  pwd
   echo -e "------------------------------------------> DONE!" 
 
   echo -e "\n\n------------------------------------------> Check CMake version"
@@ -155,14 +157,16 @@ function install_osx_environment()
   echo -e "------------------------------------------> DONE!" 
   
   echo -e "\n\n------------------------------------------> Install cmake-3.13:"
+  pwd
   export DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
   mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
   curl -L https://cmake.org/files/v3.13/cmake-3.13.0-Darwin-x86_64.tar.gz > cmake-3.13.tar.gz
   echo -e "    DONE"
-  tar -xzvf cmake-3.13.tar.gz
+  tar -xzf cmake-3.13.tar.gz
   mv cmake-3.13.0-Darwin-x86_64 cmake-install
-  export PATH=${DEPS_DIR}/cmake-install:${DEPS_DIR}/cmake-install/bin:$PATH
+  export PATH=${DEPS_DIR}/cmake-install/CMake.app/Contents/bin:$PATH
   cd ${TRAVIS_BUILD_DIR}
+  pwd
   echo -e "------------------------------------------> DONE!" 
   
   echo -e "\n\n------------------------------------------> Check CMake version"
