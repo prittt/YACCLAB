@@ -28,7 +28,6 @@ target_sources(YACCLAB
 		labeling_wychang_2015_tree_0.inc
 		labeling_zhao_2010.h
 		labels_solver.h
-		latex_generator.h
 		memory_tester.h
 		performance_evaluator.h
 		progress_bar.h

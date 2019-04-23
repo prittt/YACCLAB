@@ -9,7 +9,6 @@ target_sources(YACCLAB
 		labeling_wychang_2015.cc
 		labeling_zhao_2010.cc
 		labels_solver.cc
-		latex_generator.cc
 		main.cc
 		system_info.cc
 		utilities.cc
