@@ -26,18 +26,19 @@
 # OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.13)
 
-set (ProjectName "YACCLAB")
-project (${ProjectName})
+project (YACCLAB)
 
 #Suppress creation of ZERO_CHECK
-set(CMAKE_SUPPRESS_REGENERATION true)
+#set(CMAKE_SUPPRESS_REGENERATION true)
 
+# ----------------------------------------------------------------------------
+#  YACCLAB and CMAKE variables
+# ----------------------------------------------------------------------------
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Configs" FORCE)
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE PATH "Install prefix" FORCE)
 
-#Set YACCLAB variables
 set(YACCLAB_DOWNLOAD_DATASET OFF CACHE BOOL "If flagged the YACCLAB dataset will be automatically downloaded")
 set(YACCLAB_INPUT_DATASET_PATH "${CMAKE_INSTALL_PREFIX}/input" CACHE PATH "'input' dataset path") 
 set(YACCLAB_OUTPUT_RESULTS_PATH "${CMAKE_INSTALL_PREFIX}/output" CACHE PATH "'output' results path") 
@@ -50,7 +51,6 @@ endif()
 # ----------------------------------------------------------------------------
 #  Check for c++11 support
 # ----------------------------------------------------------------------------
-
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
 CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
@@ -100,9 +100,7 @@ message(STATUS "C flags: ${CMAKE_C_FLAGS}")
 # ----------------------------------------------------------------------------
 #  Build & install layouts
 # ----------------------------------------------------------------------------
-
-# Save libs and executables in the same place
-set(YACCLAB_EXECUTABLE_OUTPUT_PATH "${CMAKE_INSTALL_PREFIX}" CACHE PATH "Output directory for applications" )
+set(YACCLAB_EXECUTABLE_OUTPUT_PATH "${CMAKE_INSTALL_PREFIX}" CACHE PATH "Output directory for applications")
 
 # ----------------------------------------------------------------------------
 # Solution folders
@@ -112,10 +110,9 @@ if(ENABLE_SOLUTION_FOLDERS)
     set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMakeTargets")
 endif()
 
-# --------------------
+# ----------------------------------------------------------------------------
 # OpenCV 
-# --------------------
-
+# ----------------------------------------------------------------------------
 set(OpenCV_REQUIRED_PACKAGES "core;imgcodecs;imgproc" CACHE STRING "OpenCV packages required by YACCLAB are already set")
 FIND_PACKAGE(OpenCV REQUIRED ${OpenCV_REQUIRED_PACKAGES})
 include_directories( ${OpenCV_INCLUDE_DIRS} )
@@ -129,40 +126,42 @@ if(MSVC)
     endif()
 endif()
 
-# --------------------
+# ----------------------------------------------------------------------------
 # Utility
-# --------------------
+# ----------------------------------------------------------------------------
 set(YACCLAB_OS "${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_VERSION}" CACHE INTERNAL "")
 message(STATUS "OS: ${YACCLAB_OS}, OpenCV: ${OpenCV_VERSION}")
 add_definitions(-DOPENCV_VERSION_MAJOR=${OpenCV_VERSION_MAJOR})
 
-# --------------------
-# Project
-# --------------------
-
+# ----------------------------------------------------------------------------
+# YACCLAB Project
+# ----------------------------------------------------------------------------
 include_directories("${CMAKE_SOURCE_DIR}/include")
 
-file(GLOB SRCFILES ${SRCFILES} "src/*.cc" "src/*.cpp" "src/*.c")
-file(GLOB HFILES ${HFILES} "include/*.h" "include/*.hpp")
-file(GLOB INCFILES ${INCFILES} "include/*.inc")
-
-add_definitions(-D_CRT_SECURE_NO_WARNINGS) #To suppress 'fopen' opencv warning/bug  
-# Set configuration file    
+add_definitions(-D_CRT_SECURE_NO_WARNINGS) #To suppress 'fopen' opencv warning/bug
+ 
+# To set YACCLAB configuration file    
 if(YACCLAB_IS_TRAVIS_CI)    
     configure_file("${CMAKE_SOURCE_DIR}/doc/config_travis.yaml" "${CMAKE_INSTALL_PREFIX}/config.yaml")
 else()
     configure_file("${CMAKE_SOURCE_DIR}/doc/config_base.yaml" "${CMAKE_INSTALL_PREFIX}/config.yaml")
 endif()
-source_group("Include Files" FILES ${INCFILES})
-source_group("Header Files" FILES ${HFILES})
-source_group("Source Files" FILES ${SRCFILES})
 
-set (addExe ${SRCFILES} ${HFILES} ${INCFILES} "${CMAKE_INSTALL_PREFIX}/config.yaml")
-add_executable(${ProjectName} ${addExe})
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${ProjectName}) # Set YACCLAB as startup group instead of ALL_BUILD
-target_link_libraries (${ProjectName}  ${OpenCV_LIBS})
+add_executable(YACCLAB "${CMAKE_INSTALL_PREFIX}/config.yaml")
 
-# Creation of output directory
+# Set YACCLAB as startup group instead of ALL_BUILD
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT YACCLAB) 
+
+target_link_libraries (YACCLAB  ${OpenCV_LIBS})
+
+add_subdirectory(src)
+add_subdirectory(include)
+
+source_group("Include Files" REGULAR_EXPRESSION "inc$")
+source_group("Header Files" REGULAR_EXPRESSION "h$|hpp$")
+source_group("Source Files" REGULAR_EXPRESSION "cc$|cpp$|c$")
+
+# Creation of the output directory
 if (NOT EXISTS "${YACCLAB_OUTPUT_RESULTS_PATH}")
         file(MAKE_DIRECTORY ${YACCLAB_OUTPUT_RESULTS_PATH})
 endif()
