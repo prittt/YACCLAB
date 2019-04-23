@@ -62,7 +62,7 @@ void SystemInfo::SetCpuBrand()
     cpu_ = { cpu_name };
 #elif defined(YACCLAB_WINDOWS)
     // Compiler independent, works on Windows
-    std::system("wmic cpu get name|more > cpu_name.txt");
+    std::system("wmic CPU get Name > cpu_name.txt");
     ifstream is("cpu_name.txt");
     if (!is.is_open()) {
         return;
@@ -75,7 +75,7 @@ void SystemInfo::SetCpuBrand()
 #elif defined(YACCLAB_LINUX) || defined(YACCLAB_UNIX)
     ifstream cpuinfo("/proc/cpuinfo");
     if (!cpuinfo.is_open()) {
-        cpu_ = "cpu_unknown";
+        return;
     }
     string cpu_name;
     while (getline(cpuinfo, cpu_name)) {
@@ -197,7 +197,21 @@ void SystemInfo::SetCompiler()
 #elif defined(_MSC_VER)
     /* Microsoft Visual Studio. --------------------------------- */
     compiler_name_ = "VS";
-    if (_MSC_VER >= 1910) //Visual Studio 2017, MSVC++ 15.0
+    if (_MSC_VER >= 1920) // Visual Studio 2019, MSVC++ 14.2
+        compiler_version_ = "16.0";
+    else if (_MSC_VER == 1916)
+        compiler_version_ = "15.9";
+    else if (_MSC_VER == 1915)
+        compiler_version_ = "15.8";
+    else if (_MSC_VER == 1914)
+        compiler_version_ = "15.7";
+    else if (_MSC_VER == 1913)
+        compiler_version_ = "15.6";
+    else if (_MSC_VER == 1912)
+        compiler_version_ = "15.5";
+    else if (_MSC_VER == 1911)
+        compiler_version_ = "15.3";
+    else if (_MSC_VER == 1910) // Visual Studio 2017, MSVC++ 14.1
         compiler_version_ = "15.0";
     else if (_MSC_VER == 1900)
         compiler_version_ = "14.0";
