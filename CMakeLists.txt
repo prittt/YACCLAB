@@ -40,10 +40,9 @@ set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Configs" FORCE)
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE PATH "Install prefix" FORCE)
 
 set(YACCLAB_DOWNLOAD_DATASET OFF CACHE BOOL "If flagged the YACCLAB dataset will be automatically downloaded")
-set(YACCLAB_INPUT_DATASET_PATH "${CMAKE_INSTALL_PREFIX}/input" CACHE PATH "'input' dataset path") 
-set(YACCLAB_OUTPUT_RESULTS_PATH "${CMAKE_INSTALL_PREFIX}/output" CACHE PATH "'output' results path") 
-set(YACCLAB_IS_TRAVIS_CI OFF CACHE INTERNAL BOOL "This variable is used to handle travis-ci parameters, do not change its value")
-
+set(YACCLAB_INPUT_DATASET_PATH "${CMAKE_INSTALL_PREFIX}/input" CACHE PATH "'input' dataset path")
+set(YACCLAB_OUTPUT_RESULTS_PATH "${CMAKE_INSTALL_PREFIX}/output" CACHE PATH "'output' results path")
+set(YACCLAB_IS_TRAVIS_CI OFF CACHE INTERNAL "This variable is used to handle travis-ci parameters, do not change its value")
 if(MSVC)
     set(CMAKE_USE_RELATIVE_PATHS ON CACHE INTERNAL "" FORCE)
 endif()
@@ -111,7 +110,7 @@ if(ENABLE_SOLUTION_FOLDERS)
 endif()
 
 # ----------------------------------------------------------------------------
-# OpenCV 
+# OpenCV
 # ----------------------------------------------------------------------------
 set(OpenCV_REQUIRED_PACKAGES "core;imgcodecs;imgproc" CACHE STRING "OpenCV packages required by YACCLAB are already set")
 FIND_PACKAGE(OpenCV REQUIRED ${OpenCV_REQUIRED_PACKAGES})
@@ -120,7 +119,7 @@ include_directories( ${OpenCV_INCLUDE_DIRS} )
 if(MSVC)
     if("${OpenCV_STATIC}" STREQUAL "ON" OR "${OpenCV_SHARED}" STREQUAL "OFF")
         message(STATUS "Setting static runtime for MSVC")
-        foreach(flag_var CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO) 
+        foreach(flag_var CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
             string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
         endforeach(flag_var)
     endif()
@@ -138,11 +137,10 @@ add_definitions(-DYACCLAB_OS="${YACCLAB_OS}")
 # YACCLAB Project
 # ----------------------------------------------------------------------------
 include_directories("${CMAKE_SOURCE_DIR}/include")
-
 add_definitions(-D_CRT_SECURE_NO_WARNINGS) #To suppress 'fopen' opencv warning/bug
- 
-# To set YACCLAB configuration file    
-if(YACCLAB_IS_TRAVIS_CI)    
+
+# To set YACCLAB configuration file
+if(YACCLAB_IS_TRAVIS_CI)
     configure_file("${CMAKE_SOURCE_DIR}/doc/config_travis.yaml" "${CMAKE_INSTALL_PREFIX}/config.yaml")
 else()
     configure_file("${CMAKE_SOURCE_DIR}/doc/config_base.yaml" "${CMAKE_INSTALL_PREFIX}/config.yaml")
@@ -151,9 +149,9 @@ endif()
 add_executable(YACCLAB "${CMAKE_INSTALL_PREFIX}/config.yaml")
 
 # Set YACCLAB as startup group instead of ALL_BUILD
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT YACCLAB) 
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT YACCLAB)
 
-target_link_libraries (YACCLAB  ${OpenCV_LIBS})
+target_link_libraries (YACCLAB ${OpenCV_LIBS})
 
 add_subdirectory(src)
 add_subdirectory(include)
@@ -166,14 +164,14 @@ source_group("Source Files" REGULAR_EXPRESSION "cc$|cpp$|c$")
 if (NOT EXISTS "${YACCLAB_OUTPUT_RESULTS_PATH}")
         file(MAKE_DIRECTORY ${YACCLAB_OUTPUT_RESULTS_PATH})
 endif()
-    
+
 # Download and unpack dataset if necessary
 if(YACCLAB_DOWNLOAD_DATASET)
     # Creation of input directory
     if (NOT EXISTS "${YACCLAB_INPUT_DATASET_PATH}")
         file(MAKE_DIRECTORY ${YACCLAB_INPUT_DATASET_PATH})
     endif()
-    
+
     if (EXISTS "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip")
         message(STATUS "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip already exists, download skipped!")
     else()
@@ -188,12 +186,12 @@ if(YACCLAB_DOWNLOAD_DATASET)
         else()
             message(STATUS "Downloading done.")
         endif()
-        
+
         if(EXISTS "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip")
             message(STATUS "Unpacking (it may take a while)...")
             execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${YACCLAB_INPUT_DATASET_PATH}/dataset.zip" WORKING_DIRECTORY "${YACCLAB_INPUT_DATASET_PATH}" OUTPUT_QUIET)
             message(STATUS "Unpacking done.")
         endif()
     endif()
-    
+
 endif()
