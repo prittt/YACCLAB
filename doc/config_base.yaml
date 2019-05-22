@@ -10,12 +10,12 @@
 
 # Kind of tests to execute
 perform:
-  correctness:        false
+  correctness:        true
   average:            true
   average_with_steps: true
   density:            true
   granularity:        true
-  memory:             false
+  memory:             true
 
 correctness_tests:
   eight_connectivity_standard: true
@@ -36,42 +36,46 @@ tests_number:
 algorithms:
 #  - SAUF_RemSP
 #  - SAUF_TTA
-  - SAUF_UFPC
-#  - SAUF_UF
-#  - BBDT_RemSP
+#  - SAUF_UFPC
+  - SAUF_UF
+  - BBDT_RemSP
 #  - BBDT_TTA
-  - BBDT_UFPC
+#  - BBDT_UFPC
 #  - BBDT_UF
 #  - CCIT_RemSP
 #  - CCIT_TTA
-  - CCIT_UFPC
+#  - CCIT_UFPC
 #  - CCIT_UF
-#  - CTB_RemSP
+  - CTB_RemSP
 #  - CTB_TTA
-  - CTB_UFPC
+#  - CTB_UFPC
 #  - CTB_UF
-#  - PRED_RemSP
+  - PRED_RemSP
 #  - PRED_TTA
-  - PRED_UFPC
+#  - PRED_UFPC
 #  - PRED_UF
-#  - DRAG_RemSP
+  - DRAG_RemSP
 #  - DRAG_TTA
-  - DRAG_UFPC
+#  - DRAG_UFPC
 #  - DRAG_UF
+  - Spaghetti_RemSP
+#  - Spaghetti_TTA
+#  - Spaghetti_UF
+#  - Spaghetti_UFPC
 #  - LSL_STD_TTA
 #  - LSL_STD_UF
 #  - LSL_STDZ_TTA
 #  - LSL_STDZ_UF
 #  - LSL_RLE_TTA
 #  - LSL_RLE_UF
-  - LSL_RLEZ_TTA
+#  - LSL_RLEZ_TTA
 #  - LSL_RLEZ_UF
-  - DiStefano
-  - CT
-  - SBLA
+#  - DiStefano
+#  - CT
+#  - SBLA
   - labeling_NULL
 
-# Algorithms which require to specify a labels solver are: SAUF, BBDT, CCIT, LSL, CTB, PRED, and DRAG
+# Algorithms which require to specify a labels solver are: SAUF, BBDT, CCIT, LSL, CTB, PRED, DRAG and Spaghetti
 # Possible labels solvers are: UF, UFPC, RemSP, TTA
 # LSL requires also a version specifier: STD, STDZ, RLE, RLEZ; only UF and TTA solvers can be used with LSL
 # Algorithms which don't require to specify a labels solver are: DiStefano, CT, SBLA, NULL

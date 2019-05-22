@@ -30,9 +30,6 @@ cmake_minimum_required(VERSION 3.13)
 
 project (YACCLAB)
 
-#Suppress creation of ZERO_CHECK
-#set(CMAKE_SUPPRESS_REGENERATION true)
-
 # ----------------------------------------------------------------------------
 #  YACCLAB and CMAKE variables
 # ----------------------------------------------------------------------------
@@ -139,11 +136,15 @@ add_definitions(-DYACCLAB_OS="${YACCLAB_OS}")
 include_directories("${CMAKE_SOURCE_DIR}/include")
 add_definitions(-D_CRT_SECURE_NO_WARNINGS) #To suppress 'fopen' opencv warning/bug
 
+SET_SOURCE_FILES_PROPERTIES("${CMAKE_SOURCE_DIR}/src/labeling_spaghetti.cc" PROPERTIES COMPILE_FLAGS "-O1")
+
 # To set YACCLAB configuration file
 if(YACCLAB_IS_TRAVIS_CI)
     configure_file("${CMAKE_SOURCE_DIR}/doc/config_travis.yaml" "${CMAKE_INSTALL_PREFIX}/config.yaml")
 else()
-    configure_file("${CMAKE_SOURCE_DIR}/doc/config_base.yaml" "${CMAKE_INSTALL_PREFIX}/config.yaml")
+	if (NOT EXISTS "${CMAKE_INSTALL_PREFIX}/config.yaml")
+		configure_file("${CMAKE_SOURCE_DIR}/doc/config_base.yaml" "${CMAKE_INSTALL_PREFIX}/config.yaml")
+	endif()
 endif()
 
 add_executable(YACCLAB "${CMAKE_INSTALL_PREFIX}/config.yaml")
