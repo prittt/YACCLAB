@@ -136,7 +136,7 @@ add_definitions(-DYACCLAB_OS="${YACCLAB_OS}")
 include_directories("${CMAKE_SOURCE_DIR}/include")
 add_definitions(-D_CRT_SECURE_NO_WARNINGS) #To suppress 'fopen' opencv warning/bug
 
-SET_SOURCE_FILES_PROPERTIES("${CMAKE_SOURCE_DIR}/src/labeling_spaghetti.cc" PROPERTIES COMPILE_FLAGS "-O1")
+SET_SOURCE_FILES_PROPERTIES("${CMAKE_SOURCE_DIR}/src/labeling_bolelli_2019.cc" PROPERTIES COMPILE_FLAGS "-O1")
 
 # To set YACCLAB configuration file
 if(YACCLAB_IS_TRAVIS_CI)
