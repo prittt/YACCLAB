@@ -29,14 +29,16 @@ GPU 2D 8-way connectivity:
   # -------------------------------------
   
   algorithms:
-    - C_SAUF
-    - C_BBDT
-    - C_DRAG
-    - OLE
+    - BUF_NoInlineCompression
+    - BUF
+    - BKE_NoInlineCompression
+    - BKE
     - BE
     - UF
-    - DLP
+    - OLE
+    - LBUF
     - KE
+    - DLP
 
   
   # Datasets to use for each test

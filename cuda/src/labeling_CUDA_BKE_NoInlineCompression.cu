@@ -243,10 +243,10 @@ namespace {
         unsigned labels_index = row * (labels.step / labels.elem_size) + col;
 
         if (row < labels.rows && col < labels.cols) {
-            //unsigned label = labels.data[labels_index];
-            //if (label < labels_index) {
-            labels[labels_index] = Find(labels.data, labels_index);
-            //}
+            unsigned label = labels.data[labels_index];
+            if (label < labels_index) {
+                labels[labels_index] = Find(labels.data, label);
+            }
         }
     }
 
@@ -300,7 +300,7 @@ namespace {
 
 }
 
-class BKE_NoInlineCompression : public GpuLabeling2D<CONN_8> {
+class BKE : public GpuLabeling2D<CONN_8> {
 private:
     dim3 grid_size_;
     dim3 block_size_;
@@ -308,7 +308,7 @@ private:
     bool last_pixel_allocated_;
 
 public:
-    BKE_NoInlineCompression() {}
+    BKE() {}
 
     void PerformLabeling() {
 
@@ -463,4 +463,5 @@ public:
 
 };
 
-REGISTER_LABELING(BKE_NoInlineCompression);
+REGISTER_LABELING(BKE);
+ 

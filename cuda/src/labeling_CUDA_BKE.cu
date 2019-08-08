@@ -48,10 +48,6 @@ namespace {
         bitmap |= (1 << static_cast<unsigned char>(pos));
     }
 
-    __device__ __forceinline__ void SetBit(unsigned char &bitmap, unsigned char pos) {
-        bitmap |= (1 << pos);
-    }
-
     // Risale alla radice dell'albero a partire da un suo nodo n
     __device__ unsigned Find(const int *s_buf, unsigned n) {
         while (s_buf[n] != n) {
@@ -308,7 +304,7 @@ namespace {
 
 }
 
-class BKE : public GpuLabeling2D<CONN_8> {
+class BKE_IC : public GpuLabeling2D<CONN_8> {
 private:
     dim3 grid_size_;
     dim3 block_size_;
@@ -316,7 +312,7 @@ private:
     bool last_pixel_allocated_;
 
 public:
-    BKE() {}
+    BKE_IC() {}
 
     void PerformLabeling() {
 
@@ -471,4 +467,4 @@ public:
 
 };
 
-REGISTER_LABELING(BKE);
+REGISTER_LABELING(BKE_IC);

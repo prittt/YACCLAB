@@ -162,14 +162,14 @@ namespace {
 		unsigned labels_index = row * (labels.step / labels.elem_size) + col;
 
 		if (row < labels.rows && col < labels.cols) {
-			//unsigned label = labels.data[labels_index];
-			//if (label < labels_index) {
-				labels[labels_index] = Find(labels.data, labels_index);
-			//}
+			unsigned label = labels.data[labels_index];
+			if (label < labels_index) {
+				labels[labels_index] = Find(labels.data, label);
+			}
 		}
 	}
 
-
+     
 	__global__ void FinalLabeling(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels) {
 
 		unsigned row = (blockIdx.y * BLOCK_ROWS + threadIdx.y) * 2;
@@ -217,13 +217,13 @@ namespace {
 
 }
 
-class BUF_NoInlineCompression : public GpuLabeling2D<CONN_8> {
+class BUF : public GpuLabeling2D<CONN_8> {
 private:
 	dim3 grid_size_;
 	dim3 block_size_;
 
 public:
-	BUF_NoInlineCompression() {}
+    BUF() {}
 
 	void PerformLabeling() {
 
@@ -329,4 +329,4 @@ public:
 
 };
 
-REGISTER_LABELING(BUF_NoInlineCompression);
+REGISTER_LABELING(BUF);

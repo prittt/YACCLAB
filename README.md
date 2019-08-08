@@ -155,7 +155,7 @@ Notes for gnuplot:
 
 
   <tr>
-    <td align="center" rowspan="7">GPU</td>
+    <td align="center" rowspan="9">GPU</td>
     <td align="center">Union Find</td>
     <td align="center">V. Oliveira,</br>R. Lotufo<sup><a href="#UF">[18]</a></sup></td>
     <td align="center">2010</td>
@@ -211,6 +211,24 @@ Notes for gnuplot:
     <td align="center"><i>labeling_CUDA_DRAG.cu</i></td>
     <td align="center">NO</td>
   </tr>
+  <tr>
+    <td align="center">Block-based Union Find</td>
+    <td align="center">S. Allegretti,</br>F. Bolelli,</br>C. Grana<sup><a href="#BUF_BKE">[24]</a></sup></td>
+    <td align="center">2019</td>
+    <td align="center">BUF</td>
+    <td align="center"><i>labeling_CUDA_BUF.cu</i></td>
+    <td align="center">NO</td>
+  </tr>
+    <tr>
+    <td align="center">Block-based Komura Equivalence</td>
+    <td align="center">S. Allegretti,</br>F. Bolelli,</br>C. Grana<sup><a href="#BUF_BKE">[24]</a></sup></td>
+    <td align="center">2019</td>
+    <td align="center">BKE</td>
+    <td align="center"><i>labeling_CUDA_BKE.cu</i></td>
+    <td align="center">NO</td>
+  </tr>
+
+
 </table>
 
 (<small>I</small>) standard version </br>
@@ -851,8 +869,8 @@ recognition. Springer Science & Business Media, 2009.</em></p>
 <p align="justify"><em><a name="BE">[20]</a> S. Zavalishin, I. Safonov, Y. Bekhtin, I. Kurilin, Block Equivalence Algorithm for Labeling 2D and 3D Images on GPU, in Electronic Imaging 2016(2), 1–7, 2016.</em></p>
 <p align="justify"><em><a name="DLP">[21]</a> L. Cabaret, L. Lacassagne, D. Etiemble, Distanceless Label Propagation: an Efficient Direct Connected Component Labeling Algorithm for GPUs, in Seventh
 International Conference on Image Processing Theory, Tools and Applications, IPTA, 2017.</em></p>
-<p align="justify"><em><a name="KE">[22]</a>S. Allegretti, F. Bolelli, M. Cancilla, C. Grana, Optimizing GPU-Based Connected Components Labeling Algorithms, in Third IEEE International Conference
+<p align="justify"><em><a name="KE">[22]</a> S. Allegretti, F. Bolelli, M. Cancilla, C. Grana, Optimizing GPU-Based Connected Components Labeling Algorithms, in Third IEEE International Conference
 on Image Processing, Applications and Systems, IPAS, 2018.</em></p>
-<p align="justify"><em><a name="DRAG">[23]</a>F. Bolelli, L. Baraldi, M. Cancilla, C. Grana, Connected Components Labeling
+<p align="justify"><em><a name="DRAG">[23]</a> F. Bolelli, L. Baraldi, M. Cancilla, C. Grana, Connected Components Labeling
 on DRAGs, in International Conference on Pattern Recognition, 2018.</em></p>
-
+<p align="justify"><em><a name="BUF_BKE">[24]</a> S. Allegretti, F. Bolelli, C. Grana, Optimized Block-Based Algorithms to Label Connected Components on GPUs, in IEEE Transactions on Parallel and Distributed Systems, 2019.</em></p>

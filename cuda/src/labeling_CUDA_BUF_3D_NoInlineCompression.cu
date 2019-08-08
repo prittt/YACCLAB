@@ -440,7 +440,7 @@ namespace {
 
 }
 
-class BUF_3D_NoInlineCompression : public GpuLabeling3D<CONN_26> {
+class BUF_3D : public GpuLabeling3D<CONN_26> {
 private:
     dim3 grid_size_;
     dim3 block_size_;
@@ -448,7 +448,7 @@ private:
     bool allocated_last_cude_fg_;
 
 public:
-    BUF_3D_NoInlineCompression() {}
+    BUF_3D() {}
 
     void PerformLabeling() {
 
@@ -594,4 +594,4 @@ public:
 
 };
 
-REGISTER_LABELING(BUF_3D_NoInlineCompression);
+REGISTER_LABELING(BUF_3D);

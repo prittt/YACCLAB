@@ -36,6 +36,15 @@ namespace {
 		return n;
 	}
 
+    __device__ unsigned FindAndCompress(int *s_buf, unsigned n) {
+        unsigned id = n;
+        while (s_buf[n] != n) {
+            n = s_buf[n];
+            s_buf[id] = n;
+        }
+        return n;
+    }
+
 	// Unisce gli alberi contenenti i nodi a e b, collegandone le radici
 	__device__ void Union(int *s_buf, unsigned a, unsigned b) {
 
@@ -412,20 +421,17 @@ namespace {
 		}
 	}
 
-	__global__ void PathCompression(cuda::PtrStepSz3i labels) {
+    __global__ void PathCompression(cuda::PtrStepSz3i labels) {
 
-		unsigned x = 2 * (blockIdx.x * BLOCK_X + threadIdx.x);
-		unsigned y = 2 * (blockIdx.y * BLOCK_Y + threadIdx.y);
-		unsigned z = 2 * (blockIdx.z * BLOCK_Z + threadIdx.z);
-		unsigned labels_index = z * (labels.stepz / labels.elem_size) + y * (labels.stepy / labels.elem_size) + x;
+        unsigned x = 2 * (blockIdx.x * BLOCK_X + threadIdx.x);
+        unsigned y = 2 * (blockIdx.y * BLOCK_Y + threadIdx.y);
+        unsigned z = 2 * (blockIdx.z * BLOCK_Z + threadIdx.z);
+        unsigned labels_index = z * (labels.stepz / labels.elem_size) + y * (labels.stepy / labels.elem_size) + x;
 
-		if (x < labels.x && y < labels.y && z < labels.z) {
-			int val = labels[labels_index];
-			if (val < labels_index) {
-				labels[labels_index] = Find(labels.data, val);
-			}
-		}
-	}
+        if (x < labels.x && y < labels.y && z < labels.z) {
+            FindAndCompress(labels.data, labels_index);
+        }
+    }
 
 
 	__global__ void FinalLabeling(const cuda::PtrStepSz3b img, cuda::PtrStepSz3i labels) {
@@ -513,7 +519,7 @@ namespace {
 
 }
 
-class BKE_3D : public GpuLabeling3D<CONN_26> {
+class BKE_IC_3D : public GpuLabeling3D<CONN_26> {
 private:
 	dim3 grid_size_;
 	dim3 block_size_;
@@ -521,7 +527,7 @@ private:
 	bool allocated_last_conn_;
 
 public:
-	BKE_3D() {}
+	BKE_IC_3D() {}
 
 	void PerformLabeling() {
 
@@ -677,4 +683,4 @@ public:
 
 };
 
-REGISTER_LABELING(BKE_3D);
+REGISTER_LABELING(BKE_IC_3D);
