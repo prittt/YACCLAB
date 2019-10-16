@@ -130,10 +130,18 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Directed Rooted Acyclic Graph</td>
-    <td align="center">F. Bolelli,</br>L. Baraldi,</br>C. Grana <sup><a href="#DRAG">[19]</a></sup></td>
+    <td align="center">F. Bolelli,</br>L. Baraldi,</br>M. Cancilla,</br>C. Grana <sup><a href="#DRAG">[19]</a></sup></td>
     <td align="center">2018</td>
     <td align="center">DRAG</td>
     <td align="center"><i>labeling_bolelli_2018.h</i>, <i>labeling_grana_2018_drag.inc</i></td>
+    <td align="center">YES</td>
+  </tr>
+  <tr>
+    <td align="center">Spaghetti Labeling</td>
+    <td align="center">F. Bolelli,</br>S. Allegretti,</br>L. Baraldi,</br>C. Grana <sup><a href="#Spaghetti">[20]</a></sup></td>
+    <td align="center">2019</td>
+    <td align="center">Spaghetti</td>
+    <td align="center"><i>labeling_bolelli_2019.h</i>, <i>labeling_bolelli_2019_forest.inc</i>, <i>labeling_bolelli_2019_forest_firstline.inc</i>, <i>labeling_bolelli_2019_forest_lastline.inc</i>, <i>labeling_bolelli_2019_forest_singleline.inc</i></td>
     <td align="center">YES</td>
   </tr>
   <tr>
@@ -773,3 +781,5 @@ recognition. Springer Science & Business Media, 2009.</em></p>
 <p align="justify"><em><a name="YACCLAB">[17]</a> C.Grana, F.Bolelli, L.Baraldi, and R.Vezzani, YACCLAB - Yet Another Connected Components Labeling Benchmark, Proceedings of the 23rd International Conference on Pattern Recognition, Cancun, Mexico, 4-8 Dec 2016.</em></p>
 <p align="justify"><em><a name="YACCLAB_JRTIP">[18]</a> Bolelli, Federico; Cancilla, Michele; Baraldi, Lorenzo; Grana, Costantino "Towards Reliable Experiments on the Performance of Connected Components Labeling Algorithms" Journal of Real-Time Image Processing, 2018.</em></p>
 <p align="justify"><em><a name="DRAG">[19]</a> Bolelli, Federico; Baraldi, Lorenzo; Cancilla, Michele; Grana, Costantino "Connected Components Labeling on DRAGs" Proceedings of the 23rd International Conference on Pattern Recognition, Beijing, China, 20-24 Aug 2018.</em></p>
+<p align="justify"><em><a name="Spaghetti">[20]</a> Bolelli, Federico; Allegretti Stefano; Baraldi, Lorenzo; Grana, Costantino "Spaghetti Labeling: Directed Acyclic Graphs for Block-Based Connected Components Labeling" IEEE Transactions on Image Processing, 2019.</em></p>
+
