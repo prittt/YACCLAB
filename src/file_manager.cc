@@ -48,7 +48,25 @@ const char filesystem::path::separator_ =
 
 bool filesystem::exists(const path& p)
 {
-    struct stat info;
+	struct stat info;
+	string s = p.string();
+	const char* path_to_check = s.c_str();
+	if (stat(path_to_check, &info) != 0) {
+		//printf("cannot access %s\n", pathname);
+		return false;
+	}
+	else if (info.st_mode & S_IFDIR) {
+		//printf("%s is a directory\n", pathname);
+		return true; // is directory
+	}
+
+	//printf("%s is no directory\n", pathname);
+	return true; // is file
+}
+
+bool filesystem::exists(const path& p, bool &is_dir)
+{
+	struct stat info;
     string s = p.string();
     const char* path_to_check = s.c_str();
     if (stat(path_to_check, &info) != 0) {
@@ -57,16 +75,23 @@ bool filesystem::exists(const path& p)
     }
     else if (info.st_mode & S_IFDIR) {
         //printf("%s is a directory\n", pathname);
+		is_dir = true;
         return true; // is directory
     }
 
     //printf("%s is no directory\n", pathname);
+	is_dir = false;
     return true; // is file
 }
 
 bool filesystem::exists(const path& p, error_code& ec)
 {
     return filesystem::exists(p);
+}
+
+bool filesystem::exists(const path& p, error_code& ec, bool& is_dir)
+{
+	return filesystem::exists(p, is_dir);
 }
 
 bool filesystem::create_directories(const path& p)

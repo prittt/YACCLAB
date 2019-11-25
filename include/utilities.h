@@ -38,7 +38,7 @@
 extern const std::string kTerminal;
 extern const std::string kTerminalExtension;
 
-extern struct ConfigData cfg;
+// extern struct ConfigData cfg;
 
 namespace dmux {
     extern class StreamDemultiplexer cout;
@@ -69,19 +69,25 @@ std::string GetDatetimeWithoutSpecialChars();
 
 // Create a bunch of pseudo random colors from labels indexes and create a
 // color representation for the labels
-void ColorLabels(const cv::Mat1i& img_labels, cv::Mat3b& img_out);
-
-// This function may be useful to compare the output of different labeling procedures
-// which may assign different labels to the same object. Use this to force a row major
-// ordering of labels.
-void NormalizeLabels(cv::Mat1i& img_labels);
-
-// Get binary image given a image's filename;
-bool GetBinaryImage(const std::string& filename, cv::Mat1b& binary_mat);
-bool GetBinaryImage(const filesystem::path& p, cv::Mat1b& binary_mat);
+//void ColorLabels(const cv::Mat1i& img_labels, cv::Mat3b& img_out);
+//void ColorLabels(const cv::Mat& img_labels, cv::Mat& img_out);
+//
+//// This function may be useful to compare the output of different labeling procedures
+//// which may assign different labels to the same object. Use this to force a row major
+//// ordering of labels.
+//void NormalizeLabels(cv::Mat1i& img_labels);
+//void NormalizeLabels(cv::Mat& img_labels);
+//
+//// Get binary image given a image's filename;
+//bool GetBinaryImage(const std::string& filename, cv::Mat& binary_mat);
+//bool GetBinaryImage(const filesystem::path& p, cv::Mat& binary_mat);
 
 // Compare two int matrices element by element
-bool CompareMat(const cv::Mat1i& mat_a, const cv::Mat1i& mat_b);
+//bool CompareMat(const cv::Mat& mat_a, const cv::Mat& mat_b);
+
+//void Divide(cv::Mat& mat);
+
+bool CheckLabeledVolume(const cv::Mat& img, const cv::Mat& labels, cv::Mat& errors);
 
 /*@brief Read bool from YAML configuration file
 
@@ -99,7 +105,15 @@ int RedirectCvError(int status, const char* func_name, const char* err_msg, cons
 @brief Return the string title to insert in gnuplot charts
 @return string which represents the title
 */
-std::string GetGnuplotTitle(ConfigData& cfg);
+//std::string GetGnuplotTitle(const SystemInfo& s_info);
+//
+//#if defined YACCLAB_WITH_CUDA
+//std::string GetGnuplotTitleGpu(const SystemInfo& s_info);
+//#endif
+std::string GetGnuplotTitle();
+#if defined YACCLAB_WITH_CUDA
+std::string GetGnuplotTitleGpu();
+#endif
 
 std::string EscapeUnderscore(const std::string& s);
 std::string DoubleEscapeUnderscore(const std::string& s);

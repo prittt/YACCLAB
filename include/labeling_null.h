@@ -35,7 +35,7 @@
 #include "labels_solver.h"
 #include "memory_tester.h"
 
-class labeling_NULL : public Labeling {
+class labeling_NULL : public Labeling2D<CONN_8> {
 public:
 
     void PerformLabeling()

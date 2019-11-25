@@ -1,4 +1,4 @@
-// Copyright(c) 2016 - 2019 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
+// Copyright(c) 2016 - 2018 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -58,9 +58,9 @@ public:
 
     ProgressBar() {}
 
-    ProgressBar(const unsigned n_things_todo,
-        const unsigned gap = 4,
-        const unsigned console_width = 70,
+    ProgressBar(const size_t n_things_todo,
+        const size_t gap = 4,
+        const size_t console_width = 70,
         const std::string pre_message = "",
         const std::string post_message = "")
     {
@@ -72,14 +72,14 @@ public:
         pre_message_ = pre_message;
         post_message_ = post_message;
 
-        bar_width_ = console_width_ - static_cast<unsigned>(pre_message_.size()) - static_cast<unsigned>(post_message_.size()) - 5 /* 100%*/ - 2 /*[]*/;
+        bar_width_ = console_width_ - pre_message_.size() - post_message_.size() - 5 /* 100%*/ - 2 /*[]*/;
     }
 
     void Start()
     {
         dmux::cout << pre_message_;
         dmux::cout << "[>";
-        for (unsigned i = 0; i < bar_width_ - 1; ++i) {
+        for (size_t i = 0; i < bar_width_ - 1; ++i) {
             dmux::cout << " ";
         }
         dmux::cout << "]   0%";
@@ -93,8 +93,8 @@ public:
         if (progress < n_things_todo_ && prev_ == (gap_ - 1)) {
             std::cout << pre_message_;
             std::cout << "[";
-            unsigned pos = bar_width_ * progress / n_things_todo_;
-            for (unsigned i = 0; i < bar_width_; ++i) {
+            size_t pos = bar_width_ * progress / n_things_todo_;
+            for (size_t i = 0; i < bar_width_; ++i) {
                 if (i < pos) std::cout << "=";
                 else if (i == pos) std::cout << ">";
                 else std::cout << " ";
@@ -114,7 +114,7 @@ public:
     {
         dmux::cout << pre_message_;
         dmux::cout << "[";
-        for (unsigned i = 0; i < bar_width_; ++i) {
+        for (size_t i = 0; i < bar_width_; ++i) {
             dmux::cout << "=";
         }
         dmux::cout << "] 100%";
@@ -124,10 +124,10 @@ public:
         prev_ = 0;
     }
 
-    ProgressBar(const unsigned n_things_todo,
+    ProgressBar(const size_t n_things_todo,
         const unsigned n_tests /*min 1 - max 999*/,
-        const unsigned gap = 4,
-        const unsigned console_width = 70,
+        const size_t gap = 4,
+        const size_t console_width = 70,
         const std::string pre_message = "",
         const std::string post_message = "")
     {
@@ -140,8 +140,8 @@ public:
         post_message_ = post_message;
 
         n_tests_ = n_tests;
-        n_tests_length_ = static_cast<unsigned>(std::to_string(n_tests).length());
-        bar_width_ = console_width_ - static_cast<unsigned>(pre_message_.size()) - static_cast<unsigned>(post_message_.size()) - 5 /* 100%*/ - 2 /*[]*/ - 5 /*Test */ - (n_tests_length_*2 + 1) /*102/999*/ - 3 /* - */;
+        n_tests_length_ = std::to_string(n_tests).length();
+        bar_width_ = console_width_ - pre_message_.size() - post_message_.size() - 5 /* 100%*/ - 2 /*[]*/ - 5 /*Test */ - (n_tests_length_*2 + 1) /*102/999*/ - 3 /* - */;
     }
 
     void StartRepeated()
@@ -149,7 +149,7 @@ public:
         dmux::cout << pre_message_ << "test " << std::setfill(' ') << std::setw(n_tests_length_) << cur_test_;
         dmux::cout << "/" << n_tests_ << " - ";
         dmux::cout << "[>";
-        for (unsigned i = 0; i < bar_width_ - 1; ++i) {
+        for (size_t i = 0; i < bar_width_ - 1; ++i) {
             dmux::cout << " ";
         }
         dmux::cout << "]   0%";
@@ -164,8 +164,8 @@ public:
             std::cout << pre_message_ << "test " << std::setfill(' ') << std::setw(n_tests_length_) << cur_test_;
             std::cout << "/" << n_tests_ << " - ";
             std::cout << "[";
-            unsigned pos = bar_width_ * progress / n_things_todo_;
-            for (unsigned i = 0; i < bar_width_; ++i) {
+            size_t pos = bar_width_ * progress / n_things_todo_;
+            for (size_t i = 0; i < bar_width_; ++i) {
                 if (i < pos) std::cout << "=";
                 else if (i == pos) std::cout << ">";
                 else std::cout << " ";
@@ -186,7 +186,7 @@ public:
         dmux::cout << pre_message_ << "test " << std::setfill(' ') << std::setw(n_tests_length_) << cur_test_;
         dmux::cout << "/" << n_tests_ << " - ";
         dmux::cout << "[";
-        for (unsigned i = 0; i < bar_width_; ++i) {
+        for (size_t i = 0; i < bar_width_; ++i) {
             dmux::cout << "=";
         }
         dmux::cout << "] 100%";
@@ -203,16 +203,16 @@ public:
 }
 
 private:
-    unsigned prev_;
-    unsigned n_things_todo_;
-    unsigned gap_;
-    unsigned bar_width_;
-    unsigned console_width_;
+    size_t prev_;
+    size_t n_things_todo_;
+    size_t gap_;
+    size_t bar_width_;
+    size_t console_width_;
     std::string post_message_;
     std::string pre_message_;
 
-    unsigned n_tests_;
-    unsigned n_tests_length_;
+    size_t n_tests_;
+    size_t n_tests_length_;
     unsigned cur_test_ = 1;
 };
 
@@ -223,7 +223,7 @@ class OutputBox {
 public:
 
     OutputBox(const std::string& title = "", 
-        const unsigned bar_width = CONSOLE_WIDTH,
+        const unsigned bar_width = CONSOLE_WIDTH, 
         const unsigned pre_spaces = 2)
     {
         pre_spaces_ = pre_spaces;
@@ -246,11 +246,11 @@ public:
         }
     }
 
-    void StartUnitaryBox(const std::string &dataset_name, const unsigned n_things_todo)
+    void StartUnitaryBox(const std::string &dataset_name, const size_t n_things_todo)
     {
         PrintData(dataset_name + ":");
         std::string complete_pre_message = std::string(pre_spaces_, ' ') + "|  ";
-        pb = ProgressBar(n_things_todo, 4, bar_width_ + pre_spaces_, complete_pre_message, " |");
+        pb = ProgressBar(n_things_todo, 1, bar_width_ + pre_spaces_, complete_pre_message, " |");
         pb.Start();
     }
 
@@ -386,9 +386,8 @@ private:
         for (unsigned i = 0; i < data.length(); i += step) {
             if (i == 0) {
                 PrintRawData(data.substr(i, step));
-                unsigned tab_size = static_cast<unsigned>(tab.size());
-                i += tab_size;
-                step -= tab_size;
+                i += static_cast<int>(tab.size());
+                step -= static_cast<unsigned>(tab.size());
             }
             else {
                 PrintRawData(tab + data.substr(i, step));
