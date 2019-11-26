@@ -1,4 +1,4 @@
-#include "tests_performer.h"
+#include "yacclab_tests.h"
 
 #include <cstdint>
 
@@ -8,7 +8,7 @@
 #include "memory_tester.h"
 
 
-void TestsPerformer::InitialOperations() {
+void YacclabTests::InitialOperations() {
 
     ob_ = OutputBox(mode_cfg_.mode + " - Performing initial operations");
 
@@ -34,7 +34,7 @@ void TestsPerformer::InitialOperations() {
     ob_.CloseBox();
 }
 
-void TestsPerformer::CheckAlgorithmsExistence(){
+void YacclabTests::CheckAlgorithmsExistence(){
 	for (auto& algo_name : mode_cfg_.ccl_algorithms) {
 		if (!LabelingMapSingleton::Exists(algo_name)) {
 			ob_.Cwarning("Unable to find the algorithm '" + algo_name + "'");
@@ -45,7 +45,7 @@ void TestsPerformer::CheckAlgorithmsExistence(){
 	}
 }
 
-void TestsPerformer::CheckMethodsExistence() {
+void YacclabTests::CheckMethodsExistence() {
 
 	for (const auto& algo_name : mode_cfg_.ccl_existing_algorithms) {
 		const auto& algorithm = LabelingMapSingleton::GetLabeling(algo_name);
@@ -168,7 +168,7 @@ public:
 		return exists_one_dataset;
 	}
 };
-void TestsPerformer::CheckDatasets() {
+void YacclabTests::CheckDatasets() {
 
 	std::vector<std::string> ds;
 	if (mode_cfg_.perform_correctness) {
@@ -217,7 +217,7 @@ void TestsPerformer::CheckDatasets() {
 
 }
 
-void TestsPerformer::CreateDirectories() {
+void YacclabTests::CreateDirectories() {
 
 	if (mode_cfg_.perform_average || mode_cfg_.perform_average_ws || mode_cfg_.perform_density || mode_cfg_.perform_memory || mode_cfg_.perform_granularity) {
 		// Set and create current output directory
@@ -236,7 +236,7 @@ void TestsPerformer::CreateDirectories() {
 // Load a list of image names from a specified file (files_path) and store them into a vector of
 // pairs (filenames). Each pairs contains the name of the file (first) and a bool (second)
 // representing file state.
-bool TestsPerformer::LoadFileList(std::vector<std::pair<std::string, bool>>& filenames, const path& files_path) {
+bool YacclabTests::LoadFileList(std::vector<std::pair<std::string, bool>>& filenames, const path& files_path) {
 
 	// Open files_path (files.txt)
 	std::ifstream is(files_path.string());
@@ -258,7 +258,7 @@ bool TestsPerformer::LoadFileList(std::vector<std::pair<std::string, bool>>& fil
 
 // Check if all the files in a list of pair (filename, state) exists and set the state of every file
 // opportunely. The function returns true if all the files exist, false otherwise.
-bool TestsPerformer::CheckFileList(const path& base_path, std::vector<std::pair<std::string, bool>>& filenames)
+bool YacclabTests::CheckFileList(const path& base_path, std::vector<std::pair<std::string, bool>>& filenames)
 {
 	bool ret = true;
 	for (size_t i = 0; i < filenames.size(); ++i) {
@@ -272,7 +272,7 @@ bool TestsPerformer::CheckFileList(const path& base_path, std::vector<std::pair<
 }
 
 // This function take a Mat1d of results and save it in the  specified output-stream
-bool TestsPerformer::SaveBroadOutputResults(std::map<std::string, cv::Mat1d>& results, const std::string& o_filename, const cv::Mat1i& labels, 
+bool YacclabTests::SaveBroadOutputResults(std::map<std::string, cv::Mat1d>& results, const std::string& o_filename, const cv::Mat1i& labels, 
 	const std::vector<std::pair<std::string, bool>>& filenames, const std::vector<std::string>& ccl_algorithms) {
 	std::ofstream os(o_filename);
 	if (!os.is_open()) {
@@ -320,7 +320,7 @@ bool TestsPerformer::SaveBroadOutputResults(std::map<std::string, cv::Mat1d>& re
 	return true;
 }
 
-bool TestsPerformer::SaveBroadOutputResults(const cv::Mat1d& results, const std::string& o_filename, const cv::Mat1i& labels, 
+bool YacclabTests::SaveBroadOutputResults(const cv::Mat1d& results, const std::string& o_filename, const cv::Mat1i& labels, 
 	const std::vector<std::pair<std::string, bool>>& filenames, const std::vector<std::string>& ccl_algorithms) {
 	std::ofstream os(o_filename);
 	if (!os.is_open()) {
@@ -349,7 +349,7 @@ bool TestsPerformer::SaveBroadOutputResults(const cv::Mat1d& results, const std:
 }
 
 // To calculate average times and write it on the specified file
-void TestsPerformer::SaveAverageWithStepsResults(const std::string& os_name, const std::string& dataset_name, bool rounded) {
+void YacclabTests::SaveAverageWithStepsResults(const std::string& os_name, const std::string& dataset_name, bool rounded) {
 	std::ofstream os(os_name);
 	if (!os.is_open()) {
 		dmux::cout << "Unable to save average results" << '\n';
@@ -404,7 +404,7 @@ void TestsPerformer::SaveAverageWithStepsResults(const std::string& os_name, con
 	os.close();
 }
 
-void TestsPerformer::AverageTest() {
+void YacclabTests::AverageTest() {
 	OutputBox ob(mode_cfg_.mode + " Average Test");
 
 	std::string complete_results_suffix = "_results.txt",
@@ -667,7 +667,7 @@ void TestsPerformer::AverageTest() {
 	// LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_average_algorithms[0])->ReleaseInput();
 }
 
-void TestsPerformer::AverageTestWithSteps() {
+void YacclabTests::AverageTestWithSteps() {
 	// Initialize output message box
 	OutputBox ob(mode_cfg_.mode + " Average Test With Steps");
 
@@ -943,7 +943,7 @@ void TestsPerformer::AverageTestWithSteps() {
 	// LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_average_ws_algorithms[0])->ReleaseInput();
 }
 
-void TestsPerformer::DensityTest() {
+void YacclabTests::DensityTest() {
 	OutputBox ob(mode_cfg_.mode + " Density Test");
 
 	std::string complete_results_suffix = "_results.txt",
@@ -1374,7 +1374,7 @@ void TestsPerformer::DensityTest() {
 	// LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_average_algorithms[0])->ReleaseInput();
 }
 
-void TestsPerformer::GranularityTest() {
+void YacclabTests::GranularityTest() {
 
     constexpr uint8_t kGranularities2D = 16;
     constexpr uint8_t kSamples2D = 10;
@@ -1697,7 +1697,7 @@ void TestsPerformer::GranularityTest() {
 	// LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_average_algorithms[0])->ReleaseInput();
 }
 
-void TestsPerformer::MemoryTest() {
+void YacclabTests::MemoryTest() {
 	// Initialize output message box
 	OutputBox ob(mode_cfg_.mode + " Memory Test");
 
@@ -1818,7 +1818,7 @@ void TestsPerformer::MemoryTest() {
 	os.close();
 }
 
-void TestsPerformer::LatexGenerator() {
+void YacclabTests::LatexGenerator() {
 	OutputBox ob("Generation of Latex file/s for mode " + mode_cfg_.mode);
 	path latex = glob_cfg_.glob_output_path / mode_cfg_.mode_output_path / glob_cfg_.latex_path / path(glob_cfg_.latex_file);
 	std::ofstream os(latex.string());

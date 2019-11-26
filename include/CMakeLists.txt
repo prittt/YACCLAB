@@ -1,9 +1,6 @@
 target_sources(YACCLAB
     PRIVATE
-        stream_demultiplexer.h
-        system_info.h
-        utilities.h
-        yacclab_tests.h
+        check_labeling.h
         config_data.h
         file_manager.h
         labeling_algorithms.h
@@ -25,6 +22,7 @@ target_sources(YACCLAB
         labeling_he_2014_graph.inc
         labeling_lacassagne_2016.h
         labeling_lacassagne_2016_code.inc
+        labeling_naive_3D.h
         labeling_null.h
         labeling_wu_2009.h
         labeling_wu_2009_tree.inc
@@ -37,4 +35,10 @@ target_sources(YACCLAB
         performance_evaluator.h
         progress_bar.h
         register.h
+        stream_demultiplexer.h
+        system_info.h
+        yacclab_tests.h
+        utilities.h
+        volume_util.h
+        yacclab_tensor.h
 )

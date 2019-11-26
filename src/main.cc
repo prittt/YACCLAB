@@ -40,14 +40,13 @@
 #include "config_data.h"
 #include "file_manager.h"
 #include "labeling_algorithms.h"
-#include "latex_generator.h"
 #include "memory_tester.h"
 #include "performance_evaluator.h"
 #include "progress_bar.h"
 #include "stream_demultiplexer.h"
 #include "system_info.h"
 #include "utilities.h"
-#include "tests_performer.h"
+#include "yacclab_tests.h"
 
 
 using namespace std;
@@ -106,7 +105,7 @@ int main()
 
 	for (auto &mode_cfg : cfg.mode_config_vector) {
 
-		TestsPerformer test_perf = TestsPerformer(mode_cfg, cfg.global_config, ec);
+		YacclabTests test_perf = YacclabTests(mode_cfg, cfg.global_config, ec);
 
         test_perf.InitialOperations();
 

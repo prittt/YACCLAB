@@ -26,7 +26,7 @@
 # OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.8.2)
+cmake_minimum_required(VERSION 3.13.0)
 
 
 # ----------------------------------------------------------------------------
@@ -232,13 +232,17 @@ target_link_libraries (${ProjectName}  ${OpenCV_LIBS})
 
 add_subdirectory(src)
 add_subdirectory(include)
-add_subdirectory(cuda)
+if(YACCLAB_ENABLE_CUDA AND CMAKE_CUDA_COMPILER)
+    add_subdirectory(cuda/src)
+    add_subdirectory(cuda/include)
+endif()
 
 source_group("Include Files" REGULAR_EXPRESSION "inc$")
 source_group("Header Files" REGULAR_EXPRESSION "h$|hpp$")
 source_group("Source Files" REGULAR_EXPRESSION "cc$|cpp$|c$")
-source_group("Cuda Files" REGULAR_EXPRESSION "cu$")
-
+if(YACCLAB_ENABLE_CUDA AND CMAKE_CUDA_COMPILER)
+    source_group("Cuda Files" REGULAR_EXPRESSION "cu$")
+endif()
 # Creation of the output directory
 if (NOT EXISTS "${YACCLAB_OUTPUT_RESULTS_PATH}")
 		file(MAKE_DIRECTORY ${YACCLAB_OUTPUT_RESULTS_PATH})

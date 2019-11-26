@@ -45,7 +45,7 @@
 
 using namespace filesystem;
 
-class TestsPerformer {
+class YacclabTests {
 
 private:
 	OutputBox ob_;
@@ -61,7 +61,7 @@ private:
 	std::map<std::string, cv::Mat1d> memory_accesses_; // String for dataset_name, Mat1d for memory accesses
 
 public:
-	TestsPerformer(ModeConfig &mode_cfg, GlobalConfig &glob_cfg, std::error_code &ec) : 
+	YacclabTests(ModeConfig &mode_cfg, GlobalConfig &glob_cfg, std::error_code &ec) : 
 		mode_cfg_(mode_cfg), glob_cfg_(glob_cfg), ec_(ec), output_path(glob_cfg.glob_output_path / mode_cfg.mode_output_path) {}
 
 	void CheckPerformLabeling() {
@@ -87,7 +87,7 @@ public:
 	void MemoryTest();
 	void LatexGenerator();
 
-    ~TestsPerformer() {
+    ~YacclabTests() {
         LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_existing_algorithms[0])->GetInput()->Release();
     }
 
@@ -217,22 +217,22 @@ private:
 	}
 };
 
-//using TestsPerfPtr = std::unique_ptr<TestsPerformer>;
+//using TestsPerfPtr = std::unique_ptr<YacclabTests>;
 //
-//TestsPerfPtr TestsPerformerFactory(ModeConfig mode_cfg, GlobalConfig glob_cfg, std::error_code& ec) {
+//TestsPerfPtr YacclabTestsFactory(ModeConfig mode_cfg, GlobalConfig glob_cfg, std::error_code& ec) {
 //	TestsPerfPtr ptr;
 //	if (mode_cfg.mode == "2D_CPU") {
-//		ptr = std::make_unique<TestsPerformer>(mode_cfg, glob_cfg, ec);
+//		ptr = std::make_unique<YacclabTests>(mode_cfg, glob_cfg, ec);
 //	}
 //	else if (mode_cfg.mode == "3D_CPU") {
-//		ptr = std::make_unique<TestsPerformer>(mode_cfg, glob_cfg, ec);
+//		ptr = std::make_unique<YacclabTests>(mode_cfg, glob_cfg, ec);
 //	}
 //#if defined YACCLAB_WITH_CUDA
 //	else if (mode_cfg.mode == "2D_GPU") {
-//		ptr = std::make_unique<TestsPerformer>(mode_cfg, glob_cfg, ec);
+//		ptr = std::make_unique<YacclabTests>(mode_cfg, glob_cfg, ec);
 //	}
 //	else if (mode_cfg.mode == "3D_GPU") {
-//		ptr = std::make_unique<TestsPerformer>(mode_cfg, glob_cfg, ec);
+//		ptr = std::make_unique<YacclabTests>(mode_cfg, glob_cfg, ec);
 //	}
 //#endif
 //	else ptr = nullptr;

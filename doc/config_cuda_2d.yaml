@@ -9,7 +9,7 @@ GPU 2D 8-way connectivity:
   perform: 
     correctness:        true
     average:            true
-    average_with_steps: true
+    average_with_steps: false
     density:            false
     granularity:        true
     memory:             false
@@ -29,9 +29,7 @@ GPU 2D 8-way connectivity:
   # -------------------------------------
   
   algorithms:
-    - BUF_NoInlineCompression
     - BUF
-    - BKE_NoInlineCompression
     - BKE
     - BE
     - UF

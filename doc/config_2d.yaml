@@ -1,7 +1,7 @@
 
 CPU 2D 8-way connectivity:
 
-  execute: false
+  execute: true
   
   # Tests to perform and their number of repetitions
   # ------------------------------------------------
@@ -53,6 +53,10 @@ CPU 2D 8-way connectivity:
   #  - DRAG_TTA
     - DRAG_UFPC
   #  - DRAG_UF
+  #  - Spaghetti_RemSP
+  #  - Spaghetti_TTA
+    - Spaghetti_UFPC
+  #  - Spaghetti_UF
   #  - LSL_STD_TTA
   #  - LSL_STD_UF
   #  - LSL_STDZ_TTA
@@ -66,7 +70,7 @@ CPU 2D 8-way connectivity:
   #  - SBLA
   #  - labeling_NULL
   
-  # Algorithms which require to specify a labels solver are: SAUF, BBDT, CCIT, LSL, CTB, PRED, and DRAG
+  # Algorithms which require to specify a labels solver are: SAUF, BBDT, CCIT, LSL, CTB, PRED, DRAG and Spaghetti
   # Possible labels solvers are: UF, UFPC, RemSP, TTA
   # LSL requires also a version specifier: STD, STDZ, RLE, RLEZ; only UF and TTA solvers can be used with LSL
   # Algorithms which don't require to specify a labels solver are: DiStefano, CT, SBLA, NULL

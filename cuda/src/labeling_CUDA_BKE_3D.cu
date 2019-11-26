@@ -519,7 +519,7 @@ namespace {
 
 }
 
-class BKE_IC_3D : public GpuLabeling3D<CONN_26> {
+class BKE_3D : public GpuLabeling3D<CONN_26> {
 private:
 	dim3 grid_size_;
 	dim3 block_size_;
@@ -527,7 +527,7 @@ private:
 	bool allocated_last_conn_;
 
 public:
-	BKE_IC_3D() {}
+	BKE_3D() {}
 
 	void PerformLabeling() {
 
@@ -683,4 +683,4 @@ public:
 
 };
 
-REGISTER_LABELING(BKE_IC_3D);
+REGISTER_LABELING(BKE_3D);
