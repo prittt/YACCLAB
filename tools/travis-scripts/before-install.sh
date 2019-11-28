@@ -35,19 +35,19 @@ function install_linux_environment()
 {  
   echo "############################################### Install Linux Environment ###############################################"
 
-  echo -e "\n\n------------------------------------------> Install ubuntu-toolchain for gcc-4.8:"
-  sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-  echo -e "------------------------------------------> DONE!" 
+  #echo -e "\n\n------------------------------------------> Install ubuntu-toolchain for gcc-5.4:"
+  #sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+  #echo -e "------------------------------------------> DONE!" 
   
-  echo -e "\n\n------------------------------------------> Update apt"
+  #echo -e "\n\n------------------------------------------> Update apt"
   sudo apt-get -qq update
-  echo -e "------------------------------------------> DONE!" 
+  #echo -e "------------------------------------------> DONE!" 
   
-  echo -e "\n\n------------------------------------------> Install gcc-4.8:"
-  if [ "$CXX" = "g++" ]; then sudo apt-get -qq install g++-4.8; fi
-  if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
-  sudo update-alternatives --quiet --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
-  echo -e "------------------------------------------> DONE!" 
+  #echo -e "\n\n------------------------------------------> Install gcc-5.4:"
+  #if [ "$CXX" = "g++" ]; then sudo apt-get -qq install g++-5.4; fi
+  #if [ "$CXX" = "g++" ]; then export CXX="g++-5.4" CC="gcc-5.4"; fi
+  #sudo update-alternatives --quiet --install /usr/bin/g++ g++ /usr/bin/g++-5.4 90
+  #echo -e "------------------------------------------> DONE!" 
   
   #echo -e "\n\n------------------------------------------> Install dependencies and libs to build x86 program on x64 architecture (Ubuntu bug)"
   #sudo apt-get install build-essential gcc-multilib gcc-4.8-multilib g++-multilib g++-4.8-multilib lib32z1 lib32ncurses5 lib32bz2-1.0 libc6-dev libgmp-dev libmpfr-dev libmpc-dev

@@ -1,0 +1,9 @@
+target_sources(YACCLAB
+    PRIVATE
+        labeling_CUDA_BKE_merge_tree.inc
+        labeling_CUDA_DRAG.inc
+        cuda_mat3.hpp
+        cuda_mat3.inl.hpp
+        cuda_types3.hpp
+        labeling_CUDA_BKE_init_tree.inc
+)

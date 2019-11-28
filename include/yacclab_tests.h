@@ -1,4 +1,4 @@
-// Copyright(c) 2016 - 2019 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
+// Copyright(c) 2016 - 2018 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -26,160 +26,217 @@
 // OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef YACCLAB_YACCLAB_TESTS_H_
-#define YACCLAB_YACCLAB_TESTS_H_
+#ifndef YACCLAB_TESTS_PERFORMER_H_
+#define YACCLAB_TESTS_PERFORMER_H_
 
+#include <string>
 #include <map>
-#include <utility>
+#include <memory>
 
 #include <opencv2/imgproc.hpp>
 
-#include "config_data.h"
 #include "file_manager.h"
+#include "system_info.h"
+#include "utilities.h"
+#include "config_data.h"
 #include "labeling_algorithms.h"
 #include "progress_bar.h"
 
+
+using namespace filesystem;
+
 class YacclabTests {
-public:
-    YacclabTests(const ConfigData& cfg) : cfg_(cfg) {}
-
-    void CheckPerformLabeling()
-    {
-        std::string title = "Checking Correctness of 'PerformLabeling()' (8-Connectivity)";
-        CheckAlgorithms(title, cfg_.ccl_average_algorithms, &Labeling::PerformLabeling);
-    }
-    void CheckPerformLabelingWithSteps()
-    {
-        std::string title = "Checking Correctness of 'PerformLabelingWithSteps()' (8-Connectivity)";
-        CheckAlgorithms(title, cfg_.ccl_average_ws_algorithms, &Labeling::PerformLabelingWithSteps);
-    }
-    void CheckPerformLabelingMem()
-    {
-        std::string title = "Checking Correctness of 'PerformLabelingMem()' (8-Connectivity)";
-        std::vector<uint64_t> unused;
-        CheckAlgorithms(title, cfg_.ccl_mem_algorithms, &Labeling::PerformLabelingMem, unused);
-    }
-
-    void AverageTest();
-    void AverageTestWithSteps();
-    void DensityTest();
-    void MemoryTest();
-    void LatexGenerator();
-    void GranularityTest();
 
 private:
-    ConfigData cfg_;
-    cv::Mat1d average_results_;
-    cv::Mat1d density_results_;
-    std::map<cv::String, cv::Mat> granularity_results_;
-    std::map<cv::String, cv::Mat1d> average_ws_results_; // String for dataset_name, Mat1d for steps results
-    std::map<cv::String, cv::Mat1d> memory_accesses_; // String for dataset_name, Mat1d for memory accesses
+	OutputBox ob_;
+	std::error_code &ec_;
+	ModeConfig &mode_cfg_;
+	GlobalConfig &glob_cfg_;
+	const path output_path;
 
-    bool LoadFileList(std::vector<std::pair<std::string, bool>>& filenames, const filesystem::path& files_path);
-    bool CheckFileList(const filesystem::path& base_path, std::vector<std::pair<std::string, bool>>& filenames);
-    bool SaveBroadOutputResults(std::map<cv::String, cv::Mat1d>& results, const std::string& o_filename, const cv::Mat1i& labels, const std::vector<std::pair<std::string, bool>>& filenames, const std::vector<cv::String>& ccl_algorithms);
-    bool SaveBroadOutputResults(const cv::Mat1d& results, const std::string& o_filename, const cv::Mat1i& labels, const std::vector<std::pair<std::string, bool>>& filenames, const std::vector<cv::String>& ccl_algorithms);
-    void SaveAverageWithStepsResults(const std::string& os_name, const cv::String& dataset_name, bool rounded);
+	cv::Mat1d average_results_;
+	cv::Mat1d density_results_;
+	std::map<std::string, cv::Mat> granularity_results_;
+	std::map<std::string, cv::Mat1d> average_ws_results_; // String for dataset_name, Mat1d for steps results
+	std::map<std::string, cv::Mat1d> memory_accesses_; // String for dataset_name, Mat1d for memory accesses
 
-    template <typename FnP, typename... Args>
-    void CheckAlgorithms(const std::string& title, const std::vector<cv::String>& ccl_algorithms, const FnP func, Args&&... args)
-    {
-        OutputBox ob(title);
+public:
+	YacclabTests(ModeConfig &mode_cfg, GlobalConfig &glob_cfg, std::error_code &ec) : 
+		mode_cfg_(mode_cfg), glob_cfg_(glob_cfg), ec_(ec), output_path(glob_cfg.glob_output_path / mode_cfg.mode_output_path) {}
 
-        std::vector<bool> stats(ccl_algorithms.size(), true);  // True if the i-th algorithm is correct, false otherwise
-        std::vector<std::string> first_fail(ccl_algorithms.size());  // Name of the file on which algorithm fails the first time
-        bool stop = false; // True if all the algorithms are not correct
+	void CheckPerformLabeling() {
+		std::string title = "Checking Correctness of 'PerformLabeling()'";
+		CheckAlgorithms(title, mode_cfg_.ccl_average_algorithms, &Labeling::PerformLabeling);
+	}
+	void CheckPerformLabelingWithSteps() {
+		std::string title = "Checking Correctness of 'PerformLabelingWithSteps()'";
+		CheckAlgorithms(title, mode_cfg_.ccl_average_ws_algorithms, &Labeling::PerformLabelingWithSteps);
+	}
+	void CheckPerformLabelingMem() {
+		std::string title = "Checking Correctness of 'PerformLabelingMem()'";
+		std::vector<unsigned long int> unused;
+		CheckAlgorithms(title, mode_cfg_.ccl_mem_algorithms, &Labeling::PerformLabelingMem, unused);
+	}
 
-        for (unsigned i = 0; i < cfg_.check_datasets.size(); ++i) { // For every dataset in the check_datasets list
-            cv::String dataset_name(cfg_.check_datasets[i]);
-            path dataset_path(cfg_.input_path / path(dataset_name));
-            path is_path = dataset_path / path(cfg_.input_txt); // files.txt path
+    void InitialOperations();
 
-            // Load list of images on which ccl_algorithms must be tested
-            std::vector<std::pair<std::string, bool>> filenames; // first: filename, second: state of filename (find or not)
-            if (!LoadFileList(filenames, is_path)) {
-                ob.Cwarning("Unable to open '" + is_path.string() + "'", dataset_name);
-                continue;
-            }
+	void AverageTest();
+	void AverageTestWithSteps();
+	void DensityTest();
+	void GranularityTest();
+	void MemoryTest();
+	void LatexGenerator();
 
-            // Number of files
-            unsigned filenames_size = static_cast<unsigned>(filenames.size());
-            ob.StartUnitaryBox(dataset_name, filenames_size);
-
-            for (unsigned file = 0; file < filenames_size && !stop; ++file) { // For each file in list
-                ob.UpdateUnitaryBox(file);
-
-                std::string filename = filenames[file].first;
-                path filename_path = dataset_path / path(filename);
-
-                // Load image
-                if (!GetBinaryImage(filename_path, Labeling::img_)) {
-                    ob.Cmessage("Unable to open '" + filename + "'");
-                    continue;
-                }
-
-                unsigned n_labels_correct, n_labels_to_control;
-
-                // SAUF with Union-Find is the reference: labels are already "normalized"
-                auto& sauf = LabelingMapSingleton::GetInstance().data_.at("SAUF_UF");
-                sauf->PerformLabeling();
-                n_labels_correct = sauf->n_labels_;
-                cv::Mat1i labeled_img_correct = sauf->img_labels_.clone();
-                sauf->FreeLabelingData();
-
-                //cv::Mat1i labeled_img_correct;
-                //n_labels_correct = cv::connectedComponents(Labeling::img_, labeled_img_correct, 8, 4, cv::CCL_WU);
-
-                unsigned j = 0;
-                for (const auto& algo_name : ccl_algorithms) {
-                    Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
-
-                    // Perform labeling on current algorithm if it has no previously failed
-                    if (stats[j]) {
-                        cv::Mat1i& labeled_img_to_control = algorithm->img_labels_;
-
-                        (algorithm->*func)(std::forward<Args>(args)...);
-                        n_labels_to_control = algorithm->n_labels_;
-
-                        NormalizeLabels(labeled_img_to_control);
-                        const auto diff = CompareMat(labeled_img_correct, labeled_img_to_control);
-
-                        algorithm->FreeLabelingData(); // Free algorithm's data
-
-                        if (n_labels_correct != n_labels_to_control || !diff) {
-                            stats[j] = false;
-                            first_fail[j] = (path(dataset_name) / path(filename)).string();
-
-                            // Stop check test if all the algorithms fail
-                            if (adjacent_find(stats.begin(), stats.end(), std::not_equal_to<int>()) == stats.end()) {
-                                stop = true;
-                                break;
-                            }
-                        }
-                    }
-                    ++j;
-                } // For all the Algorithms in the array
-            }// END WHILE (LIST OF IMAGES)
-            ob.StopUnitaryBox();
-        }// END FOR (LIST OF DATASETS)
-
-         // To display report of correctness test
-        std::vector<std::string> messages(ccl_algorithms.size());
-        unsigned longest_name = static_cast<unsigned>(max_element(ccl_algorithms.begin(), ccl_algorithms.end(), CompareLengthCvString)->length());
-
-        unsigned j = 0;
-        for (const auto& algo_name : ccl_algorithms) {
-            messages[j] = "'" + algo_name + "'" + std::string(longest_name - algo_name.size(), '-');
-            if (stats[j]) {
-                messages[j] += "-> correct!";
-            }
-            else {
-                messages[j] += "-> NOT correct, it first fails on '" + first_fail[j] + "'";
-            }
-            ++j;
-        }
-        ob.DisplayReport("Report", messages);
+    ~YacclabTests() {
+        LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_existing_algorithms[0])->GetInput()->Release();
     }
+
+private:
+
+    void CheckAlgorithmsExistence();
+    void CheckMethodsExistence();
+    void CheckDatasets();
+    void CreateDirectories();
+
+	bool LoadFileList(std::vector<std::pair<std::string, bool>>& filenames, const path& files_path);
+	bool CheckFileList(const path& base_path, std::vector<std::pair<std::string, bool>>& filenames);
+	bool SaveBroadOutputResults(std::map<std::string, cv::Mat1d>& results, const std::string& o_filename, const cv::Mat1i& labels,
+		const std::vector<std::pair<std::string, bool>>& filenames, const std::vector<std::string>& ccl_algorithms);
+	bool SaveBroadOutputResults(const cv::Mat1d& results, const std::string& o_filename, const cv::Mat1i& labels,
+		const std::vector<std::pair<std::string, bool>>& filenames, const std::vector<std::string>& ccl_algorithms);
+	void SaveAverageWithStepsResults(const std::string& os_name, const std::string& dataset_name, bool rounded);
+
+	template <typename FnP, typename... Args>
+	void CheckAlgorithms(const std::string& title, const std::vector<std::string>& ccl_algorithms, const FnP func, Args&&... args) {
+
+		OutputBox ob(title);
+
+		std::vector<bool> stats(ccl_algorithms.size(), true);  // True if the i-th algorithm is correct, false otherwise
+		std::vector<std::string> first_fail(ccl_algorithms.size());  // Name of the file on which algorithm fails the first time
+		bool stop = false; // True if all the algorithms are not correct
+
+		for (unsigned i = 0; i < mode_cfg_.check_datasets.size(); ++i) { // For every dataset in the check_datasets list
+			std::string dataset_name(mode_cfg_.check_datasets[i]);
+			path dataset_path(glob_cfg_.input_path / path(dataset_name));
+			path is_path = dataset_path / path(glob_cfg_.input_txt); // files.txt path
+
+			// Load list of images on which ccl_algorithms must be tested
+			std::vector<std::pair<std::string, bool>> filenames; // first: filename, second: state of filename (find or not)
+			if (!LoadFileList(filenames, is_path)) {
+				ob.Cwarning("Unable to open '" + is_path.string() + "'", dataset_name);
+				continue;
+			}
+
+			// Number of files
+			size_t filenames_size = filenames.size();
+			ob.StartUnitaryBox(dataset_name, filenames_size);
+
+			for (unsigned file = 0; file < filenames_size && !stop; ++file) { // For each file in list
+				ob.UpdateUnitaryBox(file);
+
+				std::string filename = filenames[file].first;
+				path filename_path = dataset_path / path(filename);
+
+				// Load image
+				// Qua ci infiliamo una funzione che legge un tensore e lo memorizza in Labeling::img_
+				// Labeling::img_ a sua volta è una Mat che può essere 2D oppure 3D.
+				// La funzione GetBinaryImage distingue le immagini 2D dai volumi 3D in base a filename_path
+				// Se è una directory allora è in 3D, altrimenti è in 2D
+				if (!LabelingMapSingleton::GetLabeling(ccl_algorithms[0])->GetInput()->ReadBinary(filename_path.string())) {
+					ob.Cmessage("Unable to open '" + filename + "'");
+					continue;
+				}
+
+				// These variables aren't necessary
+				// unsigned n_labels_correct, n_labels_to_control;
+
+				// Qua serve una funzione che si comporti in 4 modi diversi a seconda della connettività e della dimensionalità
+                std::string correct_algo_name = LabelingMapSingleton::GetLabeling(ccl_algorithms[0])->CheckAlg();
+				Labeling* correct_algo = LabelingMapSingleton::GetLabeling(correct_algo_name);
+				correct_algo->PerformLabeling();
+				//n_labels_correct = sauf->n_labels_;
+                YacclabTensorOutput* correct_algo_out = correct_algo->GetOutput();
+                correct_algo_out->PrepareForCheck();
+
+                std::unique_ptr<YacclabTensorOutput> labels_correct = correct_algo_out->Copy();
+
+                correct_algo->FreeLabelingData();
+
+                labels_correct->NormalizeLabels();
+
+				unsigned j = 0;
+				for (const auto& algo_name : ccl_algorithms) {
+					Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
+
+					// Perform labeling on current algorithm if it has no previously failed
+					if (stats[j]) {
+						(algorithm->*func)(std::forward<Args>(args)...);
+                        YacclabTensorOutput* labels_to_check = algorithm->GetOutput();
+                        labels_to_check->PrepareForCheck();
+                        labels_to_check->NormalizeLabels();
+                        const bool correct = labels_correct->Equals(labels_to_check);
+                        // const bool diff = algorithm->Check(correct_algo);
+						algorithm->FreeLabelingData();
+						if (!correct) {
+							stats[j] = false;
+							first_fail[j] = (path(dataset_name) / path(filename)).string();
+
+							// Stop check test if all the algorithms fail
+							if (adjacent_find(stats.begin(), stats.end(), std::not_equal_to<int>()) == stats.end()) {
+								stop = true;
+								break;
+							}
+						}
+					}
+					++j;
+				} // For all the Algorithms in the array
+                //correct_algo->FreeLabelingData();
+
+			}// END WHILE (LIST OF IMAGES)
+			ob.StopUnitaryBox();
+		}// END FOR (LIST OF DATASETS)
+
+		// LabelingMapSingleton::GetLabeling(ccl_algorithms[0])->ReleaseInput();
+
+		 // To display report of correctness test
+		std::vector<std::string> messages(static_cast<unsigned int>(ccl_algorithms.size()));
+		unsigned longest_name = static_cast<unsigned>(max_element(ccl_algorithms.begin(), ccl_algorithms.end(), CompareLengthCvString)->length());
+
+		unsigned j = 0;
+		for (const auto& algo_name : ccl_algorithms) {
+			messages[j] = "'" + algo_name + "'" + std::string(longest_name - algo_name.size(), '-');
+			if (stats[j]) {
+				messages[j] += "-> correct!";
+			}
+			else {
+				messages[j] += "-> NOT correct, it first fails on '" + first_fail[j] + "'";
+			}
+			++j;
+		}
+		ob.DisplayReport("Report", messages);
+	}
 };
 
-#endif // !YACCLAB_YACCLAB_TESTS_H_
+//using TestsPerfPtr = std::unique_ptr<YacclabTests>;
+//
+//TestsPerfPtr YacclabTestsFactory(ModeConfig mode_cfg, GlobalConfig glob_cfg, std::error_code& ec) {
+//	TestsPerfPtr ptr;
+//	if (mode_cfg.mode == "2D_CPU") {
+//		ptr = std::make_unique<YacclabTests>(mode_cfg, glob_cfg, ec);
+//	}
+//	else if (mode_cfg.mode == "3D_CPU") {
+//		ptr = std::make_unique<YacclabTests>(mode_cfg, glob_cfg, ec);
+//	}
+//#if defined YACCLAB_WITH_CUDA
+//	else if (mode_cfg.mode == "2D_GPU") {
+//		ptr = std::make_unique<YacclabTests>(mode_cfg, glob_cfg, ec);
+//	}
+//	else if (mode_cfg.mode == "3D_GPU") {
+//		ptr = std::make_unique<YacclabTests>(mode_cfg, glob_cfg, ec);
+//	}
+//#endif
+//	else ptr = nullptr;
+//	return ptr;
+//}
+
+#endif // !YACCLAB_TESTS_PERFORMER_H_

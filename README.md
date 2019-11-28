@@ -2,7 +2,7 @@
 
 <p align="justify">Please include the following references when citing the YACCLAB project/dataset:</p>
 
-- <p align="justify"> Bolelli, Federico; Cancilla, Michele; Baraldi, Lorenzo; Grana, Costantino "Towards Reliable Experiments on the Performance of Connected Components Labeling Algorithms" Journal of Real-Time Image Processing, 2018. <a title="BibTex" href="http://imagelab.ing.unimore.it/files2/yacclab/YACCLAB_JRTIP2018_BibTex.html">BibTex</a>. <a title="Download" href="https://iris.unimore.it/retrieve/handle/11380/1155728/186233/2018_JRTIP_Towards_Reliable_Experiments_on_the_Performance_of_Connected_Components_Labeling_Algorithms.pdf"><img src="https://raw.githubusercontent.com/prittt/YACCLAB/master/doc/pdf_logo.png" alt="Download." /></a></p>
+- <p align="justify"> Bolelli, Federico; Cancilla, Michele; Baraldi, Lorenzo; Grana, Costantino "Towards Reliable Experiments on the Performance of Connected Components Labeling Algorithms" Journal of Real-Time Image Processing, 2018. <a title="BibTex" href="http://imagelab.ing.unimore.it/files2/yacclab/YACCLAB_JRTIP2018_BibTex.html">BibTex</a>. <a title="Download" href="http://imagelab.ing.unimore.it/imagelab/pubblicazioni/2016-icpr-yacclab.pdf"><img src="https://raw.githubusercontent.com/prittt/YACCLAB/master/doc/pdf_logo.png" alt="Download." /></a></p>
 
 - <p align="justify"> Grana, Costantino; Bolelli, Federico; Baraldi, Lorenzo; Vezzani, Roberto "YACCLAB - Yet Another Connected Components Labeling Benchmark" Proceedings of the 23rd International Conference on Pattern Recognition, Cancun, Mexico, 4-8 Dec 2016. <a title="BibTex" href="http://imagelab.ing.unimore.it/files2/yacclab/YACCLAB_ICPR2016_BibTex.html">BibTex</a>. <a title="Download" href="http://imagelab.ing.unimore.it/imagelab/pubblicazioni/2016-icpr-yacclab.pdf"><img src="https://raw.githubusercontent.com/prittt/YACCLAB/master/doc/pdf_logo.png" alt="Download." /></a></p>
 
@@ -14,22 +14,27 @@ Notice that 8-connectivity is always used in the project.
 
 ## Requirements
 
-<p align="justify">To correctly install and run YACCLAB following packages, libraries and utility are needed:</p>
+<p align="justify">
+To correctly install and run YACCLAB following packages, libraries and utility are needed:
 
-- CMake 3.13 or higher (https://cmake.org),
+- CMake 3.8.2 or higher (https://cmake.org),
 - OpenCV 3.0 or higher (http://opencv.org),
 - Gnuplot (http://www.gnuplot.info/),
-- One of your favourite IDE/compiler: Visual Studio 2013 or higher, Xcode 5.0.1, gcc 4.7 or higher, .. (with C++11 support)
+- One of your favourite IDE/compiler with C++14 support
+
+GPU algorithms also require:
+- CUDA Toolkit 9.2 or higher (https://developer.nvidia.com/cuda-toolkit)
 
 Notes for gnuplot:
 - on Windows system: be sure add gnuplot to system path if you want YACCLAB automatically generates charts.
 - on MacOS system: 'pdf terminal' seems to be not available due to old version of cairo, 'postscript' is used instead.
 
-<a name="inst"></a>
+</p>
+
 ## Installation (refer to the image below)
 
 - <p align="justify">Clone the GitHub repository (HTTPS clone URL: https://github.com/prittt/YACCLAB.git) or simply download the full master branch zip file and extract it (e.g YACCLAB folder).</p>
-- <p align="justify">Install software in YACCLAB/bin subfolder (suggested) or wherever you want using CMake (point 2 of the example image). Note that CMake should automatically find the OpenCV path whether correctly installed on your OS (3), download the YACCLAB Dataset (be sure to check the box if you want to download it (4) or to select the correct path if the dataset is already on your file system (5)), and create a C++ project for the selected IDE/compiler (7-8).</p>
+- <p align="justify">Install software in YACCLAB/bin subfolder (suggested) or wherever you want using CMake (point 2 of the example image). Note that CMake should automatically find the OpenCV path whether correctly installed on your OS (3), download the YACCLAB Dataset (be sure to check the box if you want to download it (4a) and (4b) or to select the correct path if the dataset is already on your file system (7)), and create a C++ project for the selected IDE/compiler (9-10). Moreover, if you want to test 3D or GPU algorithms tick the corresponding boxes (5) and (6). </p>
 
 ![Cmake](doc/readme_github.png)
 
@@ -49,14 +54,17 @@ Notes for gnuplot:
 </ol>  
  <table>
   <tr>
+    <th></th>
     <th>Algorithm Name</th>
     <th width="130">Authors</th>
     <th>Year</th>
     <th>Acronym</th>
     <th>Required Files</th>
     <th>Templated on Labels Solver</th>
-  </tr>
+  </tr>	
+	
   <tr>
+    <td align="center" rowspan="11">CPU</td>
     <td align="center">-</td>
     <td align="center">L. Di Stefano,<br>A. Bulgarelli <sup><a href="#DiStefano">[3]</a></sup></td>
     <td align="center">1999</td>
@@ -130,7 +138,7 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Directed Rooted Acyclic Graph</td>
-    <td align="center">F. Bolelli,</br>L. Baraldi,</br>M. Cancilla,</br>C. Grana <sup><a href="#DRAG">[19]</a></sup></td>
+    <td align="center">F. Bolelli,</br>L. Baraldi,</br>M. Cancilla,</br>C. Grana <sup><a href="#DRAG">[23]</a></sup></td>
     <td align="center">2018</td>
     <td align="center">DRAG</td>
     <td align="center"><i>labeling_bolelli_2018.h</i>, <i>labeling_grana_2018_drag.inc</i></td>
@@ -146,12 +154,89 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Null Labeling</td>
-    <td align="center">F. Bolelli,</br>M. Cancilla,</br>L. Baraldi,</br>C. Grana <sup><a href="#YACCLAB_JRTIP">[18]</a></sup></td>
-    <td align="center">2018</td>
+    <td align="center">F. Bolelli,</br>M. Cancilla,</br>L. Baraldi,</br>C. Grana</td>
+    <td align="center">-</td>
     <td align="center">NULL<small><sup>V</sup></small></td>
     <td align="center"><i>labeling_null.h</i></td>
     <td align="center">NO</td>
   </tr>
+
+
+  <tr>
+    <td align="center" rowspan="9">GPU</td>
+    <td align="center">Union Find</td>
+    <td align="center">V. Oliveira,</br>R. Lotufo<sup><a href="#UF">[18]</a></sup></td>
+    <td align="center">2010</td>
+    <td align="center">UF</td>
+    <td align="center"><i>labeling_CUDA_UF.cu</i></td>
+    <td align="center">NO</td>
+  </tr>
+  <tr>
+    <td align="center">Optimized</br>Label Equivalence</td>
+    <td align="center">O. Kalentev,</br>A. Rai,</br>S. Kemnitz,</br>R. Schneider<sup><a href="#OLE">[19]</a></sup></td>
+    <td align="center">2011</td>
+    <td align="center">OLE</td>
+    <td align="center"><i>labeling_CUDA_OLE.cu</i></td>
+    <td align="center">NO</td>
+  </tr>
+  <tr>
+    <td align="center">Block Equivalence</td>
+    <td align="center">S. Zavalishin,</br>I. Safonov,</br>Y. Bekhtin,</br>I. Kurilin<sup><a href="#BE">[20]</a></sup></td>
+    <td align="center">2016</td>
+    <td align="center">BE</td>
+    <td align="center"><i>labeling_CUDA_BE.cu</i></td>
+    <td align="center">NO</td>
+  </tr>
+  <tr>
+    <td align="center">Distanceless</br>Label Propagation</td>
+    <td align="center">L. Cabaret,</br>L. Lacassagne,</br>D. Etiemble<sup><a href="#DLP">[21]</a></sup></td>
+    <td align="center">2017</td>
+    <td align="center">DLP</td>
+    <td align="center"><i>labeling_CUDA_DLP.cu</i></td>
+    <td align="center">NO</td>
+  </tr>
+  <tr>
+    <td align="center">CUDA SAUF</td>
+    <td align="center">S. Allegretti,</br>F. Bolelli,</br>M. Cancilla,</br>C. Grana</td>
+    <td align="center">-</td>
+    <td align="center">C-SAUF</td>
+    <td align="center"><i>labeling_CUDA_SAUF.cu</i>,</br><i>labeling_wu_2009_tree.inc</i></td>
+    <td align="center">NO</td>
+  </tr>
+  <tr>
+    <td align="center">CUDA BBDT</td>
+    <td align="center">S. Allegretti,</br>F. Bolelli,</br>M. Cancilla,</br>C. Grana</td>
+    <td align="center">-</td>
+    <td align="center">C-BBDT</td>
+    <td align="center"><i>labeling_CUDA_BBDT.cu</i>, <i>labeling_grana_2010_tree.inc</i></td>
+    <td align="center">NO</td>
+  </tr>
+    <tr>
+    <td align="center">CUDA DRAG</td>
+    <td align="center">S. Allegretti,</br>F. Bolelli,</br>M. Cancilla,</br>C. Grana</td>
+    <td align="center">-</td>
+    <td align="center">C-DRAG</td>
+    <td align="center"><i>labeling_CUDA_DRAG.cu</i></td>
+    <td align="center">NO</td>
+  </tr>
+  <tr>
+    <td align="center">Block-based Union Find</td>
+    <td align="center">S. Allegretti,</br>F. Bolelli,</br>C. Grana<sup><a href="#BUF_BKE">[24]</a></sup></td>
+    <td align="center">2019</td>
+    <td align="center">BUF</td>
+    <td align="center"><i>labeling_CUDA_BUF.cu</i></td>
+    <td align="center">NO</td>
+  </tr>
+    <tr>
+    <td align="center">Block-based Komura Equivalence</td>
+    <td align="center">S. Allegretti,</br>F. Bolelli,</br>C. Grana<sup><a href="#BUF_BKE">[24]</a></sup></td>
+    <td align="center">2019</td>
+    <td align="center">BKE</td>
+    <td align="center"><i>labeling_CUDA_BKE.cu</i></td>
+    <td align="center">NO</td>
+  </tr>
+
+
 </table>
 
 (<small>I</small>) standard version </br>
@@ -196,9 +281,15 @@ int main()
 
 <a name="conf"></a>
 ## Configuration File
-<p align="justify">A <tt>YAML</tt> configuration file placed in the installation folder lets you to specify which kind of tests should be performed, on which datasets and on which algorithms. A complete description of all configuration parameters is reported below.</p>
+<p align="justify">A <tt>YAML</tt> configuration file placed in the installation folder lets you specify which kinds of tests should be performed, on which datasets and on which algorithms.
+Four categories of algorithms are supported: 2D CPU, 2D GPU, 3D CPU and 3D GPU. For each of them, the configuration parameters are reported below. </p>
 
-- <i>perform</i> - dictionary which specifies the <a href="#conf">kind of tests</a> to perform:
+- <i>execute</i> - boolean value which specifies whether the current category of algorithms will be tested: 
+```yaml
+execute:    true
+```
+
+- <i>perform</i> - dictionary which specifies the <a href="#conf">kind of tests</a> to perform: 
 ```yaml
 perform:
   correctness:        false
@@ -249,6 +340,8 @@ algorithms:
 average_datasets: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800", "xdocs"]
 ...
 ```
+
+<p style=text-align: justify;>Finally, the following configuration parameters are common to all categories.</p>
 
 - <i>paths</i> - dictionary with both input (datasets) and output (results) paths. It is automatically filled by Cmake during the creation of the project:
 ```yaml
@@ -778,8 +871,16 @@ Based  Connected-Component  Labeling, IEEE  Transactions  on  Image Processing, 
 <p align="justify"><em><a name="MEDICAL">[15]</a> F. Dong, H. Irshad, E.-Y. Oh, M. F. Lerwill, E. F. Brachtel, N. C. Jones, N. W. Knoblauch, L. Montaser-Kouhsari, N. B. Johnson, L. K. Rao et al., “Computational Pathology to Discriminate Benign from Malignant Intraductal Proliferations of the Breast,” PloS one, vol. 9, no. 12, p. e114885, 2014.</em></p>
 <p align="justify"><em><a name="FINGERPRINTS">[16]</a> D. Maltoni, D. Maio, A. Jain, and S. Prabhakar, Handbook of fingerprint
 recognition. Springer Science & Business Media, 2009.</em></p>
-<p align="justify"><em><a name="YACCLAB">[17]</a> C.Grana, F.Bolelli, L.Baraldi, and R.Vezzani, YACCLAB - Yet Another Connected Components Labeling Benchmark, Proceedings of the 23rd International Conference on Pattern Recognition, Cancun, Mexico, 4-8 Dec 2016.</em></p>
-<p align="justify"><em><a name="YACCLAB_JRTIP">[18]</a> Bolelli, Federico; Cancilla, Michele; Baraldi, Lorenzo; Grana, Costantino "Towards Reliable Experiments on the Performance of Connected Components Labeling Algorithms" Journal of Real-Time Image Processing, 2018.</em></p>
-<p align="justify"><em><a name="DRAG">[19]</a> Bolelli, Federico; Baraldi, Lorenzo; Cancilla, Michele; Grana, Costantino "Connected Components Labeling on DRAGs" Proceedings of the 23rd International Conference on Pattern Recognition, Beijing, China, 20-24 Aug 2018.</em></p>
-<p align="justify"><em><a name="Spaghetti">[20]</a> Bolelli, Federico; Allegretti Stefano; Baraldi, Lorenzo; Grana, Costantino "Spaghetti Labeling: Directed Acyclic Graphs for Block-Based Connected Components Labeling" IEEE Transactions on Image Processing, 2019.</em></p>
-
+<p align="justify"><em><a name="YACCLAB">[17]</a> C.Grana, F.Bolelli, L.Baraldi, and R.Vezzani, YACCLAB - Yet Another Connected Components Labeling Benchmark, Proceedings of the 23rd International Conference on Pattern Recognition, Cancun, Mexico, 4-8 Dec 2016, 2016</em></p>
+<p align="justify"><em><a name="UF">[18]</a> V. Oliveira and R. Lotufo, A study on connected components labeling algorithms using GPUs, in SIBGRAPI. vol. 3, p. 4, 2010.</em></p>
+<p align="justify"><em><a name="OLE">[19]</a> O. Kalentev, A. Rai, S. Kemnitz, R. Schneider, Connected component labeling on a 2D grid using CUDA, in Journal of Parallel and Distributed Computing 71(4), 615–620, 2011.</em></p>
+<p align="justify"><em><a name="BE">[20]</a> S. Zavalishin, I. Safonov, Y. Bekhtin, I. Kurilin, Block Equivalence Algorithm for Labeling 2D and 3D Images on GPU, in Electronic Imaging 2016(2), 1–7, 2016.</em></p>
+<p align="justify"><em><a name="DLP">[21]</a> L. Cabaret, L. Lacassagne, D. Etiemble, Distanceless Label Propagation: an Efficient Direct Connected Component Labeling Algorithm for GPUs, in Seventh
+International Conference on Image Processing Theory, Tools and Applications, IPTA, 2017.</em></p>
+<p align="justify"><em><a name="KE">[22]</a> S. Allegretti, F. Bolelli, M. Cancilla, C. Grana, Optimizing GPU-Based Connected Components Labeling Algorithms, in Third IEEE International Conference
+on Image Processing, Applications and Systems, IPAS, 2018.</em></p>
+<p align="justify"><em><a name="DRAG">[23]</a> F. Bolelli, L. Baraldi, M. Cancilla, C. Grana, Connected Components Labeling
+on DRAGs, in International Conference on Pattern Recognition, 2018.</em></p>
+<p align="justify"><em><a name="BUF_BKE">[24]</a> S. Allegretti, F. Bolelli, C. Grana, Optimized Block-Based Algorithms to Label Connected Components on GPUs, in IEEE Transactions on Parallel and Distributed Systems, 2019.</em></p>
+<p align="justify"><em><a name="YACCLAB_JRTIP">[25]</a> Bolelli, Federico; Cancilla, Michele; Baraldi, Lorenzo; Grana, Costantino "Towards Reliable Experiments on the Performance of Connected Components Labeling Algorithms" Journal of Real-Time Image Processing, 2018.</em></p>
+<p align="justify"><em><a name="Spaghetti">[26]</a> Bolelli, Federico; Allegretti Stefano; Baraldi, Lorenzo; Grana, Costantino "Spaghetti Labeling: Directed Acyclic Graphs for Block-Based Connected Components Labeling" IEEE Transactions on Image Processing, 2019.</em></p>

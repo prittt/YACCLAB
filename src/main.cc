@@ -1,4 +1,4 @@
-// Copyright(c) 2016 - 2019 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
+// Copyright(c) 2016 - 2018 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,6 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <cstdint>
-
 #include <fstream>
 #include <functional>
 #include <iomanip>
@@ -41,7 +40,6 @@
 #include "config_data.h"
 #include "file_manager.h"
 #include "labeling_algorithms.h"
-//#include "latex_generator.h"
 #include "memory_tester.h"
 #include "performance_evaluator.h"
 #include "progress_bar.h"
@@ -50,17 +48,14 @@
 #include "utilities.h"
 #include "yacclab_tests.h"
 
+
 using namespace std;
 using namespace cv;
 
 int main()
 {
     // Redirect cv exceptions
-#if OPENCV_VERSION_MAJOR >= 4
-    redirectError(RedirectCvError);
-#else
     cvRedirectError(RedirectCvError);
-#endif
 
     // Hide cursor from console
     HideConsoleCursor();
@@ -76,7 +71,7 @@ int main()
         dmux::cout.AddStream(os);
     }
 
-    OutputBox ob_setconf("Setting Configuration Parameters");
+    OutputBox ob_setconf("Reading Configuration Parameters");
     // Read yaml configuration file
     const string config_file = "config.yaml";
     FileStorage fs;
@@ -94,6 +89,9 @@ int main()
         // EXIT_FAILURE
     }
 
+    ob_setconf.Cmessage("Setting Configuration Parameters DONE");
+    ob_setconf.CloseBox();
+
     // Load configuration data from yaml
     ConfigData cfg(fs);
 
@@ -104,242 +102,64 @@ int main()
     /*  Configuration parameters check                                       */
     /*************************************************************************/
 
-    // Check if all the specified algorithms exist
-    for (auto& algo_name : cfg.ccl_algorithms) {
-        if (!LabelingMapSingleton::Exists(algo_name)) {
-            ob_setconf.Cwarning("Unable to find the algorithm '" + algo_name + "'");
-        }
-        else {
-            cfg.ccl_existing_algorithms.push_back(algo_name);
-        }
-    }
 
-    if (cfg.ccl_existing_algorithms.size() == 0) {
-        ob_setconf.Cerror("There are no valid values in the 'algorithms' list");
-    }
+	for (auto &mode_cfg : cfg.mode_config_vector) {
 
-    // Check if labeling methods of the specified algorithms exist
-    Labeling::img_ = Mat1b(1, 1, static_cast<uchar>(0));
-    for (const auto& algo_name : cfg.ccl_existing_algorithms) {
-        const auto& algorithm = LabelingMapSingleton::GetLabeling(algo_name);
-        if (cfg.perform_average || cfg.perform_density || cfg.perform_granularity || (cfg.perform_correctness && cfg.perform_check_8connectivity_std)) {
-            try {
-                algorithm->PerformLabeling();
-                cfg.ccl_average_algorithms.push_back(algo_name);
-            }
-            catch (const runtime_error& e) {
-                ob_setconf.Cwarning(algo_name + ": " + e.what());
-            }
-        }
-        if (cfg.perform_average_ws || (cfg.perform_correctness && cfg.perform_check_8connectivity_ws)) {
-            try {
-                algorithm->PerformLabelingWithSteps();
-                cfg.ccl_average_ws_algorithms.push_back(algo_name);
-            }
-            catch (const runtime_error& e) {
-                ob_setconf.Cwarning(algo_name + ": " + e.what());
-            }
-        }
-        if (cfg.perform_memory || (cfg.perform_correctness && cfg.perform_check_8connectivity_mem)) {
-            try {
-                vector<uint64_t> temp;
-                algorithm->PerformLabelingMem(temp);
-                cfg.ccl_mem_algorithms.push_back(algo_name);
-            }
-            catch (const runtime_error& e) {
-                ob_setconf.Cwarning(algo_name + ": " + e.what());
-            }
-        }
-    }
+		YacclabTests test_perf = YacclabTests(mode_cfg, cfg.global_config, ec);
 
-    if ((cfg.perform_average || (cfg.perform_correctness && cfg.perform_check_8connectivity_std)) && cfg.ccl_average_algorithms.size() == 0) {
-        ob_setconf.Cwarning("There are no 'algorithms' with valid 'PerformLabeling()' method, related tests will be skipped");
-        cfg.perform_average = false;
-        cfg.perform_check_8connectivity_std = false;
-    }
+        test_perf.InitialOperations();
 
-    if ((cfg.perform_average_ws || (cfg.perform_correctness && cfg.perform_check_8connectivity_ws)) && cfg.ccl_average_ws_algorithms.size() == 0) {
-        ob_setconf.Cwarning("There are no 'algorithms' with valid 'PerformLabelingWithSteps()' method, related tests will be skipped");
-        cfg.perform_average_ws = false;
-        cfg.perform_check_8connectivity_ws = false;
-    }
+		// Correctness test
+		if (mode_cfg.perform_correctness) {
+			if (mode_cfg.perform_check_8connectivity_std) {
+				test_perf.CheckPerformLabeling();
+			}
 
-    if ((cfg.perform_memory || (cfg.perform_correctness && cfg.perform_check_8connectivity_mem)) && cfg.ccl_mem_algorithms.size() == 0) {
-        ob_setconf.Cwarning("There are no 'algorithms' with valid 'PerformLabelingMem()' method, related tests will be skipped");
-        cfg.perform_memory = false;
-        cfg.perform_check_8connectivity_mem = false;
-    }
+			if (mode_cfg.perform_check_8connectivity_ws) {
+				test_perf.CheckPerformLabelingWithSteps();
+			}
 
-    if (cfg.perform_average && (cfg.average_tests_number < 1 || cfg.average_tests_number > 999)) {
-        ob_setconf.Cwarning("'average test' repetitions cannot be less than 1 or more than 999, skipped");
-        cfg.perform_average = false;
-    }
+			if (mode_cfg.perform_check_8connectivity_mem) {
+				test_perf.CheckPerformLabelingMem();
+			}
+		}
 
-    if (cfg.perform_density && (cfg.density_tests_number < 1 || cfg.density_tests_number > 999)) {
-        ob_setconf.Cwarning("'density test' repetitions cannot be less than 1 or more than 999, skipped");
-        cfg.perform_density = false;
-    }
+		// Average test
+		if (mode_cfg.perform_average) {
+			test_perf.AverageTest();
+		}
 
-    if (cfg.perform_average_ws && (cfg.average_ws_tests_number < 1 || cfg.average_ws_tests_number > 999)) {
-        ob_setconf.Cwarning("'average with steps test' repetitions cannot be less than 1 or more than 999, skipped");
-        cfg.perform_average_ws = false;
-    }
+		// Average with steps test
+		if (mode_cfg.perform_average_ws) {
+			test_perf.AverageTestWithSteps();
+		}
 
-    if ((cfg.perform_correctness) && cfg.check_datasets.size() == 0) {
-        ob_setconf.Cwarning("There are no datasets specified for 'correctness test', skipped");
-        cfg.perform_correctness = false;
-    }
+		// Density test
+		if (mode_cfg.perform_density) {
+			test_perf.DensityTest();
+		}
 
-    if ((cfg.perform_average) && cfg.average_datasets.size() == 0) {
-        ob_setconf.Cwarning("There are no datasets specified for 'average test', skipped");
-        cfg.perform_average = false;
-    }
+		// Granularity test
+		if (mode_cfg.perform_granularity) {
+			test_perf.GranularityTest();
+		}
+		// Memory test
+		if (mode_cfg.perform_memory) {
+			test_perf.MemoryTest();
+		}
 
-    if ((cfg.perform_average_ws) && cfg.average_ws_datasets.size() == 0) {
-        ob_setconf.Cwarning("There are no datasets specified for 'average with steps test', skipped");
-        cfg.perform_average_ws = false;
-    }
+        // There should be better places for this
+		//LabelingMapSingleton::GetLabeling(mode_cfg.ccl_existing_algorithms[0])->GetInput()->Release();
 
-    if ((cfg.perform_memory) && cfg.memory_datasets.size() == 0) {
-        ob_setconf.Cwarning("There are no datasets specified for 'memory test', skipped");
-        cfg.perform_memory = false;
-    }
+		// Latex Generator
+		if (mode_cfg.perform_average || mode_cfg.perform_average_ws || mode_cfg.perform_density || mode_cfg.perform_memory || mode_cfg.perform_granularity) {
+			test_perf.LatexGenerator();
+		}
 
-    if (!cfg.perform_average && !cfg.perform_correctness &&
-        !cfg.perform_density && !cfg.perform_memory &&
-        !cfg.perform_average_ws && !cfg.perform_granularity) {
-        ob_setconf.Cerror("There are no tests to perform");
-    }
-
-    // Check datasets existence
-    {
-        std::function<bool(vector<String>&, bool)> CheckDatasetExistence = [&cfg, &ob_setconf, &ec](vector<String>& dataset, bool print_message) -> bool {
-            // Check if all the datasets' files.txt exist
-            bool exists_one_dataset = false;
-            for (auto& x : dataset) {
-                path p = cfg.input_path / path(x) / path(cfg.input_txt);
-                if (!exists(p, ec)) {
-                    if (print_message) {
-                        ob_setconf.Cwarning("There is no dataset '" + x + "' (no files.txt available), skipped");
-                    }
-                }
-                else {
-                    exists_one_dataset = true;
-                }
-            }
-            return exists_one_dataset;
-        };
-
-        vector<String> ds;
-        if (cfg.perform_correctness) {
-            ds.insert(ds.end(), cfg.check_datasets.begin(), cfg.check_datasets.end());
-        }
-        if (cfg.perform_memory) {
-            ds.insert(ds.end(), cfg.memory_datasets.begin(), cfg.memory_datasets.end());
-        }
-        if (cfg.perform_average) {
-            ds.insert(ds.end(), cfg.average_datasets.begin(), cfg.average_datasets.end());
-        }
-        if (cfg.perform_average) {
-            ds.insert(ds.end(), cfg.average_ws_datasets.begin(), cfg.average_ws_datasets.end());
-        }
-        std::sort(ds.begin(), ds.end());
-        ds.erase(unique(ds.begin(), ds.end()), ds.end());
-        CheckDatasetExistence(ds, true); // To check single dataset
-
-        if (cfg.perform_correctness) {
-            if (!CheckDatasetExistence(cfg.check_datasets, false)) {
-                ob_setconf.Cwarning("There are no valid datasets for 'correctness test', skipped");
-                cfg.perform_correctness = false;
-            }
-        }
-
-        if (cfg.perform_average) {
-            if (!CheckDatasetExistence(cfg.average_datasets, false)) {
-                ob_setconf.Cwarning("There are no valid datasets for 'average test', skipped");
-                cfg.perform_average = false;
-            }
-        }
-
-        if (cfg.perform_average_ws) {
-            if (!CheckDatasetExistence(cfg.average_ws_datasets, false)) {
-                ob_setconf.Cwarning("There are no valid datasets for 'average with steps test', skipped");
-                cfg.perform_average_ws = false;
-            }
-        }
-
-        if (cfg.perform_memory) {
-            if (!CheckDatasetExistence(cfg.memory_datasets, false)) {
-                ob_setconf.Cwarning("There are no valid datasets for 'memory test', skipped");
-                cfg.perform_memory = false;
-            }
-        }
-    }
-
-    if (cfg.perform_average || cfg.perform_average_ws || cfg.perform_density || cfg.perform_memory || cfg.perform_granularity) {
-        // Set and create current output directory
-        if (!create_directories(cfg.output_path, ec)) {
-            ob_setconf.Cerror("Unable to create output directory '" + cfg.output_path.string() + "' - " + ec.message());
-        }
-
-        // Create the directory for latex reports
-        if (!create_directories(cfg.latex_path, ec)) {
-            ob_setconf.Cerror("Unable to create output directory '" + cfg.latex_path.string() + "' - " + ec.message());
-        }
-    }
-
-    ob_setconf.Cmessage("Setting Configuration Parameters DONE");
-    ob_setconf.CloseBox();
-
-    YacclabTests yt(cfg);
-
-    // Correctness test
-    if (cfg.perform_correctness) {
-        if (cfg.perform_check_8connectivity_std) {
-            yt.CheckPerformLabeling();
-        }
-
-        if (cfg.perform_check_8connectivity_ws) {
-            yt.CheckPerformLabelingWithSteps();
-        }
-
-        if (cfg.perform_check_8connectivity_mem) {
-            yt.CheckPerformLabelingMem();
-        }
-    }
-
-    // Average test
-    if (cfg.perform_average) {
-        yt.AverageTest();
-    }
-
-    // Average with steps test
-    if (cfg.perform_average_ws) {
-        yt.AverageTestWithSteps();
-    }
-
-    // Density test
-    if (cfg.perform_density) {
-        yt.DensityTest();
-    }
-
-    // Granularity test
-    if (cfg.perform_granularity) {
-        yt.GranularityTest();
-    }
-    // Memory test
-    if (cfg.perform_memory) {
-        yt.MemoryTest();
-    }
-
-    // Latex Generator
-    if (cfg.perform_average || cfg.perform_average_ws || cfg.perform_density || cfg.perform_memory || cfg.perform_granularity) {
-        yt.LatexGenerator();
-    }
-
-    // Copy log file into output folder
-    dmux::cout.flush();
-    filesystem::copy(path(logfile), cfg.output_path / path(logfile), ec);
+		// Copy log file into output folder
+		dmux::cout.flush();
+		filesystem::copy(path(logfile), cfg.global_config.glob_output_path / mode_cfg.mode_output_path / path(logfile), ec);
+	}
 
     return EXIT_SUCCESS;
 }

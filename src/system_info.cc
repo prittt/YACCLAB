@@ -37,6 +37,12 @@
 
 using namespace std;
 
+SystemInfo& SystemInfo::GetInstance()
+{
+    static SystemInfo instance;
+    return instance;
+}
+
 void SystemInfo::SetCpuBrand()
 {
     cpu_ = "cpu_unknown";
@@ -158,9 +164,9 @@ void SystemInfo::SetOsBit()
 #endif
 }
 
-void SystemInfo::SetOs(ConfigData& cfg)
+void SystemInfo::SetOs(std::string os)
 {
-    os_ = cfg.yacclab_os;
+    os_ = os;
 }
 
 void SystemInfo::SetCompiler()
@@ -242,3 +248,29 @@ void SystemInfo::SetCompiler()
 
 #endif
 }
+
+#if defined YACCLAB_WITH_CUDA
+CudaInfo& CudaInfo::GetInstance()
+{
+    static CudaInfo instance;
+    return instance;
+}
+
+std::string CudaInfo::CudaBeautifyVersionNumber(int v) {
+    int minor = (v / 10) % 10;
+    int major = v / 1000;
+    return std::to_string(major) + '.' + std::to_string(minor);
+}
+
+CudaInfo::CudaInfo() {
+    cudaDeviceProp prop;
+    cudaGetDeviceProperties(&prop, 0);
+    int runtimeVersion, driverVersion;
+    cudaRuntimeGetVersion(&runtimeVersion);
+    cudaDriverGetVersion(&driverVersion);
+    device_name_ = std::string(prop.name);
+    cuda_capability_ = std::to_string(prop.major) + '.' + std::to_string(prop.minor);
+    runtime_version_ = CudaBeautifyVersionNumber(runtimeVersion);
+    driver_version_ = CudaBeautifyVersionNumber(driverVersion);
+}
+#endif

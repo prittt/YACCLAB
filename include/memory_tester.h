@@ -1,4 +1,4 @@
-// Copyright(c) 2016 - 2019 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
+// Copyright(c) 2016 - 2018 Federico Bolelli, Costantino Grana, Michele Cancilla, Lorenzo Baraldi and Roberto Vezzani
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -69,7 +69,7 @@ public:
         cols = size.width;
     }
 
-    MemMat(unsigned rows, unsigned cols) : MemMat(cv::Size(cols, rows)) {}
+    MemMat(int rows, int cols) : MemMat(cv::Size(cols, rows)) {}
 
     MemMat(cv::Size size, const T val)
     {
@@ -79,7 +79,7 @@ public:
         cols = size.width;
     }
 
-    MemMat(unsigned rows, unsigned cols, const T val) : MemMat(cv::Size(cols, rows), val) {}
+    MemMat(int rows, int cols, const T val) : MemMat(cv::Size(cols, rows), val) {}
 
     T& operator()(const int r, const int c)
     {
