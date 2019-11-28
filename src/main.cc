@@ -55,7 +55,12 @@ using namespace cv;
 int main()
 {
     // Redirect cv exceptions
+#if OPENCV_VERSION_MAJOR >= 4
+    redirectError(RedirectCvError);
+#else
     cvRedirectError(RedirectCvError);
+    cvRedirectError(RedirectCvError);
+#endif
 
     // Hide cursor from console
     HideConsoleCursor();
