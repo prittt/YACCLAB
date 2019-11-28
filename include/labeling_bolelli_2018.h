@@ -412,48 +412,102 @@ private:
     }
     void FirstScan()
     {
-        memset(img_labels_.data, 0, img_labels_.dataend - img_labels_.datastart); // Initialization
-        LabelsSolver::Setup();
+        const int h = img_.rows;
+        const int w = img_.cols;
 
-        // First Scan
-        int w(img_.cols);
-        int h(img_.rows);
+        LabelsSolver::Setup(); // Labels solver initialization
 
-#define CONDITION_X img_row[c]>0
-#define CONDITION_P img_row_prev[c-1]>0
-#define CONDITION_Q img_row_prev[c]>0
-#define CONDITION_R img_row_prev[c+1]>0
+                               // We work with 2x2 blocks
+                               // +-+-+-+
+                               // |P|Q|R|
+                               // +-+-+-+
+                               // |S|X|
+                               // +-+-+
 
-#define ACTION_1 // nothing to do 
-#define ACTION_2 img_labels_row[c] = LabelsSolver::NewLabel(); // new label
-#define ACTION_3 img_labels_row[c] = img_labels_row_prev[c - 1]; // x <- p
-#define ACTION_4 img_labels_row[c] = img_labels_row_prev[c]; // x <- q
-#define ACTION_5 img_labels_row[c] = img_labels_row_prev[c + 1]; // x <- r
-#define ACTION_6 img_labels_row[c] = img_labels_row[c - 1]; // x <- s
-#define ACTION_7 img_labels_row[c] = LabelsSolver::Merge(img_labels_row_prev[c - 1], img_labels_row_prev[c + 1]); // x <- p + r
-#define ACTION_8 img_labels_row[c] = LabelsSolver::Merge(img_labels_row[c - 1], img_labels_row_prev[c + 1]); // x <- s + r
+                               // The pixels are named as follows
+                               // +---+---+---+
+                               // |a b|c d|e f|
+                               // |g h|i j|k l|
+                               // +---+---+---+
+                               // |m n|o p|
+                               // |q r|s t|
+                               // +---+---+
 
-#define COLS w
+                               // Pixels a, f, l, q are not needed, since we need to understand the
+                               // the connectivity between these blocks and those pixels only matter
+                               // when considering the outer connectivities
 
-        {
-            // Get rows pointer
-            const unsigned char* const img_row = img_.ptr<unsigned char>(0);
-            unsigned int* const img_labels_row = img_labels_.ptr<unsigned int>(0);
+                               // A bunch of defines used to check if the pixels are foreground,
+                               // without going outside the image limits.
 
-#include "labeling_grana_2016_forest_0.inc"
-                
-        }
-
-        for (int r = 1; r < h; ++r) {
+                               // First scan
+        for (int r = 0; r < h; r += 2) {
             // Get rows pointer
             const unsigned char* const img_row = img_.ptr<unsigned char>(r);
             const unsigned char* const img_row_prev = (unsigned char *)(((char *)img_row) - img_.step.p[0]);
-            unsigned int* const img_labels_row = img_labels_.ptr<unsigned int>(r);
-            unsigned int* const img_labels_row_prev = (unsigned int *)(((char *)img_labels_row) - img_labels_.step.p[0]);
-        
-#include "labeling_grana_2016_forest.inc"  
+            const unsigned char* const img_row_prev_prev = (unsigned char *)(((char *)img_row_prev) - img_.step.p[0]);
+            const unsigned char* const img_row_fol = (unsigned char *)(((char *)img_row) + img_.step.p[0]);
+            unsigned* const img_labels_row = img_labels_.ptr<unsigned>(r);
+            unsigned* const img_labels_row_prev_prev = (unsigned *)(((char *)img_labels_row) - img_labels_.step.p[0] - img_labels_.step.p[0]);
 
-        }//End rows's for
+            for (int c = 0; c < w; c += 2) {
+
+#define CONDITION_B c-1>=0 && r-2>=0 && img_row_prev_prev[c-1]>0
+#define CONDITION_C r-2>=0 && img_row_prev_prev[c]>0
+#define CONDITION_D c+1<w && r-2>=0 && img_row_prev_prev[c+1]>0
+#define CONDITION_E c+2<w && r-2>=0 && img_row_prev_prev[c+2]>0
+
+#define CONDITION_G c-2>=0 && r-1>=0 && img_row_prev[c-2]>0
+#define CONDITION_H c-1>=0 && r-1>=0 && img_row_prev[c-1]>0
+#define CONDITION_I r-1>=0 && img_row_prev[c]>0
+#define CONDITION_J c+1<w && r-1>=0 && img_row_prev[c+1]>0
+#define CONDITION_K c+2<w && r-1>=0 && img_row_prev[c+2]>0
+
+#define CONDITION_M c-2>=0 && img_row[c-2]>0
+#define CONDITION_N c-1>=0 && img_row[c-1]>0
+#define CONDITION_O img_row[c]>0
+#define CONDITION_P c+1<w && img_row[c+1]>0
+
+#define CONDITION_R c-1>=0 && r+1<h && img_row_fol[c-1]>0
+#define CONDITION_S r+1<h && img_row_fol[c]>0
+#define CONDITION_T c+1<w && r+1<h && img_row_fol[c+1]>0
+
+                // Action 1: No action
+#define ACTION_1 img_labels_row[c] = 0; continue; 
+                // Action 2: New label (the block has foreground pixels and is not connected to anything else)
+#define ACTION_2 img_labels_row[c] = LabelsSolver::NewLabel(); continue; 
+                //Action 3: Assign label of block P
+#define ACTION_3 img_labels_row[c] = img_labels_row_prev_prev[c - 2]; continue;
+                // Action 4: Assign label of block Q 
+#define ACTION_4 img_labels_row[c] = img_labels_row_prev_prev[c]; continue;
+                // Action 5: Assign label of block R
+#define ACTION_5 img_labels_row[c] = img_labels_row_prev_prev[c + 2]; continue;
+                // Action 6: Assign label of block S
+#define ACTION_6 img_labels_row[c] = img_labels_row[c - 2]; continue; 
+                // Action 7: Merge labels of block P and Q
+#define ACTION_7 img_labels_row[c] = LabelsSolver::Merge(img_labels_row_prev_prev[c - 2], img_labels_row_prev_prev[c]); continue;
+                //Action 8: Merge labels of block P and R
+#define ACTION_8 img_labels_row[c] = LabelsSolver::Merge(img_labels_row_prev_prev[c - 2], img_labels_row_prev_prev[c + 2]); continue;
+                // Action 9 Merge labels of block P and S
+#define ACTION_9 img_labels_row[c] = LabelsSolver::Merge(img_labels_row_prev_prev[c - 2], img_labels_row[c - 2]); continue;
+                // Action 10 Merge labels of block Q and R
+#define ACTION_10 img_labels_row[c] = LabelsSolver::Merge(img_labels_row_prev_prev[c], img_labels_row_prev_prev[c + 2]); continue;
+                // Action 11: Merge labels of block Q and S
+#define ACTION_11 img_labels_row[c] = LabelsSolver::Merge(img_labels_row_prev_prev[c], img_labels_row[c - 2]); continue;
+                // Action 12: Merge labels of block R and S
+#define ACTION_12 img_labels_row[c] = LabelsSolver::Merge(img_labels_row_prev_prev[c + 2], img_labels_row[c - 2]); continue;
+                // Action 13: not used
+#define ACTION_13 
+                // Action 14: Merge labels of block P, Q and S
+#define ACTION_14 img_labels_row[c] = LabelsSolver::Merge(LabelsSolver::Merge(img_labels_row_prev_prev[c - 2], img_labels_row_prev_prev[c]), img_labels_row[c - 2]); continue;
+                //Action 15: Merge labels of block P, R and S
+#define ACTION_15 img_labels_row[c] = LabelsSolver::Merge(LabelsSolver::Merge(img_labels_row_prev_prev[c - 2], img_labels_row_prev_prev[c + 2]), img_labels_row[c - 2]); continue;
+                //Action 16: labels of block Q, R and S
+#define ACTION_16 img_labels_row[c] = LabelsSolver::Merge(LabelsSolver::Merge(img_labels_row_prev_prev[c], img_labels_row_prev_prev[c + 2]), img_labels_row[c - 2]); continue;
+
+#include "labeling_bolelli_2018_drag.inc"
+            }
+        }
 
 #undef ACTION_1
 #undef ACTION_2
@@ -463,22 +517,140 @@ private:
 #undef ACTION_6
 #undef ACTION_7
 #undef ACTION_8
+#undef ACTION_9
+#undef ACTION_10
+#undef ACTION_11
+#undef ACTION_12
+#undef ACTION_13
+#undef ACTION_14
+#undef ACTION_15
+#undef ACTION_16
 
-#undef CONDITION_X
+
+#undef CONDITION_B
+#undef CONDITION_C
+#undef CONDITION_D
+#undef CONDITION_E
+
+#undef CONDITION_G
+#undef CONDITION_H
+#undef CONDITION_I
+#undef CONDITION_J
+#undef CONDITION_K
+
+#undef CONDITION_M
+#undef CONDITION_N
+#undef CONDITION_O
 #undef CONDITION_P
-#undef CONDITION_Q
+
 #undef CONDITION_R
+#undef CONDITION_S
+#undef CONDITION_T
     }
     void SecondScan()
     {
         // Second scan
         n_labels_ = LabelsSolver::Flatten();
 
-        for (int r_i = 0; r_i < img_labels_.rows; ++r_i) {
-            unsigned int *b = img_labels_.ptr<unsigned int>(r_i);
-            unsigned int *e = b + img_labels_.cols;
-            for (; b != e; ++b) {
-                *b = LabelsSolver::GetLabel(*b);
+        int e_rows = img_labels_.rows & 0xfffffffe;
+        bool o_rows = img_labels_.rows % 2 == 1;
+        int e_cols = img_labels_.cols & 0xfffffffe;
+        bool o_cols = img_labels_.cols % 2 == 1;
+
+        int r = 0;
+        for (; r < e_rows; r += 2) {
+            // Get rows pointer
+            const unsigned char* const img_row = img_.ptr<unsigned char>(r);
+            const unsigned char* const img_row_fol = (unsigned char *)(((char *)img_row) + img_.step.p[0]);
+
+            unsigned* const img_labels_row = img_labels_.ptr<unsigned>(r);
+            unsigned* const img_labels_row_fol = (unsigned *)(((char *)img_labels_row) + img_labels_.step.p[0]);
+            int c = 0;
+            for (; c < e_cols; c += 2) {
+                int iLabel = img_labels_row[c];
+                if (iLabel > 0) {
+                    iLabel = LabelsSolver::GetLabel(iLabel);
+                    if (img_row[c] > 0)
+                        img_labels_row[c] = iLabel;
+                    else
+                        img_labels_row[c] = 0;
+                    if (img_row[c + 1] > 0)
+                        img_labels_row[c + 1] = iLabel;
+                    else
+                        img_labels_row[c + 1] = 0;
+                    if (img_row_fol[c] > 0)
+                        img_labels_row_fol[c] = iLabel;
+                    else
+                        img_labels_row_fol[c] = 0;
+                    if (img_row_fol[c + 1] > 0)
+                        img_labels_row_fol[c + 1] = iLabel;
+                    else
+                        img_labels_row_fol[c + 1] = 0;
+                }
+                else {
+                    img_labels_row[c] = 0;
+                    img_labels_row[c + 1] = 0;
+                    img_labels_row_fol[c] = 0;
+                    img_labels_row_fol[c + 1] = 0;
+                }
+            }
+            // Last column if the number of columns is odd
+            if (o_cols) {
+                int iLabel = img_labels_row[c];
+                if (iLabel > 0) {
+                    iLabel = LabelsSolver::GetLabel(iLabel);
+                    if (img_row[c] > 0)
+                        img_labels_row[c] = iLabel;
+                    else
+                        img_labels_row[c] = 0;
+                    if (img_row_fol[c] > 0)
+                        img_labels_row_fol[c] = iLabel;
+                    else
+                        img_labels_row_fol[c] = 0;
+                }
+                else {
+                    img_labels_row[c] = 0;
+                    img_labels_row_fol[c] = 0;
+                }
+            }
+        }
+        // Last row if the number of rows is odd
+        if (o_rows) {
+            // Get rows pointer
+            const unsigned char* const img_row = img_.ptr<unsigned char>(r);
+            unsigned* const img_labels_row = img_labels_.ptr<unsigned>(r);
+            int c = 0;
+            for (; c < e_cols; c += 2) {
+                int iLabel = img_labels_row[c];
+                if (iLabel > 0) {
+                    iLabel = LabelsSolver::GetLabel(iLabel);
+                    if (img_row[c] > 0)
+                        img_labels_row[c] = iLabel;
+                    else
+                        img_labels_row[c] = 0;
+                    if (img_row[c + 1] > 0)
+                        img_labels_row[c + 1] = iLabel;
+                    else
+                        img_labels_row[c + 1] = 0;
+                }
+                else {
+                    img_labels_row[c] = 0;
+                    img_labels_row[c + 1] = 0;
+                }
+            }
+            // Last column if the number of columns is odd
+            if (o_cols) {
+                int iLabel = img_labels_row[c];
+                if (iLabel > 0) {
+                    iLabel = LabelsSolver::GetLabel(iLabel);
+                    if (img_row[c] > 0)
+                        img_labels_row[c] = iLabel;
+                    else
+                        img_labels_row[c] = 0;
+                }
+                else {
+                    img_labels_row[c] = 0;
+                }
             }
         }
     }

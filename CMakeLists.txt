@@ -91,29 +91,29 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang" OR CMAKE_C_COMPILER_ID M
 endif()
 
 # The following commands would serve to simplify the check on the compiler version but do not yet seem to work perfectly
-#set(CMAKE_CXX_STANDARD_REQUIRED YES) # Force the following command to generate an error when it fails
-#set(CMAKE_CXX_STANDARD 14)
-#set(CMAKE_CXX_EXTENSIONS NO)
+set(CMAKE_CXX_STANDARD_REQUIRED YES) # Force the following command to generate an error when it fails
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_EXTENSIONS NO)
    
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
-    include(CheckCXXCompilerFlag)
-    CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
-
-	if(COMPILER_SUPPORTS_CXX14 AND NOT CMAKE_CXX_FLAGS MATCHES "-std=c\\+\\+14")
-		set(CMAKE_CXX_FLAGS "-std=c++14 ${CMAKE_CXX_FLAGS}" CACHE STRING "Enable c++14" FORCE)
-	elseif(NOT COMPILER_SUPPORTS_CXX14)
-		message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support. Please use a different C++ compiler.")
-	endif()
-	
-	message(STATUS "C++ flags: ${CMAKE_CXX_FLAGS}")
-	message(STATUS "C flags: ${CMAKE_C_FLAGS}")
-elseif(MSVC)
-		if(MSVC_VERSION LESS 1900)
-			message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support. Please use a different C++ compiler.")
-		endif()
-else()
-	message(STATUS "We are not able to check if ${CMAKE_CXX_COMPILER} compiler has C++14 support. YACCLAB may not work properly.")
-endif()
+#if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
+#    include(CheckCXXCompilerFlag)
+#    CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
+#
+#	if(COMPILER_SUPPORTS_CXX14 AND NOT CMAKE_CXX_FLAGS MATCHES "-std=c\\+\\+14")
+#		set(CMAKE_CXX_FLAGS "-std=c++14 ${CMAKE_CXX_FLAGS}" CACHE STRING "Enable c++14" FORCE)
+#	elseif(NOT COMPILER_SUPPORTS_CXX14)
+#		message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support. Please use a different C++ compiler.")
+#	endif()
+#	
+#	message(STATUS "C++ flags: ${CMAKE_CXX_FLAGS}")
+#	message(STATUS "C flags: ${CMAKE_C_FLAGS}")
+#elseif(MSVC)
+#		if(MSVC_VERSION LESS 1900)
+#			message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support. Please use a different C++ compiler.")
+#		endif()
+#else()
+#	message(STATUS "We are not able to check if ${CMAKE_CXX_COMPILER} compiler has C++14 support. YACCLAB may not work properly.")
+#endif()
 
 
 # ----------------------------------------------------------------------------
