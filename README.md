@@ -1,4 +1,10 @@
-# YACCLAB: Yet Another Connected Components Labeling Benchmark &nbsp;&nbsp;&nbsp; [![Build Status](https://travis-ci.org/prittt/YACCLAB.svg?branch=master)](https://travis-ci.org/prittt/YACCLAB)
+# YACCLAB: Yet Another Connected Components Labeling Benchmark
+
+|         OS            | Build |          Compiler           | OpenCV | CMake | GPU |                                              Travis CI                                                          |  GitHub Actions |
+|-----------------------|-------|-----------------------------|--------|-------|-----|-----------------------------------------------------------------------------------------------------------------|-----------------|
+| Ubuntu 16.04.6 LTS    |  x64  |           5.4.0             |  3.1.0 | 3.13  | NO  | [![Build Status](https://travis-ci.org/prittt/YACCLAB.svg?branch=master)](https://travis-ci.org/prittt/YACCLAB) |                 |
+| MacOS (Darwin 17.7.0) |  x64  | AppleClang 10 (Xcode-10.1)  |  3.1.0 | 3.13  | NO  | [![Build Status](https://travis-ci.org/prittt/YACCLAB.svg?branch=master)](https://travis-ci.org/prittt/YACCLAB) |                 |
+
 
 <p align="justify">Please include the following references when citing the YACCLAB project/dataset:</p>
 
