@@ -285,7 +285,12 @@ bool YacclabTests::SaveBroadOutputResults(std::map<std::string, cv::Mat1d>& resu
 
 		// Calculate the max of the columns to find unused steps
 		cv::Mat1d results_reduced(1, results.at(algo_name).cols);
-		cv::reduce(results.at(algo_name), results_reduced, 0, CV_REDUCE_MAX);
+#if OPENCV_VERSION_MAJOR >= 4
+        cv::reduce(results.at(algo_name), results_reduced, 0, REDUCE_MAX);
+#else
+        cv::reduce(results.at(algo_name), results_reduced, 0, CV_REDUCE_MAX);
+        cv::reduce(results.at(algo_name), results_reduced, 0, CV_REDUCE_MAX);
+#endif
 
 		for (int step_number = 0; step_number != StepType::ST_SIZE; ++step_number) {
 			StepType step = static_cast<StepType>(step_number);
