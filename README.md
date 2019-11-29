@@ -47,11 +47,9 @@
 </tbody>
 </table>
 
-
-
 <p align="justify">Please include the following references when citing the YACCLAB project/dataset:</p>
 
-- <p align="justify"> Allegretti, Stefano, Federico Bolelli, and Costantino Grana. "Optimized Block-Based Algorithms to Label Connected Components on GPUs." IEEE Transactions on Parallel and Distributed Systems, 2019.<a title="BibTex" href="http://imagelab.ing.unimore.it/files2/yyacclab/YACCLAB_TPDS2019_BibTex.html">BibTex</a>. <a title="Download" href="https://iris.unimore.it/retrieve/handle/11380/1179616/225393/2018_TPDS_Optimized_Block_Based_Algorithms_to_Label_Connected_Components_on_GPUs.pdf"><img src="https://raw.githubusercontent.com/prittt/YACCLAB/master/doc/pdf_logo.png" alt="Download." /></a></p>
+- <p align="justify"> Allegretti, Stefano, Federico Bolelli, and Costantino Grana. "Optimized Block-Based Algorithms to Label Connected Components on GPUs." IEEE Transactions on Parallel and Distributed Systems, 2019. <a title="BibTex" href="http://imagelab.ing.unimore.it/files2/yacclab/YACCLAB_TPDS2019_BibTex.html">BibTex</a>. <a title="Download" href="https://iris.unimore.it/retrieve/handle/11380/1179616/225393/2018_TPDS_Optimized_Block_Based_Algorithms_to_Label_Connected_Components_on_GPUs.pdf"><img src="https://raw.githubusercontent.com/prittt/YACCLAB/master/doc/pdf_logo.png" alt="Download." /></a></p>
 
 - <p align="justify"> Bolelli, Federico; Cancilla, Michele; Baraldi, Lorenzo; Grana, Costantino "Towards Reliable Experiments on the Performance of Connected Components Labeling Algorithms" Journal of Real-Time Image Processing, 2018. <a title="BibTex" href="http://imagelab.ing.unimore.it/files2/yacclab/YACCLAB_JRTIP2018_BibTex.html">BibTex</a>. <a title="Download" href="http://imagelab.ing.unimore.it/imagelab/pubblicazioni/2016-icpr-yacclab.pdf"><img src="https://raw.githubusercontent.com/prittt/YACCLAB/master/doc/pdf_logo.png" alt="Download." /></a></p>
 
@@ -117,7 +115,7 @@ Notes for gnuplot:
   <tr>
     <td align="center" rowspan="12">CPU</td>
     <td align="center">-</td>
-    <td align="center">L. Di Stefano,<br>A. Bulgarelli <sup><a href="#DiStefano">[3]</a></sup></td>
+    <td align="center">L. Di Stefano,<br>A. Bulgarelli  <a href="#DiStefano">[3]</a></td>
     <td align="center">1999</td>
     <td align="center">DiStefano</td>
     <td align="center"><i>labeling_distefano_1999.h</i></td>
@@ -125,7 +123,7 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Contour Tracing</td>
-    <td align="center">F. Chang,</br>C.J. Chen,</br>C.J. Lu <sup><a href="#CT">[1]</a></sup></td>
+    <td align="center">F. Chang,</br>C.J. Chen,</br>C.J. Lu  <a href="#CT">[1]</a></td>
     <td align="center">1999</td>
     <td align="center">CT</td>
     <td align="center"><i>labeling_fchang_2003.h</i></td>
@@ -133,7 +131,7 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Configuration Transition Based</td>
-    <td align="center">L. He,</br>X. Zhao,</br>Y. Chao,</br>K. Suzuki <sup><a href="#CTB">[7]</a></sup></td>
+    <td align="center">L. He,</br>X. Zhao,</br>Y. Chao,</br>K. Suzuki  <a href="#CTB">[7]</a></td>
     <td align="center">1999</td>
     <td align="center">CTB</td>
     <td align="center"><i>labeling_he_2014.h</i>, <i>labeling_he_2014_graph.inc</i>
@@ -141,7 +139,7 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Scan Array-based with Union Find</td>
-    <td align="center">K. Wu,</br>E. Otoo,</br>K. Suzuki <sup><a href="#SAUF">[6]</a></sup></td>
+    <td align="center">K. Wu,</br>E. Otoo,</br>K. Suzuki  <a href="#SAUF">[6]</a></td>
     <td align="center">2009</td>
     <td align="center">SAUF</td>
     <td align="center"><i>labeling_wu_2009.h</i>, <i>labeling_wu_2009_tree.inc</i></td>
@@ -149,7 +147,7 @@ Notes for gnuplot:
   </tr>
     <tr>
     <td align="center">Stripe-Based Labeling Algorithm</td>
-    <td align="center">H.L. Zhao,</br>Y.B. Fan,</br>T.X. Zhang,</br>H.S. Sang <sup><a href="#SBLA">[8]</a></sup></td>
+    <td align="center">H.L. Zhao,</br>Y.B. Fan,</br>T.X. Zhang,</br>H.S. Sang  <a href="#SBLA">[8]</a></td>
     <td align="center">2010</td>
     <td align="center">SBLA</td>
     <td align="center"><i>labeling_zhao_2010.h</i></td>
@@ -157,7 +155,7 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Block-Based with Decision Tree</td>
-    <td align="center">C. Grana,</br>D. Borghesani,</br>R. Cucchiara <sup><a href="#BBDT">[4]</a></sup></td>
+    <td align="center">C. Grana,</br>D. Borghesani,</br>R. Cucchiara  <a href="#BBDT">[4]</a></td>
     <td align="center">2010</td>
     <td align="center">BBDT</td>
     <td align="center"><i>labeling_grana_2010.h</i>, <i>labeling_grana_2010_tree.inc</i></td>
@@ -165,7 +163,7 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Block-Based with Binary Decision Trees</td>
-    <td align="center">W.Y. Chang,</br>C.C. Chiu,</br>J.H. Yang <sup><a href="#CCIT">[2]</a></sup></td>
+    <td align="center">W.Y. Chang,</br>C.C. Chiu,</br>J.H. Yang  <a href="#CCIT">[2]</a></td>
     <td align="center">2015</td>
     <td align="center">CCIT</td>
     <td align="center"><i>labeling_wychang_2015.h</i>, <i>labeling_wychang_2015_tree.inc</i>, <i>labeling_wychang_2015_tree_0.inc</i></td>
@@ -173,15 +171,15 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Light Speed Labeling</td>
-    <td align="center">L. Cabaret,</br>L. Lacassagne,</br>D. Etiemble <sup><a href="#LSL_STD">[5]</a></sup></td>
+    <td align="center">L. Cabaret,</br>L. Lacassagne,</br>D. Etiemble  <a href="#LSL_STD">[5]</a></td>
     <td align="center">2016</td>
-    <td align="center">LSL_STD<small><sup>I</sup></small></br>LSL_STDZ<small><sup>II</sup></small></br>LSL_RLE<small><sup>III</sup></small></td>
+    <td align="center">LSL_STD<small> I</small></br>LSL_STDZ<small> II</small></br>LSL_RLE<small> III</small></td>
     <td align="center"><i>labeling_lacassagne_2016.h</i>, <i>labeling_lacassagne_2016_code.inc</i></td>
-    <td align="center">YES<small><sup>IV</sup></small></td>
+    <td align="center">YES<small> IV</small></td>
   </tr>
   <tr>
     <td align="center">Pixel Prediction</td>
-    <td align="center">C.Grana,</br>L. Baraldi,</br>F. Bolelli <sup><a href="#PRED">[9]</a></sup></td>
+    <td align="center">C.Grana,</br>L. Baraldi,</br>F. Bolelli  <a href="#PRED">[9]</a></td>
     <td align="center">2016</td>
     <td align="center">PRED</td>
     <td align="center"><i>labeling_grana_2016.h</i>, <i>labeling_grana_2016_forest.inc</i>, <i>labeling_grana_2016_forest_0.inc</i>
@@ -189,7 +187,7 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Directed Rooted Acyclic Graph</td>
-    <td align="center">F. Bolelli,</br>L. Baraldi,</br>M. Cancilla,</br>C. Grana <sup><a href="#DRAG">[23]</a></sup></td>
+    <td align="center">F. Bolelli,</br>L. Baraldi,</br>M. Cancilla,</br>C. Grana  <a href="#DRAG">[23]</a></td>
     <td align="center">2018</td>
     <td align="center">DRAG</td>
     <td align="center"><i>labeling_bolelli_2018.h</i>, <i>labeling_grana_2018_drag.inc</i></td>
@@ -197,7 +195,7 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Spaghetti Labeling</td>
-    <td align="center">F. Bolelli,</br>S. Allegretti,</br>L. Baraldi,</br>C. Grana <sup><a href="#Spaghetti">[20]</a></sup></td>
+    <td align="center">F. Bolelli,</br>S. Allegretti,</br>L. Baraldi,</br>C. Grana <a href="#Spaghetti">[13]</a></td>
     <td align="center">2019</td>
     <td align="center">Spaghetti</td>
     <td align="center"><i>labeling_bolelli_2019.h</i>, <i>labeling_bolelli_2019_forest.inc</i>, <i>labeling_bolelli_2019_forest_firstline.inc</i>, <i>labeling_bolelli_2019_forest_lastline.inc</i>, <i>labeling_bolelli_2019_forest_singleline.inc</i></td>
@@ -205,9 +203,9 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Null Labeling</td>
-    <td align="center">F. Bolelli,</br>M. Cancilla,</br>L. Baraldi,</br>C. Grana</td>
+    <td align="center">F. Bolelli,</br>M. Cancilla,</br>L. Baraldi,</br>C. Grana <a href="#YACCLAB_JRTIP">[13]</a></td> 
     <td align="center">-</td>
-    <td align="center">NULL<small><sup>V</sup></small></td>
+    <td align="center">NULL<small> V</small></td>
     <td align="center"><i>labeling_null.h</i></td>
     <td align="center">NO</td>
   </tr>
@@ -216,7 +214,7 @@ Notes for gnuplot:
   <tr>
     <td align="center" rowspan="9">GPU</td>
     <td align="center">Union Find</td>
-    <td align="center">V. Oliveira,</br>R. Lotufo<sup><a href="#UF">[18]</a></sup></td>
+    <td align="center">V. Oliveira,</br>R. Lotufo <a href="#UF">[18]</a></td>
     <td align="center">2010</td>
     <td align="center">UF</td>
     <td align="center"><i>labeling_CUDA_UF.cu</i></td>
@@ -224,7 +222,7 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Optimized</br>Label Equivalence</td>
-    <td align="center">O. Kalentev,</br>A. Rai,</br>S. Kemnitz,</br>R. Schneider<sup><a href="#OLE">[19]</a></sup></td>
+    <td align="center">O. Kalentev,</br>A. Rai,</br>S. Kemnitz,</br>R. Schneider <a href="#OLE">[19]</a></td>
     <td align="center">2011</td>
     <td align="center">OLE</td>
     <td align="center"><i>labeling_CUDA_OLE.cu</i></td>
@@ -232,7 +230,7 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Block Equivalence</td>
-    <td align="center">S. Zavalishin,</br>I. Safonov,</br>Y. Bekhtin,</br>I. Kurilin<sup><a href="#BE">[20]</a></sup></td>
+    <td align="center">S. Zavalishin,</br>I. Safonov,</br>Y. Bekhtin,</br>I. Kurilin <a href="#BE">[20]</a></td>
     <td align="center">2016</td>
     <td align="center">BE</td>
     <td align="center"><i>labeling_CUDA_BE.cu</i></td>
@@ -240,7 +238,7 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Distanceless</br>Label Propagation</td>
-    <td align="center">L. Cabaret,</br>L. Lacassagne,</br>D. Etiemble<sup><a href="#DLP">[21]</a></sup></td>
+    <td align="center">L. Cabaret,</br>L. Lacassagne,</br>D. Etiemble <a href="#DLP">[21]</a></td>
     <td align="center">2017</td>
     <td align="center">DLP</td>
     <td align="center"><i>labeling_CUDA_DLP.cu</i></td>
@@ -272,7 +270,7 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Block-based Union Find</td>
-    <td align="center">S. Allegretti,</br>F. Bolelli,</br>C. Grana<sup><a href="#BUF_BKE">[24]</a></sup></td>
+    <td align="center">S. Allegretti,</br>F. Bolelli,</br>C. Grana <a href="#BUF_BKE">[24]</a></td>
     <td align="center">2019</td>
     <td align="center">BUF</td>
     <td align="center"><i>labeling_CUDA_BUF.cu</i></td>
@@ -280,7 +278,7 @@ Notes for gnuplot:
   </tr>
     <tr>
     <td align="center">Block-based Komura Equivalence</td>
-    <td align="center">S. Allegretti,</br>F. Bolelli,</br>C. Grana<sup><a href="#BUF_BKE">[24]</a></sup></td>
+    <td align="center">S. Allegretti,</br>F. Bolelli,</br>C. Grana <a href="#BUF_BKE">[24]</a></td>
     <td align="center">2019</td>
     <td align="center">BKE</td>
     <td align="center"><i>labeling_CUDA_BKE.cu</i></td>
@@ -423,7 +421,8 @@ The source file should be as follows:
 #include "<header_file_name>.h"
 
 REGISTER_LABELING_WITH_EQUIVALENCES_SOLVERS(<algorithm_name>);
-// Replace the above line with "REGISTER_LABELING(<algorithm_name>);" if the algorithm is not template on the equivalence solver algorithm.
+// Replace the above line with "REGISTER_LABELING(<algorithm_name>);" if the algorithm
+// is not template on the equivalence solver algorithm.
 ```
 The header file should follows the structure below (see <tt>include/labeling_bolelli_2018.h</tt> to have a complete example):
 ```c++
@@ -506,7 +505,6 @@ public:
 When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The file should be placed in the <tt>cuda/src</tt> folder.
 
 <p align="justify">Once an algorithm has been added to YACCLAB, it is ready to be tested and compared to the others. Don't forget to update the configuration file! We look at YACCLAB as a growing effort towards better reproducibility of CCL algorithms, so implementations of new and existing labeling methods are very welcome.</p>
--->
 
 <a name="datasets"></a>
 ## The YACCLAB Dataset
@@ -514,29 +512,29 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
 
 ### 2D Datasets
 
-- <b>MIRflickr:<sup><a href="#MIRFLICKR">10</a></sup></b><p align="justify"> Otsu-binarized version of the MIRflickr dataset, publicly available under a Creative Commons License. It contains 25,000 standard resolution images taken from Flickr. These images have an average resolution of 0.17 megapixels, there are few connected components (495 on average) and are generally composed of not too complex patterns, so the labeling is quite easy and fast.</p>
+- <b>MIRflickr: <a href="#MIRFLICKR">10</a></b><p align="justify"> Otsu-binarized version of the MIRflickr dataset, publicly available under a Creative Commons License. It contains 25,000 standard resolution images taken from Flickr. These images have an average resolution of 0.17 megapixels, there are few connected components (495 on average) and are generally composed of not too complex patterns, so the labeling is quite easy and fast.</p>
 
 - <b>Hamlet:</b><p align="justify"> A set of 104 images scanned from a version of the Hamlet found on Project Gutenberg (http://www.gutenberg.org). Images have an average amount of 2.71 million of pixels to analyze and 1447 components to label, with an average foreground density of 0.0789. </p>
 
-- <b>Tobacco800:<sup><a href="#TOBACCO1">11</a>,<a href="#TOBACCO2">12</a>,<a href="#TOBACCO3">13</a></sup></b><p align="justify"> A set of 1290 document images. It is a realistic database for document image analysis research as these documents were collected and scanned using a wide variety of equipment over time. Resolutions of documents in Tobacco800 vary significantly from 150 to 300 DPI and the dimensions of images range from 1200 by 1600 to 2500 by 3200 pixels. Since CCL is one of the initial preprocessing steps in most layout analysis or OCR algorithms, hamlet and tobacco800 allow to test the algorithm performance in such scenarios. </p>
+- <b>Tobacco800 <a href="#TOBACCO1">[11]</a>,<a href="#TOBACCO2">[12]</a>:</b><p align="justify"> A set of 1290 document images. It is a realistic database for document image analysis research as these documents were collected and scanned using a wide variety of equipment over time. Resolutions of documents in Tobacco800 vary significantly from 150 to 300 DPI and the dimensions of images range from 1200 by 1600 to 2500 by 3200 pixels. Since CCL is one of the initial preprocessing steps in most layout analysis or OCR algorithms, hamlet and tobacco800 allow to test the algorithm performance in such scenarios. </p>
 
-- <b>3DPeS:<sup><a href="#3DPES">14</a></sup></b> <p align="justify"> It comes from 3DPeS (3D People Surveillance Dataset), a surveillance dataset designed mainly for people re-identification in multi camera systems with non-overlapped fields of view. 3DPeS can be also exploited to test many other tasks, such as people detection, tracking, action analysis and trajectory analysis. The background models for all cameras are provided, so a very basic technique of motion segmentation has been applied to generate the foreground binary masks, i.e.,  background subtraction and fixed thresholding. The analysis of the foreground masks to remove small connected components and for nearest neighbor matching is a common application for CCL. </p>
+- <b>3DPeS <a href="#3DPES">[14]</a>:</b> <p align="justify"> It comes from 3DPeS (3D People Surveillance Dataset), a surveillance dataset designed mainly for people re-identification in multi camera systems with non-overlapped fields of view. 3DPeS can be also exploited to test many other tasks, such as people detection, tracking, action analysis and trajectory analysis. The background models for all cameras are provided, so a very basic technique of motion segmentation has been applied to generate the foreground binary masks, i.e.,  background subtraction and fixed thresholding. The analysis of the foreground masks to remove small connected components and for nearest neighbor matching is a common application for CCL. </p>
 
-- <b>Medical:<sup><a href="#MEDICAL">15</a></sup></b><p align="justify"> This dataset is composed by histological images and allow us to cover this fundamental medical field. The process used for nuclei segmentation and binarization is described in  <a href="#MEDICAL">[12]</a>. The resulting dataset is a collection of 343 binary histological images with an average amount of 1.21 million of pixels to analyze and 484 components to label. </p>
+- <b>Medical <a href="#MEDICAL">[15]</a>:</b><p align="justify"> This dataset is composed by histological images and allow us to cover this fundamental medical field. The process used for nuclei segmentation and binarization is described in  <a href="#MEDICAL">[12]</a>. The resulting dataset is a collection of 343 binary histological images with an average amount of 1.21 million of pixels to analyze and 484 components to label. </p>
 
-- <b>Fingerprints:<sup><a href="#FINGERPRINTS">16</a></sup></b><p align="justify"> This dataset counts 960 fingerprint images collected by using low-cost optical sensors or synthetically generated. These images were taken from the three Verification Competitions FCV2000, FCV2002 and FCV2004. In order to fit CCL application, fingerprints have been binarized using an adaptive threshold and then negated in order to have foreground pixel with value 255. Most of the original images have a resolution of 500 DPI and their dimensions range from 240 by 320 up to 640 by 480 pixels. </p>
+- <b>Fingerprints <a href="#FINGERPRINTS">[16]</a>:</b><p align="justify"> This dataset counts 960 fingerprint images collected by using low-cost optical sensors or synthetically generated. These images were taken from the three Verification Competitions FCV2000, FCV2002 and FCV2004. In order to fit CCL application, fingerprints have been binarized using an adaptive threshold and then negated in order to have foreground pixel with value 255. Most of the original images have a resolution of 500 DPI and their dimensions range from 240 by 320 up to 640 by 480 pixels. </p>
 
 <table>
 <tr>
   <td align="center"><img src="doc/sample_2D_datasets.png"></td>
 </tr>
 <tr>
-  <td>Samples of the YACCLAB 2D (real) datasets.  From left to right: 3DPeS, Fingerprints, Medical, MIRflickr, Tobacco800, XDOCS, Hamlet.</td>
+  <td >Samples of the YACCLAB 2D (real) datasets.  From left to right: 3DPeS, Fingerprints, Medical, MIRflickr, Tobacco800, XDOCS, Hamlet.</td>
 </tr>
 </table>
 
 - <b>Synthetic Images</b>:
-	- <b>Classical <a href="#BBDT">4</a></b>:<p align="justify"> A set of synthetic random noise images who contain black and white random noise with 9 different foreground densities (10% up to 90%), from a low resolution of 32x32 pixels to a maximum resolution of 4096x4096 pixels, allowing to test the scalability and the effectiveness of different approaches when the number of labels gets high. For every combination of size and density, 10 images are provided for a total of 720 images. The resulting subset allows to evaluate performance both in terms of scalability on the number of pixels and on the number of labels (density). </p>
+	- <b>Classical <a href="#BBDT">[4]</a></b>:<p align="justify"> A set of synthetic random noise images who contain black and white random noise with 9 different foreground densities (10% up to 90%), from a low resolution of 32x32 pixels to a maximum resolution of 4096x4096 pixels, allowing to test the scalability and the effectiveness of different approaches when the number of labels gets high. For every combination of size and density, 10 images are provided for a total of 720 images. The resulting subset allows to evaluate performance both in terms of scalability on the number of pixels and on the number of labels (density). </p>
 	- <b>Granularity <a href="#LSL">[4]</a> </b>:<p align="justify"> This dataset allows to test algorithms varying not only the pixels density but also their granularity <i>g</i> (<i>i.e.</i>, dimension of minimum foreground block), underlying the behaviour of different proposals when the number of provisional labels changes. All the images have a resolution of 2048x2048 and are generated with the Mersenne Twister MT19937 random number generator implemented in the <i>C++</i> standard and starting with a "seed" equal to zero. Density of the images ranges from 0% to 100% with step of 1% and for every density value 16 images with pixels blocks of <i>gxg</i> with <i>g</i> ∈ [1,16] are generated. Moreover, the procedure has been repeated 10 times for every couple of density-granularity for a total of 16160 images.</p>
 
 <table>
@@ -552,9 +550,9 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
 
 - <b>OASIS <a href="#OASIS">[todo]</a></b>: <p align="justify"> This is a dataset of medical MRI data taken from the Open Access Series of Imaging Studies (OASIS) project. It consists of 373 volumes of 256 × 256 × 128 pixels, binarized with the Otsu threshold.</p> 
 
-- <b>Mitochondria <a href="#MIT1">[todo], </a><a href="#MIT2">[todo]</a></b>: <p align="justify">It is the Electron Microscopy Dataset, which contains binary sections taken from the CA1 hippocampus for a total of three volumes composed by 165 slices with a resolution of 1024 × 768 pixels.</p>
+- <b>Mitochondria <a href="#MIT1">[todo]</a></b>: <p align="justify">It is the Electron Microscopy Dataset, which contains binary sections taken from the CA1 hippocampus for a total of three volumes composed by 165 slices with a resolution of 1024 × 768 pixels.</p>
 
-- <b>Hilbert <a href="#TPDS">[todo]</a></b>: <p align="justify">This dataset contains six volumes of 128 × 128 × 128 pixels, filled with the 3D Hilbert curve obtained at different iterations (1 to 6) of the construction method. The Hilbert curve is a fractal space-filling curve that representsa challenging test case for the labeling algorithms.</p>
+- <b>Hilbert <a href="#TPDS">[24]</a></b>: <p align="justify">This dataset contains six volumes of 128 × 128 × 128 pixels, filled with the 3D Hilbert curve obtained at different iterations (1 to 6) of the construction method. The Hilbert curve is a fractal space-filling curve that representsa challenging test case for the labeling algorithms.</p>
 
 <table>
 <tr>
@@ -565,7 +563,7 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
 </tr>
 </table>
 
-- <b>Granularity <a href="#TPDS">[todo]</a></b>: <p align="justify">It contains 3D synthetic images generated as described for the 2D version. Images have a resolution of 256 x 256 x 256 pixels.</p>
+- <b>Granularity <a href="#TPDS">[24]</a></b>: <p align="justify">It contains 3D synthetic images generated as described for the 2D version. Images have a resolution of 256 x 256 x 256 pixels.</p>
 
 <a name="tests"></a>
 ## Available Tests
@@ -647,7 +645,7 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
       <a name="SAUF">[6]</a>
     </td>
     <td>
-      <p align="justify"> K. Wu, E. Otoo, and K. Suzuki, Optimizing two-pass connected-component labeling algorithms,” Pattern Analysis and Applications, vol. 12, no. 2, pp. 117–135, 2009.</p>
+      <p align="justify"> K. Wu, E. Otoo, and K. Suzuki, "Optimizing two-pass connected-component labeling algorithms,” Pattern Analysis and Applications," vol. 12, no. 2, pp. 117–135, 2009.</p>
     </td>
 </tr>
 <tr>
@@ -655,7 +653,7 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
       <a name="CTB">[7]</a>
     </td>
     <td>
-      <p align="justify">L.  He,  X.  Zhao,  Y.  Chao,  and  K.  Suzuki, Configuration-Transition-Based Connected-Component  Labeling, IEEE  Transactions  on  Image Processing, vol. 23, no. 2, pp. 943–951, 2014.</p>
+      <p align="justify">L.  He,  X.  Zhao,  Y.  Chao,  and  K.  Suzuki, "Configuration-Transition-Based Connected-Component Labeling", IEEE  Transactions  on  Image Processing, vol. 23, no. 2, pp. 943–951, 2014.</p>
     </td>
 </tr>
 <tr>
@@ -663,7 +661,7 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
       <a name="SBLA">[8]</a>
     </td>
     <td>
-      <p align="justify">H.  Zhao,  Y.  Fan,  T.  Zhang,  and  H.  Sang, Stripe-based  connected components  labelling, Electronics  letters,  vol.  46,  no.  21,  pp.  1434–1436, 2010.</p>
+      <p align="justify">H.  Zhao,  Y.  Fan,  T.  Zhang,  and  H.  Sang, "Stripe-based  connected components labelling," Electronics  letters,  vol.  46,  no.  21,  pp.  1434–1436, 2010.</p>
     </td>
 </tr>
 <tr>
@@ -671,7 +669,7 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
       <a name="PRED">[9]</a>
     </td>
     <td>
-      <p align="justify">C. Grana, L. Baraldi, and F. Bolelli, Optimized Connected Components Labeling  with  Pixel  Prediction, in Advanced  Concepts  for  Intelligent Vision Systems, 2016.</p>
+      <p align="justify">C. Grana, L. Baraldi, and F. Bolelli, "Optimized Connected Components Labeling  with  Pixel  Prediction," in Advanced  Concepts  for  Intelligent Vision Systems, 2016.</p>
     </td>
 </tr>
 <tr>
@@ -700,6 +698,14 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
 </tr>
 <tr>
     <td style="vertical-align: top !important;" align="right">
+      <a name="YACCLAB_JRTIP">[13]</a>
+    </td>
+    <td>
+      <p align="justify">F. Bolelli, M. Cancilla, L. Baraldi, C. Grana, "Towards Reliable Experiments on the Performance of Connected Components Labeling Algorithms," Journal of Real-Time Image Processing, 2018.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
       <a name="3DPES">[14]</a>
     </td>
     <td>
@@ -719,7 +725,7 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
       <a name="FINGERPRINTS">[16]</a>
     </td>
     <td>
-      <p align="justify">D. Maltoni, D. Maio, A. Jain, and S. Prabhakar, Handbook of fingerprint recognition. Springer Science & Business Media, 2009.</p>
+      <p align="justify">D. Maltoni, D. Maio, A. Jain, and S. Prabhakar, "Handbook of fingerprint recognition", Springer Science & Business Media, 2009.</p>
     </td>
 </tr>
 <tr>
@@ -727,7 +733,7 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
       <a name="YACCLAB">[17]</a>
     </td>
     <td>
-      <p align="justify">C.Grana, F.Bolelli, L.Baraldi, and R.Vezzani, YACCLAB - Yet Another Connected Components Labeling Benchmark, Proceedings of the 23rd International Conference on Pattern Recognition, Cancun, Mexico, 4-8 Dec 2016, 2016.</p>
+      <p align="justify">C.Grana, F.Bolelli, L.Baraldi, and R.Vezzani, "YACCLAB - Yet Another Connected Components Labeling Benchmark," Proceedings of the 23rd International Conference on Pattern Recognition, Cancun, Mexico, 4-8 Dec 2016, 2016.</p>
     </td>
 </tr>
 <tr>
@@ -735,7 +741,7 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
       <a name="UF">[18]</a>
     </td>
     <td>
-      <p align="justify">V. Oliveira and R. Lotufo, A study on connected components labeling algorithms using GPUs, in SIBGRAPI. vol. 3, p. 4, 2010.</p>
+      <p align="justify">V. Oliveira and R. Lotufo, "A study on connected components labeling algorithms using GPUs," in SIBGRAPI. vol. 3, p. 4, 2010.</p>
     </td>
 </tr>
 <tr>
@@ -743,7 +749,7 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
       <a name="OLE">[19]</a>
     </td>
     <td> 
-      <p align="justify">O. Kalentev, A. Rai, S. Kemnitz, R. Schneider, Connected component labeling on a 2D grid using CUDA, in Journal of Parallel and Distributed Computing 71(4), 615–620, 2011.</p>
+      <p align="justify">O. Kalentev, A. Rai, S. Kemnitz, R. Schneider," Connected component labeling on a 2D grid using CUDA," in Journal of Parallel and Distributed Computing 71(4), 615–620, 2011.</p>
     </td>
 </tr>
 <tr>
@@ -751,7 +757,7 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
       <a name="BE">[20]</a>
     </td>
     <td>
-      <p align="justify">S. Zavalishin, I. Safonov, Y. Bekhtin, I. Kurilin, Block Equivalence Algorithm for Labeling 2D and 3D Images on GPU, in Electronic Imaging 2016(2), 1–7, 2016.</p>
+      <p align="justify">S. Zavalishin, I. Safonov, Y. Bekhtin, I. Kurilin, "Block Equivalence Algorithm for Labeling 2D and 3D Images on GPU," in Electronic Imaging 2016(2), 1–7, 2016.</p>
     </td>
 </tr>
 <tr>
@@ -759,7 +765,7 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
       <a name="DLP">[21]</a>
     </td>
     <td>
-      <p align="justify">L. Cabaret, L. Lacassagne, D. Etiemble, Distanceless Label Propagation: an Efficient Direct Connected Component Labeling Algorithm for GPUs, in Seventh International Conference on Image Processing Theory, Tools and Applications, IPTA, 2017.</p>
+      <p align="justify">L. Cabaret, L. Lacassagne, D. Etiemble, "Distanceless Label Propagation: an Efficient Direct Connected Component Labeling Algorithm for GPUs," in Seventh International Conference on Image Processing Theory, Tools and Applications, IPTA, 2017.</p>
     </td>
 </tr>
 <tr>
@@ -767,7 +773,7 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
       <a name="KE">[22]</a>
     </td>
     <td>
-      <p align="justify">S. Allegretti, F. Bolelli, M. Cancilla, C. Grana, Optimizing GPU-Based Connected Components Labeling Algorithms, in Third IEEE International Conference on Image Processing, Applications and Systems, IPAS, 2018.</p>
+      <p align="justify">S. Allegretti, F. Bolelli, M. Cancilla, C. Grana, "Optimizing GPU-Based Connected Components Labeling Algorithms," in Third IEEE International Conference on Image Processing, Applications and Systems, IPAS, 2018.</p>
     </td>
 </tr>
 <tr>
@@ -775,7 +781,7 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
       <a name="DRAG">[23]</a>
     </td>
     <td>
-      <p align="justify">F. Bolelli, L. Baraldi, M. Cancilla, C. Grana, Connected Components Labeling on DRAGs, in International Conference on Pattern Recognition, 2018.</p>
+      <p align="justify">F. Bolelli, L. Baraldi, M. Cancilla, C. Grana, "Connected Components Labeling on DRAGs," in International Conference on Pattern Recognition, 2018.</p>
     </td>
 </tr>
 <tr>
@@ -783,15 +789,7 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
       <a name="BUF_BKE">[24]</a>
     </td>
     <td>
-      <p align="justify">S. Allegretti, F. Bolelli, C. Grana, Optimized Block-Based Algorithms to Label Connected Components on GPUs, in IEEE Transactions on Parallel and Distributed Systems, 2019.</p>
-    </td>
-</tr>
-<tr>
-    <td style="vertical-align: top !important;" align="right">
-      <a name="YACCLAB_JRTIP">[25]</a>
-    </td>
-    <td>
-      <p align="justify">F. Bolelli, M. Cancilla, L. Baraldi, C. Grana, Towards Reliable Experiments on the Performance of Connected Components Labeling Algorithms, Journal of Real-Time Image Processing, 2018.</p>
+      <p align="justify">S. Allegretti, F. Bolelli, C. Grana, "Optimized Block-Based Algorithms to Label Connected Components on GPUs," in IEEE Transactions on Parallel and Distributed Systems, 2019.</p>
     </td>
 </tr>
 <tr>
@@ -799,7 +797,23 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
       <a name="SPAGHETTI">[26]</a>
     </td>
     <td>
-      <p align="justify">F. Bolelli, S. Allegretti, L. Baraldi, C. Grana, Spaghetti Labeling: Directed Acyclic Graphs for Block-Based Connected Components Labeling, IEEE Transactions on Image Processing, 2019.</p>
+      <p align="justify">F. Bolelli, S. Allegretti, L. Baraldi, C. Grana, "Spaghetti Labeling: Directed Acyclic Graphs for Block-Based Connected Components Labeling," IEEE Transactions on Image Processing, 2019.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="OASIS">[27]</a>
+    </td>
+    <td>
+      <p align="justify">D. S. Marcus, A. F. Fotenos, J. G. Csernansky, J. C. Morris,  andR.  L. Buckner, “Open Access Series of Imaging Studies (OASIS): Longitudinal  MRI  Data  in  Nondemented  and  Demented  OlderAdults,” J. Cognitive Neurosci., vol. 22, no. 12, pp. 2677–2684, 2010.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="MIT1">[28]</a>
+    </td>
+    <td>
+      <p align="justify">A. Lucchi, Y. Li, and P. Fua, “Learning for Structured PredictionUsing Approximate Subgradient Descent with Working Sets,” inProceedings of the IEEE Conference  on Computer Vision and PatternRecognition, 2013, pp. 1987–1994.</p>
     </td>
 </tr>
 </table>
