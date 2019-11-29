@@ -246,7 +246,7 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">CUDA SAUF</td>
-    <td align="center">S. Allegretti,</br>F. Bolelli,</br>M. Cancilla,</br>C. Grana</td>
+    <td align="center">S. Allegretti,</br>F. Bolelli,</br>M. Cancilla,</br>C. Grana <a href="#CAIP">[29]</a></td>
     <td align="center">-</td>
     <td align="center">C-SAUF</td>
     <td align="center"><i>labeling_CUDA_SAUF.cu</i>,</br><i>labeling_wu_2009_tree.inc</i></td>
@@ -254,7 +254,7 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">CUDA BBDT</td>
-    <td align="center">S. Allegretti,</br>F. Bolelli,</br>M. Cancilla,</br>C. Grana</td>
+    <td align="center">S. Allegretti,</br>F. Bolelli,</br>M. Cancilla,</br>C. Grana <a href="#CAIP">[29]</a></td>
     <td align="center">-</td>
     <td align="center">C-BBDT</td>
     <td align="center"><i>labeling_CUDA_BBDT.cu</i>, <i>labeling_grana_2010_tree.inc</i></td>
@@ -262,7 +262,7 @@ Notes for gnuplot:
   </tr>
     <tr>
     <td align="center">CUDA DRAG</td>
-    <td align="center">S. Allegretti,</br>F. Bolelli,</br>M. Cancilla,</br>C. Grana</td>
+    <td align="center">S. Allegretti,</br>F. Bolelli,</br>M. Cancilla,</br>C. Grana <a href="#CAIP">[29]</a></td>
     <td align="center">-</td>
     <td align="center">C-DRAG</td>
     <td align="center"><i>labeling_CUDA_DRAG.cu</i></td>
@@ -548,9 +548,9 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
 
 ### 3D Datasets
 
-- <b>OASIS <a href="#OASIS">[todo]</a></b>: <p align="justify"> This is a dataset of medical MRI data taken from the Open Access Series of Imaging Studies (OASIS) project. It consists of 373 volumes of 256 × 256 × 128 pixels, binarized with the Otsu threshold.</p> 
+- <b>OASIS <a href="#OASIS">[27]</a></b>: <p align="justify"> This is a dataset of medical MRI data taken from the Open Access Series of Imaging Studies (OASIS) project. It consists of 373 volumes of 256 × 256 × 128 pixels, binarized with the Otsu threshold.</p> 
 
-- <b>Mitochondria <a href="#MIT1">[todo]</a></b>: <p align="justify">It is the Electron Microscopy Dataset, which contains binary sections taken from the CA1 hippocampus for a total of three volumes composed by 165 slices with a resolution of 1024 × 768 pixels.</p>
+- <b>Mitochondria <a href="#MIT1">[28]</a></b>: <p align="justify">It is the Electron Microscopy Dataset, which contains binary sections taken from the CA1 hippocampus for a total of three volumes composed by 165 slices with a resolution of 1024 × 768 pixels.</p>
 
 - <b>Hilbert <a href="#TPDS">[24]</a></b>: <p align="justify">This dataset contains six volumes of 128 × 128 × 128 pixels, filled with the 3D Hilbert curve obtained at different iterations (1 to 6) of the construction method. The Hilbert curve is a fractal space-filling curve that representsa challenging test case for the labeling algorithms.</p>
 
@@ -805,7 +805,7 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
       <a name="OASIS">[27]</a>
     </td>
     <td>
-      <p align="justify">D. S. Marcus, A. F. Fotenos, J. G. Csernansky, J. C. Morris,  andR.  L. Buckner, “Open Access Series of Imaging Studies (OASIS): Longitudinal  MRI  Data  in  Nondemented  and  Demented  OlderAdults,” J. Cognitive Neurosci., vol. 22, no. 12, pp. 2677–2684, 2010.</p>
+      <p align="justify">D. S. Marcus, A. F. Fotenos, J. G. Csernansky, J. C. Morris, R. L. Buckner, “Open Access Series of Imaging Studies (OASIS): Longitudinal MRI Data in  Nondemented and Demented OlderAdults,” J. Cognitive Neurosci., vol. 22, no. 12, pp. 2677–2684, 2010.</p>
     </td>
 </tr>
 <tr>
@@ -813,7 +813,15 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
       <a name="MIT1">[28]</a>
     </td>
     <td>
-      <p align="justify">A. Lucchi, Y. Li, and P. Fua, “Learning for Structured PredictionUsing Approximate Subgradient Descent with Working Sets,” inProceedings of the IEEE Conference  on Computer Vision and PatternRecognition, 2013, pp. 1987–1994.</p>
+      <p align="justify">A. Lucchi, Y. Li, and P. Fua, “Learning for Structured Prediction Using Approximate Subgradient Descent with Working Sets,” in Proceedings of the IEEE Conference  on Computer Vision and Pattern Recognition, 2013, pp. 1987–1994.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="CAIP">[29]</a>
+    </td>
+    <td>
+      <p align="justify">S. Allegretti, F, Bolelli, M. Cancilla, F. Pollastri, L. Canalini, C. Grana, "How does Connected Components Labeling with Decision Trees perform on GPUs?," In 18th International Conference on Computer Analysis of Images and Patterns, 2019.</p>
     </td>
 </tr>
 </table>
