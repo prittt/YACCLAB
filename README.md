@@ -51,6 +51,8 @@
 
 <p align="justify">Please include the following references when citing the YACCLAB project/dataset:</p>
 
+- <p align="justify"> Allegretti, Stefano, Federico Bolelli, and Costantino Grana. "Optimized Block-Based Algorithms to Label Connected Components on GPUs." IEEE Transactions on Parallel and Distributed Systems, 2019.<a title="BibTex" href="http://imagelab.ing.unimore.it/files2/yyacclab/YACCLAB_TPDS2019_BibTex.html">BibTex</a>. <a title="Download" href="https://iris.unimore.it/retrieve/handle/11380/1179616/225393/2018_TPDS_Optimized_Block_Based_Algorithms_to_Label_Connected_Components_on_GPUs.pdf"><img src="https://raw.githubusercontent.com/prittt/YACCLAB/master/doc/pdf_logo.png" alt="Download." /></a></p>
+
 - <p align="justify"> Bolelli, Federico; Cancilla, Michele; Baraldi, Lorenzo; Grana, Costantino "Towards Reliable Experiments on the Performance of Connected Components Labeling Algorithms" Journal of Real-Time Image Processing, 2018. <a title="BibTex" href="http://imagelab.ing.unimore.it/files2/yacclab/YACCLAB_JRTIP2018_BibTex.html">BibTex</a>. <a title="Download" href="http://imagelab.ing.unimore.it/imagelab/pubblicazioni/2016-icpr-yacclab.pdf"><img src="https://raw.githubusercontent.com/prittt/YACCLAB/master/doc/pdf_logo.png" alt="Download." /></a></p>
 
 - <p align="justify"> Grana, Costantino; Bolelli, Federico; Baraldi, Lorenzo; Vezzani, Roberto "YACCLAB - Yet Another Connected Components Labeling Benchmark" Proceedings of the 23rd International Conference on Pattern Recognition, Cancun, Mexico, 4-8 Dec 2016. <a title="BibTex" href="http://imagelab.ing.unimore.it/files2/yacclab/YACCLAB_ICPR2016_BibTex.html">BibTex</a>. <a title="Download" href="http://imagelab.ing.unimore.it/imagelab/pubblicazioni/2016-icpr-yacclab.pdf"><img src="https://raw.githubusercontent.com/prittt/YACCLAB/master/doc/pdf_logo.png" alt="Download." /></a></p>
@@ -113,7 +115,7 @@ Notes for gnuplot:
   </tr>	
 	
   <tr>
-    <td align="center" rowspan="11">CPU</td>
+    <td align="center" rowspan="12">CPU</td>
     <td align="center">-</td>
     <td align="center">L. Di Stefano,<br>A. Bulgarelli <sup><a href="#DiStefano">[3]</a></sup></td>
     <td align="center">1999</td>
@@ -412,45 +414,105 @@ color_labels: {average: false, density: false}
 save_middle_tests: {average: false, average_with_steps: false, density: false, granularity: false}
 ```
 
-<!-- <table>
-<tr><td width=200><b>Parameter<b></td><td width=300><b>Description</b></td></tr>
-<tr><td>perform</td><td><p align="justify">Dictionary which specifies the kind of tests to perform (<i>correctness</i>, <i>average</i>, <i>average_ws</i>, <i>density and size</i>, <i>granularity</i> and <i>memory</i>).</p></td></tr>
-<tr><td>correcteness_tests</td><td><p align="justify">Dictionary indicating the kind of correctness tests to perform.</p></td></tr>
-<tr><td>tests_number</td><td><p align="justify">Dictionary which sets the number of runs for each test available.</p></td></tr>
-<tr bgcolor=gray align=center><td colspan="2"><i>Algorithms</i></td></tr>
-<tr><td>algorithms</td><td><p align="justify">List of algorithms on which apply the chosen tests.</p></td></tr>
-<tr align=center><td colspan="2"><i>Datasets</i></td></tr>
-<tr><td>check_datasets</td><td><p align="justify">List of datasets on which CCL algorithms should be checked.</p></td></tr>
-<tr><td>average_datasets</td><td><p align="justify">List of datasets on which average test should be run.</p></td></tr>
-<tr><td>average_ws_datasets</td><td><p align="justify">List of datasets on which <i>average_ws</i> test should be run.</p></td></tr>
-<tr><td>memory_datasets</td><td><p align="justify">List of datasets on which memory test should be run.</p></td></tr>
-<tr align=center><td colspan="2"><i>Utilities</i></td></tr>
-<tr><td>paths</td><td><p align="justify">Dictionary with both input (datasets) and output (results) paths.</p></td></tr>
-<tr><td>write_n_labels</td><td><p align="justify">Whether to report the number of connected components in the output files.</p></td></tr>
-<tr><td>color_labels</td><td><p align="justify">Whether to output a colored version of labeled images during tests.</p></td></tr>
-<tr><td>save_middle_tests</td><td><p align="justify">Dictionary specifying, separately for every test, whether to save the output of single runs, or only a summary of the whole test.</p></td></tr>
-</table>
--->
-
 ## How to Extend YACCLAB with New Algorithms
 
-Work in progress.
-<!-- <p align="justify">YACCLAB has been designed with extensibility in mind, so that new resources can be easily integrated into the project. A CCL algorithm is coded with a <tt>.h</tt> header file, which declares a function implementing the algorithm, and a <tt>.cpp</tt> source file which defines the function itself. The function must follow a standard signature: its first parameter should be a const reference to an OpenCV Mat1b matrix, containing the input image, and its second parameter should be a reference to a Mat1i matrix, which shall be populated with computed labels. The function must also return an integer specifying the number of labels found in the image, included background's one. For example:</p>
-```c++
-int MyLabelingAlgorithm(const cv::Mat1b& img,cv::Mat1i &imgLabels);
-```
-<p align="justify">Making YACCLAB aware of a new algorithm requires two more steps. The new header file has to be included in <tt>labelingAlgorithms.h</tt>, which is in charge of collecting all the algorithms in YACCLAB. This file also defines a C++ map with function pointers to all implemented algorithms, which has also to be updated with the new function.</p>
+<p align="justify">YACCLAB has been designed with extensibility in mind, so that new resources can be easily integrated into the project. A CCL algorithm is coded with a <tt>.h</tt> header file (placed in the <tt>include</tt> folder), a <tt>.cc</tt> source file (placed in the <tt>src</tt> folder), and optional additional files containing a tree/drag definition (placed in the <tt>include</tt> folder).</p>
 
-<p align="justify">Once an algorithm has been added to YACCLAB, it is ready to be tested and compared to the others. To include the newly added algorithm in a test, it is sufficient to include its function name in the <tt>CCLAlgorithmsFunc</tt> <a href="#conf">parameter</a> and a display name in the <tt>CCLAlgorithmsName</tt> parameter. We look at YACCLAB as a growing effort towards better reproducibility of CCL algorithms, so implementations of new and existing labeling methods are welcome.</p>
+The source file should be as follows:
+```c++
+#include "<header_file_name>.h"
+
+REGISTER_LABELING_WITH_EQUIVALENCES_SOLVERS(<algorithm_name>);
+// Replace the above line with "REGISTER_LABELING(<algorithm_name>);" if the algorithm is not template on the equivalence solver algorithm.
+```
+The header file should follows the structure below (see <tt>include/labeling_bolelli_2018.h</tt> to have a complete example):
+```c++
+
+// [...]
+
+template <typename LabelsSolver> // Remove this line if the algorithm is not template 
+                                 // on the equivalence solver algorithm
+class <algorithm_bame> : public Labeling2D<CONN_8> { // the class must extend one of the labeling
+                                                     // classes Labeling2D, Labeling3D, .. that
+                                                     // are template on the connectivity type
+                                                    
+public:
+    <algorithm_name>() {}
+
+    // This member function should implement the labeling procedure reading data from the
+    // input image "img_" (OpenCV Mat1b) and storing labels into the output one "img_labels_"
+    // (OpenCV Mat1i)
+    void PerformLabeling()
+    {
+      // [...]
+
+      LabelsSolver::Alloc(UPPER_BOUND_8_CONNECTIVITY); // Memory allocation of the labels solver
+      LabelsSolver::Setup(); // Labels solver initialization
+
+      // [...]
+      
+      LabelsSolver::GetLabel(<label_id>) // To get label value from its index
+      LabelsSolver::NewLabel(); // To create a new label
+
+      LabelsSolver::Flatten(); // To flatten the equivalence solver array
+    }
+
+    // This member function should implement the with step version of the labeling procedure.
+    // This is required to perform tests with steps.
+    void PerformLabelingWithSteps()
+    {
+
+      double alloc_timing = Alloc(); // Alloc() should be a member function responsible
+                                     // for memory allocation of the required data structures
+
+      perf_.start();
+      FirstScan(); // FirsScan should be a member function that implements the 
+                   // first scan step of the algorithm (if it has one)
+      perf_.stop();
+      perf_.store(Step(StepType::FIRST_SCAN), perf_.last());
+
+      perf_.start();
+      SecondScan(); // SecondScan should be a member function that implements the 
+                    // second scan step of the algorithm (if it has one)
+      perf_.stop();
+      perf_.store(Step(StepType::SECOND_SCAN), perf_.last());
+
+      // If the algorithm does not have a distinct firs and second scan replace the lines
+      // above with the following ones:
+      // perf_.start();
+      // AllScans(); // AllScans() shiuld be a member function which implements the entire
+                     // algorithm but the allocation/deallocation 
+      // perf_.stop();
+      // perf_.store(Step(StepType::ALL_SCANS), perf_.last());
+
+      perf_.start();
+      Dealloc(); // Dealloc() shiuld be a member function responsible for memory
+                 // deallocation.
+      perf_.stop();
+      perf_.store(Step(StepType::ALLOC_DEALLOC), perf_.last() + alloc_timing);
+
+      // [...]
+    }
+
+    // This member function should implement the labeling procedure using the OpenCV Mat
+    // wrapper (MemMat) implemented by YACCLAB 
+    void PerformLabelingMem(std::vector<uint64_t>& accesses){
+      // [...]
+    }
+
+}
+```
+
+When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The file should be placed in the <tt>cuda/src</tt> folder.
+
+<p align="justify">Once an algorithm has been added to YACCLAB, it is ready to be tested and compared to the others. Don't forget to update the configuration file! We look at YACCLAB as a growing effort towards better reproducibility of CCL algorithms, so implementations of new and existing labeling methods are very welcome.</p>
 -->
 
 <a name="datasets"></a>
 ## The YACCLAB Dataset
-<p align="justify">The YACCLAB dataset includes both synthetic and real images and it is suitable for a wide range of applications, ranging from document processing to surveillance, and features a significant variability in terms of resolution, image density, variance of density, and number of components. All images are provided in 1 bit per pixel PNG format, with 0 (black) being background and 1 (white) being foreground. The dataset will be automatically downloaded by CMake during the installation process as described in the <a href="#inst">installation</a> paragraph, or it can be found at http://imagelab.ing.unimore.it/yacclab. Images are organized by folders as follows: </p>
+<p align="justify">The YACCLAB dataset includes both synthetic and real images and it is suitable for a wide range of applications, ranging from document processing to surveillance, and features a significant variability in terms of resolution, image density, variance of density, and number of components. All images are provided in 1 bit per pixel PNG format, with 0 (black) being background and 1 (white) being foreground. The dataset will be automatically downloaded by CMake during the installation process as described in the <a href="#inst">installation</a> paragraph.</p>
 
-- <b>Synthetic Images</b>:
-	- <b>Classical:<sup><a href="#BBDT">4</a></sup></b><p align="justify"> A set of synthetic random noise images who contain black and white random noise with 9 different foreground densities (10% up to 90%), from a low resolution of 32x32 pixels to a maximum resolution of 4096x4096 pixels, allowing to test the scalability and the effectiveness of different approaches when the number of labels gets high. For every combination of size and density, 10 images are provided for a total of 720 images. The resulting subset allows to evaluate performance both in terms of scalability on the number of pixels and on the number of labels (density). </p>
-	- <b>Granularity:<sup><a href="#LSL">4</a></sup></b><p align="justify"> This dataset allows to test algorithms varying not only the pixels density but also their granularity <i>g</i> (<i>i.e.</i>, dimension of minimum foreground block), underlying the behaviour of different proposals when the number of provisional labels changes. All the images have a resolution of 2048x2048 and are generated with the Mersenne Twister MT19937 random number generator implemented in the <i>C++</i> standard and starting with a "seed" equal to zero. Density of the images ranges from 0% to 100% with step of 1% and for every density value 16 images with pixels blocks of <i>gxg</i> with <i>g</i> ∈ [1,16] are generated. Moreover, the procedure has been repeated 10 times for every couple of density-granularity for a total of 16160 images.</p>
+### 2D Datasets
 
 - <b>MIRflickr:<sup><a href="#MIRFLICKR">10</a></sup></b><p align="justify"> Otsu-binarized version of the MIRflickr dataset, publicly available under a Creative Commons License. It contains 25,000 standard resolution images taken from Flickr. These images have an average resolution of 0.17 megapixels, there are few connected components (495 on average) and are generally composed of not too complex patterns, so the labeling is quite easy and fast.</p>
 
@@ -464,472 +526,280 @@ int MyLabelingAlgorithm(const cv::Mat1b& img,cv::Mat1i &imgLabels);
 
 - <b>Fingerprints:<sup><a href="#FINGERPRINTS">16</a></sup></b><p align="justify"> This dataset counts 960 fingerprint images collected by using low-cost optical sensors or synthetically generated. These images were taken from the three Verification Competitions FCV2000, FCV2002 and FCV2004. In order to fit CCL application, fingerprints have been binarized using an adaptive threshold and then negated in order to have foreground pixel with value 255. Most of the original images have a resolution of 500 DPI and their dimensions range from 240 by 320 up to 640 by 480 pixels. </p>
 
+<table>
+<tr>
+  <td align="center"><img src="doc/sample_2D_datasets.png"></td>
+</tr>
+<tr>
+  <td>Samples of the YACCLAB 2D (real) datasets.  From left to right: 3DPeS, Fingerprints, Medical, MIRflickr, Tobacco800, XDOCS, Hamlet.</td>
+</tr>
+</table>
+
+- <b>Synthetic Images</b>:
+	- <b>Classical <a href="#BBDT">4</a></b>:<p align="justify"> A set of synthetic random noise images who contain black and white random noise with 9 different foreground densities (10% up to 90%), from a low resolution of 32x32 pixels to a maximum resolution of 4096x4096 pixels, allowing to test the scalability and the effectiveness of different approaches when the number of labels gets high. For every combination of size and density, 10 images are provided for a total of 720 images. The resulting subset allows to evaluate performance both in terms of scalability on the number of pixels and on the number of labels (density). </p>
+	- <b>Granularity <a href="#LSL">[4]</a> </b>:<p align="justify"> This dataset allows to test algorithms varying not only the pixels density but also their granularity <i>g</i> (<i>i.e.</i>, dimension of minimum foreground block), underlying the behaviour of different proposals when the number of provisional labels changes. All the images have a resolution of 2048x2048 and are generated with the Mersenne Twister MT19937 random number generator implemented in the <i>C++</i> standard and starting with a "seed" equal to zero. Density of the images ranges from 0% to 100% with step of 1% and for every density value 16 images with pixels blocks of <i>gxg</i> with <i>g</i> ∈ [1,16] are generated. Moreover, the procedure has been repeated 10 times for every couple of density-granularity for a total of 16160 images.</p>
+
+<table>
+<tr>
+  <td align="center"><img src="doc/granularity_2D_datasets.png"></td>
+</tr>
+<tr>
+  <td>Samples of the YACCLAB 2D granularity dataset: reported images have a foreground density of 30% and, from left to right granularities are 1, 2, 4, 6, 8, 12, 14, 16.</td>
+</tr>
+</table>
+
+### 3D Datasets
+
+- <b>OASIS <a href="#OASIS">[todo]</a></b>: <p align="justify"> This is a dataset of medical MRI data taken from the Open Access Series of Imaging Studies (OASIS) project. It consists of 373 volumes of 256 × 256 × 128 pixels, binarized with the Otsu threshold.</p> 
+
+- <b>Mitochondria <a href="#MIT1">[todo], </a><a href="#MIT2">[todo]</a></b>: <p align="justify">It is the Electron Microscopy Dataset, which contains binary sections taken from the CA1 hippocampus for a total of three volumes composed by 165 slices with a resolution of 1024 × 768 pixels.</p>
+
+- <b>Hilbert <a href="#TPDS">[todo]</a></b>: <p align="justify">This dataset contains six volumes of 128 × 128 × 128 pixels, filled with the 3D Hilbert curve obtained at different iterations (1 to 6) of the construction method. The Hilbert curve is a fractal space-filling curve that representsa challenging test case for the labeling algorithms.</p>
+
+<table>
+<tr>
+  <td align="center"><img src="doc/sample_3D_datasets.png" height="110px"></td>
+</tr>
+<tr>
+  <td>Samples of the YACCLAB 3D datasets. From left to right: Hilbertspace-filling curve, OASIS and Mitochondria medical imaging data.</td>
+</tr>
+</table>
+
+- <b>Granularity <a href="#TPDS">[todo]</a></b>: <p align="justify">It contains 3D synthetic images generated as described for the 2D version. Images have a resolution of 256 x 256 x 256 pixels.</p>
+
 <a name="tests"></a>
 ## Available Tests
 
 - <b>Average run-time tests:</b> <p align="justify"> execute an algorithm on every image of a dataset. The process can be repeated more times in a single test, to get the minimum execution time for each image: this allows to get more reproducible results and overlook delays produced by other running processes. It is also possible to compare the execution speed of different algorithms on the same dataset: in this case, selected algorithms (see <a href="#conf">Configuration File</a> for more details) are executed sequentially on every image of the dataset. Results are presented in three different formats: a plain text file, histogram charts (.pdf/.ps), either in color or in gray-scale, and a LaTeX table, which can be directly included in research papers.</p>
 
-- <b>Density and size tests:</b> <p align="justify"> check the performance of different CCL algorithms when they are executed on images with varying foreground density and size. To this aim, a list of algorithms selected by the user is run sequentially on every image of the test_random dataset. As for run-time tests, it is possible to repeat this test for more than one run. The output is presented as both plain text and charts(.pdf/.ps). For a density test, the mean execution time of each algorithm is reported for densities ranging from 10% up to 90%, while for a size test the same is reported for resolutions ranging from 32x32 up to 4096x4096.</p>
+- <b>Average run-time tests with steps:</b> <p align="justify"> This test evaluates the performance of an algorithm separating the allocation/deallocation time from the time required to compute labeling. Moreover, if an algorithm employs multiple scans to produce the correct output labels, YACCLAB will store the time of every scan and will display them separately. To understand how YACCLAB computes the memory allocation time for an algorithm on a reference image, it is important to underline the subtleties involved in the allocation process. Indeed, all modern operating systems (not real-time, nor embedded ones, but certainly Windows and Unix) handle virtual memory exploiting a demand paging technique, <i>i.e</i> demand paging with no pre-paging for most of Unix OS and cluster demand paging for Windows OS. This means that a disk page is copied into physical memory only when it is accessed by a process the first time, and not when the allocation function is called. Therefore, it is not possible to calculate the exact allocation time required by an algorithm, which computes CCL on a reference image, but its upper bound can be estimated using the following approach:</p>
+
+  - forcing the allocation of the entire memory by reserving it (<tt>malloc</tt>), filling it with zeros (<tt>memset</tt>), and tracing the time;  
+  - calculating the time required by the assignment operation (<tt>memset</tt>), and subtracting it from the one obtained at the previous step;
+  - repeating the previous points for all data structures needed by an algorithm and summing times together.
+
+  <p align="justify">This will produce an upper bound of the allocation time because caches may reduce the second assignment operation, increasing the estimated allocation time. Moreover, in real cases, CCL algorithms may reserve more memory than they really need, but the <tt>demand paging</tt>, differently from our measuring system, will allocate only the accessed pages.</p>
+
+- <b>Density and size tests:</b> <p align="justify"> check the performance of different CCL algorithms when they are executed on images with varying foreground density and size. To this aim, a list of algorithms selected by the user is run sequentially on every image of the test_random dataset. As for run-time tests, it is possible to repeat this test for more than one run. The output is presented as both plain text and charts(.pdf/.ps). For a density test, the mean execution time of each algorithm is reported for densities ranging from 10% up to 90%, while for a size test the same is reported for resolutions ranging from 32 x 32 up to 4096 x 4096.</p>
 
 - <b>Memory tests:</b> <p align="justify"> are useful to understand the reason for the good performances of an algorithm or in general to explain its behavior. Memory tests compute the average number of accesses to the label image (i.e the image used to store the provisional and then the final labels for the connected components), the average number of accesses to the binary image to be labeled, and, finally, the average number of accesses to data structures used to solve the equivalences between label classes. Moreover, if an algorithm requires extra data, memory tests summarize them as ``other'' accesses and return the average. Furthermore, all average contributions of an algorithm and dataset are summed together in order to show the total amount of memory accesses. Since counting the number of memory accesses imposes additional computations, functions implementing memory access tests are different from those implementing run-time and density tests, to keep run-time tests as objective as possible.</p>
 
+- <b>Granularity tests:</b> <p align="justify"> evaluates an algorithm varying density (from 1% to 100%, using a 1% step) and pixels granularity, but not images resolution. The output results display the average execution time over images with the same density and granularity.</p>
+
 ## Examples of YACCLAB Output Results
-Work in progress.
-<!--
-## Results ...
-
-In this section we use  acronyms  to  refer  to  the  available  algorithms:  
-- CT  is  the  Contour  Tracing  approach  by Fu  Chang et al.<sup>[1](#CT)</sup>;
-- CCIT  is  the  algorithm  by  Wan-Yu Chang et al. <sup>[2](#CCIT)</sup>;
-- DiStefano is the algorithm in <sup>[3](#DiStefano)</sup>;
-- BBDT is the  Block  Based  with  Decision  Trees  algorithm  by  Grana et al. <sup>[4](#BBDT)</sup>;
-- LSL STD  is  the  Light  Speed  Labeling  algorithm  by Lacassagne et al. <sup>[5](#LSL_STD)</sup>;
-- SAUF  is  the  Scan  Array  Union  Find algorithm by Wu et al. <sup>[6](#SAUF)</sup>;
-- CTB is the Configuration-Transition-Based algorithm by He et al. <sup>[7](#CTB)</sup>;  
-- SBLA is the stripe-based algorithm by Zhao et al.<sup>[8](#SBLA)</sup>;
-- PRED is the Optimized Pixel Prediction by Grana et al. <sup>[9](#PRED)</sup>;
-- NULL labeling is an algorithm that defines a lower bound limit for the execution time of CCL algorithms on a given machine and dataset. As the name suggests, this algorithm does not provide the correct connected components for a given image. It only checks the pixels of that image and sets almost randomly the value of the output.
-
-SAUF and BBDT are the algorithms currently included in OpenCV.
-
-### ... on 04/21/2016
-
-<p align="justify">To  make  a  first  performance  comparison  and  to  showcase automatically  generated  charts  we  have  run  each algorithm in YACCLAB on all datasets and in three different environments:  a  Windows  PC  with  a  i7-4790  CPU  @  3.60 GHz and Microsoft Visual Studio 2013, a Linux workstation with a Xeon CPU E5-2609 v2 @ 2.50GHz and GCC 5.2, and a Intel Core Duo @ 2.8 GHz running OS~X with XCode 7.2.1. Average run-time tests, as well as density and size tests, were repeated 10 times, and for each image the minimum execution time was considered.</p>
-
-<table border="0">
-<caption><h4>Average run-time tests on a i7-4790 CPU @ 3.60 GHz with Windows and Microsoft Visual Studio 2013 (lower is better)</h4></caption>
-<tr>
- <td align="center"><b>3DPeS</b></td>
- <td align="center"><b>Hamlet</b></td>
-</tr>
-<tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/ilb14_averages_3dpes.png" alt="ilb14_3dpes" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/ilb14_averages_hamlet.png" alt="ilb14_hamlet" height="260" width="415"></td>
-</tr>
-</table>
-<table border="0">
-<tr>
- <td align="center"><b>MIRflickr</b></td>
- <td align="center"><b>Tobacco800</b></td>
-</tr>
-<tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/ilb14_averages_mirflickr.png" alt="ilb14_mirflickr" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/ilb14_averages_tobacco800.png" alt="ilb14_tobacco800" height="260" width="415"></td>
-</tr>
-</table>
-
-<table border="0">
-<caption><h4>Average run-time tests on a Xeon CPU E5-2609 v2 @ 2.50GHz with Linux and GCC 5.2 (lower is better)</h4></caption>
-<tr>
- <td align="center"><b>3DPeS</b></td>
- <td align="center"><b>Hamlet</b></td>
-</tr>
-<tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/softechict-nvidia_averages_3dpes.png" alt="softechict-nvidia_3dpes" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/softechict-nvidia_averages_hamlet.png" alt="softechict-nvidia_hamlet" height="260" width="415"></td>
-</tr>
-</table>
-<table border="0">
-<tr>
- <td align="center"><b>MIRflickr</b></td>
- <td align="center"><b>Tobacco800</b></td>
-</tr>
-<tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/softechict-nvidia_averages_mirflickr.png" alt="softechict-nvidia_mirflickr" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/softechict-nvidia_averages_tobacco800.png" alt="softechict-nvidia_tobacco800" height="260" width="415"></td>
-</tr>
-</table>
-
-<table border="0">
-<caption><h4>Average run-time tests on a Intel Core Duo @ 2.8GHz with OS~X and XCode 7.2.1 (lower is better)</h4></caption>
-<tr>
- <td align="center"><b>3DPeS</b></td>
- <td align="center"><b>Hamlet</b></td>
-</tr>
-<tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/pro_mid2009_averages_3dpes.png" alt="pro_mid2009_3dpes" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/pro_mid2009_averages_hamlet.png" alt="pro_mid2009_hamlet" height="260" width="415"></td>
-</tr>
-</table>
-<table border="0">
-<tr>
- <td align="center"><b>MIRflickr</b></td>
- <td align="center"><b>Tobacco800</b></td>
-</tr>
-<tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/pro_mid2009_averages_mirflickr.png" alt="pro_mid2009_mirflickr" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/pro_mid2009_averages_tobacco800.png" alt="pro_mid2009_tobacco800" height="260" width="415"></td>
-</tr>
-</table>
-
-<table border="0">
-<caption><h4>Density-Size tests on a i7-4790 CPU @ 3.60 GHz with Windows and Microsoft Visual Studio 2013 (lower is better)</h4></caption>
-<tr>
- <td align="center"><b>Density</b></td>
- <td align="center"><b>Size</b></td>
-</tr>
-<tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/ilb14_density.png" alt="ilb14_density" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/ilb14_size.png" alt="ilb14_size" height="260" width="415"></td>
-</tr>
-</table>
-
-<table border="0">
-<caption><h4>Density-Size tests on a Xeon CPU E5-2609 v2 @ 2.50GHz with Linux and GCC 5.2 (lower is better)</h4></caption>
-<tr>
- <td align="center"><b>Density</b></td>
- <td align="center"><b>Size</b></td>
-</tr>
-<tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/softechict-nvidia_density.png" alt="softechict-nvidia_density" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/softechict-nvidia_size.png" alt="softechict-nvidia_size" height="260" width="415"></td>
-</tr>
-</table>
-
-<table border="0">
-<caption><h4>Density-Size tests on a Intel Core Duo @ 2.8GHz with OS~X XCode 7.2.1 (lower is better)</h4></caption>
-<tr>
- <td align="center"><b>Density</b></td>
- <td align="center"><b>Size</b></td>
-</tr>
-<tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/pro_mid2009_density.png" alt="pro_mid2009_density" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/pro_mid2009_size.png" alt="pro_mid2009_size" height="260" width="415"></td>
-</tr>
-</table>
-
-### ... on 08/10/2016
-
-<p align="justify">We performed tests on all datasets and algorithms on four different environments, in order to show newest features of YACCLAB: an Intel Core i7-4980HQ CPU @ 2.80GHz running OS~X with XCode 7.2.1, a Windows PC with i7-4770 CPU @ 3.40GHz and Microsoft Visual Studio 2013, a Linux workstation with a i5-6600 CPU @ 3.30GHz and gcc 5.3.1-14, and, finally, a Windows PC with i5-6600 CPU @ 3.30GHz and Microsoft Visual Studio 2013. All performance tests were repeated 10 times, and for each image the minimum execution time was considered. </p>
-
-<table border="0">
-<caption><h4>Average run-time tests on an Intel Core i7-4980HQ CPU @ 2.80GHz running OS~X with XCode 7.2.1 (lower is better)</h4></caption>
-<tr>
- <td align="center"><b>3DPeS</b></td>
- <td align="center"><b>Fingerprints</b></td>
-</tr>
-<tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/3dpesMAC.png" alt="3dpesMAC" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/fingerprintsMAC.png" alt="fingerprintsMAC" height="260" width="415"></td>
-</tr>
-</table>
-<table border="0">
-<tr>
- <td align="center"><b>Hamlet</b></td>
- <td align="center"><b>Medical</b></td>
-</tr>
-<tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/hamletMAC.png" alt="hamletMAC" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/medicalMAC.png" alt="medicalMAC" height="260" width="415"></td>
-</tr>
-</table>
-<table border="0">
-<tr>
- <td align="center"><b>MIRflickr</b></td>
- <td align="center"><b>Tobacco800</b></td>
-</tr>
-<tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/mirflickrMAC.png" alt="mirflickrMAC" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/tobacco800MAC.png" alt="tobacco800MAC" height="260" width="415"></td>
-</tr>
-</table>
-
-<table border="0">
-<caption><h4>Average run-time tests on a i7-4770 CPU @ 3.40GHz with Windows and Microsoft Visual Studio 2013 (lower is better)</h4></caption>
-<tr>
- <td align="center"><b>3DPeS</b></td>
- <td align="center"><b>Fingerprints</b></td>
-</tr>
-<tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/3dpesWIN.png" alt="3dpesWIN" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/fingerprintsWIN.png" alt="fingerprintsWIN" height="260" width="415"></td>
-</tr>
-</table>
-<table border="0">
-<tr>
- <td align="center"><b>Hamlet</b></td>
- <td align="center"><b>Medical</b></td>
-</tr>
-<tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/hamletWIN.png" alt="hamletWIN" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/medicalWIN.png" alt="medicalWIN" height="260" width="415"></td>
-</tr>
-</table>
-<table border="0">
-<tr>
- <td align="center"><b>MIRflickr</b></td>
- <td align="center"><b>Tobacco800</b></td>
-</tr>
-<tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/mirflickrWIN.png" alt="mirflickrWIN" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/tobacco800WIN.png" alt="tobacco800WIN" height="260" width="415"></td>
-</tr>
-</table>
-
-<table border="0">
-<caption><h4>Average run-time tests on a i5-6600 CPU @ 3.30GHz with Linux and GCC 5.3.1-14 (lower is better)</h4></caption>
-<tr>
- <td align="center"><b>3DPeS</b></td>
- <td align="center"><b>Fingerprints</b></td>
-</tr>
-<tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/3dpesLINUX.png" alt="3dpesLINUX" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/fingerprintsLINUX.png" alt="fingerprintsLINUX" height="260" width="415"></td>
-</tr>
-</table>
-<table border="0">
-<tr>
- <td align="center"><b>Hamlet</b></td>
- <td align="center"><b>Medical</b></td>
-</tr>
-<tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/hamletLINUX.png" alt="hamletLINUX" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/medicalLINUX.png" alt="medicalLINUX" height="260" width="415"></td>
-</tr>
-</table>
-<table border="0">
-<tr>
- <td align="center"><b>MIRflickr</b></td>
- <td align="center"><b>Tobacco800</b></td>
-</tr>
-<tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/mirflickrLINUX.png" alt="mirflickrLINUX" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/tobacco800LINUX.png" alt="tobacco800LINUX" height="260" width="415"></td>
-</tr>
-</table>
-
-<table border="0">
-<caption><h4>Average run-time tests on a i5-6600 CPU @ 3.30GHz with Windows and Microsoft Visual Studio 2013 (lower is better)</h4></caption>
-<tr>
- <td align="center"><b>3DPeS</b></td>
- <td align="center"><b>Fingerprints</b></td>
-</tr>
-<tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/3dpesWIN2.png" alt="3dpesWIN2" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/fingerprintsWIN2.png" alt="fingerprintsWIN2" height="260" width="415"></td>
-</tr>
-</table>
-<table border="0">
-<tr>
- <td align="center"><b>Hamlet</b></td>
- <td align="center"><b>Medical</b></td>
-</tr>
-<tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/hamletWIN2.png" alt="hamletWIN2" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/medicalWIN2.png" alt="medicalWIN2" height="260" width="415"></td>
-</tr>
-</table>
-<table border="0">
-<tr>
- <td align="center"><b>MIRflickr</b></td>
- <td align="center"><b>Tobacco800</b></td>
-</tr>
-<tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/mirflickrWIN2.png" alt="mirflickrWIN2" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/tobacco800WIN2.png" alt="tobacco800WIN2" height="260" width="415"></td>
-</tr>
-</table>
-
-<table border="0">
-<caption><h4>Density-Size tests on an Intel Core i7-4980HQ CPU @ 2.80GHz running OS~X with XCode 7.2.1 (some algorithms have been omitted to make the charts more legible, lower is better). </h4></caption>
-<tr>
- <td align="center"><b>Density</b></td>
- <td align="center"><b>Size</b></td>
-</tr>
-<tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/densityMAC.png" alt="densityMAC" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/sizeMAC.png" alt="sizeMAC" height="260" width="415"></td>
-</tr>
-</table>
-
-<table border="0">
-<caption><h4>Density-Size tests on a i7-4770 CPU @ 3.40GHz with Windows and Microsoft Visual Studio 2013 (some algorithms have been omitted to make the charts more legible, lower is better).</h4></caption>
-<tr>
- <td align="center"><b>Density</b></td>
- <td align="center"><b>Size</b></td>
-</tr>
-<tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/densityWIN.png" alt="densityWIN" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/sizeWIN.png" alt="sizeWIN" height="260" width="415"></td>
-</tr>
-</table>
-
-<table border="0">
-<caption><h4>Density-Size tests on a i5-6600 CPU @ 3.30GHz with Linux and and GCC 5.3.1-14 (some algorithms have been omitted to make the charts more legible, lower is better).</h4></caption>
-<tr>
- <td align="center"><b>Density</b></td>
- <td align="center"><b>Size</b></td>
-</tr>
-<tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/densityLINUX.png" alt="densityLINUX" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/sizeLINUX.png" alt="sizeLINUX" height="260" width="415"></td>
-</tr>
-</table>
-
-
-<table border="0">
-<caption><h4>Density-Size tests on a i5-6600 CPU @ 3.30GHz with Windows and Microsoft Visual Studio 2013 (some algorithms have been omitted to make the charts more legible, lower is better).</h4></caption>
-<tr>
- <td align="center"><b>Density</b></td>
- <td align="center"><b>Size</b></td>
-</tr>
-<tr>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/densityWIN2.png" alt="densityWIN2" height="260" width="415"></td>
- <td><img src="http://imagelab.ing.unimore.it/files2/yacclab/sizeWIN2.png" alt="sizeWIN2" height="260" width="415"></td>
-</tr>
-</table>
 
 <table>
-<caption><h4>Analysis of memory accesses required by connected components computation for 'Random' dataset. The numbers are given in millions of accesses</h4></caption>
-	<tr>
-   <td align="center">Algorithm           </td>
-   <td align="center">Total Accesses      </td>
-   <td align="center">Binary Image        </td>
-   <td align="center">Label Image         </td>
-   <td align="center">Equivalence Vector/s</td>
-   <td align="center">Other               </td>
-	</tr>
- <tr>
-   <td align="center">SAUF  </td>
-   <td align="center">20.963</td>
-   <td align="center">5.475 </td>
-   <td align="center">11.288</td>
-   <td align="center">4.200 </td>
-   <td align="center">-     </td>
-	</tr>
-	<tr>
-   <td align="center">DiStefano</td>
-   <td align="center">187.512  </td>
-   <td align="center">2.796    </td>
-   <td align="center">12.580   </td>
-   <td align="center">171.972  </td>
-   <td align="center">0.164    </td>
-	</tr>
-	<tr>
-   <td align="center">BBDT  </td>
-   <td align="center">12.237</td>
-   <td align="center">6.012 </td>
-   <td align="center">4.757	</td>
-   <td align="center">1.468	</td>
-   <td align="center">-     </td>
-	</tr>
-	<tr>
-   <td align="center">LSL_STD</td>
-   <td align="center">27.792  </td>
-   <td align="center">2.796	  </td>
-   <td align="center">2.796	  </td>
-   <td align="center">1.616	  </td>
-   <td align="center">20.584  </td>
-	</tr>
- 	<tr>
-   <td align="center">PRED  </td>
-   <td align="center">20.194</td>
-   <td align="center">4.706	</td>
-   <td align="center">11.288</td>
-   <td align="center">4.200	</td>
-   <td align="center">-     </td>
-	</tr>
- 	<tr>
-   <td align="center">NULL </td>
-   <td align="center">5.592</td>
-   <td align="center">2.796</td>
-   <td align="center">2.796</td>
-   <td align="center">-    </td>
-   <td align="center">-    </td>
-	</tr>
+  <tr>
+    <td align="center"><img src="doc/fingerprints.png"/></td>
+    <td align="center"><img src="doc/xdocs.png"/></td>
+  </tr>
+  <tr>
+    <td align="center">Fingerprints</td>
+    <td align="center">XDOCS</td>
+  </tr>
 </table>
-
-<table>
-<caption><h4>Analysis of memory accesses required by connected components computation for 'Tobacco800' dataset. The numbers are given in millions of accesses</h4></caption>
-	<tr>
-   <td align="center">Algorithm           </td>
-   <td align="center">Total Accesses      </td>
-   <td align="center">Binary Image        </td>
-   <td align="center">Label Image         </td>
-   <td align="center">Equivalence Vector/s</td>
-   <td align="center">Other               </td>
-	</tr>
-  <tr>
-   <td align="center">SAUF  </td>
-   <td align="center">23.874</td>
-   <td align="center">4.935 </td>
-   <td align="center">14.286</td>
-   <td align="center">4.653 </td>
-   <td align="center">-     </td>
-	</tr>
-  <tr>
-   <td align="center">DiStefano</td>
-   <td align="center">17.041   </td>
-   <td align="center">4.604    </td>
-   <td align="center">10.393   </td>
-   <td align="center">2.037    </td>
-   <td align="center">0.007    </td>
-	</tr>
-  <tr>
-   <td align="center">BBDT  </td>
-   <td align="center">12.046</td>
-   <td align="center">4.942 </td>
-   <td align="center">6.982 </td>
-   <td align="center">0.122 </td>
-   <td align="center">-     </td>
-	</tr>
-   <tr>
-   <td align="center">LSL_STD</td>
-   <td align="center">38.267 </td>
-   <td align="center">4.604  </td>
-   <td align="center">4.604  </td>
-   <td align="center">1.189  </td>
-   <td align="center">27.870 </td>
-	</tr>
-  <tr>
-   <td align="center">PRED  </td>
-   <td align="center">23.799</td>
-   <td align="center">4.860 </td>
-   <td align="center">14.286</td>
-   <td align="center">4.653 </td>
-   <td align="center">-     </td>
-	</tr>
-  <tr>
-   <td align="center">NULL </td>
-   <td align="center">9.208</td>
-   <td align="center">4.604</td>
-   <td align="center">4.604</td>
-   <td align="center">-    </td>
-   <td align="center">-    </td>
-	</tr>
-</table>
--->
 
 ## References
 
-<p align="justify"><em><a name="CT">[1]</a> F. Chang, C.-J. Chen, and C.-J. Lu, “A linear-time component-labeling algorithm using contour tracing technique,” Computer Vision and Image Understanding, vol. 93, no. 2, pp. 206–220, 2004.</em></p>
-<p align="justify"><em><a name="CCIT">[2]</a> W.-Y.  Chang,  C.-C.  Chiu,  and  J.-H.  Yang,  “Block-based  connected-component  labeling  algorithm  using  binary  decision  trees,” Sensors, vol. 15, no. 9, pp. 23 763–23 787, 2015.</em></p>
-<p align="justify"><em><a name="DiStefano">[3]</a> L.  Di  Stefano  and  A.  Bulgarelli,  “A  Simple  and  Efficient  Connected Components Labeling Algorithm,” in International Conference on Image Analysis and Processing. IEEE, 1999, pp. 322–327.</em></p>
-<p align="justify"><em><a name="BBDT">[4]</a> C.  Grana,  D.  Borghesani,  and  R.  Cucchiara,  “Optimized  Block-based Connected Components Labeling with Decision Trees,” IEEE Transac-tions on Image Processing, vol. 19, no. 6, pp. 1596–1609, 2010.</em></p>
-<p align="justify"><em><a name="LSL_STD">[5]</a> L. Lacassagne and B. Zavidovique, “Light speed labeling: efficient connected component labeling on risc architectures,” Journal of Real-Time Image Processing, vol. 6, no. 2, pp. 117–135, 2011</em>.</p>
-<p align="justify"><em><a name="SAUF">[6]</a> K. Wu, E. Otoo, and K. Suzuki, Optimizing two-pass connected-component labeling algorithms,” Pattern Analysis and Applications, vol. 12, no. 2, pp. 117–135, 2009.</em></p>
-<p align="justify"><em><a name="CTB">[7]</a> L.  He,  X.  Zhao,  Y.  Chao,  and  K.  Suzuki, Configuration-Transition-
-Based  Connected-Component  Labeling, IEEE  Transactions  on  Image Processing, vol. 23, no. 2, pp. 943–951, 2014.</em></p>
-<p align="justify"><em><a name="SBLA">[8]</a> H.  Zhao,  Y.  Fan,  T.  Zhang,  and  H.  Sang, Stripe-based  connected components  labelling, Electronics  letters,  vol.  46,  no.  21,  pp.  1434–1436, 2010.</em></p>
-<p align="justify"><em><a name="PRED">[9]</a> C. Grana, L. Baraldi, and F. Bolelli, Optimized Connected Components Labeling  with  Pixel  Prediction, in Advanced  Concepts  for  Intelligent Vision Systems, 2016.</em></p>
-<p align="justify"><em><a name="MIRFLICKR">[10]</a> M. J. Huiskes and M. S. Lew, “The MIR Flickr Retrieval Evaluation,” in MIR ’08: Proceedings of the 2008 ACM International Conference on Multimedia Information Retrieval. New York, NY, USA: ACM, 2008. [Online]. Available: http://press.liacs.nl/mirflickr/</em></p>
-<p align="justify"><em><a name="TOBACCO1">[11]</a> G. Agam, S. Argamon, O. Frieder, D. Grossman, and D. Lewis, “The Complex Document Image Processing (CDIP) Test Collection Project,” Illinois Institute of Technology, 2006. [Online]. Available: http://ir.iit.edu/projects/CDIP.html</em></p>
-<p align="justify"><em><a name="TOBACCO2">[12]</a> D. Lewis, G. Agam, S. Argamon, O. Frieder, D. Grossman, and J. Heard, “Building a test collection for complex document information processing,” in Proceedings of the 29th annual international ACM SIGIR conference on Research and development in information retrieval. ACM, 2006, pp. 665–666.</em></p>
-<p align="justify"><em><a name="TOBACCO3">[13]</a> “The Legacy Tobacco Document Library (LTDL),” University of California, San Francisco, 2007. [Online]. Available: http://legacy. library.ucsf.edu/</em></p>
-<p align="justify"><em><a name="3DPES">[14]</a> D. Baltieri, R. Vezzani, and R. Cucchiara, “3DPeS: 3D People Dataset for Surveillance and Forensics,” in Proceedings of the 2011 joint ACM workshop on Human gesture and behavior understanding. ACM, 2011, pp. 59–64.</em></p>
-<p align="justify"><em><a name="MEDICAL">[15]</a> F. Dong, H. Irshad, E.-Y. Oh, M. F. Lerwill, E. F. Brachtel, N. C. Jones, N. W. Knoblauch, L. Montaser-Kouhsari, N. B. Johnson, L. K. Rao et al., “Computational Pathology to Discriminate Benign from Malignant Intraductal Proliferations of the Breast,” PloS one, vol. 9, no. 12, p. e114885, 2014.</em></p>
-<p align="justify"><em><a name="FINGERPRINTS">[16]</a> D. Maltoni, D. Maio, A. Jain, and S. Prabhakar, Handbook of fingerprint
-recognition. Springer Science & Business Media, 2009.</em></p>
-<p align="justify"><em><a name="YACCLAB">[17]</a> C.Grana, F.Bolelli, L.Baraldi, and R.Vezzani, YACCLAB - Yet Another Connected Components Labeling Benchmark, Proceedings of the 23rd International Conference on Pattern Recognition, Cancun, Mexico, 4-8 Dec 2016, 2016</em></p>
-<p align="justify"><em><a name="UF">[18]</a> V. Oliveira and R. Lotufo, A study on connected components labeling algorithms using GPUs, in SIBGRAPI. vol. 3, p. 4, 2010.</em></p>
-<p align="justify"><em><a name="OLE">[19]</a> O. Kalentev, A. Rai, S. Kemnitz, R. Schneider, Connected component labeling on a 2D grid using CUDA, in Journal of Parallel and Distributed Computing 71(4), 615–620, 2011.</em></p>
-<p align="justify"><em><a name="BE">[20]</a> S. Zavalishin, I. Safonov, Y. Bekhtin, I. Kurilin, Block Equivalence Algorithm for Labeling 2D and 3D Images on GPU, in Electronic Imaging 2016(2), 1–7, 2016.</em></p>
-<p align="justify"><em><a name="DLP">[21]</a> L. Cabaret, L. Lacassagne, D. Etiemble, Distanceless Label Propagation: an Efficient Direct Connected Component Labeling Algorithm for GPUs, in Seventh
-International Conference on Image Processing Theory, Tools and Applications, IPTA, 2017.</em></p>
-<p align="justify"><em><a name="KE">[22]</a> S. Allegretti, F. Bolelli, M. Cancilla, C. Grana, Optimizing GPU-Based Connected Components Labeling Algorithms, in Third IEEE International Conference
-on Image Processing, Applications and Systems, IPAS, 2018.</em></p>
-<p align="justify"><em><a name="DRAG">[23]</a> F. Bolelli, L. Baraldi, M. Cancilla, C. Grana, Connected Components Labeling
-on DRAGs, in International Conference on Pattern Recognition, 2018.</em></p>
-<p align="justify"><em><a name="BUF_BKE">[24]</a> S. Allegretti, F. Bolelli, C. Grana, Optimized Block-Based Algorithms to Label Connected Components on GPUs, in IEEE Transactions on Parallel and Distributed Systems, 2019.</em></p>
-<p align="justify"><em><a name="YACCLAB_JRTIP">[25]</a> Bolelli, Federico; Cancilla, Michele; Baraldi, Lorenzo; Grana, Costantino "Towards Reliable Experiments on the Performance of Connected Components Labeling Algorithms" Journal of Real-Time Image Processing, 2018.</em></p>
-<p align="justify"><em><a name="Spaghetti">[26]</a> Bolelli, Federico; Allegretti Stefano; Baraldi, Lorenzo; Grana, Costantino "Spaghetti Labeling: Directed Acyclic Graphs for Block-Based Connected Components Labeling" IEEE Transactions on Image Processing, 2019.</em></p>
+<table style="border:0;">
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="CT">[1]</a>
+    </td>
+    <td>
+      <p align="justify">F. Chang, C.-J. Chen, and C.-J. Lu, “A linear-time component-labeling algorithm using contour tracing technique,” Computer Vision and Image Understanding, vol. 93, no. 2, pp. 206–220, 2004.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="CCIT">[2]</a>
+    </td>
+    <td>
+      <p align="justify">W.-Y.  Chang,  C.-C.  Chiu,  and  J.-H.  Yang,  “Block-based  connected-component  labeling  algorithm  using  binary  decision  trees,” Sensors, vol. 15, no. 9, pp. 23 763–23 787, 2015.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+        <a name="DiStefano">[3]</a>
+    </td>
+    <td>
+      <p align="justify"> L.  Di  Stefano  and  A.  Bulgarelli,  “A  Simple  and  Efficient  Connected Components Labeling Algorithm,” in International Conference on Image Analysis and Processing. IEEE, 1999, pp. 322–327.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="BBDT">[4]</a>
+    </td>
+    <td>
+      <p align="justify">C.  Grana,  D.  Borghesani,  and  R.  Cucchiara,  “Optimized  Block-based Connected Components Labeling with Decision Trees,” IEEE Transac-tions on Image Processing, vol. 19, no. 6, pp. 1596–1609, 2010.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="LSL_STD">[5]</a>
+    </td>
+    <td>
+      <p align="justify">L. Lacassagne and B. Zavidovique, “Light speed labeling: efficient connected component labeling on risc architectures,” Journal of Real-Time Image Processing, vol. 6, no. 2, pp. 117–135, 2011.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="SAUF">[6]</a>
+    </td>
+    <td>
+      <p align="justify"> K. Wu, E. Otoo, and K. Suzuki, Optimizing two-pass connected-component labeling algorithms,” Pattern Analysis and Applications, vol. 12, no. 2, pp. 117–135, 2009.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="CTB">[7]</a>
+    </td>
+    <td>
+      <p align="justify">L.  He,  X.  Zhao,  Y.  Chao,  and  K.  Suzuki, Configuration-Transition-Based Connected-Component  Labeling, IEEE  Transactions  on  Image Processing, vol. 23, no. 2, pp. 943–951, 2014.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="SBLA">[8]</a>
+    </td>
+    <td>
+      <p align="justify">H.  Zhao,  Y.  Fan,  T.  Zhang,  and  H.  Sang, Stripe-based  connected components  labelling, Electronics  letters,  vol.  46,  no.  21,  pp.  1434–1436, 2010.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="PRED">[9]</a>
+    </td>
+    <td>
+      <p align="justify">C. Grana, L. Baraldi, and F. Bolelli, Optimized Connected Components Labeling  with  Pixel  Prediction, in Advanced  Concepts  for  Intelligent Vision Systems, 2016.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="MIRFLICKR">[10]</a>
+    </td>
+    <td>
+      <p align="justify">M. J. Huiskes and M. S. Lew, “The MIR Flickr Retrieval Evaluation,” in MIR ’08: Proceedings of the 2008 ACM International Conference on Multimedia Information Retrieval. New York, NY, USA: ACM, 2008.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="TOBACCO1">[11]</a>
+    </td>
+    <td>
+      <p align="justify">G. Agam, S. Argamon, O. Frieder, D. Grossman, and D. Lewis, “The Complex Document Image Processing (CDIP) Test Collection Project,” Illinois Institute of Technology, 2006.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="TOBACCO2">[12]</a>
+    </td>
+    <td>
+      <p align="justify"> D. Lewis, G. Agam, S. Argamon, O. Frieder, D. Grossman, and J. Heard, “Building a test collection for complex document information processing,” in Proceedings of the 29th annual international ACM SIGIR conference on Research and development in information retrieval. ACM, 2006, pp. 665–666.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="3DPES">[14]</a>
+    </td>
+    <td>
+      <p align="justify">D. Baltieri, R. Vezzani, and R. Cucchiara, “3DPeS: 3D People Dataset for Surveillance and Forensics,” in Proceedings of the 2011 joint ACM workshop on Human gesture and behavior understanding. ACM, 2011, pp. 59–64.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="MEDICAL">[15]</a>
+    </td>
+    <td>
+      <p align="justify">F. Dong, H. Irshad, E.-Y. Oh, M. F. Lerwill, E. F. Brachtel, N. C. Jones, N. W. Knoblauch, L. Montaser-Kouhsari, N. B. Johnson, L. K. Rao et al., “Computational Pathology to Discriminate Benign from Malignant Intraductal Proliferations of the Breast,” PloS one, vol. 9, no. 12, p. e114885, 2014.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="FINGERPRINTS">[16]</a>
+    </td>
+    <td>
+      <p align="justify">D. Maltoni, D. Maio, A. Jain, and S. Prabhakar, Handbook of fingerprint recognition. Springer Science & Business Media, 2009.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="YACCLAB">[17]</a>
+    </td>
+    <td>
+      <p align="justify">C.Grana, F.Bolelli, L.Baraldi, and R.Vezzani, YACCLAB - Yet Another Connected Components Labeling Benchmark, Proceedings of the 23rd International Conference on Pattern Recognition, Cancun, Mexico, 4-8 Dec 2016, 2016.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="UF">[18]</a>
+    </td>
+    <td>
+      <p align="justify">V. Oliveira and R. Lotufo, A study on connected components labeling algorithms using GPUs, in SIBGRAPI. vol. 3, p. 4, 2010.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="OLE">[19]</a>
+    </td>
+    <td> 
+      <p align="justify">O. Kalentev, A. Rai, S. Kemnitz, R. Schneider, Connected component labeling on a 2D grid using CUDA, in Journal of Parallel and Distributed Computing 71(4), 615–620, 2011.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="BE">[20]</a>
+    </td>
+    <td>
+      <p align="justify">S. Zavalishin, I. Safonov, Y. Bekhtin, I. Kurilin, Block Equivalence Algorithm for Labeling 2D and 3D Images on GPU, in Electronic Imaging 2016(2), 1–7, 2016.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="DLP">[21]</a>
+    </td>
+    <td>
+      <p align="justify">L. Cabaret, L. Lacassagne, D. Etiemble, Distanceless Label Propagation: an Efficient Direct Connected Component Labeling Algorithm for GPUs, in Seventh International Conference on Image Processing Theory, Tools and Applications, IPTA, 2017.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="KE">[22]</a>
+    </td>
+    <td>
+      <p align="justify">S. Allegretti, F. Bolelli, M. Cancilla, C. Grana, Optimizing GPU-Based Connected Components Labeling Algorithms, in Third IEEE International Conference on Image Processing, Applications and Systems, IPAS, 2018.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="DRAG">[23]</a>
+    </td>
+    <td>
+      <p align="justify">F. Bolelli, L. Baraldi, M. Cancilla, C. Grana, Connected Components Labeling on DRAGs, in International Conference on Pattern Recognition, 2018.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="BUF_BKE">[24]</a>
+    </td>
+    <td>
+      <p align="justify">S. Allegretti, F. Bolelli, C. Grana, Optimized Block-Based Algorithms to Label Connected Components on GPUs, in IEEE Transactions on Parallel and Distributed Systems, 2019.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="YACCLAB_JRTIP">[25]</a>
+    </td>
+    <td>
+      <p align="justify">F. Bolelli, M. Cancilla, L. Baraldi, C. Grana, Towards Reliable Experiments on the Performance of Connected Components Labeling Algorithms, Journal of Real-Time Image Processing, 2018.</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="SPAGHETTI">[26]</a>
+    </td>
+    <td>
+      <p align="justify">F. Bolelli, S. Allegretti, L. Baraldi, C. Grana, Spaghetti Labeling: Directed Acyclic Graphs for Block-Based Connected Components Labeling, IEEE Transactions on Image Processing, 2019.</p>
+    </td>
+</tr>
+</table>
