@@ -1,10 +1,41 @@
 # YACCLAB: Yet Another Connected Components Labeling Benchmark
 
-|         OS            | Build |          Compiler           | OpenCV | CMake | GPU |                                              Travis CI                                                          |  GitHub Actions |
-|-----------------------|-------|-----------------------------|--------|-------|-----|-----------------------------------------------------------------------------------------------------------------|-----------------|
-| Ubuntu 16.04.6 LTS    |  x64  |           5.4.0             |  3.1.0 | 3.13  | NO  | [![Build Status](https://travis-ci.org/prittt/YACCLAB.svg?branch=master)](https://travis-ci.org/prittt/YACCLAB) |                 |
-| MacOS (Darwin 17.7.0) |  x64  | AppleClang 10 (Xcode-10.1)  |  3.1.0 | 3.13  | NO  | [![Build Status](https://travis-ci.org/prittt/YACCLAB.svg?branch=master)](https://travis-ci.org/prittt/YACCLAB) |                 |
-
+<table>
+<thead>
+<tr>
+    <th>OS</th>
+    <th>Build</th>
+    <th>Compiler</th>
+    <th>OpenCV</th>
+    <th>CMake</th>
+    <th>GPU</th>
+    <th>Travis CI</th>
+    <th>GitHub Actions</th>
+</tr>
+<thead>
+<tbody>
+<tr>
+    <td>Ubuntu<br/>16.04.6 LTS</td>
+    <td>x64</td>
+    <td>gcc 5.4.0</td>
+    <td>3.1.0</td>
+    <td>3.13</td>
+    <td>None</td>
+    <td><a href="https://travis-ci.org/prittt/YACCLAB"><img src="https://travis-ci.org/prittt/YACCLAB.svg?branch=master"/></a></td>
+    <td></td>
+</tr>
+<tr>
+    <td>MacOS<br/>(Darwin 17.7.0)</td>
+    <td>x64</td>
+    <td>AppleClang 10<br/>(Xcode-10.1)</td>
+    <td>3.1.0</td>
+    <td>3.13</td>
+    <td>None</td>
+    <td><a href="https://travis-ci.org/prittt/YACCLAB"><img src="https://travis-ci.org/prittt/YACCLAB.svg?branch=master"/></a></td>
+    <td></td>
+    </tr>
+</tbody>
+</table>
 
 <p align="justify">Please include the following references when citing the YACCLAB project/dataset:</p>
 
