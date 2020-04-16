@@ -1,0 +1,28 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "prittt",
+      "name": "Federico Bolelli",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/6863130?v=4",
+      "profile": "http://www.federicobolelli.it",
+      "contributions": [
+        "code",
+        "projectManagement",
+        "maintenance",
+        "infra",
+        "ideas"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "YACCLAB",
+  "projectOwner": "prittt",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
