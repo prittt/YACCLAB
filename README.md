@@ -1,7 +1,7 @@
 # Yet Another Connected Components Labeling Benchmark
 [![release](https://img.shields.io/github/v/release/prittt/YACCLAB)](https://github.com/prittt/YACCLAB/releases/latest/)
 [![license](https://img.shields.io/github/license/prittt/YACCLAB)](https://github.com/prittt/YACCLAB/blob/master/LICENSE)<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![contributors](https://img.shields.io/badge/all_contributors-4-orange.svg?style=flat)](#contributors)
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 <table>
