@@ -32,12 +32,12 @@
       "avatar_url": "https://avatars2.githubusercontent.com/u/34423515?v=1",
       "profile": "https://github.com/stal12",
       "contributions": [
-	    "code", 
-		"maintenance",
-		"bug",
-		"ideas",
-		"infra"
-	  ]
+        "code",
+        "maintenance",
+        "bug",
+        "ideas",
+        "infra"
+      ]
     },
     {
       "login": "CostantinoGrana",
@@ -48,7 +48,7 @@
         "code",
         "projectManagement",
         "ideas",
-		"infra"
+        "infra"
       ]
     },
     {
@@ -60,6 +60,16 @@
         "code",
         "platform",
         "maintenance"
+      ]
+    },
+    {
+      "login": "baraldilorenzo",
+      "name": "Lorenzo Baraldi",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/8173533?v=4",
+      "profile": "http://www.lorenzobaraldi.com",
+      "contributions": [
+        "code",
+        "platform"
       ]
     }
   ]
