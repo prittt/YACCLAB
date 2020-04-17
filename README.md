@@ -1,10 +1,7 @@
 # Yet Another Connected Components Labeling Benchmark
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
-[![release](https://img.shields.io/github/v/release/prittt/YACCLAB)](https://github.com/prittt/YACCLAB/releases/latest/)
-[![license](https://img.shields.io/github/license/prittt/YACCLAB)](https://github.com/prittt/YACCLAB/blob/master/LICENSE)<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![contributors](https://img.shields.io/badge/all_contributors-4-orange.svg?style=flat)](#contributors)
+[![Release](https://img.shields.io/github/v/release/prittt/YACCLAB)](https://github.com/prittt/YACCLAB/releases/latest/)
+[![License](https://img.shields.io/github/license/prittt/YACCLAB)](https://github.com/prittt/YACCLAB/blob/master/LICENSE)<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 <table>
@@ -619,14 +616,6 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="http://www.federicobolelli.it"><img src="https://avatars3.githubusercontent.com/u/6863130?v=4" width="100px;" alt=""/><br /><sub><b>Federico Bolelli</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/commits?author=prittt" title="Code">💻</a> <a href="#projectManagement-prittt" title="Project Management">📆</a> <a href="#maintenance-prittt" title="Maintenance">🚧</a> <a href="#infra-prittt" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#ideas-prittt" title="Ideas, Planning, & Feedback">🤔</a></td>
   </tr>
 </table>
-
-<!-- markdownlint-enable -->
-<!-- prettier-ignore-end -->
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
 
 <!-- markdownlint-enable -->
 <!-- prettier-ignore-end -->
