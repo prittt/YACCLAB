@@ -1,7 +1,7 @@
 # Yet Another Connected Components Labeling Benchmark
 [![Release](https://img.shields.io/github/v/release/prittt/YACCLAB)](https://github.com/prittt/YACCLAB/releases/latest/)
 [![License](https://img.shields.io/github/license/prittt/YACCLAB)](https://github.com/prittt/YACCLAB/blob/master/LICENSE)<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 <table>
@@ -601,10 +601,6 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
   </tr>
 </table>
 
-## Contributing
-
-Any contribution is really welcome!
-
 ## Contributors
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
@@ -615,11 +611,16 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
   <tr>
     <td align="center"><a href="http://www.federicobolelli.it"><img src="https://avatars3.githubusercontent.com/u/6863130?v=4" width="100px;" alt=""/><br /><sub><b>Federico Bolelli</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/commits?author=prittt" title="Code">💻</a> <a href="#projectManagement-prittt" title="Project Management">📆</a> <a href="#maintenance-prittt" title="Maintenance">🚧</a> <a href="#infra-prittt" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#ideas-prittt" title="Ideas, Planning, & Feedback">🤔</a></td>
   </tr>
+  <tr>
+    <td align="center"><a href="https://michelecancilla.github.io"><img src="https://avatars1.githubusercontent.com/u/22983812?v=4" width="100px;" alt=""/><br /><sub><b>Michele Cancilla</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/commits?author=MicheleCancilla" title="Code">💻</a> <a href="#platform-MicheleCancilla" title="Packaging/porting to new platform">📦</a> <a href="#maintenance-MicheleCancilla" title="Maintenance">🚧</a></td>
+  </tr
 </table>
 
 <!-- markdownlint-enable -->
 <!-- prettier-ignore-end -->
 <!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome
 
 ## References
 

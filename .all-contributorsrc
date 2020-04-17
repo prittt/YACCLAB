@@ -42,11 +42,15 @@
       "contributions": []
     },
     {
-      "login": "MicheleCancilla",
-      "name": "Michele Cancilla",
-      "avatar_url": "https://avatars2.githubusercontent.com/u/22983812?v=1",
-      "profile": "https://github.com/MicheleCancilla",
-      "contributions": []
-    }
+		"login": "MicheleCancilla",
+		"name": "Michele Cancilla",
+		"avatar_url": "https://avatars1.githubusercontent.com/u/22983812?v=4",
+		"profile": "https://michelecancilla.github.io",
+		"contributions": [
+			"code",
+			"platform",
+			"maintenance"
+		]
+	}
   ]
 }
