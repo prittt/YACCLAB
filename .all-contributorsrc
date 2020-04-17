@@ -27,7 +27,7 @@
         "ideas"
       ]
     },
-	{
+    {
       "login": "stal12",
       "name": "Stefano Allegretti",
       "avatar_url": "https://avatars2.githubusercontent.com/u/34423515?v=1",
@@ -39,18 +39,22 @@
       "name": "Costantino Grana",
       "avatar_url": "https://avatars2.githubusercontent.com/u/18437151?v=1",
       "profile": "https://github.com/CostantinoGrana",
-      "contributions": []
+      "contributions": [
+        "code",
+        "projectManagement",
+        "ideas"
+      ]
     },
     {
-		"login": "MicheleCancilla",
-		"name": "Michele Cancilla",
-		"avatar_url": "https://avatars1.githubusercontent.com/u/22983812?v=4",
-		"profile": "https://michelecancilla.github.io",
-		"contributions": [
-			"code",
-			"platform",
-			"maintenance"
-		]
-	}
+      "login": "MicheleCancilla",
+      "name": "Michele Cancilla",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/22983812?v=4",
+      "profile": "https://michelecancilla.github.io",
+      "contributions": [
+        "code",
+        "platform",
+        "maintenance"
+      ]
+    }
   ]
 }
