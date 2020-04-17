@@ -117,7 +117,7 @@ Notes for gnuplot:
   </tr>	
 	
   <tr>
-    <td align="center" rowspan="12">CPU</td>
+    <td align="center" rowspan="13">CPU</td>
     <td align="center">-</td>
     <td align="center">L. Di Stefano,<br>A. Bulgarelli  <a href="#DiStefano">[3]</a></td>
     <td align="center">1999</td>
@@ -134,11 +134,11 @@ Notes for gnuplot:
     <td align="center">NO</td>
   </tr>
   <tr>
-    <td align="center">Configuration Transition Based</td>
-    <td align="center">L. He,</br>X. Zhao,</br>Y. Chao,</br>K. Suzuki  <a href="#CTB">[7]</a></td>
-    <td align="center">1999</td>
-    <td align="center">CTB</td>
-    <td align="center"><i>labeling_he_2014.h</i>, <i>labeling_he_2014_graph.inc</i>
+    <td align="center">Run-Based Two-Scan</td>
+    <td align="center">L. He,</br>Y. Chao,</br>K. Suzuki  <a href="#RBTS">[7]</a></td>
+    <td align="center">2008</td>
+    <td align="center">RBTS</td>
+    <td align="center"><i>labeling_he_2008.h</i></td>
     <td align="center">YES</td>
   </tr>
   <tr>
@@ -163,6 +163,14 @@ Notes for gnuplot:
     <td align="center">2010</td>
     <td align="center">BBDT</td>
     <td align="center"><i>labeling_grana_2010.h</i>, <i>labeling_grana_2010_tree.inc</i></td>
+    <td align="center">YES</td>
+  </tr>
+  <tr>
+    <td align="center">Configuration Transition Based</td>
+    <td align="center">L. He,</br>X. Zhao,</br>Y. Chao,</br>K. Suzuki  <a href="#CTB">[7]</a></td>
+    <td align="center">2014</td>
+    <td align="center">CTB</td>
+    <td align="center"><i>labeling_he_2014.h</i>, <i>labeling_he_2014_graph.inc</i>
     <td align="center">YES</td>
   </tr>
   <tr>
@@ -607,13 +615,12 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
+
 <table>
   <tr>
     <td align="center"><a href="http://www.federicobolelli.it"><img src="https://avatars3.githubusercontent.com/u/6863130?v=4" width="100px;" alt=""/><br /><sub><b>Federico Bolelli</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/commits?author=prittt" title="Code">💻</a> <a href="#projectManagement-prittt" title="Project Management">📆</a> <a href="#maintenance-prittt" title="Maintenance">🚧</a> <a href="#infra-prittt" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#ideas-prittt" title="Ideas, Planning, & Feedback">🤔</a></td>
+   <td align="center"><a href="https://michelecancilla.github.io"><img src="https://avatars1.githubusercontent.com/u/22983812?v=4" width="100px;" alt=""/><br /><sub><b>Michele Cancilla</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/commits?author=MicheleCancilla" title="Code">💻</a> <a href="#platform-MicheleCancilla" title="Packaging/porting to new platform">📦</a> <a href="#maintenance-MicheleCancilla" title="Maintenance">🚧</a></td>
   </tr>
-  <tr>
-    <td align="center"><a href="https://michelecancilla.github.io"><img src="https://avatars1.githubusercontent.com/u/22983812?v=4" width="100px;" alt=""/><br /><sub><b>Michele Cancilla</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/commits?author=MicheleCancilla" title="Code">💻</a> <a href="#platform-MicheleCancilla" title="Packaging/porting to new platform">📦</a> <a href="#maintenance-MicheleCancilla" title="Maintenance">🚧</a></td>
-  </tr
 </table>
 
 <!-- markdownlint-enable -->
@@ -621,6 +628,8 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome
+
+
 
 ## References
 
@@ -849,4 +858,13 @@ This project follows the [all-contributors](https://github.com/all-contributors/
       <p align="justify">S. Allegretti, F, Bolelli, M. Cancilla, F. Pollastri, L. Canalini, C. Grana, "How does Connected Components Labeling with Decision Trees perform on GPUs?," In 18th International Conference on Computer Analysis of Images and Patterns, 2019.</p>
     </td>
 </tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="RBTS">[30]</a>
+    </td>
+    <td>
+      <p align="justify">
+	L. He,  Y. Chao, K. Suzuki. "A run-based two-scan labeling algorithm." IEEE Transactions on Image Processing, 2008.</p>
+    </td>
+</tr>	
 </table>
