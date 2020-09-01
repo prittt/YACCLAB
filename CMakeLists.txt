@@ -57,21 +57,6 @@ endif()
 
 
 # ----------------------------------------------------------------------------
-#  Check for CUDA support
-# ----------------------------------------------------------------------------
-if(YACCLAB_ENABLE_CUDA)
-	include(CheckLanguage)
-	check_language(CUDA)	
-	if(CMAKE_CUDA_COMPILER)
-		enable_language(CUDA)
-		add_definitions(-DYACCLAB_WITH_CUDA)
-	else()
-		message(WARNING "No CUDA support")
-	endif()
-endif()
-
-
-# ----------------------------------------------------------------------------
 #  Check for c++14 support
 # ----------------------------------------------------------------------------
 
@@ -114,6 +99,26 @@ set(CMAKE_CXX_EXTENSIONS NO)
 #else()
 #	message(STATUS "We are not able to check if ${CMAKE_CXX_COMPILER} compiler has C++14 support. YACCLAB may not work properly.")
 #endif()
+
+
+# ----------------------------------------------------------------------------
+#  Check for CUDA support
+# ----------------------------------------------------------------------------
+if(YACCLAB_ENABLE_CUDA)
+	include(CheckLanguage)
+	check_language(CUDA)	
+	if(CMAKE_CUDA_COMPILER)
+		enable_language(CUDA)
+		add_definitions(-DYACCLAB_WITH_CUDA)
+        
+        set(CMAKE_CUDA_STANDARD_REQUIRED YES) # Force the following command to generate an error when it fails
+        set(CMAKE_CUDA_STANDARD 14)
+        set(CMAKE_CUDA_EXTENSIONS NO)     
+                
+	else()
+		message(WARNING "No CUDA support")
+	endif()
+endif()
 
 
 # ----------------------------------------------------------------------------
