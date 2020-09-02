@@ -15,6 +15,7 @@
     <th>GPU</th>
     <th>Travis CI</th>
     <th>GitHub Actions</th>
+    <th>Jenkins</th>
 </tr>
 <thead>
 <tbody>
@@ -27,6 +28,7 @@
     <td align="center">None</td>
     <td align="center"><a href="https://travis-ci.org/prittt/YACCLAB"><img src="https://travis-ci.org/prittt/YACCLAB.svg?branch=master" alt="Build Status"/></a></td>
     <td align="center">N/A</td>
+    <td align="center">N/A</td>
 </tr>
 <tr>
     <td align="center">MacOS<br/>(Darwin 17.7.0)</td>
@@ -37,6 +39,7 @@
     <td align="center">None</td>
     <td align="center"><a href="https://travis-ci.org/prittt/YACCLAB"><img src="https://travis-ci.org/prittt/YACCLAB.svg?branch=master" alt="Build Status"/></a></td>
     <td align="center">N/A</td>
+    <td align="center">N/A</td>
 </tr>
 <tr>
     <td align="center">Ubuntu<br/>18.04.6 LTS</td>
@@ -45,6 +48,18 @@
     <td align="center">4.1.2</td>
     <td align="center">3.13.5</td>
     <td align="center">None</td>
+    <td align="center">N/A</td>
+    <td align="center"><a href="https://github.com/prittt/YACCLAB/actions"><img src="https://github.com/prittt/YACCLAB/workflows/linux/badge.svg" alt="Action Status"/></a></td>
+    <td align="center">N/A</td>
+</tr>
+<tr>
+    <td align="center">Ubuntu<br/>20.04 LTS</td>
+    <td align="center">x64</td>
+    <td align="center">gcc 9.3</td>
+    <td align="center">4.4</td>
+    <td align="center">3.10.3</td>
+    <td align="center">2080Ti, CUDA 9.2</td>
+    <td align="center">N/A</td>
     <td align="center">N/A</td>
     <td align="center"><a href="https://github.com/prittt/YACCLAB/actions"><img src="https://github.com/prittt/YACCLAB/workflows/linux/badge.svg" alt="Action Status"/></a></td>
 </tr>
@@ -70,7 +85,7 @@ Notice that 8-connectivity is always used in the project.
 <p align="justify">
 To correctly install and run YACCLAB following packages, libraries and utility are needed:
 
-- CMake 3.8.2 or higher (https://cmake.org),
+- CMake 3.10.3 or higher (https://cmake.org),
 - OpenCV 3.0 or higher (http://opencv.org),
 - Gnuplot (http://www.gnuplot.info/),
 - One of your favourite IDE/compiler with C++14 support
