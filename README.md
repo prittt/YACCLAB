@@ -22,7 +22,7 @@
 <tr>
     <td align="center">Ubuntu<br/>16.04.6 LTS</td>
     <td align="center">x64</td>
-    <td align="center">gcc-5.4.0</td>
+    <td align="center">gcc 5.4.0</td>
     <td align="center">3.1.0</td>
     <td align="center">3.13</td>
     <td align="center">None</td>
@@ -33,7 +33,7 @@
 <tr>
     <td align="center">MacOS<br/>(Darwin 17.7.0)</td>
     <td align="center">x64</td>
-    <td align="center">AppleClang-10<br/>(Xcode-10.1)</td>
+    <td align="center">AppleClang 10<br/>(Xcode-10.1)</td>
     <td align="center">3.1.0</td>
     <td align="center">3.13</td>
     <td align="center">None</td>
@@ -44,7 +44,7 @@
 <tr>
     <td align="center">Ubuntu<br/>18.04.6 LTS</td>
     <td align="center">x64</td>
-    <td align="center">gcc-7</td>
+    <td align="center">gcc 7</td>
     <td align="center">4.1.2</td>
     <td align="center">3.13.5</td>
     <td align="center">None</td>
@@ -55,7 +55,7 @@
 <tr>
     <td align="center">Ubuntu<br/>16.04.6 LTS</td>
     <td align="center">x64</td>
-    <td align="center">gcc-5.4.0</td>
+    <td align="center">gcc 5.4.0</td>
     <td align="center">4.4</td>
     <td align="center">3.10.3</td>
     <td align="center">2080Ti CUDA-9.2</td>
