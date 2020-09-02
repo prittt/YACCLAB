@@ -53,9 +53,9 @@
     <td align="center">N/A</td>
 </tr>
 <tr>
-    <td align="center">Ubuntu<br/>20.04 LTS</td>
+    <td align="center">Ubuntu<br/>16.04.6 LTS</td>
     <td align="center">x64</td>
-    <td align="center">gcc-9.3</td>
+    <td align="center">gcc-5.4.0</td>
     <td align="center">4.4</td>
     <td align="center">3.10.3</td>
     <td align="center">2080Ti CUDA-9.2</td>
