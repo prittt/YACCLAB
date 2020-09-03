@@ -26,7 +26,7 @@
     <td align="center">3.1.0</td>
     <td align="center">3.13</td>
     <td align="center">None</td>
-    <td align="center"><a href="https://travis-ci.org/prittt/YACCLAB"><img width="100px" src="https://travis-ci.org/prittt/YACCLAB.svg?branch=master" alt="Build Status"/></a></td>
+    <td align="center"><a href="https://travis-ci.org/prittt/YACCLAB"><img height="20px" src="https://travis-ci.org/prittt/YACCLAB.svg?branch=master" alt="Build Status"/></a></td>
     <td align="center">N/A</td>
     <td align="center">N/A</td>
 </tr>
@@ -37,7 +37,7 @@
     <td align="center">3.1.0</td>
     <td align="center">3.13</td>
     <td align="center">None</td>
-    <td align="center"><a href="https://travis-ci.org/prittt/YACCLAB"><img width="100px" src="https://travis-ci.org/prittt/YACCLAB.svg?branch=master" alt="Build Status"/></a></td>
+    <td align="center"><a href="https://travis-ci.org/prittt/YACCLAB"><img height="20px" src="https://travis-ci.org/prittt/YACCLAB.svg?branch=master" alt="Build Status"/></a></td>
     <td align="center">N/A</td>
     <td align="center">N/A</td>
 </tr>
@@ -49,7 +49,7 @@
     <td align="center">3.13.5</td>
     <td align="center">None</td>
     <td align="center">N/A</td>
-    <td align="center"><a href="https://github.com/prittt/YACCLAB/actions"><img width="100px" src="https://github.com/prittt/YACCLAB/workflows/linux/badge.svg" alt="Action Status"/></a></td>
+    <td align="center"><a href="https://github.com/prittt/YACCLAB/actions"><img height="20px" src="https://github.com/prittt/YACCLAB/workflows/linux/badge.svg" alt="Action Status"/></a></td>
     <td align="center">N/A</td>
 </tr>
 <tr>
@@ -61,7 +61,7 @@
     <td align="center">2080Ti, CUDA 9.2</td>
     <td align="center">N/A</td>
     <td align="center">N/A</td>
-    <td align="center"><a href="https://jenkins-master-deephealth-unix01.ing.unimore.it/job/YACCLAB/job/master/"><img width="100px" src="https://jenkins-master-deephealth-unix01.ing.unimore.it/badge/job/YACCLAB/job/master/linux_gpu_end?" alt="Action Status"/></a></td>
+    <td align="center"><a href="https://jenkins-master-deephealth-unix01.ing.unimore.it/job/YACCLAB/job/master/"><img height="20px" src="https://jenkins-master-deephealth-unix01.ing.unimore.it/badge/job/YACCLAB/job/master/linux_gpu_end?" alt="Action Status"/></a></td>
 </tr>
 </tbody>
 </table>
