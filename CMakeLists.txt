@@ -26,7 +26,7 @@
 # OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.13.0)
+cmake_minimum_required(VERSION 3.13.4)
 
 
 # ----------------------------------------------------------------------------
@@ -50,6 +50,7 @@ set(YACCLAB_INPUT_DATASET_PATH "${CMAKE_INSTALL_PREFIX}/input" CACHE PATH "'inpu
 set(YACCLAB_OUTPUT_RESULTS_PATH "${CMAKE_INSTALL_PREFIX}/output" CACHE PATH "'output' results path") 
 set(YACCLAB_OS "${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_VERSION}" CACHE INTERNAL STRING)
 set(YACCLAB_IS_TRAVIS_CI OFF CACHE INTERNAL "This variable is used to handle travis-ci parameters, do not change its value")
+set(YACCLAB_IS_JENKINS OFF CACHE INTERNAL "This variable is used to handle jenkins parameters, do not change its value")
 
 if(MSVC)
   set(CMAKE_USE_RELATIVE_PATHS ON CACHE INTERNAL "" FORCE)
@@ -176,15 +177,9 @@ add_definitions(-DYACCLAB_OS="${YACCLAB_OS}")
 
 include_directories("${CMAKE_SOURCE_DIR}/include")
 include_directories("${CMAKE_SOURCE_DIR}/cuda/include")
-include_directories("${CMAKE_INSTALL_PREFIX}") # To avoid linking error when new file is added to the project directly from Visual Studio IDE
+include_directories("${CMAKE_INSTALL_PREFIX}") # To avoid linking error when a new file is added to the project directly from Visual Studio IDE
 
 #SET_SOURCE_FILES_PROPERTIES("${CMAKE_SOURCE_DIR}/src/labeling_bolelli_2019.cc" PROPERTIES COMPILE_FLAGS "-O1")
-#file(GLOB CUDAFILES ${CUDAFILES})
-#if (YACCLAB_ENABLE_CUDA AND CMAKE_CUDA_COMPILER)
-#	file(GLOB CUDAFILES ${CUDAFILES} "cuda/src/*.cu")
-#	file(GLOB SRCFILES ${SRCFILES} "cuda/src/*.cc" "cuda/src/*.cpp" "cuda/src/*.c")
-#	file(GLOB HFILES ${HFILES} "cuda/include/*.h" "cuda/include/*.hpp")
-#endif()
 
 add_definitions(-D_CRT_SECURE_NO_WARNINGS) #To suppress 'fopen' opencv warning/bug  
 
@@ -208,21 +203,15 @@ endif()
 
 if(YACCLAB_IS_TRAVIS_CI)	
 	configure_file("${CMAKE_SOURCE_DIR}/doc/config_travis.yaml" "${CMAKE_INSTALL_PREFIX}/config.yaml")
+elseif(YACCLAB_IS_JENKINS)	
+	configure_file("${CMAKE_SOURCE_DIR}/doc/config_jenkins.yaml" "${CMAKE_INSTALL_PREFIX}/config.yaml")
 else()
 	if (NOT EXISTS "${CMAKE_INSTALL_PREFIX}/config.yaml")
 		configure_file("${CMAKE_SOURCE_DIR}/doc/config_base.yaml" "${CMAKE_INSTALL_PREFIX}/config.yaml")
 	endif()
 endif()
-#if (YACCLAB_ENABLE_CUDA AND CMAKE_CUDA_COMPILER)
-#	source_group("Cuda Files" FILES ${CUDAFILES})
-#endif()
 
-
-if(YACCLAB_ENABLE_CUDA AND CMAKE_CUDA_COMPILER)
-	cuda_add_executable(${ProjectName} "${CMAKE_INSTALL_PREFIX}/config.yaml")
-else()
-	add_executable(${ProjectName} "${CMAKE_INSTALL_PREFIX}/config.yaml")
-endif()
+add_executable(${ProjectName} "${CMAKE_INSTALL_PREFIX}/config.yaml")
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${ProjectName}) # Set YACCLAB as startup group instead of ALL_BUILD
 target_link_libraries (${ProjectName}  ${OpenCV_LIBS})
 
@@ -240,6 +229,7 @@ add_subdirectory(include)
 if(YACCLAB_ENABLE_CUDA AND CMAKE_CUDA_COMPILER)
     add_subdirectory(cuda/src)
     add_subdirectory(cuda/include)
+    include_directories("${CUDA_INCLUDE_DIRS}")
 endif()
 
 source_group("Include Files" REGULAR_EXPRESSION "inc$")

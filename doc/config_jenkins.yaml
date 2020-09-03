@@ -276,7 +276,7 @@ GPU 3D 26-way connectivity:
 # -------------------- #
 
 # Directory for input/output paths
-paths: {input: "C:/Users/Federico/Desktop/YACCLAB-jenkins/bin/input", output: "C:/Users/Federico/Desktop/YACCLAB-jenkins/bin/output"}
+paths: {input: "${YACCLAB_INPUT_DATASET_PATH}", output: "${YACCLAB_OUTPUT_RESULTS_PATH}"}
 
 # Save the returned number of components in output files
 write_n_labels: false

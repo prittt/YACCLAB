@@ -33,9 +33,6 @@ set -e
 
 function build_linux(){
 
-
-   echo -e "############################################### Build and Test ###############################################"
-
    echo -e "\n\n------------------------------------------> YACCLAB configuration" 
    mkdir bin
    # The download of the complete YACCLAB dataset is disable in order to reduce the cmake configure time in travis-ci virtual machine
@@ -62,14 +59,14 @@ function build_linux(){
    
    
    
-   echo -e "\n\n------------------------------------------> Build and Test YACCLAB" 
+   echo -e "\n\n------------------------------------------> Build YACCLAB" 
    make -j7
-   ./YACCLAB
+   #./YACCLAB
    echo -e "------------------------------------------> DONE!"
 }
 
 function build_windows(){
-  # TODO
+    echo "pass"
 }
 
 function pass(){
@@ -79,6 +76,7 @@ function pass(){
 function run_pull_request(){
 
     # linux
+    echo "Build target: $BUILD_TARGET"
     if [ "$BUILD_TARGET" == "linux" ]; then
         build_linux
     fi
