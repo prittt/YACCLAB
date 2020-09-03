@@ -58,7 +58,7 @@
     <td align="center">gcc 5.4.0</td>
     <td align="center">4.4</td>
     <td align="center">3.10.3</td>
-    <td align="center">2080Ti CUDA-9.2</td>
+    <td align="center">2080Ti, CUDA 9.2</td>
     <td align="center">N/A</td>
     <td align="center">N/A</td>
     <td align="center"><a href="https://github.com/prittt/YACCLAB/actions"><img src="https://github.com/prittt/YACCLAB/workflows/linux/badge.svg" alt="Action Status"/></a></td>
@@ -85,7 +85,7 @@ Notice that 8-connectivity is always used in the project.
 <p align="justify">
 To correctly install and run YACCLAB following packages, libraries and utility are needed:
 
-- CMake 3.10.3 or higher (https://cmake.org),
+- CMake 3.13 or higher (https://cmake.org),
 - OpenCV 3.0 or higher (http://opencv.org),
 - Gnuplot (http://www.gnuplot.info/),
 - One of your favourite IDE/compiler with C++14 support
