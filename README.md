@@ -61,7 +61,7 @@
     <td align="center">2080Ti, CUDA 9.2</td>
     <td align="center">N/A</td>
     <td align="center">N/A</td>
-    <td align="center"><a href="https://github.com/prittt/YACCLAB/actions"><img src="https://github.com/prittt/YACCLAB/workflows/linux/badge.svg" alt="Action Status"/></a></td>
+    <td align="center"><a href="https://jenkins-master-deephealth-unix01.ing.unimore.it/job/YACCLAB/job/master/"><img src="https://jenkins-master-deephealth-unix01.ing.unimore.it/badge/job/YACCLAB/job/master/linux_gpu_end?" alt="Action Status"/></a></td>
 </tr>
 </tbody>
 </table>
