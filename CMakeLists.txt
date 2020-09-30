@@ -114,7 +114,15 @@ if(YACCLAB_ENABLE_CUDA)
         
         set(CMAKE_CUDA_STANDARD_REQUIRED YES) # Force the following command to generate an error when it fails
         set(CMAKE_CUDA_STANDARD 14)
-        set(CMAKE_CUDA_EXTENSIONS NO)     
+        set(CMAKE_CUDA_EXTENSIONS NO)
+        
+        find_package(CUDA)
+        CUDA_SELECT_NVCC_ARCH_FLAGS(ARCH_FLAGS)
+        message(STATUS ${ARCH_FLAGS})
+        SET(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} ${ARCH_FLAGS}")
+        
+        SET(CMAKE_CUDA_FLAGS_DEBUG "${CMAKE_CUDA_FLAGS_DEBUG} -G")
+        message(STATUS ${CMAKE_CUDA_FLAGS_DEBUG})
                 
 	else()
 		message(WARNING "No CUDA support")
@@ -206,7 +214,7 @@ if(YACCLAB_IS_TRAVIS_CI)
 elseif(YACCLAB_IS_JENKINS)	
 	configure_file("${CMAKE_SOURCE_DIR}/doc/config_jenkins.yaml" "${CMAKE_INSTALL_PREFIX}/config.yaml")
 else()
-	if (NOT EXISTS "${CMAKE_INSTALL_PREFIX}/config.yaml")
+	if(NOT EXISTS "${CMAKE_INSTALL_PREFIX}/config.yaml")
 		configure_file("${CMAKE_SOURCE_DIR}/doc/config_base.yaml" "${CMAKE_INSTALL_PREFIX}/config.yaml")
 	endif()
 endif()
@@ -242,6 +250,8 @@ endif()
 if (NOT EXISTS "${YACCLAB_OUTPUT_RESULTS_PATH}")
 		file(MAKE_DIRECTORY ${YACCLAB_OUTPUT_RESULTS_PATH})
 endif()
+
+message(STATUS ${CUDA_NVCC_FLAGS})
 
 # Download and unpack dataset if necessary
 if(YACCLAB_DOWNLOAD_DATASET)

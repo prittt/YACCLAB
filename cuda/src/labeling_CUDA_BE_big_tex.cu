@@ -6,15 +6,11 @@
 #include "labeling_algorithms.h"
 #include "register.h"
 
-
 #define BLOCK_ROWS 16
 #define BLOCK_COLS 16
 
 using namespace cv;
 
-
-// Algorithm itself has good performances, but memory allocation is a problem.
-// I will try to reduce it.
 namespace {
 
 	// Only use it with unsigned numeric types
@@ -360,7 +356,7 @@ namespace {
 
 }
 
-class BE : public GpuLabeling2D<CONN_8> {
+class BE_TEX : public GpuLabeling2D<CONN_8> {
 private:
 	dim3 grid_size_;
 	dim3 block_size_;
@@ -371,7 +367,7 @@ private:
 	cuda::GpuMat d_block_labels_;
 
 public:
-	BE() {}
+	BE_TEX() {}
 
 	void PerformLabeling() {
 
@@ -519,5 +515,5 @@ public:
 
 };
 
-REGISTER_LABELING(BE);
+REGISTER_LABELING(BE_TEX);
 

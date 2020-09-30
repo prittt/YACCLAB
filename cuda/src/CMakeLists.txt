@@ -9,7 +9,10 @@ target_sources(YACCLAB
         labeling_CUDA_BBDT.cu
         labeling_CUDA_BE.cu
         labeling_CUDA_BE_3D_orig.cu
+        labeling_CUDA_BE_3D_light.cu
+        labeling_CUDA_BE_3D_light_shared.cu
         labeling_CUDA_BE_big.cu
+        labeling_CUDA_BE_big_tex.cu
         labeling_CUDA_BKE.cu
         labeling_CUDA_BKE_3D.cu
         labeling_CUDA_BKE_InlineCompression.cu
@@ -27,7 +30,9 @@ target_sources(YACCLAB
         labeling_CUDA_LBUF.cu
         labeling_CUDA_M8DLS.cu
         labeling_CUDA_OLE.cu
+        labeling_CUDA_OLE_tex.cu
         labeling_CUDA_SAUF.cu
         labeling_CUDA_TBUF.cu
         labeling_CUDA_TUF.cu
+        labeling_CUDA_RADAR.cu
 )
