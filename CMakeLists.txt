@@ -116,13 +116,12 @@ if(YACCLAB_ENABLE_CUDA)
         set(CMAKE_CUDA_STANDARD 14)
         set(CMAKE_CUDA_EXTENSIONS NO)
         
-        find_package(CUDA)
-        CUDA_SELECT_NVCC_ARCH_FLAGS(ARCH_FLAGS)
-        message(STATUS ${ARCH_FLAGS})
-        SET(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} ${ARCH_FLAGS}")
+        #find_package(CUDA)
+        #CUDA_SELECT_NVCC_ARCH_FLAGS(ARCH_FLAGS)
+        #message(STATUS ${ARCH_FLAGS})
+        #SET(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} ${ARCH_FLAGS}")
         
-        SET(CMAKE_CUDA_FLAGS_DEBUG "${CMAKE_CUDA_FLAGS_DEBUG} -G")
-        message(STATUS ${CMAKE_CUDA_FLAGS_DEBUG})
+        add_compile_options($<$<AND:$<COMPILE_LANGUAGE:CUDA>,$<CONFIG:Debug>>:-G>)
                 
 	else()
 		message(WARNING "No CUDA support")
