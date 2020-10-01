@@ -77,6 +77,7 @@ void YacclabTests::CheckMethodsExistence() {
 				ob_.Cwarning(algo_name + ": " + e.what());
 			}
 		}
+		algorithm->FreeLabelingData();
 	}
 
 	if ((mode_cfg_.perform_average || (mode_cfg_.perform_correctness && mode_cfg_.perform_check_8connectivity_std)) && mode_cfg_.ccl_average_algorithms.size() == 0) {

@@ -63,19 +63,17 @@ namespace {
 		unsigned row = blockIdx.y * BLOCK_ROWS + threadIdx.y;
 		unsigned col = blockIdx.x * BLOCK_COLS + threadIdx.x;
 		unsigned labels_index = row * (labels.step / labels.elem_size) + col;
-		
-		if (row < labels.rows && col < labels.cols) {
 
-			unsigned label = tex2D<unsigned int>(texObject, col, row);
+		unsigned label = tex2D<unsigned int>(texObject, col, row);
 
-			if (label) {
-				unsigned min_label = FindMinLabel(texObject, row, col, label);
-				if (min_label < label) {
-					labels[label - 1] = min(static_cast<unsigned int>(labels[label - 1]), min_label);
-					*changes = 1;
-				}
+		if (label) {
+			unsigned min_label = FindMinLabel(texObject, row, col, label);
+			if (min_label < label) {
+				labels[label - 1] = min(static_cast<unsigned int>(labels[label - 1]), min_label);
+				*changes = 1;
 			}
 		}
+		
 	}
 
 
@@ -105,6 +103,55 @@ namespace {
 		}
 	}
 
+	__device__ unsigned int FindMinLabelNotTex(cuda::PtrStepSzi labels, unsigned row, unsigned col, unsigned label, unsigned labels_index) {
+
+		unsigned int min = label;
+
+		if (row > 0) {
+			min = MinLabel(min, labels.data[labels_index - (labels.step / labels.elem_size)]);
+			if (col > 0)
+				min = MinLabel(min, labels.data[labels_index - (labels.step / labels.elem_size) - 1]);
+			if (col < labels.cols - 1)
+				min = MinLabel(min, labels.data[labels_index - (labels.step / labels.elem_size) + 1]);
+		}
+		if (row < labels.rows - 1) {
+			min = MinLabel(min, labels.data[labels_index + (labels.step / labels.elem_size)]);
+			if (col > 0)
+				min = MinLabel(min, labels.data[labels_index + (labels.step / labels.elem_size) - 1]);
+			if (col < labels.cols - 1)
+				min = MinLabel(min, labels.data[labels_index + (labels.step / labels.elem_size) + 1]);
+		}
+		if (col > 0)
+			min = MinLabel(min, labels.data[labels_index - 1]);
+		if (col < labels.cols - 1)
+			min = MinLabel(min, labels.data[labels_index + 1]);
+
+		return min;
+	}
+
+
+	// Scan phase.
+	// The pixel associated with current thread is given the minimum label of the neighbours.
+	__global__ void ScanNotTex(cuda::PtrStepSzi labels, cudaTextureObject_t texObject, char* changes) {
+
+		unsigned row = blockIdx.y * BLOCK_ROWS + threadIdx.y;
+		unsigned col = blockIdx.x * BLOCK_COLS + threadIdx.x;
+		unsigned labels_index = row * (labels.step / labels.elem_size) + col;
+
+		if (row < labels.rows && col < labels.cols) {
+
+			unsigned label = labels[labels_index];
+
+			if (label) {
+				unsigned min_label = FindMinLabelNotTex(labels, row, col, label, labels_index);
+				if (min_label < label) {
+					labels[label - 1] = min(static_cast<unsigned int>(labels[label - 1]), min_label);
+					*changes = 1;
+				}
+			}
+		}
+	}
+
 }
 
 class OLE_TEX : public GpuLabeling2D<CONN_8> {
@@ -120,7 +167,11 @@ public:
 	void PerformLabeling() {
 
 		d_img_labels_.create(d_img_.size(), CV_32SC1);
+
 		cudaMalloc(&d_changes, sizeof(char));
+
+		// Workaround for 1D images, necessary for sm >= 70
+		//void (*scan_kernel) (cuda::PtrStepSzi, cudaTextureObject_t, char*) = (d_img_.rows == 1 || d_img_.cols == 1) ? ScanNotTex : Scan;
 
 		// Create Texture Object
 		cudaChannelFormatDesc chFormatDesc = cudaCreateChannelDesc<unsigned int>();
@@ -144,28 +195,46 @@ public:
 		cudaCreateTextureObject(&texObject, &resDesc, &texDesc, nullptr);
 
 		grid_size_ = dim3((d_img_.cols + BLOCK_COLS - 1) / BLOCK_COLS, (d_img_.rows + BLOCK_ROWS - 1) / BLOCK_ROWS, 1);
-		block_size_ = dim3(BLOCK_COLS, BLOCK_ROWS, 1);		
+		block_size_ = dim3(BLOCK_COLS, BLOCK_ROWS, 1);
 
 		Init << <grid_size_, block_size_ >> >(d_img_, d_img_labels_);
 
-		while (true) {
-			changes = 0;
-			cudaMemcpy(d_changes, &changes, sizeof(char), cudaMemcpyHostToDevice);
+		if (d_img_.rows == 1 || d_img_.cols == 1) {
+			while (true) {
+				changes = 0;
+				cudaMemcpy(d_changes, &changes, sizeof(char), cudaMemcpyHostToDevice);
 
-			Scan << <grid_size_, block_size_ >> > (d_img_labels_, texObject, d_changes);
+				ScanNotTex << <grid_size_, block_size_ >> > (d_img_labels_, texObject, d_changes);
 
-			cudaMemcpy(&changes, d_changes, sizeof(char), cudaMemcpyDeviceToHost);
+				cudaMemcpy(&changes, d_changes, sizeof(char), cudaMemcpyDeviceToHost);
 
-			if (!changes)
-				break;
+				if (!changes)
+					break;
 
-			Analyze << <grid_size_, block_size_ >> > (d_img_labels_);
+				Analyze << <grid_size_, block_size_ >> > (d_img_labels_);
+			}
+		}
+
+		else {
+			while (true) {
+				changes = 0;
+				cudaMemcpy(d_changes, &changes, sizeof(char), cudaMemcpyHostToDevice);
+
+				Scan << <grid_size_, block_size_ >> > (d_img_labels_, texObject, d_changes);
+
+				cudaMemcpy(&changes, d_changes, sizeof(char), cudaMemcpyDeviceToHost);
+
+				if (!changes)
+					break;
+
+				Analyze << <grid_size_, block_size_ >> > (d_img_labels_);
+			}
 		}
 
 		cudaDestroyTextureObject(texObject);
 
 		cudaFree(d_changes);
-		cudaDeviceSynchronize();		
+		cudaDeviceSynchronize();
 	}
 
 
@@ -223,17 +292,36 @@ private:
 
 		Init << <grid_size_, block_size_ >> >(d_img_, d_img_labels_);
 
-		while (true) {
-			changes = 0;
-			cudaMemcpy(d_changes, &changes, sizeof(char), cudaMemcpyHostToDevice);
+		if (d_img_.rows == 1 || d_img_.cols == 1) {
+			while (true) {
+				changes = 0;
+				cudaMemcpy(d_changes, &changes, sizeof(char), cudaMemcpyHostToDevice);
 
-			//Scan << <grid_size_, block_size_ >> > (d_img_labels_, texObject, d_changes);
+				ScanNotTex << <grid_size_, block_size_ >> > (d_img_labels_, texObject, d_changes);
 
-			cudaMemcpy(&changes, d_changes, sizeof(char), cudaMemcpyDeviceToHost);
-			if (!changes)
-				break;
+				cudaMemcpy(&changes, d_changes, sizeof(char), cudaMemcpyDeviceToHost);
 
-			Analyze << <grid_size_, block_size_ >> > (d_img_labels_);
+				if (!changes)
+					break;
+
+				Analyze << <grid_size_, block_size_ >> > (d_img_labels_);
+			}
+		}
+
+		else {
+			while (true) {
+				changes = 0;
+				cudaMemcpy(d_changes, &changes, sizeof(char), cudaMemcpyHostToDevice);
+
+				Scan << <grid_size_, block_size_ >> > (d_img_labels_, texObject, d_changes);
+
+				cudaMemcpy(&changes, d_changes, sizeof(char), cudaMemcpyDeviceToHost);
+
+				if (!changes)
+					break;
+
+				Analyze << <grid_size_, block_size_ >> > (d_img_labels_);
+			}
 		}
 
 		cudaDestroyTextureObject(texObject);
