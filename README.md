@@ -200,9 +200,9 @@ Notes for gnuplot:
     <td align="center">Light Speed Labeling</td>
     <td align="center">L. Cabaret,</br>L. Lacassagne,</br>D. Etiemble  <a href="#LSL_STD">[5]</a></td>
     <td align="center">2016</td>
-    <td align="center">LSL_STD<small> I</small></br>LSL_STDZ<small> II</small></br>LSL_RLE<small> III</small></td>
+    <td align="center">LSL_STD<a href="#I"><sup>I</sup></a></br>LSL_STDZ<a href="#II"><sup>II</sup></a></br>LSL_RLE<a href="#III"><sup>III</sup></a></td>
     <td align="center"><i>labeling_lacassagne_2016.h</i>, <i>labeling_lacassagne_2016_code.inc</i></td>
-    <td align="center">YES<small> IV</small></td>
+    <td align="center">YES<a href="#IV"><sup>IV</sup></a></td>
   </tr>
   <tr>
     <td align="center">Pixel Prediction</td>
@@ -232,7 +232,7 @@ Notes for gnuplot:
     <td align="center">Null Labeling</td>
     <td align="center">F. Bolelli,</br>M. Cancilla,</br>L. Baraldi,</br>C. Grana <a href="#YACCLAB_JRTIP">[13]</a></td> 
     <td align="center">-</td>
-    <td align="center">NULL<small> V</small></td>
+    <td align="center">NULL<a href="#V"><sup>V</sup></a></td>
     <td align="center"><i>labeling_null.h</i></td>
     <td align="center">NO</td>
   </tr>
@@ -315,11 +315,11 @@ Notes for gnuplot:
 
 </table>
 
-(<small>I</small>) standard version </br>
-(<small>II</small>) with zero-offset optimization </br>
-(<small>III</small>) with RLE compression </br>
-(<small>IV</small>) only on TTA and UF </br>
-(<small>V</small>) it only copies the pixels from the input image to the output one simply defining a lower bound limit for the execution time of CCL algorithms on a given machine and dataset.
+<a name="I"><sup>I</sup></a> standard version </br>
+<a name="II"><sup>II</sup></a> with zero-offset optimization </br>
+<a name="III"><sup>III</sup></a> with RLE compression </br>
+<a name="IV"><sup>IV</sup></a> only on TTA and UF </br>
+<a name="V"><sup>V</sup></a> it only copies the pixels from the input image to the output one simply defining a lower bound limit for the execution time of CCL algorithms on a given machine and dataset.
 
 ### Example of Algorithm Usage Outside the Benchmark
 
