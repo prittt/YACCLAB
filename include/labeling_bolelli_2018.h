@@ -38,7 +38,7 @@
 #include "memory_tester.h"
 
 template <typename LabelsSolver>
-class DRAG : public Labeling2D<CONN_8> {
+class DRAG : public Labeling2D<Connectivity2D::CONN_8> {
 public:
     DRAG() {}
 

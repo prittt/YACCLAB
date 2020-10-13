@@ -108,7 +108,7 @@ public:
 
 class YacclabTensorOutput : public YacclabTensor {
 public:
-    virtual void NormalizeLabels() = 0;
+    virtual void NormalizeLabels(bool label_background = false) = 0;
     virtual void WriteColored(const std::string &filename) const = 0;
     virtual void PrepareForCheck() = 0;
 
@@ -125,7 +125,7 @@ public:
     YacclabTensorOutput2D() {}
     YacclabTensorOutput2D(cv::Mat1i mat) : mat_(std::move(mat)) {}
 
-    virtual void NormalizeLabels() override;
+    virtual void NormalizeLabels(bool label_background = false) override;
     virtual void WriteColored(const std::string &filename) const override;
     virtual void PrepareForCheck() override {}
     virtual void Release() override {  mat_.release();  }
@@ -141,7 +141,7 @@ public:
     YacclabTensorOutput3D() {}
     YacclabTensorOutput3D(cv::Mat mat) : mat_(std::move(mat)) {}
 
-    virtual void NormalizeLabels() override;
+    virtual void NormalizeLabels(bool label_background = false) override;
     virtual void WriteColored(const std::string &filename) const override;
     virtual void PrepareForCheck() override {}
     virtual void Release() override {  mat_.release();  }

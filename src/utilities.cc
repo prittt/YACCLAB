@@ -94,7 +94,7 @@ string GetDatetime()
 
 #elif defined(YACCLAB_WINDOWS) || defined(YACCLAB_LINUX) || defined(YACCLAB_UNIX) || defined(YACCLAB_APPLE)
 
-    struct tm * timeinfo;
+    struct tm* timeinfo;
     timeinfo = localtime(&rawtime);
     strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", timeinfo);
 
@@ -289,40 +289,73 @@ string GetDatetimeWithoutSpecialChars()
 //    }
 //}
 
+
+bool CheckLabeledImage(const Mat1b& img, const Mat1i& labels, Mat1i& errors) {
+    errors = Mat1i(img.size(), 0);
+    bool correct = true;
+    for (int y = 0; y < img.rows; y++) {
+        for (int x = 0; x < img.cols; x++) {
+            unsigned char val = img.at<unsigned char>(y, x);
+            int label = labels.at<int>(y, x);
+            if (val) {
+                for (char ny = ((y > 0) ? -1 : 0); ny <= ((y + 1 < img.rows) ? 1 : 0); ny++) {
+                    for (char nx = ((x > 0) ? -1 : 0); nx <= ((x + 1 < img.cols) ? 1 : 0); nx++) {
+                        if (img.at<unsigned char>(y + ny, x + nx) && labels.at<int>(y + ny, x + nx) != label) {
+                            errors.at<int>(y, x) = 1;
+                            correct = false;
+                        }
+                    }
+                }
+            }
+            else {
+                if ((x > 0 && !img.at<unsigned char>(y, x - 1) && labels.at<int>(y, x - 1) != label) ||
+                    (x + 1 < img.cols && !img.at<unsigned char>(y, x + 1) && labels.at<int>(y, x + 1) != label) ||
+                    (y > 0 && !img.at<unsigned char>(y - 1, x) && labels.at<int>(y - 1, x) != label) ||
+                    (y + 1 < img.rows && !img.at<unsigned char>(y + 1, x) && labels.at<int>(y + 1, x) != label)) {
+                    errors.at<int>(y, x) = 1;
+                    correct = false;
+                }
+            }
+        }
+    }
+    return correct;
+}
+
 bool CheckLabeledVolume(const Mat& img, const Mat& labels, Mat& errors) {
     if (labels.dims != 3)
         throw std::runtime_error("Volume doesn't have 3 dims");
     if (labels.type() != CV_32SC1)
         throw std::runtime_error("Volume type isn't CV_32SC1");
-    errors.create(3, labels.size.p, CV_8UC1);
+    errors.create(3, labels.size.p, CV_32SC1);
     bool correct = true;
     for (int z = 0; z < labels.size[0]; z++) {
         for (int y = 0; y < labels.size[1]; y++) {
             for (int x = 0; x < labels.size[2]; x++) {
                 unsigned char val = img.at<unsigned char>(z, y, x);
                 int label = labels.at<int>(z, y, x);
-                errors.at<unsigned char>(z, y, x) = 0;
+                errors.at<int>(z, y, x) = 0;
                 if (val) {
-                    if (label) {
-                        for (char nz = ((z > 0) ? -1 : 0); nz <= ((z + 1 < labels.size[0]) ? 1 : 0); nz++) {
-                            for (char ny = ((y > 0) ? -1 : 0); ny <= ((y + 1 < labels.size[1]) ? 1 : 0); ny++) {
-                                for (char nx = ((x > 0) ? -1 : 0); nx <= ((x + 1 < labels.size[2]) ? 1 : 0); nx++) {
-                                    if (img.at<unsigned char>(z + nz, y + ny, x + nx) && labels.at<int>(z + nz, y + ny, x + nx) != label) {
-                                        errors.at<unsigned char>(z, y, x) = 0xFF;
-                                        correct = false;
-                                    }
+                    for (char nz = ((z > 0) ? -1 : 0); nz <= ((z + 1 < labels.size[0]) ? 1 : 0); nz++) {
+                        for (char ny = ((y > 0) ? -1 : 0); ny <= ((y + 1 < labels.size[1]) ? 1 : 0); ny++) {
+                            for (char nx = ((x > 0) ? -1 : 0); nx <= ((x + 1 < labels.size[2]) ? 1 : 0); nx++) {
+                                if (img.at<unsigned char>(z + nz, y + ny, x + nx) && labels.at<int>(z + nz, y + ny, x + nx) != label) {
+                                    errors.at<int>(z, y, x) = 1;
+                                    correct = false;
                                 }
                             }
                         }
                     }
-                    else {
-                        errors.at<unsigned char>(z, y, x) = 0xFF;
+                }
+                else {
+                    if ((x > 0 && !img.at<unsigned char>(z, y, x - 1) && labels.at<int>(z, y, x - 1) != label) ||
+                        (x + 1 < labels.size[2] && !img.at<unsigned char>(z, y, x + 1) && labels.at<int>(z, y, x + 1) != label) ||
+                        (y > 0 && !img.at<unsigned char>(z, y - 1, x) && labels.at<int>(z, y - 1, x) != label) ||
+                        (y + 1 < labels.size[1] && !img.at<unsigned char>(z, y + 1, x) && labels.at<int>(z, y + 1, x) != label) ||
+                        (z > 0 && !img.at<unsigned char>(z - 1, y, x) && labels.at<int>(z - 1, y, x) != label) ||
+                        (z + 1 < labels.size[0] && !img.at<unsigned char>(z + 1, y, x) && labels.at<int>(z + 1, y, x) != label)) {
+                        errors.at<int>(z, y, x) = 1;
                         correct = false;
                     }
-                }
-                else if (label) {
-                    errors.at<unsigned char>(z, y, x) = 0xFF;
-                    correct = false;
                 }
             }
         }

@@ -81,7 +81,7 @@ struct Table2D {
 #define ZOA_MOD5 
 
 template <typename LabelsSolver>
-class LSL_STD : public Labeling2D<CONN_8> {
+class LSL_STD : public Labeling2D<Connectivity2D::CONN_8> {
 #include "labeling_lacassagne_2016_code.inc"
 };
 
@@ -105,7 +105,7 @@ class LSL_STD : public Labeling2D<CONN_8> {
 #define ZOA_MOD5 -1
 
 template <typename LabelsSolver>
-class LSL_STDZ : public Labeling2D<CONN_8> {
+class LSL_STDZ : public Labeling2D<Connectivity2D::CONN_8> {
 #include "labeling_lacassagne_2016_code.inc"
 };
 
@@ -128,7 +128,7 @@ class LSL_STDZ : public Labeling2D<CONN_8> {
 #define ZOA_MOD5 
 
 template <typename LabelsSolver>
-class LSL_RLE : public Labeling2D<CONN_8> {
+class LSL_RLE : public Labeling2D<Connectivity2D::CONN_8> {
 #include "labeling_lacassagne_2016_code.inc"
 };
 
@@ -151,7 +151,7 @@ class LSL_RLE : public Labeling2D<CONN_8> {
 #define ZOA_MOD5 -1
 
 template <typename LabelsSolver>
-class LSL_RLEZ : public Labeling2D<CONN_8> {
+class LSL_RLEZ : public Labeling2D<Connectivity2D::CONN_8> {
 #include "labeling_lacassagne_2016_code.inc"
 };
 

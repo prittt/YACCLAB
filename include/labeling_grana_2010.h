@@ -36,7 +36,7 @@
 #include "memory_tester.h"
 
 template <typename LabelsSolver>
-class BBDT : public Labeling2D<CONN_8> {
+class BBDT : public Labeling2D<Connectivity2D::CONN_8> {
 public:
     BBDT() {}
 

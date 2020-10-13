@@ -136,7 +136,7 @@ namespace {
 
 }
 
-class KE4 : public GpuLabeling2D<CONN_4> {
+class KE4 : public GpuLabeling2D<Connectivity2D::CONN_4> {
 private:
     dim3 grid_size_;
     dim3 block_size_;

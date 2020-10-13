@@ -26,18 +26,18 @@
 // OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef YACCLAB_LABELING_CHECK_H_
-#define YACCLAB_LABELING_CHECK_H_
+#ifndef YACCLAB_CHECK_LABELING_H_
+#define YACCLAB_CHECK_LABELING_H_
 
 #include <map>
 #include <string>
 
-enum Connectivity2D {
+enum class Connectivity2D {
     CONN_4 = 4,
     CONN_8 = 8
 };
 
-enum Connectivity3D {
+enum class Connectivity3D {
     CONN_6 = 6,
     CONN_18 = 18,
     CONN_26 = 26
@@ -45,10 +45,10 @@ enum Connectivity3D {
 
 class LabelingCheckSingleton2D {
 public:
-    std::map<Connectivity2D, std::string> map_;
+    std::map<std::pair<Connectivity2D, bool>, std::string> map_;
 
     static LabelingCheckSingleton2D& GetInstance();
-    static std::string GetCheckAlg(Connectivity2D conn);
+    static std::string GetCheckAlg(Connectivity2D conn, bool label_background);
     LabelingCheckSingleton2D(LabelingCheckSingleton2D const&) = delete;
     void operator=(LabelingCheckSingleton2D const&) = delete;
 
@@ -59,10 +59,10 @@ private:
 
 class LabelingCheckSingleton3D {
 public:
-    std::map<Connectivity3D, std::string> map_;
+    std::map<std::pair<Connectivity3D, bool>, std::string> map_;
 
     static LabelingCheckSingleton3D& GetInstance();
-    static std::string GetCheckAlg(Connectivity3D conn);
+    static std::string GetCheckAlg(Connectivity3D conn, bool label_background);
     LabelingCheckSingleton3D(LabelingCheckSingleton3D const&) = delete;
     void operator=(LabelingCheckSingleton3D const&) = delete;
 
@@ -72,4 +72,4 @@ private:
 };
 
 
-#endif //YACCLAB_LABELING_CHECK_H_
+#endif //YACCLAB_CHECK_LABELING_H_

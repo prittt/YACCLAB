@@ -36,7 +36,7 @@
 #include "memory_tester.h"
 
 template <typename LabelsSolver>
-class naive_3D : public Labeling3D<CONN_26> {
+class naive_3D : public Labeling3D<Connectivity3D::CONN_26> {
 public:
 	naive_3D() {}
 

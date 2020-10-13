@@ -38,7 +38,7 @@
 #include "memory_tester.h"
 
 template <typename LabelsSolver>
-class PRED : public Labeling2D<CONN_8> {
+class PRED : public Labeling2D<Connectivity2D::CONN_8> {
 public:
     PRED() {}
 

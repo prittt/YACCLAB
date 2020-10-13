@@ -235,7 +235,7 @@ namespace {
 
 }
 
-class UF_InlineCompression : public GpuLabeling2D<CONN_8> {
+class UF_InlineCompression : public GpuLabeling2D<Connectivity2D::CONN_8> {
 private:
     dim3 grid_size_;
     dim3 block_size_;

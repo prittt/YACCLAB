@@ -305,7 +305,7 @@ namespace {
 
 }
 
-class BUF_2S : public GpuLabeling2D<CONN_8> {
+class BUF_2S : public GpuLabeling2D<Connectivity2D::CONN_8> {
 private:
     dim3 grid_size_;
     dim3 block_size_;

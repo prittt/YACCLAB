@@ -87,6 +87,8 @@ std::string GetDatetimeWithoutSpecialChars();
 
 //void Divide(cv::Mat& mat);
 
+bool CheckLabeledImage(const cv::Mat1b& img, const cv::Mat1i& labels, cv::Mat1i& errors);
+
 bool CheckLabeledVolume(const cv::Mat& img, const cv::Mat& labels, cv::Mat& errors);
 
 /*@brief Read bool from YAML configuration file

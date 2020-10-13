@@ -61,7 +61,7 @@ bool YacclabTensorOutput::Equals(YacclabTensorOutput *other) {
     return cv::countNonZero(diff) == 0;
 }
 
-void YacclabTensorOutput2D::NormalizeLabels() {
+void YacclabTensorOutput2D::NormalizeLabels(bool label_background) {
     std::map<int, int> map_new_labels;
     int i_max_new_label = 0;
 
@@ -69,7 +69,7 @@ void YacclabTensorOutput2D::NormalizeLabels() {
         unsigned * const mat_row = mat_.ptr<unsigned>(r);
         for (int c = 0; c < mat_.cols; ++c) {
             int iCurLabel = mat_row[c];
-            if (iCurLabel > 0) {
+            if (label_background || iCurLabel > 0) {
                 if (map_new_labels.find(iCurLabel) == map_new_labels.end()) {
                     map_new_labels[iCurLabel] = ++i_max_new_label;
                 }
@@ -91,7 +91,7 @@ void YacclabTensorOutput2D::WriteColored(const std::string &filename) const {
     imwrite(filename, mat_colored);
 }
 
-void YacclabTensorOutput3D::NormalizeLabels() {
+void YacclabTensorOutput3D::NormalizeLabels(bool label_background) {
     std::map<int, int> map_new_labels;
     int i_max_new_label = 0;
 
@@ -101,7 +101,7 @@ void YacclabTensorOutput3D::NormalizeLabels() {
                 unsigned int * img_labels_row = reinterpret_cast<unsigned int *>(mat_.data + z * mat_.step[0] + y * mat_.step[1]);
                 for (int x = 0; x < mat_.size[2]; x++) {
                     int iCurLabel = img_labels_row[x];
-                    if (iCurLabel > 0) {
+                    if (label_background || iCurLabel > 0) {
                         if (map_new_labels.find(iCurLabel) == map_new_labels.end()) {
                             map_new_labels[iCurLabel] = ++i_max_new_label;
                         }

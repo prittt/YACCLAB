@@ -440,7 +440,7 @@ namespace {
 
 }
 
-class BUF_3D : public GpuLabeling3D<CONN_26> {
+class BUF_3D : public GpuLabeling3D<Connectivity3D::CONN_26> {
 private:
     dim3 grid_size_;
     dim3 block_size_;

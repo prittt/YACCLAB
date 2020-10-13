@@ -71,7 +71,7 @@ public:
         input_(std::move(input)), output_(std::move(output)) {}
 
     virtual ~Labeling() = default;
-	
+
     virtual void PerformLabeling() { throw std::runtime_error("'PerformLabeling()' not implemented"); }
     virtual void PerformLabelingWithSteps() { throw std::runtime_error("'PerformLabelingWithSteps()' not implemented"); }
     virtual void PerformLabelingMem(std::vector<unsigned long>& accesses) { throw std::runtime_error("'PerformLabelingMem(...)' not implemented"); }
@@ -80,16 +80,18 @@ public:
     virtual std::string GetTitle() const { return GetGnuplotTitle(); }
     virtual std::string CheckAlg() const = 0;
 
+    virtual bool IsLabelBackground() const = 0;
+
     virtual YacclabTensorInput* GetInput() { return input_.get(); }
     virtual YacclabTensorOutput* GetOutput() { return output_.get(); }
 
 };
 
-template <Connectivity2D Conn>
+template <Connectivity2D Conn, bool LabelBackground = false>
 class Labeling2D : public Labeling {
 public:
-    cv::Mat1b &img_;
-    cv::Mat1i &img_labels_;
+    cv::Mat1b& img_;
+    cv::Mat1i& img_labels_;
     unsigned int n_labels_;
 
     Labeling2D(std::unique_ptr<YacclabTensorInput2D> input, std::unique_ptr<YacclabTensorOutput2D> output) :
@@ -101,15 +103,17 @@ public:
 
     virtual ~Labeling2D() = default;
 
-    virtual std::string CheckAlg() const { return LabelingCheckSingleton2D::GetCheckAlg(Conn); }
+    virtual std::string CheckAlg() const { return LabelingCheckSingleton2D::GetCheckAlg(Conn, LabelBackground); }
+
+    virtual bool IsLabelBackground() const override { return LabelBackground; }
 
 };
 
-template <Connectivity3D Conn>
+template <Connectivity3D Conn, bool LabelBackground = false>
 class Labeling3D : public Labeling {
 public:
-    cv::Mat &img_;
-    cv::Mat &img_labels_;
+    cv::Mat& img_;
+    cv::Mat& img_labels_;
 
     Labeling3D(std::unique_ptr<YacclabTensorInput3D> input, std::unique_ptr<YacclabTensorOutput3D> output) :
         Labeling(std::move(input), std::move(output)),
@@ -120,40 +124,43 @@ public:
 
     virtual ~Labeling3D() = default;
 
-    virtual std::string CheckAlg() const { return LabelingCheckSingleton3D::GetCheckAlg(Conn); }
+    virtual std::string CheckAlg() const { return LabelingCheckSingleton3D::GetCheckAlg(Conn, LabelBackground); }
+
+    virtual bool IsLabelBackground() const override { return LabelBackground; }
 
 };
 
 
 #if defined YACCLAB_WITH_CUDA
-template <Connectivity2D Conn>
-class GpuLabeling2D : public Labeling2D<Conn> {
+template <Connectivity2D Conn, bool LabelBackground = false>
+class GpuLabeling2D : public Labeling2D<Conn, LabelBackground> {
 public:
-	using Labeling2D<Conn>::input_;
-	using Labeling2D<Conn>::output_;
+    using Labeling2D<Conn>::input_;
+    using Labeling2D<Conn>::output_;
 
-	cv::cuda::GpuMat &d_img_;
-	cv::cuda::GpuMat &d_img_labels_;
+    cv::cuda::GpuMat& d_img_;
+    cv::cuda::GpuMat& d_img_labels_;
+    // errors could be checked directly on the device
 
-    GpuLabeling2D() : 
-	Labeling2D<Conn>(std::make_unique<YacclabTensorInput2DCuda>(), std::make_unique<YacclabTensorOutput2DCuda>()), 
-	d_img_(dynamic_cast<YacclabTensorInput2DCuda*>(input_.get())->GpuRaw()), 
-	d_img_labels_(dynamic_cast<YacclabTensorOutput2DCuda*>(output_.get())->GpuRaw()) {}
+    GpuLabeling2D() :
+        Labeling2D<Conn>(std::make_unique<YacclabTensorInput2DCuda>(), std::make_unique<YacclabTensorOutput2DCuda>()),
+        d_img_(dynamic_cast<YacclabTensorInput2DCuda*>(input_.get())->GpuRaw()),
+        d_img_labels_(dynamic_cast<YacclabTensorOutput2DCuda*>(output_.get())->GpuRaw()) {}
 
-	virtual ~GpuLabeling2D() = default;
-	
+    virtual ~GpuLabeling2D() = default;
+
     virtual std::string GetTitle() const { return GetGnuplotTitleGpu(); }
 };
 
 
-template <Connectivity3D Conn>
-class GpuLabeling3D : public Labeling3D<Conn> {
+template <Connectivity3D Conn, bool LabelBackground = false>
+class GpuLabeling3D : public Labeling3D<Conn, LabelBackground> {
 public:
-	using Labeling3D<Conn>::input_;
-	using Labeling3D<Conn>::output_;
+    using Labeling3D<Conn>::input_;
+    using Labeling3D<Conn>::output_;
 
-	cv::cuda::GpuMat3 &d_img_;
-	cv::cuda::GpuMat3 &d_img_labels_;
+    cv::cuda::GpuMat3& d_img_;
+    cv::cuda::GpuMat3& d_img_labels_;
 
     GpuLabeling3D() :
         Labeling3D<Conn>(std::make_unique<YacclabTensorInput3DCuda>(), std::make_unique<YacclabTensorOutput3DCuda>()),
@@ -172,7 +179,7 @@ public:
     std::map<std::string, Labeling*> data_;
 
     static LabelingMapSingleton& GetInstance();
-    static Labeling* GetLabeling(const std::string& s);			
+    static Labeling* GetLabeling(const std::string& s);
     static bool Exists(const std::string& s);
     LabelingMapSingleton(LabelingMapSingleton const&) = delete;
     void operator=(LabelingMapSingleton const&) = delete;

@@ -115,6 +115,16 @@ private:
 		std::vector<std::string> first_fail(ccl_algorithms.size());  // Name of the file on which algorithm fails the first time
 		bool stop = false; // True if all the algorithms are not correct
 
+		std::string correct_algo_name;
+		try {
+			correct_algo_name = LabelingMapSingleton::GetLabeling(ccl_algorithms[0])->CheckAlg();
+		}
+		catch (std::out_of_range) {
+			ob.Cwarning("No correct algorithm is available, correctness test skipped.");
+			return;
+		}
+		Labeling* correct_algo = LabelingMapSingleton::GetLabeling(correct_algo_name);
+
 		for (unsigned i = 0; i < mode_cfg_.check_datasets.size(); ++i) { // For every dataset in the check_datasets list
 			std::string dataset_name(mode_cfg_.check_datasets[i]);
 			path dataset_path(glob_cfg_.input_path / path(dataset_name));
@@ -138,21 +148,14 @@ private:
 				path filename_path = dataset_path / path(filename);
 
 				// Load image
-				// Qua ci infiliamo una funzione che legge un tensore e lo memorizza in Labeling::img_
-				// Labeling::img_ a sua volta è una Mat che può essere 2D oppure 3D.
-				// La funzione GetBinaryImage distingue le immagini 2D dai volumi 3D in base a filename_path
-				// Se è una directory allora è in 3D, altrimenti è in 2D
-				if (!LabelingMapSingleton::GetLabeling(ccl_algorithms[0])->GetInput()->ReadBinary(filename_path.string())) {
+				if (!correct_algo->GetInput()->ReadBinary(filename_path.string())) {
 					ob.Cmessage("Unable to open '" + filename + "'");
 					continue;
 				}
 
 				// These variables aren't necessary
 				// unsigned n_labels_correct, n_labels_to_control;
-
-				// Qua serve una funzione che si comporti in 4 modi diversi a seconda della connettività e della dimensionalità
-                std::string correct_algo_name = LabelingMapSingleton::GetLabeling(ccl_algorithms[0])->CheckAlg();
-				Labeling* correct_algo = LabelingMapSingleton::GetLabeling(correct_algo_name);
+				
 				correct_algo->PerformLabeling();
 				//n_labels_correct = sauf->n_labels_;
                 YacclabTensorOutput* correct_algo_out = correct_algo->GetOutput();
@@ -162,7 +165,7 @@ private:
 
                 correct_algo->FreeLabelingData();
 
-                labels_correct->NormalizeLabels();
+                labels_correct->NormalizeLabels(correct_algo->IsLabelBackground());
 
 				unsigned j = 0;
 				for (const auto& algo_name : ccl_algorithms) {
@@ -173,7 +176,7 @@ private:
 						(algorithm->*func)(std::forward<Args>(args)...);
                         YacclabTensorOutput* labels_to_check = algorithm->GetOutput();
                         labels_to_check->PrepareForCheck();
-                        labels_to_check->NormalizeLabels();
+                        labels_to_check->NormalizeLabels(algorithm->IsLabelBackground());
                         const bool correct = labels_correct->Equals(labels_to_check);
                         // const bool diff = algorithm->Check(correct_algo);
 						algorithm->FreeLabelingData();
