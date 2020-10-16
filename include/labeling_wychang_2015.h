@@ -111,7 +111,7 @@ public:
         // Process first two rows
         for (int x = 0; x < w; x += 2) {
 
-#include "labeling_wychang_2015_tree_0.inc"
+#include "labeling_wychang_2015_tree_0.inc.h"
 
         }
 
@@ -123,7 +123,7 @@ public:
             unsigned int* const img_labels_row_prev_prev = (unsigned int *)(((char *)img_labels_row) - img_labels_.step.p[0] - img_labels_.step.p[0]);
             for (int x = 0; x < w; x += 2) {
 
-#include "labeling_wychang_2015_tree.inc"
+#include "labeling_wychang_2015_tree.inc.h"
 
             }
         }
@@ -327,14 +327,14 @@ public:
         // Process first two rows
         for (int x = 0; x < w; x += 2) {
 
-#include "labeling_wychang_2015_tree_0.inc"
+#include "labeling_wychang_2015_tree_0.inc.h"
 
         }
 
         for (int y = 2; y < h; y += 2) {
             for (int x = 0; x < w; x += 2) {
 
-#include "labeling_wychang_2015_tree.inc"
+#include "labeling_wychang_2015_tree.inc.h"
 
             }
         }
@@ -497,7 +497,7 @@ private:
         // Process first two rows
         for (int x = 0; x < w; x += 2) {
 
-#include "labeling_wychang_2015_tree_0.inc"
+#include "labeling_wychang_2015_tree_0.inc.h"
 
         }
 
@@ -509,7 +509,7 @@ private:
             unsigned int* const img_labels_row_prev_prev = (unsigned int *)(((char *)img_labels_row) - img_labels_.step.p[0] - img_labels_.step.p[0]);
             for (int x = 0; x < w; x += 2) {
 
-#include "labeling_wychang_2015_tree.inc"
+#include "labeling_wychang_2015_tree.inc.h"
 
             }
         }

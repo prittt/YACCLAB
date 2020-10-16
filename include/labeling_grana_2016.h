@@ -81,7 +81,7 @@ public:
             const unsigned char* const img_row = img_.ptr<unsigned char>(0);
             unsigned int* const img_labels_row = img_labels_.ptr<unsigned int>(0);
 
-#include "labeling_grana_2016_forest_0.inc"
+#include "labeling_grana_2016_forest_0.inc.h"
 
         }
 
@@ -92,7 +92,7 @@ public:
             unsigned int* const img_labels_row = img_labels_.ptr<unsigned int>(r);
             unsigned int* const img_labels_row_prev = (unsigned int *)(((char *)img_labels_row) - img_labels_.step.p[0]);
 
-#include "labeling_grana_2016_forest.inc"  
+#include "labeling_grana_2016_forest.inc.h"  
 
         }//End rows's for
 
@@ -176,13 +176,13 @@ public:
 
         {
             int r = 0; 
-#include "labeling_grana_2016_forest_0.inc"
+#include "labeling_grana_2016_forest_0.inc.h"
 
         }
 
         for (int r = 1; r < h; ++r) {
 
-#include "labeling_grana_2016_forest.inc"  
+#include "labeling_grana_2016_forest.inc.h"  
 
         }//End rows' for
 
@@ -275,7 +275,7 @@ private:
             const unsigned char* const img_row = img_.ptr<unsigned char>(0);
             unsigned int* const img_labels_row = img_labels_.ptr<unsigned int>(0);
 
-#include "labeling_grana_2016_forest_0.inc"
+#include "labeling_grana_2016_forest_0.inc.h"
                 
         }
 
@@ -286,7 +286,7 @@ private:
             unsigned int* const img_labels_row = img_labels_.ptr<unsigned int>(r);
             unsigned int* const img_labels_row_prev = (unsigned int *)(((char *)img_labels_row) - img_labels_.step.p[0]);
         
-#include "labeling_grana_2016_forest.inc"  
+#include "labeling_grana_2016_forest.inc.h"  
 
         }//End rows's for
 

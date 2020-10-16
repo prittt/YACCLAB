@@ -232,9 +232,10 @@ if(YACCLAB_ENABLE_CUDA AND CMAKE_CUDA_COMPILER)
     include_directories("${CUDA_INCLUDE_DIRS}")
 endif()
 
-source_group("Include Files" REGULAR_EXPRESSION "inc$")
 source_group("Header Files" REGULAR_EXPRESSION "h$|hpp$")
 source_group("Source Files" REGULAR_EXPRESSION "cc$|cpp$|c$")
+source_group("Include Files" REGULAR_EXPRESSION "inc$|inc.h$")
+
 if(YACCLAB_ENABLE_CUDA AND CMAKE_CUDA_COMPILER)
     source_group("Cuda Files" REGULAR_EXPRESSION "cu$")
 endif()

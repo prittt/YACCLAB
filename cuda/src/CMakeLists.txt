@@ -28,6 +28,5 @@ target_sources(YACCLAB
         labeling_CUDA_M8DLS.cu
         labeling_CUDA_OLE.cu
         labeling_CUDA_SAUF.cu
-        labeling_CUDA_TBUF.cu
         labeling_CUDA_TUF.cu
 )

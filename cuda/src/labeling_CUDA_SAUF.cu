@@ -105,7 +105,7 @@ namespace {
 #define ACTION_8 Union(labels.data, labels_index, labels_index - 1);  \
                     Union(labels.data, labels_index, labels_index - labels.step / labels.elem_size + 1);    //LabelsSolver::Merge(img_labels_row[c - 1], img_labels_row_prev[c + 1]); // x <- s + r
 
-#include "labeling_wu_2009_tree.inc"
+#include "labeling_wu_2009_tree.inc.h"
 
 #undef ACTION_1
 #undef ACTION_2

@@ -33,6 +33,26 @@ CPU 3D 26-way connectivity:
     - naive_3D_UFPC
   #  - naive_3D_TTA
   #  - naive_3D_RemSP
+  #  - LEB_3D_UF
+  #  - LEB_3D_UFPC
+    - LEB_3D_TTA
+  #  - LEB_3D_RemSP
+  #  - RBTS_3D_UF
+  #  - RBTS_3D_UFPC
+    - RBTS_3D_TTA
+  #  - RBTS_3D_RemSP
+  #  - BBDT_3D_19c_211b_UF
+  #  - BBDT_3D_19c_211b_UFPC
+  #  - BBDT_3D_19c_211b_TTA
+    - BBDT_3D_19c_211b_RemSP
+  #  - BBDT_3D_22c_211b_UF
+  #  - BBDT_3D_22c_211b_UFPC
+  #  - BBDT_3D_22c_211b_TTA
+    - BBDT_3D_22c_211b_RemSP
+  #  - BBDT_3D_26c_221b_UF
+  #  - BBDT_3D_26c_221b_UFPC
+  #  - BBDT_3D_26c_221b_TTA
+    - BBDT_3D_26c_221b_RemSP
   
     
   # Datasets to use for each test

@@ -144,7 +144,7 @@ public:
 			const unsigned char* const img_row = img_.ptr<unsigned char>(0);
 			unsigned* const img_labels_row = img_labels_.ptr<unsigned>(0);
 			int c = -2;
-#include "labeling_bolelli_2019_forest_singleline.inc"
+#include "labeling_bolelli_2019_forest_singleline.inc.h"
 		}
 		else {
 			// More than one line
@@ -157,7 +157,7 @@ public:
 				unsigned* const img_labels_row = img_labels_.ptr<unsigned>(0);
 				int c = -2;
 
-#include "labeling_bolelli_2019_forest_firstline.inc"
+#include "labeling_bolelli_2019_forest_firstline.inc.h"
 			}
 
 			// Every other line but the last one if image has an odd number of rows
@@ -173,7 +173,7 @@ public:
 				int c = -2;
 				goto tree_0;
 
-#include "labeling_bolelli_2019_forest.inc"
+#include "labeling_bolelli_2019_forest.inc.h"
 			}
 
 			// Last line (in case the rows are odd)
@@ -186,7 +186,7 @@ public:
 				unsigned* const img_labels_row = img_labels_.ptr<unsigned>(r);
 				unsigned* const img_labels_row_prev_prev = (unsigned*)(((char*)img_labels_row) - img_labels_.step.p[0] - img_labels_.step.p[0]);
 				int c = -2;
-#include "labeling_bolelli_2019_forest_lastline.inc"
+#include "labeling_bolelli_2019_forest_lastline.inc.h"
 			}
 		}
 
@@ -449,7 +449,7 @@ public:
 			// Single line
 			int r = 0;
 			int c = -2;
-#include "labeling_bolelli_2019_forest_singleline.inc"
+#include "labeling_bolelli_2019_forest_singleline.inc.h"
 		}
 		else {
 			// More than one line
@@ -458,14 +458,14 @@ public:
 			{
 				int r = 0;
 				int c = -2;
-#include "labeling_bolelli_2019_forest_firstline.inc"
+#include "labeling_bolelli_2019_forest_firstline.inc.h"
 			}
 
 			// Every other line but the last one if image has an odd number of rows
 			for (int r = 2; r < h - (h % 2); r += 2) {
 				int c = -2;
 				goto tree_0;
-#include "labeling_bolelli_2019_forest.inc"
+#include "labeling_bolelli_2019_forest.inc.h"
 			}
 
 			// Last line (in case that the rows are odd)
@@ -473,7 +473,7 @@ public:
 			{
 				int r = h - 1;
 				int c = -2;
-#include "labeling_bolelli_2019_forest_lastline.inc"
+#include "labeling_bolelli_2019_forest_lastline.inc.h"
 			}
 		}
 
@@ -708,7 +708,7 @@ private:
 			const unsigned char* const img_row = img_.ptr<unsigned char>(0);
 			unsigned* const img_labels_row = img_labels_.ptr<unsigned>(0);
 			int c = -2;
-#include "labeling_bolelli_2019_forest_singleline.inc"
+#include "labeling_bolelli_2019_forest_singleline.inc.h"
 		}
 		else {
 			// More than one line
@@ -721,7 +721,7 @@ private:
 				unsigned* const img_labels_row = img_labels_.ptr<unsigned>(0);
 				int c = -2;
 
-#include "labeling_bolelli_2019_forest_firstline.inc"
+#include "labeling_bolelli_2019_forest_firstline.inc.h"
 			}
 
 			// Every other line but the last one if image has an odd number of rows
@@ -737,7 +737,7 @@ private:
 				int c = -2;
 				goto tree_0;
 
-#include "labeling_bolelli_2019_forest.inc"
+#include "labeling_bolelli_2019_forest.inc.h"
 			}
 
 			// Last line (in case the rows are odd)
@@ -750,7 +750,7 @@ private:
 				unsigned* const img_labels_row = img_labels_.ptr<unsigned>(r);
 				unsigned* const img_labels_row_prev_prev = (unsigned*)(((char*)img_labels_row) - img_labels_.step.p[0] - img_labels_.step.p[0]);
 				int c = -2;
-#include "labeling_bolelli_2019_forest_lastline.inc"
+#include "labeling_bolelli_2019_forest_lastline.inc.h"
 			}
 		}
 

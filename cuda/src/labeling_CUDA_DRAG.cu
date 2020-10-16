@@ -146,7 +146,7 @@ namespace {
 			Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2); \
 			Union(labels.data, labels_index, labels_index - 2);			
 
-#include "labeling_bolelli_2018_drag.inc"
+#include "labeling_bolelli_2018_drag.inc.h"
 
 #undef ACTION_0
 #undef ACTION_2
