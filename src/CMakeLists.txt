@@ -24,9 +24,9 @@ target_sources(YACCLAB
         utilities.cc
         volume_util.cc
         yacclab_tensor.cc
-        labeling3D_BBDT_26c_221b.cc
         labeling3D_he_2011.cc
         labeling3D_he_2011_run.cc
         labeling3D_BBDT_19c_211b.cc
         labeling3D_BBDT_22c_211b.cc
 )
+# labeling3D_BBDT_26c_221b.cc
