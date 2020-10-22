@@ -7,7 +7,7 @@
 namespace cv {
 	namespace cuda {
 
-		inline GpuMat3::GpuMat3() : data(0), stepy(0), stepz(0), flags(0) {}
+		inline GpuMat3::GpuMat3() : flags(0), stepy(0), stepz(0), data(0) {}
 
 		inline
 			int GpuMat3::type() const

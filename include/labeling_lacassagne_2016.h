@@ -82,7 +82,7 @@ struct Table2D {
 
 template <typename LabelsSolver>
 class LSL_STD : public Labeling2D<Connectivity2D::CONN_8> {
-#include "labeling_lacassagne_2016_code.inc"
+#include "labeling_lacassagne_2016_code.inc.h"
 };
 
 #undef ZOA_MOD0
@@ -106,7 +106,7 @@ class LSL_STD : public Labeling2D<Connectivity2D::CONN_8> {
 
 template <typename LabelsSolver>
 class LSL_STDZ : public Labeling2D<Connectivity2D::CONN_8> {
-#include "labeling_lacassagne_2016_code.inc"
+#include "labeling_lacassagne_2016_code.inc.h"
 };
 
 #undef ZOA_MOD0
@@ -129,7 +129,7 @@ class LSL_STDZ : public Labeling2D<Connectivity2D::CONN_8> {
 
 template <typename LabelsSolver>
 class LSL_RLE : public Labeling2D<Connectivity2D::CONN_8> {
-#include "labeling_lacassagne_2016_code.inc"
+#include "labeling_lacassagne_2016_code.inc.h"
 };
 
 #undef ZOA_MOD0
@@ -152,7 +152,7 @@ class LSL_RLE : public Labeling2D<Connectivity2D::CONN_8> {
 
 template <typename LabelsSolver>
 class LSL_RLEZ : public Labeling2D<Connectivity2D::CONN_8> {
-#include "labeling_lacassagne_2016_code.inc"
+#include "labeling_lacassagne_2016_code.inc.h"
 };
 
 #undef ZOA_MOD0

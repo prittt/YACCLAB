@@ -5,30 +5,29 @@ target_sources(YACCLAB
         file_manager.h
         labeling_algorithms.h
         labeling_bolelli_2018.h
-        labeling_bolelli_2018_drag.inc
+        labeling_bolelli_2018_drag.inc.h
         labeling_bolelli_2019.h
-        labeling_bolelli_2019_forest.inc
-        labeling_bolelli_2019_forest_firstline.inc
-        labeling_bolelli_2019_forest_lastline.inc
-        labeling_bolelli_2019_forest_singleline.inc
+        labeling_bolelli_2019_forest.inc.h
+        labeling_bolelli_2019_forest_firstline.inc.h
+        labeling_bolelli_2019_forest_lastline.inc.h
+        labeling_bolelli_2019_forest_singleline.inc.h
         labeling_distefano_1999.h
         labeling_fchang_2003.h
         labeling_grana_2010.h
-        labeling_grana_2010_tree.inc
+        labeling_grana_2010_tree.inc.h
         labeling_grana_2016.h
-        labeling_grana_2016_forest.inc
-        labeling_grana_2016_forest_0.inc
+        labeling_grana_2016_forest.inc.h
+        labeling_grana_2016_forest_0.inc.h
         labeling_he_2014.h
-        labeling_he_2014_graph.inc
+        labeling_he_2014_graph.inc.h
         labeling_lacassagne_2016.h
-        labeling_lacassagne_2016_code.inc
-        labeling_naive_3D.h
+        labeling_lacassagne_2016_code.inc.h        
         labeling_null.h
         labeling_wu_2009.h
-        labeling_wu_2009_tree.inc
+        labeling_wu_2009_tree.inc.h
         labeling_wychang_2015.h
-        labeling_wychang_2015_tree.inc
-        labeling_wychang_2015_tree_0.inc
+        labeling_wychang_2015_tree.inc.h
+        labeling_wychang_2015_tree_0.inc.h
         labeling_zhao_2010.h
         labels_solver.h
         memory_tester.h
@@ -41,4 +40,20 @@ target_sources(YACCLAB
         utilities.h
         volume_util.h
         yacclab_tensor.h
+		labeling3D_naive.h
+        labeling3D_BBDT_19c_211b.h
+        labeling3D_BBDT_19c_211b_action_definition.inc.h
+        labeling3D_BBDT_19c_211b_action_definition_memory.inc.h
+        labeling3D_BBDT_19c_211b_tree.inc.h
+        labeling3D_BBDT_22c_211b.h
+        labeling3D_BBDT_22c_211b_action_definition.inc.h
+        labeling3D_BBDT_22c_211b_action_definition_memory.inc.h
+        labeling3D_BBDT_22c_211b_tree.inc.h
+        labeling3D_BBDT_26c_221b.h
+        labeling3D_BBDT_26c_221b_action_definition.inc.h
+        labeling3D_BBDT_26c_221b_action_definition_memory.inc.h
+        labeling3D_BBDT_26c_221b_tree.inc.h
+        labeling3D_BBDT_2829_action_undefinition.inc.h
+        labeling3D_he_2011.h
+        labeling3D_he_2011_run.h
 )

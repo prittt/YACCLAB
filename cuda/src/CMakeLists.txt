@@ -32,7 +32,6 @@ target_sources(YACCLAB
         labeling_CUDA_OLE.cu
         labeling_CUDA_OLE_tex.cu
         labeling_CUDA_SAUF.cu
-        labeling_CUDA_TBUF.cu
         labeling_CUDA_TUF.cu
         labeling_CUDA_RADAR.cu
 )

@@ -140,7 +140,7 @@ public:
                 //Action 16: labels of block Q, R and S
 #define ACTION_16 img_labels_row[c] = LabelsSolver::Merge(LabelsSolver::Merge(img_labels_row_prev_prev[c], img_labels_row_prev_prev[c + 2]), img_labels_row[c - 2]); continue;
 
-#include "labeling_bolelli_2018_drag.inc"
+#include "labeling_bolelli_2018_drag.inc.h"
             }
         }
 
@@ -342,13 +342,13 @@ public:
 
         {
             int r = 0; 
-#include "labeling_grana_2016_forest_0.inc"
+#include "labeling_grana_2016_forest_0.inc.h"
 
         }
 
         for (int r = 1; r < h; ++r) {
 
-#include "labeling_grana_2016_forest.inc"  
+#include "labeling_grana_2016_forest.inc.h"  
 
         }//End rows' for
 
@@ -505,7 +505,7 @@ private:
                 //Action 16: labels of block Q, R and S
 #define ACTION_16 img_labels_row[c] = LabelsSolver::Merge(LabelsSolver::Merge(img_labels_row_prev_prev[c], img_labels_row_prev_prev[c + 2]), img_labels_row[c - 2]); continue;
 
-#include "labeling_bolelli_2018_drag.inc"
+#include "labeling_bolelli_2018_drag.inc.h"
             }
         }
 

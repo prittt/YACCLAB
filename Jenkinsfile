@@ -14,19 +14,19 @@ pipeline {
                     stages {
                         stage('Clean') {
                             steps {
-							  timeout(15) {
-                                echo 'Cleaning..'
-                                sh 'rm -r bin'
-                              }
+                                timeout(15) {
+                                    echo 'Cleaning..'
+                                    sh 'rm -r bin'
+                                }
                             }
                         }
                         stage('Build') {
                             steps {
-							  timeout(15) {
-                                echo 'Building..'
-                                sh 'chmod +x tools/jenkins-scripts/run-script.sh'
-                                sh 'export BUILD_TARGET=linux && tools/jenkins-scripts/run-script.sh'
-                              }
+                                timeout(120) {
+                                    echo 'Building..'
+                                    sh 'chmod +x tools/jenkins-scripts/run-script.sh'
+                                    sh 'export BUILD_TARGET=linux && tools/jenkins-scripts/run-script.sh'
+                                }
                             }
                         }
                         stage('Run') {

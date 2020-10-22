@@ -193,4 +193,100 @@ private:
     std::vector<int> accesses_;
 };
 
+template <typename T>
+class MemVol {
+public:
+
+    int w;
+    int h;
+    int d;
+
+    MemVol() {}
+
+    MemVol(cv::Mat_<T> img)
+    {
+        if (img.dims != 3) {
+            throw std::runtime_error("Illegal dims field, it should be 3.");
+        }
+        img_ = img.clone(); // Deep copy
+
+        accesses_ = cv::Mat1i(3, img.size.p, 0);
+        w = img.size[2];
+        h = img.size[1];
+        d = img.size[0];
+    }
+
+    MemVol(const int* sizes)
+    {
+        img_ = cv::Mat_<T>(3, sizes);
+        accesses_ = cv::Mat1i(3, img_.size.p, 0);
+        w = sizes[2];
+        h = sizes[1];
+        d = sizes[0];
+    }
+
+    MemVol(int w, int h, int d)
+    {
+        int sizes[3] = { d, h, w };
+        img_ = cv::Mat_<T>(sizes);
+        accesses_ = cv::Mat1i(3, sizes, 0);
+        w = sizes[2];
+        h = sizes[1];
+        d = sizes[0];
+    }
+
+    MemVol(const int* sizes, const T val)
+    {
+        img_ = cv::Mat_<T>(3, sizes, val);
+        accesses_ = cv::Mat_<int>(3, sizes, 1);	// The initialization accesses must be counted
+        w = sizes[2];
+        h = sizes[1];
+        d = sizes[0];
+    }
+
+    MemVol(int w, int h, int d, const T val)
+    {
+        int sizes[3] = { d, h, w };
+        img_ = cv::Mat_<T>(3, sizes, val);
+        accesses_ = cv::Mat1i(3, sizes, 1);
+        w = sizes[2];
+        h = sizes[1];
+        d = sizes[0];
+    }
+
+    T& operator()(int s, int r, int c)
+    {
+        (*accesses_.ptr<int>(s, r, c))++;   // Count access
+
+        return *img_.template ptr<T>(s, r, c);
+    }
+
+    T& operator()(const int x)
+    {
+        accesses_(x)++; // Count access
+        return img_(x);
+    }
+
+    cv::Mat_<T> GetImage() const
+    {
+        return img_.clone();
+    }
+
+    cv::Mat1i GetAccessesMat() const
+    {
+        return accesses_.clone();
+    }
+
+    double GetTotalAccesses() const
+    {
+        return cv::sum(accesses_)[0];
+    } 
+
+    //~MemVol();  // This is the destructor: declaration
+
+public: // DEBUG
+    cv::Mat_<T> img_;
+    cv::Mat1i accesses_;
+};
+
 #endif // MEMORY_TESTER_H_

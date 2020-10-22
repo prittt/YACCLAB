@@ -138,7 +138,7 @@ public:
                 //Action 16: labels of block Q, R and S
 #define ACTION_16 img_labels_row[c] = LabelsSolver::Merge(LabelsSolver::Merge(img_labels_row_prev_prev[c], img_labels_row_prev_prev[c + 2]), img_labels_row[c - 2]); continue;
 
-#include "labeling_grana_2010_tree.inc"
+#include "labeling_grana_2010_tree.inc.h"
             }
         }
 
@@ -399,7 +399,7 @@ public:
                 //Action 16: labels of block Q, R and S
 #define ACTION_16 img_labels(r, c) = LabelsSolver::MemMerge(LabelsSolver::MemMerge(img_labels(r - 2, c), img_labels(r - 2, c + 2)), img_labels(r, c - 2)); continue;
 
-#include "labeling_grana_2010_tree.inc"
+#include "labeling_grana_2010_tree.inc.h"
             }
         }
 
@@ -623,7 +623,7 @@ private:
                 //Action 16: labels of block Q, R and S
 #define ACTION_16 img_labels_row[c] = LabelsSolver::Merge(LabelsSolver::Merge(img_labels_row_prev_prev[c], img_labels_row_prev_prev[c + 2]), img_labels_row[c - 2]); continue;
 
-#include "labeling_grana_2010_tree.inc"
+#include "labeling_grana_2010_tree.inc.h"
             }
         }
 

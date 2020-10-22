@@ -114,7 +114,7 @@ public:
 #define ACTION_13 img_labels_row_fol[c] = img_labels_row_fol[c - 1]; // b <- n5
 #define ACTION_14 img_labels_row_fol[c] = img_labels_row[c]; // b <- a
 
-#include "labeling_he_2014_graph.inc"
+#include "labeling_he_2014_graph.inc.h"
             }//End columns's for
         }//End rows's for
 
@@ -229,7 +229,7 @@ public:
 #define ACTION_13 img_labels(r + 1, c) = img_labels(r + 1, c - 1); // b <- n5
 #define ACTION_14 img_labels(r + 1, c) = img_labels(r, c); // b <- a
 
-#include "labeling_he_2014_graph.inc"
+#include "labeling_he_2014_graph.inc.h"
             }//End columns's for
         }//End rows's for
 
@@ -358,7 +358,7 @@ private:
 #define ACTION_13 img_labels_row_fol[c] = img_labels_row_fol[c - 1]; // b <- n5
 #define ACTION_14 img_labels_row_fol[c] = img_labels_row[c]; // b <- a
 
-#include "labeling_he_2014_graph.inc"
+#include "labeling_he_2014_graph.inc.h"
             }//End columns's for
         }//End rows's for
 

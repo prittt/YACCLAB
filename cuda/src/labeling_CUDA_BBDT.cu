@@ -137,7 +137,8 @@ namespace {
 			Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2); \
 			Union(labels.data, labels_index, labels_index - 2);			
 
-#include "labeling_grana_2010_tree.inc"
+#include "labeling_grana_2010_tree.inc.h"
+
 
 #undef ACTION_1
 #undef ACTION_2

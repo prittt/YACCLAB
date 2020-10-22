@@ -12,7 +12,7 @@ target_sources(YACCLAB
         labeling_grana_2016.cc
         labeling_he_2014.cc
         labeling_lacassagne_2016.cc
-        labeling_naive_3D.cc
+        labeling3D_naive.cc
         labeling_null.cc
         labeling_wu_2009.cc
         labeling_wychang_2015.cc
@@ -24,4 +24,9 @@ target_sources(YACCLAB
         utilities.cc
         volume_util.cc
         yacclab_tensor.cc
+        labeling3D_he_2011.cc
+        labeling3D_he_2011_run.cc
+        labeling3D_BBDT_19c_211b.cc
+        labeling3D_BBDT_22c_211b.cc
 )
+# labeling3D_BBDT_26c_221b.cc

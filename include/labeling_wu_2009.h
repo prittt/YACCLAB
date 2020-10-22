@@ -81,7 +81,7 @@ public:
 #define ACTION_7 img_labels_row[c] = LabelsSolver::Merge(img_labels_row_prev[c - 1], img_labels_row_prev[c + 1]); // x <- p + r
 #define ACTION_8 img_labels_row[c] = LabelsSolver::Merge(img_labels_row[c - 1], img_labels_row_prev[c + 1]); // x <- s + r
 
-#include "labeling_wu_2009_tree.inc"
+#include "labeling_wu_2009_tree.inc.h"
             }
         }
 
@@ -173,7 +173,7 @@ public:
 #define ACTION_7 img_labels(r, c) = LabelsSolver::MemMerge((unsigned)img_labels(r - 1, c - 1), (unsigned)img_labels(r - 1, c + 1)); // x <- p + r
 #define ACTION_8 img_labels(r, c) = LabelsSolver::MemMerge((unsigned)img_labels(r, c - 1), (unsigned)img_labels(r - 1, c + 1)); // x <- s + r
 
-#include "labeling_wu_2009_tree.inc"              
+#include "labeling_wu_2009_tree.inc.h"              
             }
         }
 
@@ -275,7 +275,7 @@ private:
 #define ACTION_7 img_labels_row[c] = LabelsSolver::Merge(img_labels_row_prev[c - 1], img_labels_row_prev[c + 1]); // x <- p + r
 #define ACTION_8 img_labels_row[c] = LabelsSolver::Merge(img_labels_row[c - 1], img_labels_row_prev[c + 1]); // x <- s + r
 
-#include "labeling_wu_2009_tree.inc"
+#include "labeling_wu_2009_tree.inc.h"
             }
         }
 
