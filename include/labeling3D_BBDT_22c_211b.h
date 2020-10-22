@@ -147,8 +147,8 @@ public:
 		//const unsigned char* const img_row = img_.ptr<unsigned char>(0);
 		//unsigned* const img_labels_row = img_labels_.ptr<unsigned>(0);
 
-		const unsigned char* const img_row = img_.ptr<unsigned char>();
-		int* const img_labels_row = img_labels_.ptr<int>();
+		//const unsigned char* const img_row = img_.ptr<unsigned char>();
+		//int* const img_labels_row = img_labels_.ptr<int>();
 
 		// NEW VERSION BELOW, OLD IN labeling3D_BBDT_19c_211b.h
 		int rows = h;
@@ -220,7 +220,7 @@ public:
 		perf_.store(Step(StepType::ALLOC_DEALLOC), perf_.last() + alloc_timing);
 	}
 
-	void PerformLabelingMem(std::vector<unsigned long>& accesses) {
+	void PerformLabelingMem(std::vector<uint64_t>& accesses) {
 
 		{
 #undef CONDITION_KB 
@@ -346,7 +346,7 @@ public:
 		}
 
 		// Store total accesses in the output vector 'accesses'
-		accesses = std::vector<unsigned long>((int)MD_SIZE, 0);
+		accesses = std::vector<uint64_t>((int)MD_SIZE, 0);
 
 		accesses[MD_BINARY_MAT] = (unsigned long)img.GetTotalAccesses();
 		accesses[MD_LABELED_MAT] = (unsigned long)img_labels.GetTotalAccesses();
@@ -482,8 +482,8 @@ private:
 		unsigned int h = img_.size.p[1];
 		unsigned int w = img_.size.p[2];
 
-		const unsigned char* const img_row = img_.ptr<unsigned char>();
-		int* const img_labels_row = img_labels_.ptr<int>();
+		//const unsigned char* const img_row = img_.ptr<unsigned char>();
+		//int* const img_labels_row = img_labels_.ptr<int>();
 
 		// NEW VERSION BELOW, OLD COMMENTED IN PerformLabeling
 		int rows = h;

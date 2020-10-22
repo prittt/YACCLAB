@@ -74,7 +74,7 @@ public:
 	
     virtual void PerformLabeling() { throw std::runtime_error("'PerformLabeling()' not implemented"); }
     virtual void PerformLabelingWithSteps() { throw std::runtime_error("'PerformLabelingWithSteps()' not implemented"); }
-    virtual void PerformLabelingMem(std::vector<unsigned long>& accesses) { throw std::runtime_error("'PerformLabelingMem(...)' not implemented"); }
+    virtual void PerformLabelingMem(std::vector<uint64_t>& accesses) { throw std::runtime_error("'PerformLabelingMem(...)' not implemented"); }
     virtual void FreeLabelingData() { output_->Release(); }
 
     virtual std::string GetTitle() const { return GetGnuplotTitle(); }

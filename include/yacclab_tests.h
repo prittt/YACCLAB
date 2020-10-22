@@ -62,7 +62,7 @@ private:
 
 public:
 	YacclabTests(ModeConfig &mode_cfg, GlobalConfig &glob_cfg, std::error_code &ec) : 
-		mode_cfg_(mode_cfg), glob_cfg_(glob_cfg), ec_(ec), output_path(glob_cfg.glob_output_path / mode_cfg.mode_output_path) {}
+		ec_(ec), mode_cfg_(mode_cfg), glob_cfg_(glob_cfg), output_path(glob_cfg.glob_output_path / mode_cfg.mode_output_path) {}
 
 	void CheckPerformLabeling() {
 		std::string title = "Checking Correctness of 'PerformLabeling()'";
@@ -74,7 +74,7 @@ public:
 	}
 	void CheckPerformLabelingMem() {
 		std::string title = "Checking Correctness of 'PerformLabelingMem()'";
-		std::vector<unsigned long int> unused;
+		std::vector<uint64_t> unused;
 		CheckAlgorithms(title, mode_cfg_.ccl_mem_algorithms, &Labeling::PerformLabelingMem, unused);
 	}
 

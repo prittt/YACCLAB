@@ -65,7 +65,7 @@ void SystemInfo::SetCpuBrand()
         else if (i == 0x80000004)
             memcpy(cpu_name + 32, cpu_info, sizeof(cpu_info));
     }
-    cpu_ = { cpu_name };
+    cpu_ = cpu_name;
 #elif defined(YACCLAB_WINDOWS)
     // Compiler independent, works on Windows
     std::system("wmic CPU get Name > cpu_name.txt");

@@ -140,7 +140,7 @@ public:
 
 		if (h == 1) {
 			// Single line
-			int r = 0;
+			// int r = 0;
 			const unsigned char* const img_row = img_.ptr<unsigned char>(0);
 			unsigned* const img_labels_row = img_labels_.ptr<unsigned>(0);
 			int c = -2;
@@ -151,7 +151,7 @@ public:
 
 			// First couple of lines
 			{
-				int r = 0;
+				// int r = 0;
 				const unsigned char* const img_row = img_.ptr<unsigned char>(0);
 				const unsigned char* const img_row_fol = (unsigned char*)(((char*)img_row) + img_.step.p[0]);
 				unsigned* const img_labels_row = img_labels_.ptr<unsigned>(0);
@@ -704,7 +704,7 @@ private:
 
 		if (h == 1) {
 			// Single line
-			int r = 0;
+			// int r = 0;
 			const unsigned char* const img_row = img_.ptr<unsigned char>(0);
 			unsigned* const img_labels_row = img_labels_.ptr<unsigned>(0);
 			int c = -2;
@@ -715,7 +715,7 @@ private:
 
 			// First couple of lines
 			{
-				int r = 0;
+				// int r = 0;
 				const unsigned char* const img_row = img_.ptr<unsigned char>(0);
 				const unsigned char* const img_row_fol = (unsigned char*)(((char*)img_row) + img_.step.p[0]);
 				unsigned* const img_labels_row = img_labels_.ptr<unsigned>(0);

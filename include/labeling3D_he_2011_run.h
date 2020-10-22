@@ -406,7 +406,7 @@ private:
     {
         int d = img_.size.p[0];
         int h = img_.size.p[1];
-        int w = img_.size.p[2];
+        // int w = img_.size.p[2];
 
         // Second scan
         LabelsSolver::Flatten();

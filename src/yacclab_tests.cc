@@ -69,7 +69,7 @@ void YacclabTests::CheckMethodsExistence() {
 		}
 		if (mode_cfg_.perform_memory || (mode_cfg_.perform_correctness && mode_cfg_.perform_check_8connectivity_mem)) {
 			try {
-				std::vector<unsigned long int> temp;
+				std::vector<uint64_t> temp;
 				algorithm->PerformLabelingMem(temp);
 				mode_cfg_.ccl_mem_algorithms.push_back(algo_name);
 			}
@@ -765,7 +765,7 @@ void YacclabTests::AverageTestWithSteps() {
 				// For all the Algorithms in the array
 				for (const auto& algo_name : shuffled_ccl_average_ws_algorithms) {
 					Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
-					unsigned i = static_cast<unsigned>(algo_pos[algo_name]);
+					// unsigned i = static_cast<unsigned>(algo_pos[algo_name]);
 
 					try {
 						// Perform current algorithm on current image and save result.
@@ -1477,9 +1477,9 @@ void YacclabTests::GranularityTest() {
 				std::string filename = filenames[file].first;
 				path filename_path = dataset_path / path(filename);
 
-				int cur_granularity = stoi(filename.substr(0, 2));
+				//int cur_granularity = stoi(filename.substr(0, 2));
 				//if (cur_granularity < 15) continue;
-				int cur_density = stoi(filename.substr(2, 3));
+				//int cur_density = stoi(filename.substr(2, 3));
 
 				// Read and load image
 				//if (!GetBinaryImage(filename_path, Labeling::img_)) {
@@ -1775,7 +1775,7 @@ void YacclabTests::MemoryTest() {
 				Labeling *algorithm = LabelingMapSingleton::GetLabeling(mode_cfg_.ccl_mem_algorithms[i]);
 
 				// The following data_ structure is used to get the memory access matrices
-				std::vector<unsigned long int> accesses; // Rows represents algorithms and columns represent data_ structures
+				std::vector<uint64_t> accesses; // Rows represents algorithms and columns represent data_ structures
 
 				try {
 					algorithm->PerformLabelingMem(accesses);
