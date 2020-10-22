@@ -64,7 +64,7 @@ install:
 
 script:
   # Run test script
-  - tools/travis-scripts/run-script.sh
+  - travis_wait tools/travis-scripts/run-script.sh
 
 cache:
   directories: 
