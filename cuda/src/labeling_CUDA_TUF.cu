@@ -6,7 +6,10 @@
 #include "labeling_algorithms.h"
 #include "register.h"
 
-// SAUF in GPU
+
+// Variation of UF employing a decision tree
+// Every thread looks at the neighborhood of pixel X and tests pixels with a certain order
+// The order is determined by the decision tree of SAUF
 
 
 #define BLOCK_ROWS 16
@@ -16,9 +19,9 @@ using namespace cv;
 
 namespace {
 
-	// Risale alla radice dell'albero a partire da un suo nodo n
+	// Returns the root index of the UFTree
 	__device__ unsigned Find(const int *s_buf, unsigned n) {
-		// Attenzione: non invocare la find su un pixel di background
+		// Warning: do not call Find on a background pixel
 
 		unsigned label = s_buf[n];
 
@@ -36,7 +39,7 @@ namespace {
 	}
 
 
-	// Unisce gli alberi contenenti i nodi a e b, collegandone le radici
+	// Merges the UFTrees of a and b, linking one root to the other
 	__device__ void Union(int *s_buf, unsigned a, unsigned b) {
 
 		bool done;

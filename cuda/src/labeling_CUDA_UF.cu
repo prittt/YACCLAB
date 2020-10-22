@@ -6,8 +6,7 @@
 #include "labeling_algorithms.h"
 #include "register.h"
 
-// Oliveira classico
-
+// Oliveira2010
 
 #define BLOCK_ROWS 16
 #define BLOCK_COLS 16
@@ -16,9 +15,9 @@ using namespace cv;
 
 namespace {
 
-	// Risale alla radice dell'albero a partire da un suo nodo n
+	// Returns the root index of the UFTree
 	__device__ unsigned Find(const int *s_buf, unsigned n) {
-		// Attenzione: non invocare la find su un pixel di background
+		// Warning: do not call Find on a background pixel
 
 		unsigned label = s_buf[n];
 
@@ -36,7 +35,7 @@ namespace {
 	}
 
 
-	// Unisce gli alberi contenenti i nodi a e b, collegandone le radici
+	// Merges the UFTrees of a and b, linking one root to the other
 	__device__ void Union(int *s_buf, unsigned a, unsigned b) {
 
 		bool done;
@@ -65,8 +64,6 @@ namespace {
 	}
 
 
-	//Effettuo il controllo sui 4 vicini della maschera
-	//Prova a sincronizzare dopo ogni vicino
 	__global__ void LocalMerge(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels) {
 
 		unsigned local_row = threadIdx.y;
@@ -218,7 +215,7 @@ public:
 		block_size_ = dim3(BLOCK_COLS, BLOCK_ROWS, 1);
 
 		// Phase 1
-		// Etichetta i pixel localmente al blocco		
+		// CCL on tiles		
 		LocalMerge << <grid_size_, block_size_ >> >(d_img_, d_img_labels_);
 
 		// Immagine di debug della prima fase
@@ -230,7 +227,7 @@ public:
 		//d_local_labels.download(local_labels);
 
 		// Phase 2
-		// Collega tra loro gli alberi union-find dei diversi blocchi
+		// Merges UFTrees of different tiles
 		GlobalMerge << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
 
 		// Immagine di debug della seconda fase
@@ -242,7 +239,7 @@ public:
 		//d_global_labels.download(global_labels);
 
 		// Phase 3
-		// Collassa gli alberi union-find sulle radici
+		// Collapse UFTrees
 		PathCompression << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
 
 		cudaDeviceSynchronize();

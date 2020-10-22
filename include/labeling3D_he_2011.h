@@ -153,7 +153,7 @@
 
 
 template <typename LabelsSolver>
-class LEB_3D : public Labeling3D<CONN_26> {
+class LEB_3D : public Labeling3D<Connectivity3D::CONN_26> {
 public:
     LEB_3D() {}
 

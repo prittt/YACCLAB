@@ -6,6 +6,7 @@
 #include "labeling_algorithms.h"
 #include "register.h"
 
+
 // Simplified version of UF that doesn't make use of the Tile Merging technique.
 // The initial phase which performs labeling inside tiles is avoided.
 // This variation performs worse than the original one which uses Tiles Merging.
@@ -18,9 +19,9 @@ using namespace cv;
 
 namespace {
 
-    // Risale alla radice dell'albero a partire da un suo nodo n
+    // Returns the root index of the UFTree
     __device__ unsigned Find(const int *s_buf, unsigned n) {
-        // Attenzione: non invocare la find su un pixel di background
+        // Warning: do not call Find on a background pixel
 
         unsigned label = s_buf[n];
 
@@ -38,7 +39,7 @@ namespace {
     }
 
 
-    // Unisce gli alberi contenenti i nodi a e b, collegandone le radici
+    // Merges the UFTrees of a and b, linking one root to the other
     __device__ void Union(int *s_buf, unsigned a, unsigned b) {
 
         bool done;
@@ -149,7 +150,6 @@ public:
         //cuda::PtrStep3b ptr_step_prima(d_img_labels_);
 
         // Phase 1
-        // Etichetta i pixel localmente al blocco		
         Initialization << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
 
         //cuda::PtrStepSz3i ptr_step_size(d_img_labels_);
@@ -163,7 +163,6 @@ public:
         //d_local_labels.download(local_labels);
 
         // Phase 2
-        // Collega tra loro gli alberi union-find dei diversi blocchi
         Merge << <grid_size_, block_size_ >> > (d_img_labels_);
 
         // Immagine di debug della seconda fase
@@ -175,7 +174,6 @@ public:
         //d_global_labels.download(global_labels);
 
         // Phase 3
-        // Collassa gli alberi union-find sulle radici
         PathCompression << <grid_size_, block_size_ >> > (d_img_labels_);
 
         // d_img_labels_.download(img_labels_);

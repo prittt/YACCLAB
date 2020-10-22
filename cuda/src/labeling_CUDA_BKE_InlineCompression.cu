@@ -24,7 +24,7 @@ namespace {
         bitmap |= (1 << pos);
     }
 
-    // Risale alla radice dell'albero a partire da un suo nodo n
+    // Returns the root index of the UFTree
     __device__ unsigned Find(const int *s_buf, unsigned n) {
         while (s_buf[n] != n) {
             n = s_buf[n];
@@ -42,7 +42,7 @@ namespace {
     }
 
 
-    // Unisce gli alberi contenenti i nodi a e b, collegandone le radici
+    // Merges the UFTrees of a and b, linking one root to the other
     __device__ void Union(int *s_buf, unsigned a, unsigned b) {
 
         bool done;

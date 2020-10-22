@@ -148,7 +148,7 @@ private:
 				path filename_path = dataset_path / path(filename);
 
 				// Load image
-				if (!correct_algo->GetInput()->ReadBinary(filename_path.string())) {
+				if (!LabelingMapSingleton::GetLabeling(ccl_algorithms[0])->GetInput()->ReadBinary(filename_path.string())) {
 					ob.Cmessage("Unable to open '" + filename + "'");
 					continue;
 				}

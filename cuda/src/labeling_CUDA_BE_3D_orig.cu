@@ -30,9 +30,9 @@ namespace {
         bitmap |= (1 << pos);
     }
 
-    // Risale alla radice dell'albero a partire da un suo nodo n
+    // Returns the root index of the UFTree
     __device__ unsigned Find(const int *s_buf, unsigned n) {
-        // Attenzione: non invocare la find su un pixel di background
+        // Warning: do not call Find on a background pixel
 
         unsigned label = s_buf[n];
 

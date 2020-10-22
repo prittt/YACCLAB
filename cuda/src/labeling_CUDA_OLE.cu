@@ -6,8 +6,7 @@
 #include "labeling_algorithms.h"
 #include "register.h"
 
-// Label Equivalence con ottimizzazioni introdotte da Kalentev (OLE stand for Optimized Label Equivalence or equivalently for Oleksander (Kalentev) Label Equivalence)
-
+// Label Equivalence with optimization introduced by Kalentev (OLE stands for Optimized Label Equivalence)
 
 #define BLOCK_ROWS 16
 #define BLOCK_COLS 16

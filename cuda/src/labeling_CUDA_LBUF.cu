@@ -14,9 +14,9 @@ using namespace cv;
 
 namespace {
 
-    // Risale alla radice dell'albero a partire da un suo nodo n
+    // Returns the root index of the UFTree
     __device__ unsigned Find(const int *s_buf, unsigned n) {
-        // Attenzione: non invocare la find su un pixel di background
+        // Warning: do not call Find on a background pixel
 
         unsigned label = s_buf[n];
 
@@ -33,9 +33,9 @@ namespace {
 
     }
 
-    // Risale alla radice dell'albero a partire da un suo nodo n
+    // Returns the root index of the UFTree
     __device__ unsigned FindCompress(int *s_buf, unsigned n) {
-        // Attenzione: non invocare la find su un pixel di background
+        // Warning: do not call Find on a background pixel
 
         unsigned id = n;
 
@@ -54,7 +54,7 @@ namespace {
     }
 
 
-    // Unisce gli alberi contenenti i nodi a e b, collegandone le radici
+    // Merges the UFTrees of a and b, linking one root to the other
     __device__ void Union(int *s_buf, unsigned a, unsigned b) {
 
         bool done;

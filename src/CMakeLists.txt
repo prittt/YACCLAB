@@ -28,5 +28,8 @@ target_sources(YACCLAB
         labeling3D_he_2011_run.cc
         labeling3D_BBDT_19c_211b.cc
         labeling3D_BBDT_22c_211b.cc
+        labeling_HT_CCL_Diaz2019_v1_2_0.cc
+        labeling_sauf_4c.cc
+        labeling_sauf_background.cc
 )
 # labeling3D_BBDT_26c_221b.cc

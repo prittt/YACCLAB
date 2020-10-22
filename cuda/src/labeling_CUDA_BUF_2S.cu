@@ -6,9 +6,10 @@
 #include "labeling_algorithms.h"
 #include "register.h"
 
-// Questo algoritmo è una modifica del Block Union Find (BUF) che esegue le operazioni in due livelli (stage). 
-// Inizialmente esegue le operazioni nel blocco usando la shared memory e poi merga le etichette sui bordi dei 
-// blocchi. Varie prove hanno mostrato che sulla quadro va peggio della versione BUF.
+// This algorithm is a variation of BUF divided into two stages.
+// Initially, CCL il performed on separated blocks using shared memory.
+// Then, labels on block borders are merged.
+// This algorithm pewrforms worse then original BUF on every dataset, at least when using Nvidia Quadro 2200K.
 
 
 #define BLOCK_ROWS 32
@@ -27,14 +28,14 @@ namespace {
         return (bitmap >> pos) & 1;
     }
 
-    __device__ __forceinline__ void SetBit(unsigned char &bitmap, unsigned char pos) {
-        bitmap |= (1 << pos);
-    }
+    //__device__ __forceinline__ void SetBit(unsigned char &bitmap, unsigned char pos) {
+    //    bitmap |= (1 << pos);
+    //}
 
 
-    // Risale alla radice dell'albero a partire da un suo nodo n
+    // Returns the root index of the UFTree
     __device__ unsigned Find(const int *s_buf, unsigned n) {
-        // Attenzione: non invocare la find su un pixel di background
+        // Warning: do not call Find on a background pixel
         while (s_buf[n] != n) {
             n = s_buf[n];
         }
@@ -50,7 +51,7 @@ namespace {
         return n;
     }
 
-    // Unisce gli alberi contenenti i nodi a e b, collegandone le radici
+    // Merges the UFTrees of a and b, linking one root to the other
     __device__ void Union(int *s_buf, unsigned a, unsigned b) {
 
         bool done;

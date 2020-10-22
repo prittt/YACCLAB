@@ -21,7 +21,7 @@ using namespace cv;
 namespace {
 
 
-	// Risale alla radice dell'albero a partire da un suo nodo n
+	// Returns the root index of the UFTree
 	__device__ unsigned Find(const int *s_buf, unsigned n) {			// n is an index but return value is a label
 		// You can now call Find on a background pixel
 
@@ -67,8 +67,6 @@ namespace {
 	}
 
 
-	//Effettuo il controllo sui 4 vicini della maschera
-	//Prova a sincronizzare dopo ogni vicino
 	__global__ void LocalMerge(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels) {
 
 		unsigned local_index = threadIdx.y * BLOCK_COLS + threadIdx.x;

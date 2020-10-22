@@ -60,7 +60,7 @@
 
 
 template <typename LabelsSolver>
-class BBDT_3D_19c_211b : public Labeling3D<CONN_26> {
+class BBDT_3D_19c_211b : public Labeling3D<Connectivity3D::CONN_26> {
 public:
 	BBDT_3D_19c_211b() {}
 

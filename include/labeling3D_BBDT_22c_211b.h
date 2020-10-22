@@ -63,7 +63,7 @@
 #include "labeling3D_BBDT_22c_211b_action_definition.inc.h"
 
 template <typename LabelsSolver>
-class BBDT_3D_22c_211b : public Labeling3D<CONN_26> {
+class BBDT_3D_22c_211b : public Labeling3D<Connectivity3D::CONN_26> {
 public:
 	BBDT_3D_22c_211b() {}
 

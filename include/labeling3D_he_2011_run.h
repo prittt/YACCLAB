@@ -89,7 +89,7 @@ public:
 };
 
 template <typename LabelsSolver>
-class RBTS_3D : public Labeling3D<CONN_26>
+class RBTS_3D : public Labeling3D<Connectivity3D::CONN_26>
 {
 public:
     RBTS_3D() {}

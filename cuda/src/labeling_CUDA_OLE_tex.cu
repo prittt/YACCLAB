@@ -6,7 +6,8 @@
 #include "labeling_algorithms.h"
 #include "register.h"
 
-// Label Equivalence con ottimizzazioni introdotte da Kalentev (OLE stand for Optimized Label Equivalence or equivalently for Oleksander (Kalentev) Label Equivalence)
+
+// Optimized Label Equivalence (OLE), enhanced by the use of texture memory as hinted in Asad2019
 
 
 #define BLOCK_ROWS 16
@@ -62,7 +63,7 @@ namespace {
 
 		unsigned row = blockIdx.y * BLOCK_ROWS + threadIdx.y;
 		unsigned col = blockIdx.x * BLOCK_COLS + threadIdx.x;
-		unsigned labels_index = row * (labels.step / labels.elem_size) + col;
+		// unsigned labels_index = row * (labels.step / labels.elem_size) + col;
 
 		unsigned label = tex2D<unsigned int>(texObject, col, row);
 

@@ -6,9 +6,9 @@
 #include "labeling_algorithms.h"
 #include "register.h"
 
-// Questo algoritmo è una modifica del Block Union Find (BUF) che esegue usa la FindAndCompress al posto della 
-// find usata dal BUF. La FindAndCompress aggiorna la label del pixel di partenza ad ogni iterazione della 
-// procedura di ricerca della label root. Ovvert se l'albero di equivalenza è così costruito: 
+// This algorithm is a variation of Block Union Find (BUF) that calls FindAndCompress instead of simple Find used by BUF. 
+// FindAndCompress updates the label of the starting pixel at each iteration of the loop.
+// This means that, if the equivalence tree is like this:
 
 //       A
 //     /
@@ -16,9 +16,9 @@
 //   /
 //  C
 
-// allora all prima iterazione aggiorno la label di C sostituendola con B e all'iterazione successiva con A.
-// In questo modo se un altro thread legge il mio valore a metà trova già B ed evita un passaggio. Funziona meglio 
-// del BUF solo a volte (raramente?). 
+// then the first iteration updates the label of C, assigning it value B, and the second iteration assigns A.
+// This way, another thread reading C during the process will find an updated value and will avoid a step.
+// This algorithm performs better than BUF only sometimes (rarely?). 
 
 
 #define BLOCK_ROWS 16
@@ -38,7 +38,7 @@ namespace {
     //	bitmap |= (1 << pos);
     //}
 
-    // Risale alla radice dell'albero a partire da un suo nodo n
+    // Returns the root index of the UFTree
     __device__ unsigned Find(const int *s_buf, unsigned n) {
         while (s_buf[n] != n) {
             n = s_buf[n];
@@ -55,7 +55,7 @@ namespace {
         return n;
     }
 
-    // Unisce gli alberi contenenti i nodi a e b, collegandone le radici
+    // Merges the UFTrees of a and b, linking one root to the other
     __device__ void Union(int *s_buf, unsigned a, unsigned b) {
 
         bool done;

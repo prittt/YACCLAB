@@ -134,7 +134,7 @@ namespace {
 	}
 
 
-	__global__ void ExpandConnections(const cuda::PtrStepSzb connections, cuda::PtrStepSzb expansion) {
+	/*__global__ void ExpandConnections(const cuda::PtrStepSzb connections, cuda::PtrStepSzb expansion) {
 
 		unsigned row = blockIdx.y * BLOCK_ROWS + threadIdx.y;
 		unsigned col = blockIdx.x * BLOCK_COLS + threadIdx.x;
@@ -203,7 +203,7 @@ namespace {
 				expansion[exp_index + 2 * (expansion.step / expansion.elem_size) + 2] = 0;
 			}
 		}
-	}
+	}*/
 
 
 	__device__ unsigned int MinLabel(unsigned l1, unsigned l2) {

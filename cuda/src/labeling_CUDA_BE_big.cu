@@ -14,7 +14,6 @@ using namespace cv;
 
 
 // Algorithm itself has good performances, but memory allocation is a problem.
-// I will try to reduce it.
 namespace {
 
 	// Only use it with unsigned numeric types
