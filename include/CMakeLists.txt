@@ -56,7 +56,13 @@ target_sources(YACCLAB
         labeling3D_BBDT_2829_action_undefinition.inc.h
         labeling3D_he_2011.h
         labeling3D_he_2011_run.h
-        labeling_HT_CCL_Diaz2019_v1_2_0.h
         labeling_sauf_4c.h
         labeling_sauf_background.h
 )
+
+if(OpenMP_CXX_FOUND) 
+    target_sources(YACCLAB
+        PRIVATE
+        labeling_HT_CCL_Diaz2019_v1_2_0.h
+    )
+endif()

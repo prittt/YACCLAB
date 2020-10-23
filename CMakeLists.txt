@@ -171,6 +171,19 @@ if(MSVC)
 	endif()
 endif()
 
+
+# ----------------------------------------------------------------------------
+# OpenMP
+# ----------------------------------------------------------------------------
+
+find_package(OpenMP)
+message(STATUS "OpenMP found: ${OpenMP_CXX_FOUND}")
+#if(OpenMP_CXX_FOUND)
+#    add_compile_options("${OpenMP_CXX_FLAGS}")
+#    include_directories(${OpenMP_CXX_INCLUDE_DIRS})
+#endif()
+
+
 # ----------------------------------------------------------------------------
 # Utility
 # ----------------------------------------------------------------------------
@@ -221,6 +234,9 @@ endif()
 add_executable(${ProjectName} "${CMAKE_INSTALL_PREFIX}/config.yaml")
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${ProjectName}) # Set YACCLAB as startup group instead of ALL_BUILD
 target_link_libraries (${ProjectName}  ${OpenCV_LIBS})
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(${ProjectName} OpenMP::OpenMP_CXX)
+endif()
 
 # ----------------------------------------------------------------------------
 # Output and datasests

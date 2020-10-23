@@ -141,6 +141,8 @@ public:
 			return;
 		}
 		int numHilos;
+
+		cv::Mat1b& img_ref = img_;
 		
 #define NOF_ASKED_THREADS 8
 		omp_set_num_threads(NOF_ASKED_THREADS);
@@ -148,7 +150,7 @@ public:
 #ifdef CALCULO_TIEMPO
 		t = omp_get_wtime();
 #endif
-#pragma omp parallel default(none) shared(imgJ, numHilos, img_, listaGeneral, N_ROWS)
+#pragma omp parallel default(none) shared(imgJ, numHilos, img_ref, listaGeneral, N_ROWS)
 		{
 			int id = omp_get_thread_num();
 			numHilos = omp_get_num_threads();
@@ -180,7 +182,7 @@ public:
 
 												   // label assignement 
 		int nLabel = 0;
-#pragma omp parallel default(none) shared(imgJ, numHilos, img_, listaGeneral,  N_ROWS) reduction(+:nLabel)
+#pragma omp parallel default(none) shared(imgJ, numHilos, img_ref, listaGeneral,  N_ROWS) reduction(+:nLabel)
 		{
 			int id = omp_get_thread_num();
 			int trozo = N_ROWS / numHilos;
@@ -1087,7 +1089,7 @@ int Jonly_transports_lots_of_searches(int R_SHIFT_SEARCH, int C_SHIFT_SEARCH, in
 						///////
 
 						JumpType *padj_to_new_other_color_crit_cell = pnew_other_color_crit_cell - C_SHIFT_SEARCH - N_COLS * R_SHIFT_SEARCH;
-						int dist_between_BG_cell_and_origin = (padj_to_new_other_color_crit_cell - ((JumpType *)imgJump_row_origin));
+						int dist_between_BG_cell_and_origin = static_cast<int>(padj_to_new_other_color_crit_cell - ((JumpType *)imgJump_row_origin));
 
 						if (
 							((-R_SHIFT_SEARCH == -1) && (padj_to_new_other_color_crit_cell > (JumpType *)imgJump_row_origin))
@@ -1129,7 +1131,7 @@ int Jonly_transports_lots_of_searches(int R_SHIFT_SEARCH, int C_SHIFT_SEARCH, in
 									JumpType sum_jump_other_color_new_root;
 									JumpType * pnew_other_color_crit_cell_destin = travel_inside_J(pother_color_new_root_origin, *pother_color_new_root_origin, &sum_jump_other_color_new_root);
 
-									JumpType new_value = sum_jump_other_color_new_root + (pother_color_new_root_origin - pnew_other_color_crit_cell);	// 2º store with if 
+									JumpType new_value = static_cast<JumpType>(sum_jump_other_color_new_root + (pother_color_new_root_origin - pnew_other_color_crit_cell));	// 2º store with if 
 
 									*pnew_other_color_crit_cell = new_value; // 2º store with if 
 																			 // there can be considered transport only when the new value to be written in this crit. cell is not zero 
@@ -1138,7 +1140,7 @@ int Jonly_transports_lots_of_searches(int R_SHIFT_SEARCH, int C_SHIFT_SEARCH, in
 
 								// checking the FG crit. cell that is "above" the BG crit. cell :   //(((@ NO_BORDERS_ADDITIONAL
 								JumpType *psearch_to_new_other_color_crit_cell = pnew_other_color_crit_cell + C_SHIFT_NEW_ROOT + N_COLS * R_SHIFT_NEW_ROOT;
-								int dist_between_psearch_BG_cell_and_origin = (psearch_to_new_other_color_crit_cell - ((JumpType *)imgJump_row_origin));
+								int dist_between_psearch_BG_cell_and_origin = static_cast<int>(psearch_to_new_other_color_crit_cell - ((JumpType *)imgJump_row_origin));
 
 								if (
 									((R_SHIFT_NEW_ROOT == -1) && (psearch_to_new_other_color_crit_cell > (JumpType *)imgJump_row_origin))
@@ -1150,7 +1152,7 @@ int Jonly_transports_lots_of_searches(int R_SHIFT_SEARCH, int C_SHIFT_SEARCH, in
 									JumpType * pnew_root_origin = (pnew_other_color_crit_cell + C_SHIFT_NEW_ROOT + N_COLS * R_SHIFT_NEW_ROOT); // 5º load  
 									JumpType sum_jump_new_root;
 									JumpType * pnew_crit_cell_destin = travel_inside_J(pnew_root_origin, *pnew_root_origin, &sum_jump_new_root);
-									JumpType new_value = sum_jump_new_root - (pjump_rc - pnew_root_origin);
+									JumpType new_value = static_cast<JumpType>(sum_jump_new_root - (pjump_rc - pnew_root_origin));
 
 									*pjump_rc = new_value; //// 1º store with if ç
 									lista->saltos[k] = new_value;
