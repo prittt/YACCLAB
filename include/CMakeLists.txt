@@ -40,20 +40,29 @@ target_sources(YACCLAB
         utilities.h
         volume_util.h
         yacclab_tensor.h
-		labeling3D_naive.h
-        labeling3D_BBDT_19c_211b.h
-        labeling3D_BBDT_19c_211b_action_definition.inc.h
-        labeling3D_BBDT_19c_211b_action_definition_memory.inc.h
-        labeling3D_BBDT_19c_211b_tree.inc.h
-        labeling3D_BBDT_22c_211b.h
-        labeling3D_BBDT_22c_211b_action_definition.inc.h
-        labeling3D_BBDT_22c_211b_action_definition_memory.inc.h
-        labeling3D_BBDT_22c_211b_tree.inc.h
-        labeling3D_BBDT_26c_221b.h
-        labeling3D_BBDT_26c_221b_action_definition.inc.h
-        labeling3D_BBDT_26c_221b_action_definition_memory.inc.h
-        labeling3D_BBDT_26c_221b_tree.inc.h
-        labeling3D_BBDT_2829_action_undefinition.inc.h
+)
+
+if(YACCLAB_ENABLE_3D)
+    target_sources(YACCLAB PRIVATE    
+        labeling3D_naive.h        
         labeling3D_he_2011.h
         labeling3D_he_2011_run.h
-)
+    )
+    if(YACCLAB_ENABLE_HDTREE_ALGOS)
+        target_sources(YACCLAB PRIVATE        
+            labeling3D_BBDT_19c_211b.h
+            labeling3D_BBDT_19c_211b_action_definition.inc.h
+            labeling3D_BBDT_19c_211b_action_definition_memory.inc.h
+            labeling3D_BBDT_19c_211b_tree.inc.h
+            labeling3D_BBDT_22c_211b.h
+            labeling3D_BBDT_22c_211b_action_definition.inc.h
+            labeling3D_BBDT_22c_211b_action_definition_memory.inc.h
+            labeling3D_BBDT_22c_211b_tree.inc.h
+            labeling3D_BBDT_2829_action_undefinition.inc.h            
+            #labeling3D_BBDT_26c_221b.h
+            #labeling3D_BBDT_26c_221b_action_definition.inc.h
+            #labeling3D_BBDT_26c_221b_action_definition_memory.inc.h
+            #labeling3D_BBDT_26c_221b_tree.inc.h
+        )
+    endif()
+endif()
