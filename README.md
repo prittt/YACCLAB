@@ -68,11 +68,11 @@
 
 <p align="justify">Please include the following references when citing the YACCLAB project/dataset:</p>
 
-- <p align="justify"> Allegretti, Stefano; Bolelli, Federico; Grana, Costantino "Optimized Block-Based Algorithms to Label Connected Components on GPUs." IEEE Transactions on Parallel and Distributed Systems, 2019. <a title="BibTex" href="https://prittt.github.io/pub_files/2019tpds.html">BibTex</a>. <a title="Download" href="https://iris.unimore.it/retrieve/handle/11380/1179616/225393/2018_TPDS_Optimized_Block_Based_Algorithms_to_Label_Connected_Components_on_GPUs.pdf">PDF</a>.</p>
+- <p align="justify"> Allegretti, Stefano; Bolelli, Federico; Grana, Costantino "Optimized Block-Based Algorithms to Label Connected Components on GPUs." IEEE Transactions on Parallel and Distributed Systems, 2019. <a title="BibTex" href="https://prittt.github.io/pub_files/2019tpds.html">BibTex</a>. <a title="Download" href="https://prittt.github.io/pub_files/2019tpds.pdf">PDF</a>.</p>
 
-- <p align="justify"> Bolelli, Federico; Cancilla, Michele; Baraldi, Lorenzo; Grana, Costantino "Towards Reliable Experiments on the Performance of Connected Components Labeling Algorithms" Journal of Real-Time Image Processing, 2018. <a title="BibTex" href="https://prittt.github.io/pub_files/2018jrtip.html">BibTex</a>. <a title="Download" href="http://imagelab.ing.unimore.it/imagelab/pubblicazioni/2016-icpr-yacclab.pdf">PDF</a>.</p>
+- <p align="justify"> Bolelli, Federico; Cancilla, Michele; Baraldi, Lorenzo; Grana, Costantino "Towards Reliable Experiments on the Performance of Connected Components Labeling Algorithms" Journal of Real-Time Image Processing, 2018. <a title="BibTex" href="https://prittt.github.io/pub_files/2018jrtip.html">BibTex</a>. <a title="Download" href="https://prittt.github.io/pub_files/2018jrtip.pdf">PDF</a>.</p>
 
-- <p align="justify"> Grana, Costantino; Bolelli, Federico; Baraldi, Lorenzo; Vezzani, Roberto "YACCLAB - Yet Another Connected Components Labeling Benchmark" Proceedings of the 23rd International Conference on Pattern Recognition, Cancun, Mexico, 4-8 Dec 2016. <a title="BibTex" href="https://prittt.github.io/pub_files/2016icpr.html">BibTex</a>. <a title="Download" href="http://imagelab.ing.unimore.it/imagelab/pubblicazioni/2016-icpr-yacclab.pdf">PDF</a>.</p>
+- <p align="justify"> Grana, Costantino; Bolelli, Federico; Baraldi, Lorenzo; Vezzani, Roberto "YACCLAB - Yet Another Connected Components Labeling Benchmark" Proceedings of the 23rd International Conference on Pattern Recognition, Cancun, Mexico, 4-8 Dec 2016. <a title="BibTex" href="https://prittt.github.io/pub_files/2016icpr.html">BibTex</a>. <a title="Download" href="https://prittt.github.io/pub_files/2016icpr.pdf">PDF</a>.</p>
 
 <p align="justify">
 YACCLAB is an open source <i>C++</i> project that enables researchers to test CCL algorithms under extremely variable points of view, running and testing algorithms on a collection of datasets described below. The benchmark performs the following tests which will be described later in this readme: <i>correctness</i>, average run-time (<i>average</i>), average run-time with steps (<i>average_ws</i>), <i>density</i>, <i>size</i>, <i>granularity</i> and memory accesses (<i>memory</i>).
@@ -109,6 +109,18 @@ Notes for gnuplot:
 - <p align="justify">Set the <a href="#conf">configuration file (config.yaml)</a> placed in the installation folder (bin in this example) in order to select desired tests.</p>
 
 - <p align="justify">Open the project, compile and run it: the work is done!</p>
+
+### CMake Configuration Variables
+
+| Name                                 | Meaning                     | Default | 
+| ------------------------------------ |-----------------------------| --------|
+| `YACCLAB_ENABLE_CUDA`                | enable/disable CUDA support | `OFF`   |
+| `YACCLAB_ENABLE_3D`                  | enable/disable the support for 3D algorithms | `OFF` |
+| `YACCLAB_ENABLE_HDTREE_ALGOS`        | enable/disable 3D algorithms based on Heuristic Decision Trees (may noticeably increase compilation time) | `OFF` |
+| `YACCLAB_DOWNLOAD_DATASET`           | whether to automatically download the 2D YACCLAB dataset or not  | `OFF` |
+| `YACCLAB_DOWNLOAD_DATASET_3D`        | whether to automatically download the 3D YACCLAB dataset or not  | `OFF` |
+| `YACCLAB_INPUT_DATASET_PATH`         | path to the `input` dataset folder, where to find test datasets  | `${CMAKE_INSTALL_PREFIX}/input` |
+| `YACCLAB_OUTPUT_RESULTS_PATH`        | path to the `output` folder, where to save output results  | `${CMAKE_INSTALL_PREFIX}/output` |
 
 ## How to include a YACCLAB algorithm into your own project?
 
