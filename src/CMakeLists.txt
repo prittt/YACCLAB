@@ -31,11 +31,11 @@ if(YACCLAB_ENABLE_3D)
         labeling3D_he_2011.cc
         labeling3D_he_2011_run.cc
     )
-    if(YACCLAB_ENABLE_HDTREE_ALGOS)
+    if(YACCLAB_ENABLE_EPDT_ALGOS)
         target_sources(YACCLAB PRIVATE
-            labeling3D_BBDT_19c.cc
-            labeling3D_BBDT_22c.cc
-            #labeling3D_BBDT_26c.cc
+            labeling3D_EPDT_19c.cc
+            labeling3D_EPDT_22c.cc
+            #labeling3D_EPDT_26c.cc
         )
     endif()
 endif()

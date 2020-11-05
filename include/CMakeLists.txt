@@ -48,21 +48,21 @@ if(YACCLAB_ENABLE_3D)
         labeling3D_he_2011.h
         labeling3D_he_2011_run.h
     )
-    if(YACCLAB_ENABLE_HDTREE_ALGOS)
+    if(YACCLAB_ENABLE_EPDT_ALGOS)
         target_sources(YACCLAB PRIVATE        
-            labeling3D_BBDT_19c.h
-            labeling3D_BBDT_19c_action_definition.inc.h
-            labeling3D_BBDT_19c_action_definition_memory.inc.h
-            labeling3D_BBDT_19c_tree.inc.h
-            labeling3D_BBDT_22c.h
-            labeling3D_BBDT_22c_action_definition.inc.h
-            labeling3D_BBDT_22c_action_definition_memory.inc.h
-            labeling3D_BBDT_22c_tree.inc.h
-            labeling3D_BBDT_2829_action_undefinition.inc.h            
-            #labeling3D_BBDT_26c.h
-            #labeling3D_BBDT_26c_action_definition.inc.h
-            #labeling3D_BBDT_26c_action_definition_memory.inc.h
-            #labeling3D_BBDT_26c_tree.inc.h
+            labeling3D_EPDT_19c.h
+            labeling3D_EPDT_19c_action_definition.inc.h
+            labeling3D_EPDT_19c_action_definition_memory.inc.h
+            labeling3D_EPDT_19c_tree.inc.h
+            labeling3D_EPDT_22c.h
+            labeling3D_EPDT_22c_action_definition.inc.h
+            labeling3D_EPDT_22c_action_definition_memory.inc.h
+            labeling3D_EPDT_22c_tree.inc.h
+            labeling3D_EPDT_2829_action_undefinition.inc.h            
+            #labeling3D_EPDT_26c.h
+            #labeling3D_EPDT_26c_action_definition.inc.h
+            #labeling3D_EPDT_26c_action_definition_memory.inc.h
+            #labeling3D_EPDT_26c_tree.inc.h
         )
     endif()
 endif()
