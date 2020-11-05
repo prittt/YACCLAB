@@ -26,8 +26,8 @@
 // OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef YACCLAB_LABELING3D_BBDT_26C_221B_H_
-#define YACCLAB_LABELING3D_BBDT_26C_221B_H_
+#ifndef YACCLAB_LABELING3D_BBDT_26c_H_
+#define YACCLAB_LABELING3D_BBDT_26c_H_
 
 #include <opencv2/core.hpp>
 
@@ -35,7 +35,7 @@
 #include "labels_solver.h"
 #include "memory_tester.h"
 
-#include "labeling3D_BBDT_26c_221b_action_definition.inc.h"
+#include "labeling3D_BBDT_26c_action_definition.inc.h"
 
         //Conditions:
 #define CONDITION_KD c > 0 && r > 0 && s > 0 && img_slice11_row11[c - 1] > 0
@@ -67,9 +67,9 @@
 
 
 template <typename LabelsSolver>
-class BBDT_3D_26c_221b : public Labeling3D<CONN_26> {
+class BBDT_3D_26c : public Labeling3D<CONN_26> {
 public:
-    BBDT_3D_26c_221b() {}
+    BBDT_3D_26c() {}
 
 
     //    void FirstSlice(unsigned int d, unsigned int w, unsigned int h) {
@@ -310,7 +310,7 @@ public:
                     if (!((CONDITION_XA) || (CONDITION_XB) || (CONDITION_XC) || (CONDITION_XD))) {
                         ACTION_0;
                     }
-#include "labeling3D_BBDT_26c_221b_tree.inc.h"
+#include "labeling3D_BBDT_26c_tree.inc.h"
                 }
             } // Rows cycle end
         } // Planes cycle end
@@ -612,7 +612,7 @@ public:
 #define CONDITION_XC r < h - 1 && img(s, r + 1, c) > 0
 #define CONDITION_XD c < w - 1 && r < h - 1 && img(s, r + 1, c + 1) > 0
 
-#include "labeling3D_BBDT_26c_221b_action_definition_memory.inc.h"
+#include "labeling3D_BBDT_26c_action_definition_memory.inc.h"
         }
 
         LabelsSolver::MemAlloc(UPPER_BOUND_26_CONNECTIVITY); // Equivalence solver
@@ -633,7 +633,7 @@ public:
                     if (!((CONDITION_XA) || (CONDITION_XB) || (CONDITION_XC) || (CONDITION_XD))) {
                         ACTION_0;
                     }
-#include "labeling3D_BBDT_26c_221b_tree.inc.h"
+#include "labeling3D_BBDT_26c_tree.inc.h"
                 }
             } // Rows cycle end
         } // Planes cycle end
@@ -807,7 +807,7 @@ public:
 #define CONDITION_XD c < w - 1 && r < h - 1 && img_slice00_row01[c + 1] > 0
 
 //Actions:
-#include "labeling3D_BBDT_26c_221b_action_definition.inc.h"
+#include "labeling3D_BBDT_26c_action_definition.inc.h"
         }
     }
 
@@ -870,7 +870,7 @@ private:
                     if (!((CONDITION_XA) || (CONDITION_XB) || (CONDITION_XC) || (CONDITION_XD))) {
                         ACTION_0;
                     }
-#include "labeling3D_BBDT_26c_221b_tree.inc.h"
+#include "labeling3D_BBDT_26c_tree.inc.h"
                 }
             } // Rows cycle end
         } // Planes cycle end
@@ -1023,4 +1023,4 @@ private:
 //Actions:
 #include "labeling3D_BBDT_2829_action_undefinition.inc.h"
 
-#endif // YACCLAB_LABELING3D_BBDT_26C_221B_H_
+#endif // YACCLAB_LABELING3D_BBDT_26c_H_

@@ -33,9 +33,9 @@ if(YACCLAB_ENABLE_3D)
     )
     if(YACCLAB_ENABLE_HDTREE_ALGOS)
         target_sources(YACCLAB PRIVATE
-            labeling3D_BBDT_19c_211b.cc
-            labeling3D_BBDT_22c_211b.cc
-            # labeling3D_BBDT_26c_221b.cc
+            labeling3D_BBDT_19c.cc
+            labeling3D_BBDT_22c.cc
+            #labeling3D_BBDT_26c.cc
         )
     endif()
 endif()
