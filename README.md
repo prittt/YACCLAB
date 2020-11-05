@@ -120,9 +120,11 @@ Notes for gnuplot:
   <li><i>memory_tester.h</i> and <i>performance_evaluator.h</i> just to make things work without changing the code;</li>
   <li><i>headers</i> and <i>sources</i> files of the required algorithm/s. The association between algorithms and headers/sources files is reported in the tables below.</li>
 </ol>  
+
+### CPU Algorithms
+
  <table>
   <tr>
-    <th></th>
     <th>Algorithm Name</th>
     <th width="130">Authors</th>
     <th>Year</th>
@@ -130,9 +132,7 @@ Notes for gnuplot:
     <th>Required Files</th>
     <th>Templated on Labels Solver</th>
   </tr>	
-	
   <tr>
-    <td align="center" rowspan="13">CPU</td>
     <td align="center">-</td>
     <td align="center">L. Di Stefano,<br>A. Bulgarelli  <a href="#DiStefano">[3]</a></td>
     <td align="center">1999</td>
@@ -222,7 +222,7 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Spaghetti Labeling</td>
-    <td align="center">F. Bolelli,</br>S. Allegretti,</br>L. Baraldi,</br>C. Grana <a href="#Spaghetti">[13]</a></td>
+    <td align="center">F. Bolelli,</br>S. Allegretti,</br>L. Baraldi,</br>C. Grana <a href="#SPAGHETTI">[26]</a></td>
     <td align="center">2019</td>
     <td align="center">Spaghetti</td>
     <td align="center"><i>labeling_bolelli_2019.h</i>, <i>labeling_bolelli_2019_forest.inc</i>, <i>labeling_bolelli_2019_forest_firstline.inc</i>, <i>labeling_bolelli_2019_forest_lastline.inc</i>, <i>labeling_bolelli_2019_forest_singleline.inc</i></td>
@@ -236,10 +236,34 @@ Notes for gnuplot:
     <td align="center"><i>labeling_null.h</i></td>
     <td align="center">NO</td>
   </tr>
+<tr>
+    <td align="center">Entropy Partitioning Decision Tree</td>
+    <td align="center">M. Söchting,</br>S. Allegretti,</br>F. Bolelli,</br>C. Grana <a href="#EPDT">[31]</a></td>
+    <td align="center">2021</td>
+    <td align="center">EPDT_19c and EPDT_22c<a href="#VI"><sup>VI</sup></a></td>
+    <td align="center"><i>labeling3D_BBDT_2019.h</i>, <i>labeling_bolelli_2019_forest.inc</i>, <i>labeling_bolelli_2019_forest_firstline.inc</i>, <i>labeling_bolelli_2019_forest_lastline.inc</i>, <i>labeling_bolelli_2019_forest_singleline.inc</i></td>
+    <td align="center">YES</td>
+  </tr>
+</table>
 
+<a name="I"><sup>I</sup></a> standard version. </br>
+<a name="II"><sup>II</sup></a> with zero-offset optimization. </br>
+<a name="III"><sup>III</sup></a> with RLE compression. </br>
+<a name="IV"><sup>IV</sup></a> only on TTA and UF. </br>
+<a name="V"><sup>V</sup></a> it only copies the pixels from the input image to the output one simply defining a lower bound limit for the execution time of CCL algorithms on a given machine and dataset.</br>
+<a name="VI"><sup>VI</sup></a> EPDT_19c and EPDT_22c algorithms are based on very big decision trees that translate in many lines of C++ code. They may thus noticeably increase the build time. For this reason, a special flag (`YACCLAB_ENABLE_EPDT_ALGOS`) to enable/disable such algorithms is provided in the CMake file. By default the flag is OFF.
 
+### GPU Algorithms
+ <table>
   <tr>
-    <td align="center" rowspan="9">GPU</td>
+    <th>Algorithm Name</th>
+    <th width="130">Authors</th>
+    <th>Year</th>
+    <th>Acronym</th>
+    <th>Required Files</th>
+    <th>Templated on Labels Solver</th>
+  </tr>	
+  <tr>
     <td align="center">Union Find</td>
     <td align="center">V. Oliveira,</br>R. Lotufo <a href="#UF">[18]</a></td>
     <td align="center">2010</td>
@@ -311,15 +335,7 @@ Notes for gnuplot:
     <td align="center"><i>labeling_CUDA_BKE.cu</i></td>
     <td align="center">NO</td>
   </tr>
-
-
 </table>
-
-<a name="I"><sup>I</sup></a> standard version </br>
-<a name="II"><sup>II</sup></a> with zero-offset optimization </br>
-<a name="III"><sup>III</sup></a> with RLE compression </br>
-<a name="IV"><sup>IV</sup></a> only on TTA and UF </br>
-<a name="V"><sup>V</sup></a> it only copies the pixels from the input image to the output one simply defining a lower bound limit for the execution time of CCL algorithms on a given machine and dataset.
 
 ### Example of Algorithm Usage Outside the Benchmark
 
@@ -882,6 +898,15 @@ This project follows the [all-contributors](https://github.com/all-contributors/
     <td>
       <p align="justify">
 	L. He,  Y. Chao, K. Suzuki. "A run-based two-scan labeling algorithm." IEEE Transactions on Image Processing, 2008.</p>
+    </td>
+</tr>	
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="EPDT">[31]</a>
+    </td>
+    <td>
+      <p align="justify">
+	M. Söchting, S. Allegretti, F. Bolelli, C. Grana. "A Heuristic-Based Decision Tree for Connected Components Labeling of 3D Volumes." 25th International Conference on Pattern Recognition, 2021</p>
     </td>
 </tr>	
 </table>
