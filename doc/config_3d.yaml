@@ -41,7 +41,7 @@ CPU 3D 26-way connectivity:
   #  - RBTS_3D_UFPC
     - RBTS_3D_TTA
   #  - RBTS_3D_RemSP
-${YACCLAB_CONFIG_EPDT_ALGOS}  
+${YACCLAB_CONFIG_EPDT_ALGORITHMS}  
     
   # Datasets to use for each test
   # -----------------------------

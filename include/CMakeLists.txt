@@ -48,7 +48,7 @@ if(YACCLAB_ENABLE_3D)
         labeling3D_he_2011.h
         labeling3D_he_2011_run.h
     )
-    if(YACCLAB_ENABLE_EPDT_ALGOS)
+    if(YACCLAB_ENABLE_EPDT_ALGORITHMS)
         target_sources(YACCLAB PRIVATE        
             labeling3D_EPDT_19c.h
             labeling3D_EPDT_19c_action_definition.inc.h
