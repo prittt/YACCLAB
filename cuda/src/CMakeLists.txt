@@ -35,4 +35,5 @@ target_sources(YACCLAB
         labeling_CUDA_TUF.cu
         labeling_CUDA_RADAR.cu
         labeling_CUDA_Stava.cu
+        labeling_CUDA_Rasmusson.cu
 )
