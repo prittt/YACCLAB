@@ -114,11 +114,14 @@ Notes for gnuplot:
 
 | Name                                 | Meaning                     | Default | 
 | ------------------------------------ |-----------------------------| --------|
-| `YACCLAB_ENABLE_CUDA`                | enable/disable CUDA support | `OFF`   |
-| `YACCLAB_ENABLE_3D`                  | enable/disable the support for 3D algorithms | `OFF` |
-| `YACCLAB_ENABLE_EPDT_ALGORITHMS`     | enable/disable 3D algorithms based on Heuristic Decision Trees (may noticeably increase compilation time), it has no effect when YACCLAB_ENABLE_3D is `OFF` | `OFF` |
 | `YACCLAB_DOWNLOAD_DATASET`           | whether to automatically download the 2D YACCLAB dataset or not  | `OFF` |
 | `YACCLAB_DOWNLOAD_DATASET_3D`        | whether to automatically download the 3D YACCLAB dataset or not  | `OFF` |
+| `YACCLAB_ENABLE_3D`                  | enable/disable the support for 3D algorithms | `OFF` |
+| `YACCLAB_ENABLE_CUDA`                | enable/disable CUDA support | `OFF`   |
+| `YACCLAB_ENABLE_EPDT_19C`     | enable/disable the EPDT_19C 3D algorithm which is based on a heuristic decision tree generated from a 3D mask with 19 conditions (may noticeably increase compilation time), it has no effect when YACCLAB_ENABLE_3D is `OFF` | `OFF` |
+| `YACCLAB_ENABLE_EPDT_22C`     | enable/disable the EPDT_22C 3D algorithm which is based on a heuristic decision tree generated from a 3D mask with 22 conditions (may noticeably increase compilation time), it has no effect when YACCLAB_ENABLE_3D is `OFF` | `OFF` |
+| `YACCLAB_ENABLE_EPDT_26C`     | enable/disable the EPDT_26C 3D algorithm which is based on a heuristic decision tree generated from a 3D mask with 26 conditions (may noticeably increase compilation time), it has no effect when YACCLAB_ENABLE_3D is `OFF` | `OFF` |
+| `YACCLAB_FORCE_CONFIG_GENERATION`     | whether to force the generation of the default configuration file (`config.yaml`) or not. When this flag is turned `OFF` any existing configuration file will not be overwritten   | `OFF` |
 | `YACCLAB_INPUT_DATASET_PATH`         | path to the `input` dataset folder, where to find test datasets  | `${CMAKE_INSTALL_PREFIX}/input` |
 | `YACCLAB_OUTPUT_RESULTS_PATH`        | path to the `output` folder, where to save output results  | `${CMAKE_INSTALL_PREFIX}/output` |
 | `OpenCV_DIR`                         | OpenCV installation path    |  -      |
