@@ -85,13 +85,13 @@ Notice that 8-connectivity is always used in the project.
 <p align="justify">
 To correctly install and run YACCLAB following packages, libraries and utility are needed:
 
-- CMake 3.13 or higher (https://cmake.org),
-- OpenCV 3.0 or higher (http://opencv.org),
-- Gnuplot (http://www.gnuplot.info/),
-- One of your favourite IDE/compiler with C++14 support
+- CMake 3.13 or higher (https://cmake.org);
+- OpenCV 3.0 or higher (http://opencv.org), required packages are `core`, `imgcodecs`, `imgproc`;
+- Gnuplot (http://www.gnuplot.info/);
+- One of your favourite IDE/compiler with C++14 support.
 
 GPU algorithms also require:
-- CUDA Toolkit 9.2 or higher (https://developer.nvidia.com/cuda-toolkit)
+- CUDA Toolkit 9.2 or higher (https://developer.nvidia.com/cuda-toolkit) and OpenCV `cudafeatures2d` package.
 
 Notes for gnuplot:
 - on Windows system: be sure add gnuplot to system path if you want YACCLAB automatically generates charts.
