@@ -615,7 +615,7 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
 
 <table>
 <tr>
-  <td align="center"><img src="doc/sample_3D_datasets.png" height="110px"></td>
+  <td align="center"><img src="doc/sample_3D_datasets.png"></td>
 </tr>
 <tr>
   <td>Samples of the YACCLAB 3D datasets. From left to right: Hilbertspace-filling curve, OASIS and Mitochondria medical imaging data.</td>
@@ -626,7 +626,7 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
 
 <table>
 <tr>
-  <td align="center"><img src="doc/granularity_3D_datasets.png"></td>
+  <td align="center"><img src="doc/granularity_3D_datasets.png" ></td>
 </tr>
 <tr>
   <td>Samples of the YACCLAB 3D granularity dataset: reported images have a foreground density of 2% and, from left to right, granularities are 4, 8, 16.</td>
