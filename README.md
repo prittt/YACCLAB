@@ -622,7 +622,16 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
 </tr>
 </table>
 
-- <b>Granularity <a href="#TPDS">[24]</a></b>: <p align="justify">It contains 3D synthetic images generated as described for the 2D version. Images have a resolution of 256 x 256 x 256 pixels.</p>
+- <b>Granularity <a href="#TPDS">[24]</a></b>: <p align="justify">It contains 3D synthetic images generated as described for the 2D version. In this case, images have a resolution of 256 x 256 x 256 pixels and only three different images for every couple of density-granularity has been genrated.</p>
+
+<table>
+<tr>
+  <td align="center"><img src="doc/granularity_3D_datasets.png"></td>
+</tr>
+<tr>
+  <td>Samples of the YACCLAB 3D granularity dataset: reported images have a foreground density of 2% and, from left to right granularities are 4, 8, 16.</td>
+</tr>
+</table>
 
 <a name="tests"></a>
 ## Available Tests
