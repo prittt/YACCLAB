@@ -618,7 +618,7 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
   <td align="center"><img src="doc/sample_3D_datasets.png"></td>
 </tr>
 <tr>
-  <td>Samples of the YACCLAB 3D datasets. From left to right: Hilbert space-filling curve, OASIS and Mitochondria medical imaging data.</td>
+  <td>Samples of the YACCLAB 3D datasets. From left to right we have the Hilbert space-filling curve, the OASIS dataset and Mitochondria medical imaging data.</td>
 </tr>
 </table>
 
