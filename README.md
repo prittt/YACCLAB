@@ -613,18 +613,18 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
 
 - <b>Hilbert <a href="#TPDS">[24]</a></b>: <p align="justify">This dataset contains six volumes of 128 × 128 × 128 pixels, filled with the 3D Hilbert curve obtained at different iterations (1 to 6) of the construction method. The Hilbert curve is a fractal space-filling curve that representsa challenging test case for the labeling algorithms.</p>
 
-<table>
+<table style="position: absolute; top: 0; bottom: 0; left: 0; right: 0;">
 <tr>
   <td align="center"><img src="doc/sample_3D_datasets.png"></td>
 </tr>
 <tr>
-  <td>Samples of the YACCLAB 3D datasets. From left to right: Hilbertspace-filling curve, OASIS and Mitochondria medical imaging data.</td>
+  <td>Samples of the YACCLAB 3D datasets. From left to right: Hilbert space-filling curve, OASIS and Mitochondria medical imaging data.</td>
 </tr>
 </table>
 
 - <b>Granularity <a href="#TPDS">[24]</a></b>: <p align="justify">It contains 3D synthetic images generated as described for the 2D version. In this case, images have a resolution of 256 x 256 x 256 pixels and only three different images for every couple of density-granularity have been generated.</p>
 
-<table>
+<table style="position: absolute; top: 0; bottom: 0; left: 0; right: 0;">
 <tr>
   <td align="center"><img src="doc/granularity_3D_datasets.png" ></td>
 </tr>
