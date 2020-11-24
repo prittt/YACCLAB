@@ -601,7 +601,7 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
   <td align="center"><img src="doc/granularity_2D_datasets.png"></td>
 </tr>
 <tr>
-  <td>Samples of the YACCLAB 2D granularity dataset: reported images have a foreground density of 30% and, from left to right granularities are 1, 2, 4, 6, 8, 12, 14, 16.</td>
+  <td>Samples of the YACCLAB 2D granularity dataset: reported images have a foreground density of 30% and, from left to right, granularities are 1, 2, 4, 6, 8, 12, 14, 16.</td>
 </tr>
 </table>
 
@@ -629,7 +629,7 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
   <td align="center"><img src="doc/granularity_3D_datasets.png"></td>
 </tr>
 <tr>
-  <td>Samples of the YACCLAB 3D granularity dataset: reported images have a foreground density of 2% and, from left to right granularities are 4, 8, 16.</td>
+  <td>Samples of the YACCLAB 3D granularity dataset: reported images have a foreground density of 2% and, from left to right, granularities are 4, 8, 16.</td>
 </tr>
 </table>
 
