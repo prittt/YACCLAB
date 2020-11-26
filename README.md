@@ -4,6 +4,7 @@
 [![contributors](https://img.shields.io/badge/all_contributors-5-orange.svg?style=flat)](#contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
+
 <table>
 <thead>
 <tr>
@@ -13,53 +14,49 @@
     <th>OpenCV</th>
     <th>CMake</th>
     <th>GPU</th>
-    <th width="200px">Travis CI</th>
+    <!--<th width="200px">Travis CI</th>-->
     <th width="200px">GitHub Actions</th>
     <th width="200px">Jenkins</th>
 </tr>
 <thead>
 <tbody>
 <tr>
-    <td align="center">Ubuntu<br/>16.04.6 LTS</td>
-    <td align="center">x64</td>
+    <td align="center">Ubuntu<br/>16.04 LTS</td>
+    <td align="center">x32</td>
     <td align="center">gcc 5.4.0</td>
-    <td align="center">3.1.0</td>
-    <td align="center">3.13</td>
+    <td align="center">3.0.0</td>
+    <td align="center">3.13.5</td>
     <td align="center">None</td>
-    <td align="center"><a href="https://travis-ci.org/prittt/YACCLAB"><img src="https://travis-ci.org/prittt/YACCLAB.svg?branch=master" alt="Build Status"/></a></td>
-    <td align="center">N/A</td>
+    <td align="center"><a href="https://github.com/prittt/YACCLAB/actions"><img src="https://github.com/prittt/YACCLAB/workflows/linux32/badge.svg?branch=master" alt="Build Status"/></a></td>
     <td align="center">N/A</td>
 </tr>
 <tr>
-    <td align="center">MacOS<br/>(Darwin 17.7.0)</td>
+    <td align="center">Ubuntu<br/>18.04 LTS</td>
     <td align="center">x64</td>
-    <td align="center">AppleClang 10<br/>(Xcode-10.1)</td>
-    <td align="center">3.1.0</td>
-    <td align="center">3.13</td>
-    <td align="center">None</td>
-    <td align="center"><a href="https://travis-ci.org/prittt/YACCLAB"><img src="https://travis-ci.org/prittt/YACCLAB.svg?branch=master" alt="Build Status"/></a></td>
-    <td align="center">N/A</td>
-    <td align="center">N/A</td>
-</tr>
-<tr>
-    <td align="center">Ubuntu<br/>18.04.6 LTS</td>
-    <td align="center">x64</td>
-    <td align="center">gcc 7</td>
+    <td align="center">gcc 9.3.0</td>
     <td align="center">4.1.2</td>
     <td align="center">3.13.5</td>
     <td align="center">None</td>
-    <td align="center">N/A</td>
-    <td align="center"><a href="https://github.com/prittt/YACCLAB/actions"><img src="https://github.com/prittt/YACCLAB/workflows/linux/badge.svg" alt="Action Status"/></a></td>
+    <td align="center"><a href="https://github.com/prittt/YACCLAB/actions"><img src="https://github.com/prittt/YACCLAB/workflows/linux64/badge.svg?branch=master" alt="Build Status"/></a></td>
     <td align="center">N/A</td>
 </tr>
 <tr>
-    <td align="center">Ubuntu<br/>16.04.6 LTS</td>
+    <td align="center">MacOS<br/>(Darwin 19.6.0)</td>
+    <td align="center">x64</td>
+    <td align="center">AppleClang 12.0.0<br/>(Xcode-12)</td>
+    <td align="center">3.1.0</td>
+    <td align="center">3.13.0</td>
+    <td align="center">None</td>
+    <td align="center"><a href="https://github.com/prittt/YACCLAB/actions"><img src="https://github.com/prittt/YACCLAB/workflows/macos/badge.svg?branch=master" alt="Build Status"/></a></td>
+    <td align="center">N/A</td>
+</tr>
+<tr>
+    <td align="center">Ubuntu<br/>16.04 LTS</td>
     <td align="center">x64</td>
     <td align="center">gcc 5.4.0</td>
     <td align="center">4.4</td>
     <td align="center">3.10.3</td>
     <td align="center">2080Ti, CUDA 9.2</td>
-    <td align="center">N/A</td>
     <td align="center">N/A</td>
     <td align="center"><a href="https://jenkins-master-deephealth-unix01.ing.unimore.it/job/YACCLAB/job/master/"><img src="https://jenkins-master-deephealth-unix01.ing.unimore.it/badge/job/YACCLAB/job/master/linux_gpu_end?" alt="Action Status"/></a></td>
 </tr>

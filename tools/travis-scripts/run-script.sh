@@ -41,7 +41,7 @@ function build_linux(){
    echo -e "\n\n------------------------------------------> YACCLAB configuration" 
    mkdir bin
    # The download of the complete YACCLAB dataset is disable in order to reduce the cmake configure time in travis-ci virtual machine
-   cmake -D CMAKE_C_FLAGS=-m64 -D CMAKE_CXX_FLAGS=-m64 -D CMAKE_BUILD_TYPE=Release -D CMAKE_PREFIX_PATH=./opencv-3.1.0/build/ -D YACCLAB_DOWNLOAD_DATASET=OFF -D YACCLAB_IS_TRAVIS_CI=ON -G Unix\ Makefiles -Bbin -Hbin/.. 
+   cmake -D CMAKE_C_FLAGS=-m64 -D CMAKE_CXX_FLAGS=-m64 -D CMAKE_BUILD_TYPE=Release -D CMAKE_PREFIX_PATH=./opencv-3.1.0/build/ -D YACCLAB_DOWNLOAD_DATASET=OFF -D YACCLAB_CI_CPU2D=ON -G Unix\ Makefiles -Bbin -Hbin/.. 
 
    cd bin
    
@@ -79,7 +79,7 @@ function build_mac(){
  
    echo -e "\n\n------------------------------------------> YACCLAB configuration" 
    mkdir bin
-   cmake -D CMAKE_C_FLAGS=-m64 -D CMAKE_CXX_FLAGS=-m64 -D CMAKE_BUILD_TYPE=Release -D CMAKE_PREFIX_PATH=./opencv-3.1.0/build/ -D YACCLAB_DOWNLOAD_DATASET=OFF -D YACCLAB_IS_TRAVIS_CI=ON -G Xcode -Bbin -Hbin/.. 
+   cmake -D CMAKE_C_FLAGS=-m64 -D CMAKE_CXX_FLAGS=-m64 -D CMAKE_BUILD_TYPE=Release -D CMAKE_PREFIX_PATH=./opencv-3.1.0/build/ -D YACCLAB_DOWNLOAD_DATASET=OFF -D YACCLAB_CI_CPU2D=ON -G Xcode -Bbin -Hbin/.. 
 
    cd bin
    
