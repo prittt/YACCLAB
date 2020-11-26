@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+#include <random>
+
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 
@@ -419,6 +421,9 @@ void YacclabTests::AverageTest() {
 	// Initialize results container
 	average_results_ = cv::Mat1d(static_cast<unsigned>(mode_cfg_.average_datasets.size()), static_cast<unsigned>(mode_cfg_.ccl_average_algorithms.size()), std::numeric_limits<double>::max());
 
+	std::random_device rd;
+	std::mt19937 g(rd());
+
 	for (unsigned d = 0; d < mode_cfg_.average_datasets.size(); ++d) { // For every dataset in the average list
 
 		std::string dataset_name(mode_cfg_.average_datasets[d]),
@@ -500,7 +505,7 @@ void YacclabTests::AverageTest() {
 					continue;
 				}
 
-				random_shuffle(begin(shuffled_ccl_average_algorithms), end(shuffled_ccl_average_algorithms));
+				shuffle(begin(shuffled_ccl_average_algorithms), end(shuffled_ccl_average_algorithms), g);
 
 				// For all the Algorithms in the array
 				for (const auto& algo_name : shuffled_ccl_average_algorithms) {
@@ -681,6 +686,9 @@ void YacclabTests::AverageTestWithSteps() {
 		average_results_suffix = "_average.txt",
 		average_results_rounded_suffix = "_average_rounded.txt";
 
+	std::random_device rd;
+	std::mt19937 g(rd());
+
 	for (unsigned d = 0; d < mode_cfg_.average_ws_datasets.size(); ++d) { // For every dataset in the average list
 
 		std::string dataset_name(mode_cfg_.average_ws_datasets[d]),
@@ -760,7 +768,7 @@ void YacclabTests::AverageTestWithSteps() {
 					continue;
 				}
 
-				random_shuffle(begin(shuffled_ccl_average_ws_algorithms), end(shuffled_ccl_average_ws_algorithms));
+				shuffle(begin(shuffled_ccl_average_ws_algorithms), end(shuffled_ccl_average_ws_algorithms), g);
 
 				// For all the Algorithms in the array
 				for (const auto& algo_name : shuffled_ccl_average_ws_algorithms) {
@@ -961,6 +969,9 @@ void YacclabTests::DensityTest() {
 	// Initialize results container
 	density_results_ = cv::Mat1d(static_cast<unsigned>(mode_cfg_.density_datasets.size()), static_cast<unsigned>(mode_cfg_.ccl_average_algorithms.size()), std::numeric_limits<double>::max());
 
+	std::random_device rd;
+	std::mt19937 g(rd());
+
 	for (unsigned d = 0; d < mode_cfg_.density_datasets.size(); ++d) { // For every dataset in the density list
 		std::string dataset_name(mode_cfg_.density_datasets[d]),
 			output_density_results = dataset_name + density_results_suffix,
@@ -1093,7 +1104,7 @@ void YacclabTests::DensityTest() {
 					continue;
 				}
 
-				std::random_shuffle(begin(shuffled_ccl_average_algorithms), end(shuffled_ccl_average_algorithms));
+				shuffle(begin(shuffled_ccl_average_algorithms), end(shuffled_ccl_average_algorithms), g);
 
 				for (const auto& algo_name : shuffled_ccl_average_algorithms) {
 					Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
@@ -1393,6 +1404,9 @@ void YacclabTests::GranularityTest() {
 		middle_results_suffix = "_run",
 		granularity_results_suffix = "_granularity";
 
+	std::random_device rd;
+	std::mt19937 g(rd());
+
 	for (unsigned d = 0; d < mode_cfg_.granularity_datasets.size(); ++d) { // For every dataset in the granularity list
 
 		std::string dataset_name(mode_cfg_.granularity_datasets[d]),
@@ -1465,7 +1479,7 @@ void YacclabTests::GranularityTest() {
 			algo_pos[mode_cfg_.ccl_average_algorithms[i]] = i;
 		auto shuffled_ccl_average_algorithms = mode_cfg_.ccl_average_algorithms;
 
-		random_shuffle(begin(filenames), end(filenames));
+		shuffle(begin(filenames), end(filenames), g);
 
 		// Test is executed n_test times
 		for (unsigned test = 0; test < mode_cfg_.granularity_tests_number; ++test) {
@@ -1493,7 +1507,7 @@ void YacclabTests::GranularityTest() {
 
 				// int nonzero = countNonZero(Labeling::img_);
 				// real_densities[cur_granularity - 1][cur_density] = 100.0 * nonzero / (Labeling::img_.rows*Labeling::img_.cols);
-				random_shuffle(begin(shuffled_ccl_average_algorithms), end(shuffled_ccl_average_algorithms));
+				shuffle(begin(shuffled_ccl_average_algorithms), end(shuffled_ccl_average_algorithms), g);
 
 				for (const auto& algo_name : shuffled_ccl_average_algorithms) {
 					Labeling *algorithm = LabelingMapSingleton::GetLabeling(algo_name);
@@ -1724,6 +1738,9 @@ void YacclabTests::MemoryTest() {
 		return;
 	}
 	os << "#Average number of accesses" << '\n';
+
+	std::random_device rd;
+	std::mt19937 g(rd());
 
 	for (unsigned d = 0; d < mode_cfg_.memory_datasets.size(); ++d) { // For every dataset in the average list
 		std::string dataset_name(mode_cfg_.memory_datasets[d]);
