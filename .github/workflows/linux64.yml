@@ -1,0 +1,17 @@
+name: linux64
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    container:
+        image: docker://aimagelab/yacclab-test:linux64
+    steps:
+    - uses: actions/checkout@v2
+    - name: configure
+      run: mkdir build && cd build && cmake -DCMAKE_CXX_FLAGS="-m64" -DCMAKE_C_FLAGS="-m64" -DYACCLAB_CI_CPU=ON -DYACCLAB_INPUT_DATASET_PATH=/builds/input -DYACCLAB_ENABLE_3D=ON ..
+    - name: build
+      run: cmake --build build --config Release
+    - name: run
+      run: cd build && ./YACCLAB

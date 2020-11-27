@@ -1,26 +1,21 @@
 target_sources(YACCLAB
     PRIVATE
-        labeling_CUDA_UF.cu
-        labeling_CUDA_UF_3D.cu
+        gpu_mat3.cu
+        labeling_CUDA_UF.cu        
         labeling_CUDA_UF_InlineCompression.cu
         labeling_CUDA_UF_naive.cu
-        gpu_mat3.cu
         labeling_CUDA_8DLS.cu
         labeling_CUDA_BBDT.cu
         labeling_CUDA_BE.cu
-        labeling_CUDA_BE_3D_orig.cu
         labeling_CUDA_BE_3D_light.cu
         labeling_CUDA_BE_3D_light_shared.cu
         labeling_CUDA_BE_big.cu
         labeling_CUDA_BE_big_tex.cu
         labeling_CUDA_BKE.cu
-        labeling_CUDA_BKE_3D.cu
         labeling_CUDA_BKE_InlineCompression.cu
         labeling_CUDA_BKE_NoInlineCompression.cu
         labeling_CUDA_BUF.cu
         labeling_CUDA_BUF_2S.cu
-        labeling_CUDA_BUF_3D.cu
-        labeling_CUDA_BUF_3D_NoInlineCompression.cu
         labeling_CUDA_BUF_NoInlineCompression.cu
         labeling_CUDA_DLP.cu
         labeling_CUDA_DRAG.cu
@@ -37,3 +32,13 @@ target_sources(YACCLAB
         labeling_CUDA_Stava.cu
         labeling_CUDA_Rasmusson.cu
 )
+
+if(YACCLAB_ENABLE_3D)
+    target_sources(YACCLAB PRIVATE        
+        labeling_CUDA_UF_3D.cu
+        labeling_CUDA_BE_3D_orig.cu
+        labeling_CUDA_BKE_3D.cu
+        labeling_CUDA_BUF_3D.cu
+        labeling_CUDA_BUF_3D_NoInlineCompression.cu
+    )
+endif()

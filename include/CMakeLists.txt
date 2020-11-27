@@ -40,29 +40,59 @@ target_sources(YACCLAB
         utilities.h
         volume_util.h
         yacclab_tensor.h
-		labeling3D_naive.h
-        labeling3D_BBDT_19c_211b.h
-        labeling3D_BBDT_19c_211b_action_definition.inc.h
-        labeling3D_BBDT_19c_211b_action_definition_memory.inc.h
-        labeling3D_BBDT_19c_211b_tree.inc.h
-        labeling3D_BBDT_22c_211b.h
-        labeling3D_BBDT_22c_211b_action_definition.inc.h
-        labeling3D_BBDT_22c_211b_action_definition_memory.inc.h
-        labeling3D_BBDT_22c_211b_tree.inc.h
-        labeling3D_BBDT_26c_221b.h
-        labeling3D_BBDT_26c_221b_action_definition.inc.h
-        labeling3D_BBDT_26c_221b_action_definition_memory.inc.h
-        labeling3D_BBDT_26c_221b_tree.inc.h
         labeling3D_BBDT_2829_action_undefinition.inc.h
-        labeling3D_he_2011.h
-        labeling3D_he_2011_run.h
         labeling_sauf_4c.h
         labeling_sauf_background.h
 )
+
 
 if(OpenMP_CXX_FOUND) 
     target_sources(YACCLAB
         PRIVATE
         labeling_HT_CCL_Diaz2019_v1_2_0.h
     )
+endif()
+
+if(YACCLAB_ENABLE_3D)
+    target_sources(YACCLAB PRIVATE    
+        labeling3D_naive.h        
+        labeling3D_he_2011.h
+        labeling3D_he_2011_run.h
+
+)
+
+if(YACCLAB_ENABLE_3D)
+    target_sources(YACCLAB PRIVATE    
+        labeling3D_naive.h        
+        labeling3D_he_2011.h
+        labeling3D_he_2011_run.h
+)
+    )
+    if(YACCLAB_ENABLE_EPDT_19C)
+        target_sources(YACCLAB PRIVATE        
+            labeling3D_EPDT_19c.h
+            labeling3D_EPDT_19c_action_definition.inc.h
+            labeling3D_EPDT_19c_action_definition_memory.inc.h
+            labeling3D_EPDT_19c_tree.inc.h
+            labeling3D_EPDT_2829_action_undefinition.inc.h            
+        )
+    endif()
+    if(YACCLAB_ENABLE_EPDT_22C)
+        target_sources(YACCLAB PRIVATE        
+            labeling3D_EPDT_22c.h
+            labeling3D_EPDT_22c_action_definition.inc.h
+            labeling3D_EPDT_22c_action_definition_memory.inc.h
+            labeling3D_EPDT_22c_tree.inc.h
+            labeling3D_EPDT_2829_action_undefinition.inc.h            
+        )
+    endif()
+    if(YACCLAB_ENABLE_EPDT_26C)
+        target_sources(YACCLAB PRIVATE                               
+            labeling3D_EPDT_26c.h
+            labeling3D_EPDT_26c_action_definition.inc.h
+            labeling3D_EPDT_26c_action_definition_memory.inc.h
+            labeling3D_EPDT_26c_tree.inc.h
+            labeling3D_EPDT_2829_action_undefinition.inc.h 
+        )
+    endif()
 endif()

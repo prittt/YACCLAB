@@ -12,7 +12,6 @@ target_sources(YACCLAB
         labeling_grana_2016.cc
         labeling_he_2014.cc
         labeling_lacassagne_2016.cc
-        labeling3D_naive.cc
         labeling_null.cc
         labeling_wu_2009.cc
         labeling_wychang_2015.cc
@@ -24,14 +23,10 @@ target_sources(YACCLAB
         utilities.cc
         volume_util.cc
         yacclab_tensor.cc
-        labeling3D_he_2011.cc
-        labeling3D_he_2011_run.cc
-        labeling3D_BBDT_19c_211b.cc
-        labeling3D_BBDT_22c_211b.cc
         labeling_sauf_4c.cc
         labeling_sauf_background.cc
 )
-# labeling3D_BBDT_26c_221b.cc
+
 
 if(OpenMP_CXX_FOUND) 
     target_sources(YACCLAB
@@ -39,3 +34,28 @@ if(OpenMP_CXX_FOUND)
         labeling_HT_CCL_Diaz2019_v1_2_0.cc
     )
 endif()
+
+if(YACCLAB_ENABLE_3D)
+    target_sources(YACCLAB PRIVATE
+        labeling3D_naive.cc
+        labeling3D_he_2011.cc
+        labeling3D_he_2011_run.cc
+    )
+    if(YACCLAB_ENABLE_EPDT_19C)
+        target_sources(YACCLAB PRIVATE
+            labeling3D_EPDT_19c.cc
+        )
+    endif()
+    if(YACCLAB_ENABLE_EPDT_22C)
+        target_sources(YACCLAB PRIVATE
+            labeling3D_EPDT_22c.cc
+        )
+    endif()
+    if(YACCLAB_ENABLE_EPDT_26C)
+        target_sources(YACCLAB PRIVATE
+            labeling3D_EPDT_26c.cc
+        )
+    endif()
+endif()
+
+

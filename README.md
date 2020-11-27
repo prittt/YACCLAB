@@ -4,6 +4,7 @@
 [![contributors](https://img.shields.io/badge/all_contributors-5-orange.svg?style=flat)](#contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
+
 <table>
 <thead>
 <tr>
@@ -13,53 +14,49 @@
     <th>OpenCV</th>
     <th>CMake</th>
     <th>GPU</th>
-    <th width="200px">Travis CI</th>
+    <!--<th width="200px">Travis CI</th>-->
     <th width="200px">GitHub Actions</th>
     <th width="200px">Jenkins</th>
 </tr>
 <thead>
 <tbody>
 <tr>
-    <td align="center">Ubuntu<br/>16.04.6 LTS</td>
-    <td align="center">x64</td>
+    <td align="center">Ubuntu<br/>16.04 LTS</td>
+    <td align="center">x32</td>
     <td align="center">gcc 5.4.0</td>
-    <td align="center">3.1.0</td>
-    <td align="center">3.13</td>
+    <td align="center">3.0.0</td>
+    <td align="center">3.13.5</td>
     <td align="center">None</td>
-    <td align="center"><a href="https://travis-ci.org/prittt/YACCLAB"><img src="https://travis-ci.org/prittt/YACCLAB.svg?branch=master" alt="Build Status"/></a></td>
-    <td align="center">N/A</td>
+    <td align="center"><a href="https://github.com/prittt/YACCLAB/actions"><img src="https://github.com/prittt/YACCLAB/workflows/linux32/badge.svg?branch=master" alt="Build Status"/></a></td>
     <td align="center">N/A</td>
 </tr>
 <tr>
-    <td align="center">MacOS<br/>(Darwin 17.7.0)</td>
+    <td align="center">Ubuntu<br/>18.04 LTS</td>
     <td align="center">x64</td>
-    <td align="center">AppleClang 10<br/>(Xcode-10.1)</td>
-    <td align="center">3.1.0</td>
-    <td align="center">3.13</td>
-    <td align="center">None</td>
-    <td align="center"><a href="https://travis-ci.org/prittt/YACCLAB"><img src="https://travis-ci.org/prittt/YACCLAB.svg?branch=master" alt="Build Status"/></a></td>
-    <td align="center">N/A</td>
-    <td align="center">N/A</td>
-</tr>
-<tr>
-    <td align="center">Ubuntu<br/>18.04.6 LTS</td>
-    <td align="center">x64</td>
-    <td align="center">gcc 7</td>
+    <td align="center">gcc 9.3.0</td>
     <td align="center">4.1.2</td>
     <td align="center">3.13.5</td>
     <td align="center">None</td>
-    <td align="center">N/A</td>
-    <td align="center"><a href="https://github.com/prittt/YACCLAB/actions"><img src="https://github.com/prittt/YACCLAB/workflows/linux/badge.svg" alt="Action Status"/></a></td>
+    <td align="center"><a href="https://github.com/prittt/YACCLAB/actions"><img src="https://github.com/prittt/YACCLAB/workflows/linux64/badge.svg?branch=master" alt="Build Status"/></a></td>
     <td align="center">N/A</td>
 </tr>
 <tr>
-    <td align="center">Ubuntu<br/>16.04.6 LTS</td>
+    <td align="center">MacOS<br/>(Darwin 19.6.0)</td>
+    <td align="center">x64</td>
+    <td align="center">AppleClang 12.0.0<br/>(Xcode-12)</td>
+    <td align="center">3.1.0</td>
+    <td align="center">3.13.0</td>
+    <td align="center">None</td>
+    <td align="center"><a href="https://github.com/prittt/YACCLAB/actions"><img src="https://github.com/prittt/YACCLAB/workflows/macos/badge.svg?branch=master" alt="Build Status"/></a></td>
+    <td align="center">N/A</td>
+</tr>
+<tr>
+    <td align="center">Ubuntu<br/>16.04 LTS</td>
     <td align="center">x64</td>
     <td align="center">gcc 5.4.0</td>
     <td align="center">4.4</td>
     <td align="center">3.10.3</td>
     <td align="center">2080Ti, CUDA 9.2</td>
-    <td align="center">N/A</td>
     <td align="center">N/A</td>
     <td align="center"><a href="https://jenkins-master-deephealth-unix01.ing.unimore.it/job/YACCLAB/job/master/"><img src="https://jenkins-master-deephealth-unix01.ing.unimore.it/badge/job/YACCLAB/job/master/linux_gpu_end?" alt="Action Status"/></a></td>
 </tr>
@@ -68,11 +65,11 @@
 
 <p align="justify">Please include the following references when citing the YACCLAB project/dataset:</p>
 
-- <p align="justify"> Allegretti, Stefano; Bolelli, Federico; Grana, Costantino "Optimized Block-Based Algorithms to Label Connected Components on GPUs." IEEE Transactions on Parallel and Distributed Systems, 2019. <a title="BibTex" href="http://imagelab.ing.unimore.it/files2/yacclab/YACCLAB_TPDS2019_BibTex.html">BibTex</a>. <a title="Download" href="https://iris.unimore.it/retrieve/handle/11380/1179616/225393/2018_TPDS_Optimized_Block_Based_Algorithms_to_Label_Connected_Components_on_GPUs.pdf"><img src="https://raw.githubusercontent.com/prittt/YACCLAB/master/doc/pdf_logo.png" alt="Download." /></a></p>
+- <p align="justify"> Allegretti, Stefano; Bolelli, Federico; Grana, Costantino "Optimized Block-Based Algorithms to Label Connected Components on GPUs." IEEE Transactions on Parallel and Distributed Systems, 2019. <a title="BibTex" href="https://prittt.github.io/pub_files/2019tpds.html">BibTex</a>. <a title="Download" href="https://prittt.github.io/pub_files/2019tpds.pdf">PDF</a>.</p>
 
-- <p align="justify"> Bolelli, Federico; Cancilla, Michele; Baraldi, Lorenzo; Grana, Costantino "Towards Reliable Experiments on the Performance of Connected Components Labeling Algorithms" Journal of Real-Time Image Processing, 2018. <a title="BibTex" href="http://imagelab.ing.unimore.it/files2/yacclab/YACCLAB_JRTIP2018_BibTex.html">BibTex</a>. <a title="Download" href="http://imagelab.ing.unimore.it/imagelab/pubblicazioni/2016-icpr-yacclab.pdf"><img src="https://raw.githubusercontent.com/prittt/YACCLAB/master/doc/pdf_logo.png" alt="Download." /></a></p>
+- <p align="justify"> Bolelli, Federico; Cancilla, Michele; Baraldi, Lorenzo; Grana, Costantino "Towards Reliable Experiments on the Performance of Connected Components Labeling Algorithms" Journal of Real-Time Image Processing, 2018. <a title="BibTex" href="https://prittt.github.io/pub_files/2018jrtip.html">BibTex</a>. <a title="Download" href="https://prittt.github.io/pub_files/2018jrtip.pdf">PDF</a>.</p>
 
-- <p align="justify"> Grana, Costantino; Bolelli, Federico; Baraldi, Lorenzo; Vezzani, Roberto "YACCLAB - Yet Another Connected Components Labeling Benchmark" Proceedings of the 23rd International Conference on Pattern Recognition, Cancun, Mexico, 4-8 Dec 2016. <a title="BibTex" href="http://imagelab.ing.unimore.it/files2/yacclab/YACCLAB_ICPR2016_BibTex.html">BibTex</a>. <a title="Download" href="http://imagelab.ing.unimore.it/imagelab/pubblicazioni/2016-icpr-yacclab.pdf"><img src="https://raw.githubusercontent.com/prittt/YACCLAB/master/doc/pdf_logo.png" alt="Download." /></a></p>
+- <p align="justify"> Grana, Costantino; Bolelli, Federico; Baraldi, Lorenzo; Vezzani, Roberto "YACCLAB - Yet Another Connected Components Labeling Benchmark" Proceedings of the 23rd International Conference on Pattern Recognition, Cancun, Mexico, 4-8 Dec 2016. <a title="BibTex" href="https://prittt.github.io/pub_files/2016icpr.html">BibTex</a>. <a title="Download" href="https://prittt.github.io/pub_files/2016icpr.pdf">PDF</a>.</p>
 
 <p align="justify">
 YACCLAB is an open source <i>C++</i> project that enables researchers to test CCL algorithms under extremely variable points of view, running and testing algorithms on a collection of datasets described below. The benchmark performs the following tests which will be described later in this readme: <i>correctness</i>, average run-time (<i>average</i>), average run-time with steps (<i>average_ws</i>), <i>density</i>, <i>size</i>, <i>granularity</i> and memory accesses (<i>memory</i>).
@@ -85,13 +82,13 @@ Notice that 8-connectivity is always used in the project.
 <p align="justify">
 To correctly install and run YACCLAB following packages, libraries and utility are needed:
 
-- CMake 3.13 or higher (https://cmake.org),
-- OpenCV 3.0 or higher (http://opencv.org),
-- Gnuplot (http://www.gnuplot.info/),
-- One of your favourite IDE/compiler with C++14 support
+- CMake 3.13 or higher (https://cmake.org);
+- OpenCV 3.0 or higher (http://opencv.org), required packages are `core`, `imgcodecs`, `imgproc`;
+- Gnuplot (http://www.gnuplot.info/);
+- One of your favourite IDE/compiler with C++14 support.
 
 GPU algorithms also require:
-- CUDA Toolkit 9.2 or higher (https://developer.nvidia.com/cuda-toolkit)
+- CUDA Toolkit 9.2 or higher (https://developer.nvidia.com/cuda-toolkit) and OpenCV `cudafeatures2d` package.
 
 Notes for gnuplot:
 - on Windows system: be sure add gnuplot to system path if you want YACCLAB automatically generates charts.
@@ -110,19 +107,37 @@ Notes for gnuplot:
 
 - <p align="justify">Open the project, compile and run it: the work is done!</p>
 
+### CMake Configuration Variables
+
+| Name                                 | Meaning                     | Default | 
+| ------------------------------------ |-----------------------------| --------|
+| `YACCLAB_DOWNLOAD_DATASET`           | whether to automatically download the 2D YACCLAB dataset or not  | `OFF` |
+| `YACCLAB_DOWNLOAD_DATASET_3D`        | whether to automatically download the 3D YACCLAB dataset or not  | `OFF` |
+| `YACCLAB_ENABLE_3D`                  | enable/disable the support for 3D algorithms | `OFF` |
+| `YACCLAB_ENABLE_CUDA`                | enable/disable CUDA support | `OFF`   |
+| `YACCLAB_ENABLE_EPDT_19C`     | enable/disable the EPDT_19C 3D algorithm which is based on a heuristic decision tree generated from a 3D mask with 19 conditions (may noticeably increase compilation time), it has no effect when YACCLAB_ENABLE_3D is `OFF` | `OFF` |
+| `YACCLAB_ENABLE_EPDT_22C`     | enable/disable the EPDT_22C 3D algorithm which is based on a heuristic decision tree generated from a 3D mask with 22 conditions (may noticeably increase compilation time), it has no effect when YACCLAB_ENABLE_3D is `OFF` | `OFF` |
+| `YACCLAB_ENABLE_EPDT_26C`     | enable/disable the EPDT_26C 3D algorithm which is based on a heuristic decision tree generated from a 3D mask with 26 conditions (may noticeably increase compilation time), it has no effect when YACCLAB_ENABLE_3D is `OFF` | `OFF` |
+| `YACCLAB_FORCE_CONFIG_GENERATION`     | whether to force the generation of the default configuration file (`config.yaml`) or not. When this flag is turned `OFF` any existing configuration file will not be overwritten   | `OFF` |
+| `YACCLAB_INPUT_DATASET_PATH`         | path to the `input` dataset folder, where to find test datasets  | `${CMAKE_INSTALL_PREFIX}/input` |
+| `YACCLAB_OUTPUT_RESULTS_PATH`        | path to the `output` folder, where to save output results  | `${CMAKE_INSTALL_PREFIX}/output` |
+| `OpenCV_DIR`                         | OpenCV installation path    |  -      |
+
 ## How to include a YACCLAB algorithm into your own project?
 
 <p align="justify">If your project requires a Connected Components Labeling algorithm and you are not interested in the whole YACCLAB benchmark you can use the <i>connectedComponent</i> function of the OpenCV library which implements the BBDT and SAUF algorithms since version 3.2.</p>
-<p align="justify">Anyway, when the <i>connectedComponents</i> function is called, lot of additional code will be executed together with the core function. If your project requires the best performance you can include an algorithm implemented in YACCLAB adding the following files to your project:</p>
+<p align="justify">Anyway, when the <i>connectedComponents</i> function is called, a lot of additional code will be executed together with the core function. If your project requires the best performance you can include an algorithm implemented in YACCLAB adding the following files to your project:</p>
 <ol>
-  <li><i>labeling_algorithms.h</i> and <i>labeling_algorithms.cc</i> which define the base class from which every algorithm derives from.</li>
-  <li><i>label_solver.h</i> and <i>label_solver.cc</i> which cointain the implementation of labels solving algorithms.</li>
-  <li><i>memory_tester.h</i> and <i>performance_evaluator.h</i> just to make things work without changing the code.</li>
-  <li><i>headers</i> and <i>sources</i> files of the required algorithm/s. The association between algorithms and headers/sources files is reported in the table below.</li>
+  <li><i>labeling_algorithms.h</i> and <i>labeling_algorithms.cc</i> which define the base class from which every algorithm derives from;</li>
+  <li><i>label_solver.h</i> and <i>label_solver.cc</i> which cointain the implementation of labels solving algorithms;</li>
+  <li><i>memory_tester.h</i> and <i>performance_evaluator.h</i> just to make things work without changing the code;</li>
+  <li><i>headers</i> and <i>sources</i> files of the required algorithm/s. The association between algorithms and headers/sources files is reported in the tables below.</li>
 </ol>  
+
+### CPU Algorithms
+
  <table>
   <tr>
-    <th></th>
     <th>Algorithm Name</th>
     <th width="130">Authors</th>
     <th>Year</th>
@@ -130,9 +145,7 @@ Notes for gnuplot:
     <th>Required Files</th>
     <th>Templated on Labels Solver</th>
   </tr>	
-	
   <tr>
-    <td align="center" rowspan="13">CPU</td>
     <td align="center">-</td>
     <td align="center">L. Di Stefano,<br>A. Bulgarelli  <a href="#DiStefano">[3]</a></td>
     <td align="center">1999</td>
@@ -150,7 +163,7 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Run-Based Two-Scan</td>
-    <td align="center">L. He,</br>Y. Chao,</br>K. Suzuki  <a href="#RBTS">[7]</a></td>
+    <td align="center">L. He,</br>Y. Chao,</br>K. Suzuki  <a href="#RBTS">[30]</a></td>
     <td align="center">2008</td>
     <td align="center">RBTS</td>
     <td align="center"><i>labeling_he_2008.h</i></td>
@@ -222,7 +235,7 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Spaghetti Labeling</td>
-    <td align="center">F. Bolelli,</br>S. Allegretti,</br>L. Baraldi,</br>C. Grana <a href="#Spaghetti">[13]</a></td>
+    <td align="center">F. Bolelli,</br>S. Allegretti,</br>L. Baraldi,</br>C. Grana <a href="#SPAGHETTI">[26]</a></td>
     <td align="center">2019</td>
     <td align="center">Spaghetti</td>
     <td align="center"><i>labeling_bolelli_2019.h</i>, <i>labeling_bolelli_2019_forest.inc</i>, <i>labeling_bolelli_2019_forest_firstline.inc</i>, <i>labeling_bolelli_2019_forest_lastline.inc</i>, <i>labeling_bolelli_2019_forest_singleline.inc</i></td>
@@ -236,10 +249,34 @@ Notes for gnuplot:
     <td align="center"><i>labeling_null.h</i></td>
     <td align="center">NO</td>
   </tr>
+<tr>
+    <td align="center">Entropy Partitioning Decision Tree</td>
+    <td align="center">M. Söchting,</br>S. Allegretti,</br>F. Bolelli,</br>C. Grana <a href="#EPDT">[31]</a></td>
+    <td align="center">2021</td>
+    <td align="center">EPDT_19c and EPDT_22c<a href="#VI"><sup>VI</sup></a></td>
+    <td align="center"><i>labeling3D_BBDT_2019.h</i>, <i>labeling_bolelli_2019_forest.inc</i>, <i>labeling_bolelli_2019_forest_firstline.inc</i>, <i>labeling_bolelli_2019_forest_lastline.inc</i>, <i>labeling_bolelli_2019_forest_singleline.inc</i></td>
+    <td align="center">YES</td>
+  </tr>
+</table>
 
+<a name="I"><sup>I</sup></a> standard version. </br>
+<a name="II"><sup>II</sup></a> with zero-offset optimization. </br>
+<a name="III"><sup>III</sup></a> with RLE compression. </br>
+<a name="IV"><sup>IV</sup></a> only on TTA and UF. </br>
+<a name="V"><sup>V</sup></a> it only copies the pixels from the input image to the output one simply defining a lower bound limit for the execution time of CCL algorithms on a given machine and dataset.</br>
+<a name="VI"><sup>VI</sup></a> EPDT_19c and EPDT_22c algorithms are based on very big decision trees that translate in many lines of C++ code. They may thus noticeably increase the build time. For this reason, a special flag (`YACCLAB_ENABLE_EPDT_ALGOS`) to enable/disable such algorithms is provided in the CMake file. By default the flag is OFF.
 
+### GPU Algorithms
+ <table>
   <tr>
-    <td align="center" rowspan="9">GPU</td>
+    <th>Algorithm Name</th>
+    <th width="130">Authors</th>
+    <th>Year</th>
+    <th>Acronym</th>
+    <th>Required Files</th>
+    <th>Templated on Labels Solver</th>
+  </tr>	
+  <tr>
     <td align="center">Union Find</td>
     <td align="center">V. Oliveira,</br>R. Lotufo <a href="#UF">[18]</a></td>
     <td align="center">2010</td>
@@ -311,15 +348,7 @@ Notes for gnuplot:
     <td align="center"><i>labeling_CUDA_BKE.cu</i></td>
     <td align="center">NO</td>
   </tr>
-
-
 </table>
-
-<a name="I"><sup>I</sup></a> standard version </br>
-<a name="II"><sup>II</sup></a> with zero-offset optimization </br>
-<a name="III"><sup>III</sup></a> with RLE compression </br>
-<a name="IV"><sup>IV</sup></a> only on TTA and UF </br>
-<a name="V"><sup>V</sup></a> it only copies the pixels from the input image to the output one simply defining a lower bound limit for the execution time of CCL algorithms on a given machine and dataset.
 
 ### Example of Algorithm Usage Outside the Benchmark
 
@@ -562,14 +591,14 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
 
 - <b>Synthetic Images</b>:
 	- <b>Classical <a href="#BBDT">[4]</a></b>:<p align="justify"> A set of synthetic random noise images who contain black and white random noise with 9 different foreground densities (10% up to 90%), from a low resolution of 32x32 pixels to a maximum resolution of 4096x4096 pixels, allowing to test the scalability and the effectiveness of different approaches when the number of labels gets high. For every combination of size and density, 10 images are provided for a total of 720 images. The resulting subset allows to evaluate performance both in terms of scalability on the number of pixels and on the number of labels (density). </p>
-	- <b>Granularity <a href="#LSL">[4]</a> </b>:<p align="justify"> This dataset allows to test algorithms varying not only the pixels density but also their granularity <i>g</i> (<i>i.e.</i>, dimension of minimum foreground block), underlying the behaviour of different proposals when the number of provisional labels changes. All the images have a resolution of 2048x2048 and are generated with the Mersenne Twister MT19937 random number generator implemented in the <i>C++</i> standard and starting with a "seed" equal to zero. Density of the images ranges from 0% to 100% with step of 1% and for every density value 16 images with pixels blocks of <i>gxg</i> with <i>g</i> ∈ [1,16] are generated. Moreover, the procedure has been repeated 10 times for every couple of density-granularity for a total of 16160 images.</p>
+	- <b>Granularity <a href="#LSL">[5]</a> </b>:<p align="justify"> This dataset allows to test algorithms varying not only the pixels density but also their granularity <i>g</i> (<i>i.e.</i>, dimension of minimum foreground block), underlying the behaviour of different proposals when the number of provisional labels changes. All the images have a resolution of 2048x2048 and are generated with the Mersenne Twister MT19937 random number generator implemented in the <i>C++</i> standard and starting with a "seed" equal to zero. Density of the images ranges from 0% to 100% with step of 1% and for every density value 16 images with pixels blocks of <i>gxg</i> with <i>g</i> ∈ [1,16] are generated. Moreover, the procedure has been repeated 10 times for every couple of density-granularity for a total of 16160 images.</p>
 
 <table>
 <tr>
   <td align="center"><img src="doc/granularity_2D_datasets.png"></td>
 </tr>
 <tr>
-  <td>Samples of the YACCLAB 2D granularity dataset: reported images have a foreground density of 30% and, from left to right granularities are 1, 2, 4, 6, 8, 12, 14, 16.</td>
+  <td>Samples of the YACCLAB 2D granularity dataset: reported images have a foreground density of 30% and, from left to right, granularities are 1, 2, 4, 6, 8, 12, 14, 16.</td>
 </tr>
 </table>
 
@@ -581,16 +610,25 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
 
 - <b>Hilbert <a href="#TPDS">[24]</a></b>: <p align="justify">This dataset contains six volumes of 128 × 128 × 128 pixels, filled with the 3D Hilbert curve obtained at different iterations (1 to 6) of the construction method. The Hilbert curve is a fractal space-filling curve that representsa challenging test case for the labeling algorithms.</p>
 
-<table>
+<table style="position: absolute; top: 0; bottom: 0; left: 0; right: 0;">
 <tr>
-  <td align="center"><img src="doc/sample_3D_datasets.png" height="110px"></td>
+  <td align="center"><img src="doc/sample_3D_datasets.png"></td>
 </tr>
 <tr>
-  <td>Samples of the YACCLAB 3D datasets. From left to right: Hilbertspace-filling curve, OASIS and Mitochondria medical imaging data.</td>
+  <td>Samples of the YACCLAB 3D datasets. From left to right we have the Hilbert space-filling curve, the OASIS dataset and Mitochondria medical imaging data.</td>
 </tr>
 </table>
 
-- <b>Granularity <a href="#TPDS">[24]</a></b>: <p align="justify">It contains 3D synthetic images generated as described for the 2D version. Images have a resolution of 256 x 256 x 256 pixels.</p>
+- <b>Granularity <a href="#TPDS">[24]</a></b>: <p align="justify">It contains 3D synthetic images generated as described for the 2D version. In this case, images have a resolution of 256 x 256 x 256 pixels and only three different images for every couple of density-granularity have been generated.</p>
+
+<table style="position: absolute; top: 0; bottom: 0; left: 0; right: 0;">
+<tr>
+  <td align="center"><img src="doc/granularity_3D_datasets.png" ></td>
+</tr>
+<tr>
+  <td>Samples of the YACCLAB 3D granularity dataset: reported images have a foreground density of 2% and, from left to right, granularities are 4, 8, 16.</td>
+</tr>
+</table>
 
 <a name="tests"></a>
 ## Available Tests
@@ -882,6 +920,15 @@ This project follows the [all-contributors](https://github.com/all-contributors/
     <td>
       <p align="justify">
 	L. He,  Y. Chao, K. Suzuki. "A run-based two-scan labeling algorithm." IEEE Transactions on Image Processing, 2008.</p>
+    </td>
+</tr>	
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="EPDT">[31]</a>
+    </td>
+    <td>
+      <p align="justify">
+	M. Söchting, S. Allegretti, F. Bolelli, C. Grana. "A Heuristic-Based Decision Tree for Connected Components Labeling of 3D Volumes." 25th International Conference on Pattern Recognition, 2021</p>
     </td>
 </tr>	
 </table>

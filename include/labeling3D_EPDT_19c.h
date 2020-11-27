@@ -26,8 +26,8 @@
 // OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef YACCLAB_LABELING3D_BBDT_19C_211B_H_
-#define YACCLAB_LABELING3D_BBDT_19C_211B_H_
+#ifndef YACCLAB_LABELING3D_EPDT_19c_H_
+#define YACCLAB_LABELING3D_EPDT_19c_H_
 
 #include <opencv2/core.hpp>
 
@@ -35,7 +35,7 @@
 #include "labels_solver.h"
 #include "memory_tester.h"
 
-#include "labeling3D_BBDT_19c_211b_action_definition.inc.h"
+#include "labeling3D_EPDT_19c_action_definition.inc.h"
 
 		//Conditions:
 #define CONDITION_KB c > 0 && r > 0 && s > 0 && img_slice11_row11[c - 1] > 0
@@ -60,9 +60,9 @@
 
 
 template <typename LabelsSolver>
-class BBDT_3D_19c_211b : public Labeling3D<Connectivity3D::CONN_26> {
+class EPDT_3D_19c : public Labeling3D<CONN_26> {
 public:
-	BBDT_3D_19c_211b() {}
+	EPDT_3D_19c() {}
 
 //    void FirstSlice(unsigned int d, unsigned int w, unsigned int h) {
 //        // First slice
@@ -293,7 +293,7 @@ public:
 					if (!((CONDITION_XA) || (CONDITION_XB))) {
 						ACTION_0;
 					}
-#include "labeling3D_BBDT_19c_211b_tree.inc.h"
+#include "labeling3D_EPDT_19c_tree.inc.h"
 				}
             } // Rows cycle end
         } // Planes cycle end
@@ -499,7 +499,7 @@ public:
 #undef CONDITION_XA 
 #undef CONDITION_XB 
 
-#include "labeling3D_BBDT_2829_action_undefinition.inc.h"
+#include "labeling3D_EPDT_2829_action_undefinition.inc.h"
 
 			//Conditions:
 #define CONDITION_KB c > 0 && r > 0 && s > 0 && img(s - 1, r - 1, c - 1) > 0
@@ -522,7 +522,7 @@ public:
 #define CONDITION_XA img(s, r, c) > 0
 #define CONDITION_XB c < w - 1 && img(s, r, c + 1) > 0
 
-#include "labeling3D_BBDT_19c_211b_action_definition_memory.inc.h"
+#include "labeling3D_EPDT_19c_action_definition_memory.inc.h"
 		}
 
 		LabelsSolver::MemAlloc(UPPER_BOUND_26_CONNECTIVITY); // Equivalence solver
@@ -543,7 +543,7 @@ public:
 					if (!((CONDITION_XA) || (CONDITION_XB))) {
 						ACTION_0;
 					}
-#include "labeling3D_BBDT_19c_211b_tree.inc.h"
+#include "labeling3D_EPDT_19c_tree.inc.h"
 				}
 			} // Rows cycle end
 		} // Planes cycle end
@@ -551,7 +551,7 @@ public:
 		// Second scan
 		LabelsSolver::MemFlatten();
 
-		// NEW VERSION BELOW, OLD IN labeling3D_BBDT_19c_211b.h
+		// NEW VERSION BELOW, OLD IN labeling3D_EPDT_19c.h
 		int rows = h;
 		int e_cols = w & 0xfffffffe;
 		bool o_cols = w % 2 == 1;
@@ -627,7 +627,7 @@ public:
 #undef CONDITION_XA 
 #undef CONDITION_XB 
 
-#include "labeling3D_BBDT_2829_action_undefinition.inc.h"
+#include "labeling3D_EPDT_2829_action_undefinition.inc.h"
 
 			//Conditions:
 #define CONDITION_KB c > 0 && r > 0 && s > 0 && img_slice11_row11[c - 1] > 0
@@ -651,7 +651,7 @@ public:
 #define CONDITION_XB c < w - 1 && img_slice00_row00[c + 1] > 0
 
 //Actions:
-#include "labeling3D_BBDT_19c_211b_action_definition.inc.h"
+#include "labeling3D_EPDT_19c_action_definition.inc.h"
 		}
 	}
 
@@ -712,7 +712,7 @@ private:
 					if (!((CONDITION_XA) || (CONDITION_XB))) {
 						ACTION_0;
 					}
-#include "labeling3D_BBDT_19c_211b_tree.inc.h"
+#include "labeling3D_EPDT_19c_tree.inc.h"
 				}
 			} // Rows cycle end
 		} // Planes cycle end
@@ -798,6 +798,6 @@ private:
 #undef CONDITION_XA 
 #undef CONDITION_XB 
 
-#include "labeling3D_BBDT_2829_action_undefinition.inc.h"
+#include "labeling3D_EPDT_2829_action_undefinition.inc.h"
 
-#endif // YACCLAB_LABELING3D_BBDT_19C_211B_H_
+#endif // YACCLAB_LABELING3D_EPDT_19c_H_
