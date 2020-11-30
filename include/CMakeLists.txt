@@ -39,8 +39,7 @@ target_sources(YACCLAB
         yacclab_tests.h
         utilities.h
         volume_util.h
-        yacclab_tensor.h
-        labeling3D_BBDT_2829_action_undefinition.inc.h
+        yacclab_tensor.h        
         labeling_sauf_4c.h
         labeling_sauf_background.h
 )
@@ -53,20 +52,12 @@ if(OpenMP_CXX_FOUND)
     )
 endif()
 
-if(YACCLAB_ENABLE_3D)
-    target_sources(YACCLAB PRIVATE    
-        labeling3D_naive.h        
-        labeling3D_he_2011.h
-        labeling3D_he_2011_run.h
-
-)
 
 if(YACCLAB_ENABLE_3D)
     target_sources(YACCLAB PRIVATE    
         labeling3D_naive.h        
         labeling3D_he_2011.h
         labeling3D_he_2011_run.h
-)
     )
     if(YACCLAB_ENABLE_EPDT_19C)
         target_sources(YACCLAB PRIVATE        

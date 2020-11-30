@@ -7,8 +7,6 @@ target_sources(YACCLAB
         labeling_CUDA_8DLS.cu
         labeling_CUDA_BBDT.cu
         labeling_CUDA_BE.cu
-        labeling_CUDA_BE_3D_light.cu
-        labeling_CUDA_BE_3D_light_shared.cu
         labeling_CUDA_BE_big.cu
         labeling_CUDA_BE_big_tex.cu
         labeling_CUDA_BKE.cu
@@ -40,5 +38,7 @@ if(YACCLAB_ENABLE_3D)
         labeling_CUDA_BKE_3D.cu
         labeling_CUDA_BUF_3D.cu
         labeling_CUDA_BUF_3D_NoInlineCompression.cu
+        labeling_CUDA_BE_3D_light.cu
+        labeling_CUDA_BE_3D_light_shared.cu
     )
 endif()
