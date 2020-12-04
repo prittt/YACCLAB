@@ -95,8 +95,8 @@ namespace {
 
 
     __global__ void InitLabeling(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels, unsigned char *last_pixel) {
-        unsigned row = (blockIdx.y * BLOCK_ROWS + threadIdx.y) * 2;
-        unsigned col = (blockIdx.x * BLOCK_COLS + threadIdx.x) * 2;
+        unsigned row = (blockIdx.y * blockDim.y + threadIdx.y) * 2;
+        unsigned col = (blockIdx.x * blockDim.x + threadIdx.x) * 2;
         unsigned img_index = row * img.step + col;
         unsigned labels_index = row * (labels.step / labels.elem_size) + col;
 
@@ -218,8 +218,8 @@ namespace {
 
     __global__ void Merge(cuda::PtrStepSzi labels, unsigned char *last_pixel) {
 
-        unsigned row = (blockIdx.y * BLOCK_ROWS + threadIdx.y) * 2;
-        unsigned col = (blockIdx.x * BLOCK_COLS + threadIdx.x) * 2;
+        unsigned row = (blockIdx.y * blockDim.y + threadIdx.y) * 2;
+        unsigned col = (blockIdx.x * blockDim.x + threadIdx.x) * 2;
         unsigned labels_index = row * (labels.step / labels.elem_size) + col;
 
         if (row < labels.rows && col < labels.cols) {
@@ -245,8 +245,8 @@ namespace {
     }
 
     __global__ void Compression(cuda::PtrStepSzi labels) {
-        unsigned row = (blockIdx.y * BLOCK_ROWS + threadIdx.y) * 2;
-        unsigned col = (blockIdx.x * BLOCK_COLS + threadIdx.x) * 2;
+        unsigned row = (blockIdx.y * blockDim.y + threadIdx.y) * 2;
+        unsigned col = (blockIdx.x * blockDim.x + threadIdx.x) * 2;
         unsigned labels_index = row * (labels.step / labels.elem_size) + col;
 
         if (row < labels.rows && col < labels.cols) {
@@ -256,8 +256,8 @@ namespace {
 
     __global__ void FinalLabeling(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels, unsigned char *last_pixel) {
 
-        unsigned row = (blockIdx.y * BLOCK_ROWS + threadIdx.y) * 2;
-        unsigned col = (blockIdx.x * BLOCK_COLS + threadIdx.x) * 2;
+        unsigned row = (blockIdx.y * blockDim.y + threadIdx.y) * 2;
+        unsigned col = (blockIdx.x * blockDim.x + threadIdx.x) * 2;
         unsigned labels_index = row * (labels.step / labels.elem_size) + col;
 
         if (row < labels.rows && col < labels.cols) {
@@ -384,6 +384,38 @@ public:
         cudaDeviceSynchronize();
     }
 
+    void PerformLabelingBlocksize(int x, int y, int z) override {
+
+        d_img_labels_.create(d_img_.size(), CV_32SC1);
+
+        last_pixel_allocated_ = false;
+        if ((d_img_.rows == 1 || d_img_.cols == 1) && !((d_img_.rows + d_img_.cols) % 2)) {
+            cudaMalloc(&last_pixel_, sizeof(unsigned char));
+            last_pixel_allocated_ = true;
+        }
+        else {
+            last_pixel_ = d_img_labels_.data + ((d_img_labels_.rows - 2) * d_img_labels_.step) + (d_img_labels_.cols - 2) * d_img_labels_.elemSize();
+        }
+
+        grid_size_ = dim3((((d_img_.cols + 1) / 2) + x - 1) / x, (((d_img_.rows + 1) / 2) + y - 1) / y, 1);
+        block_size_ = dim3(x, y, 1);
+
+        BLOCKSIZE_KERNEL(InitLabeling, grid_size_, block_size_, 0, d_img_, d_img_labels_, last_pixel_)
+
+        BLOCKSIZE_KERNEL(Compression, grid_size_, block_size_, 0, d_img_labels_)
+
+        BLOCKSIZE_KERNEL(Merge, grid_size_, block_size_, 0, d_img_labels_, last_pixel_)
+
+        BLOCKSIZE_KERNEL(Compression, grid_size_, block_size_, 0, d_img_labels_)
+
+        BLOCKSIZE_KERNEL(FinalLabeling, grid_size_, block_size_, 0, d_img_, d_img_labels_, last_pixel_)
+
+        if (last_pixel_allocated_) {
+            cudaFree(last_pixel_);
+        }
+    }
+
+
 
 private:
     void Alloc() {
@@ -467,4 +499,6 @@ public:
 
 };
 
-REGISTER_LABELING(BKE_IC);
+    REGISTER_LABELING(BKE_IC)
+
+    REGISTER_KERNELS(BKE_IC, InitLabeling, Compression, Merge, FinalLabeling)

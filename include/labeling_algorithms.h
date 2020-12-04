@@ -85,6 +85,10 @@ public:
     virtual YacclabTensorInput* GetInput() { return input_.get(); }
     virtual YacclabTensorOutput* GetOutput() { return output_.get(); }
 
+    virtual void PerformLabelingBlocksize(int x, int y, int z) {
+        throw std::runtime_error("'PerformLabelingSize(...)' not implemented");
+    }
+
 };
 
 template <Connectivity2D Conn, bool LabelBackground = false>
@@ -150,6 +154,7 @@ public:
     virtual ~GpuLabeling2D() = default;
 
     virtual std::string GetTitle() const { return GetGnuplotTitleGpu(); }
+
 };
 
 
@@ -192,6 +197,25 @@ private:
             delete it->second;
     }
 };
+
+
+
+class KernelMapSingleton {
+public:
+    std::map<std::string, std::vector<std::string>> data_;
+
+    static KernelMapSingleton& GetInstance();
+    static const std::vector<std::string>& GetKernels(const std::string& s);
+    static bool Exists(const std::string& s);
+    static void InitializeAlgorithm(const std::string& algorithm, const std::string& kernels);
+    KernelMapSingleton(LabelingMapSingleton const&) = delete;
+    void operator=(KernelMapSingleton const&) = delete;
+
+private:
+    KernelMapSingleton() {}
+};
+
+
 
 enum StepType {
     ALLOC_DEALLOC = 0,

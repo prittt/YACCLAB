@@ -127,6 +127,41 @@ bool LabelingMapSingleton::Exists(const std::string& s)
     return LabelingMapSingleton::GetInstance().data_.end() != LabelingMapSingleton::GetInstance().data_.find(s);
 }
 
+
+
+KernelMapSingleton& KernelMapSingleton::GetInstance()
+{
+    static KernelMapSingleton instance;	    // Guaranteed to be destroyed.
+                                            // Instantiated on first use.
+    return instance;
+}
+
+const std::vector<std::string>& KernelMapSingleton::GetKernels(const std::string& s)
+{
+    return KernelMapSingleton::GetInstance().data_.at(s);
+}
+
+bool KernelMapSingleton::Exists(const std::string& s)
+{
+    return KernelMapSingleton::GetInstance().data_.end() != KernelMapSingleton::GetInstance().data_.find(s);
+}
+
+void KernelMapSingleton::InitializeAlgorithm(const std::string& algorithm, const std::string& kernels)
+{
+    std::vector<std::string> v;
+    std::istringstream iss(kernels);
+    std::string s;
+    while (std::getline(iss, s, ',')) {
+        s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
+            return !std::isspace(ch);
+            }));
+        v.push_back(s);
+    }
+    KernelMapSingleton::GetInstance().data_[algorithm] = move(v);
+}
+
+
+
 std::string Step(StepType n_step)
 {
     switch (n_step) {

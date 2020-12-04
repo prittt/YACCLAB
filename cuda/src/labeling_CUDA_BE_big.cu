@@ -30,8 +30,8 @@ namespace {
 	// Labels start at value 1.
 	__global__ void Init(const cuda::PtrStepSzb img, cuda::PtrStepSzb block_conn, cuda::PtrStepSzi block_labels) {
 
-		unsigned row = blockIdx.y * BLOCK_ROWS + threadIdx.y;
-		unsigned col = blockIdx.x * BLOCK_COLS + threadIdx.x;
+		unsigned row = blockIdx.y * blockDim.y + threadIdx.y;
+		unsigned col = blockIdx.x * blockDim.x + threadIdx.x;
 		unsigned img_index = 2 * row * img.step + 2 * col;
 		unsigned conn_index = row * (block_conn.step / block_conn.elem_size) + col;
 		unsigned labels_index = row * (block_labels.step / block_labels.elem_size) + col;
@@ -139,8 +139,8 @@ namespace {
 
 	__global__ void ExpandConnections(const cuda::PtrStepSzb connections, cuda::PtrStepSzb expansion) {
 
-		unsigned row = blockIdx.y * BLOCK_ROWS + threadIdx.y;
-		unsigned col = blockIdx.x * BLOCK_COLS + threadIdx.x;
+		unsigned row = blockIdx.y * blockDim.y + threadIdx.y;
+		unsigned col = blockIdx.x * blockDim.x + threadIdx.x;
 		unsigned conn_index = row * (connections.step / connections.elem_size) + col;
 		unsigned exp_index = 3 * row * (expansion.step / expansion.elem_size) + 3 * col;
 
@@ -261,8 +261,8 @@ namespace {
 	// The pixel associated with current thread is given the minimum label of the neighbours.
 	__global__ void Scan(cuda::PtrStepSzi labels, cuda::PtrStepSzb connections, char *changes) {
 
-		unsigned row = blockIdx.y * BLOCK_ROWS + threadIdx.y;
-		unsigned col = blockIdx.x * BLOCK_COLS + threadIdx.x;
+		unsigned row = blockIdx.y * blockDim.y + threadIdx.y;
+		unsigned col = blockIdx.x * blockDim.x + threadIdx.x;
 		unsigned labels_index = row * (labels.step / labels.elem_size) + col;
 		unsigned connections_index = row * (connections.step / connections.elem_size) + col;
 
@@ -287,8 +287,8 @@ namespace {
 	// The pixel associated with current thread is given the minimum label of the neighbours.
 	__global__ void Analyze(cuda::PtrStepSzi labels) {
 
-		unsigned row = blockIdx.y * BLOCK_ROWS + threadIdx.y;
-		unsigned col = blockIdx.x * BLOCK_COLS + threadIdx.x;
+		unsigned row = blockIdx.y * blockDim.y + threadIdx.y;
+		unsigned col = blockIdx.x * blockDim.x + threadIdx.x;
 		unsigned labels_index = row * (labels.step / labels.elem_size) + col;
 
 		if (row < labels.rows && col < labels.cols) {
@@ -313,8 +313,8 @@ namespace {
 	// Assigns every pixel of 2x2 blocks the block label
 	__global__ void FinalLabeling(cuda::PtrStepSzi block_labels, cuda::PtrStepSzi labels, const cuda::PtrStepSzb img) {
 
-		unsigned row = blockIdx.y * BLOCK_ROWS + threadIdx.y;
-		unsigned col = blockIdx.x * BLOCK_COLS + threadIdx.x;
+		unsigned row = blockIdx.y * blockDim.y + threadIdx.y;
+		unsigned col = blockIdx.x * blockDim.x + threadIdx.x;
 		unsigned blocks_index = row * (block_labels.step / block_labels.elem_size) + col;
 		unsigned labels_index = 2 * row * (labels.step / labels.elem_size) + 2 * col;
 		unsigned img_index = 2 * row * (img.step / img.elem_size) + 2 * col;
@@ -425,6 +425,42 @@ public:
 		d_block_labels_.release();
 	}
 
+	void PerformLabelingBlocksize(int x, int y, int z) override {
+
+		d_img_labels_.create(d_img_.size(), CV_32SC1);
+
+		// Extra structures that I would gladly do without
+		d_connections_.create((d_img_.rows + 1) / 2, (d_img_.cols + 1) / 2, CV_8UC1);
+		d_block_labels_.create((d_img_.rows + 1) / 2, (d_img_.cols + 1) / 2, CV_32SC1);
+
+		cudaMalloc(&d_changes, sizeof(char));
+
+		grid_size_ = dim3((d_connections_.cols + x - 1) / x, (d_connections_.rows + y - 1) / y, 1);
+		block_size_ = dim3(x, y, 1);
+
+		BLOCKSIZE_KERNEL(Init, grid_size_, block_size_, 0, d_img_, d_connections_, d_block_labels_)
+
+		while (true) {
+			changes = 0;
+			cudaMemcpy(d_changes, &changes, sizeof(char), cudaMemcpyHostToDevice);
+
+			BLOCKSIZE_KERNEL(Scan, grid_size_, block_size_, 0, d_block_labels_, d_connections_, d_changes)
+
+			cudaMemcpy(&changes, d_changes, sizeof(char), cudaMemcpyDeviceToHost);
+
+			if (!changes)
+				break;
+
+			BLOCKSIZE_KERNEL(Analyze, grid_size_, block_size_, 0, d_block_labels_)
+		}
+
+		BLOCKSIZE_KERNEL(FinalLabeling, grid_size_, block_size_, 0, d_block_labels_, d_img_labels_, d_img_)
+
+		cudaFree(d_changes);
+		d_connections_.release();
+		d_block_labels_.release();
+	}
+
 
 private:
 	double Alloc() {
@@ -520,3 +556,4 @@ public:
 
 REGISTER_LABELING(BE);
 
+REGISTER_KERNELS(BE, Init, Scan, Analyze, FinalLabeling)

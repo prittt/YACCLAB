@@ -66,9 +66,9 @@ namespace {
 
     __global__ void Initialization(const cuda::PtrStepSz3b img, cuda::PtrStepSz3i labels) {
 
-        unsigned x = blockIdx.x * BLOCK_X + threadIdx.x;
-        unsigned y = blockIdx.y * BLOCK_Y + threadIdx.y;
-        unsigned z = blockIdx.z * BLOCK_Z + threadIdx.z;
+        unsigned x = blockIdx.x * blockDim.x + threadIdx.x;
+        unsigned y = blockIdx.y * blockDim.y + threadIdx.y;
+        unsigned z = blockIdx.z * blockDim.z + threadIdx.z;
         unsigned img_index = z * (img.stepz / img.elem_size) + y * (img.stepy / img.elem_size) + x;
         unsigned labels_index = z * (labels.stepz / labels.elem_size) + y * (labels.stepy / labels.elem_size) + x;
 
@@ -85,9 +85,9 @@ namespace {
 
     __global__ void Merge(cuda::PtrStepSz3i labels) {
 
-        unsigned x = blockIdx.x * BLOCK_X + threadIdx.x;
-        unsigned y = blockIdx.y * BLOCK_Y + threadIdx.y;
-        unsigned z = blockIdx.z * BLOCK_Z + threadIdx.z;
+        unsigned x = blockIdx.x * blockDim.x + threadIdx.x;
+        unsigned y = blockIdx.y * blockDim.y + threadIdx.y;
+        unsigned z = blockIdx.z * blockDim.z + threadIdx.z;
         unsigned labels_index = z * (labels.stepz / labels.elem_size) + y * (labels.stepy / labels.elem_size) + x;
 
         if (x < labels.x && y < labels.y && z < labels.z) {
@@ -157,9 +157,9 @@ namespace {
 
     __global__ void PathCompression(cuda::PtrStepSz3i labels) {
 
-        unsigned x = blockIdx.x * BLOCK_X + threadIdx.x;
-        unsigned y = blockIdx.y * BLOCK_Y + threadIdx.y;
-        unsigned z = blockIdx.z * BLOCK_Z + threadIdx.z;
+        unsigned x = blockIdx.x * blockDim.x + threadIdx.x;
+        unsigned y = blockIdx.y * blockDim.y + threadIdx.y;
+        unsigned z = blockIdx.z * blockDim.z + threadIdx.z;
         unsigned labels_index = z * (labels.stepz / labels.elem_size) + y * (labels.stepy / labels.elem_size) + x;
 
         if (x < labels.x && y < labels.y && z < labels.z) {
@@ -226,6 +226,25 @@ public:
 
     }
 
+    void PerformLabelingBlocksize(int x, int y, int z) override {
+
+        d_img_labels_.create(d_img_.x, d_img_.y, d_img_.z, CV_32SC1);
+
+        grid_size_ = dim3((d_img_.x + x - 1) / x, (d_img_.y + y - 1) / y, (d_img_.z + z - 1) / z);
+        block_size_ = dim3(x, y, z);
+
+
+        // Phase 1
+        BLOCKSIZE_KERNEL(Initialization, grid_size_, block_size_, 0, d_img_, d_img_labels_)
+
+        // Phase 2
+        BLOCKSIZE_KERNEL(Merge, grid_size_, block_size_, 0, d_img_labels_)
+
+        // Phase 3
+        BLOCKSIZE_KERNEL(PathCompression, grid_size_, block_size_, 0, d_img_labels_)
+
+    }
+
 
 private:
     double Alloc() {
@@ -285,3 +304,5 @@ public:
 };
 
 REGISTER_LABELING(UF_3D);
+
+REGISTER_KERNELS(UF_3D, Initialization, Merge, PathCompression)

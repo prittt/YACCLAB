@@ -50,4 +50,20 @@ class register_ ## algorithm ## _ ## solver{                                    
   }                                                                                                     \
 }  register_ ## algorithm ## _ ## solver;
 
+
+
+#define BLOCKSIZE_KERNEL(name, gridsize, blocksize, shared, ...)    \
+perf_.start();                                                      \
+name<< <gridsize, blocksize, shared>> > (__VA_ARGS__);              \
+cudaDeviceSynchronize();                                            \
+perf_.store(#name, perf_.stop());
+
+#define REGISTER_KERNELS(algorithm, ...)                                    \
+class register_kernels_ ## algorithm {                                      \
+public:                                                                     \
+    register_kernels_ ## algorithm() {                                      \
+        KernelMapSingleton::InitializeAlgorithm(#algorithm, #__VA_ARGS__);  \
+    }                                                                       \
+} reg_kernels_ ## algorithm;
+
 #endif // !YACCLAB_REGISTER_H_

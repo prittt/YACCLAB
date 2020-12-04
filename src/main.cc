@@ -59,7 +59,6 @@ int main()
     redirectError(RedirectCvError);
 #else
     cvRedirectError(RedirectCvError);
-    cvRedirectError(RedirectCvError);
 #endif
 
     // Hide cursor from console
@@ -127,6 +126,10 @@ int main()
 			if (mode_cfg.perform_check_8connectivity_mem) {
 				test_perf.CheckPerformLabelingMem();
 			}
+
+            if (mode_cfg.perform_check_8connectivity_bs) {
+                test_perf.CheckPerformLabelingBlocksize();
+            }
 		}
 
 		// Average test
@@ -148,10 +151,16 @@ int main()
 		if (mode_cfg.perform_granularity) {
 			test_perf.GranularityTest();
 		}
+
 		// Memory test
 		if (mode_cfg.perform_memory) {
 			test_perf.MemoryTest();
 		}
+
+        // Block size grid search
+        if (mode_cfg.perform_blocksize) {
+            test_perf.BlockSizeTest();
+        }
 
         // There should be better places for this
 		//LabelingMapSingleton::GetLabeling(mode_cfg.ccl_existing_algorithms[0])->GetInput()->Release();

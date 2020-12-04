@@ -288,6 +288,22 @@ public:
 		cudaDeviceSynchronize();
 	}
 
+	void PerformLabelingBlocksize(int x, int y, int z) override {
+
+		d_img_labels_.create(d_img_.size(), CV_32SC1);
+
+		grid_size_ = dim3((((d_img_.cols + 1) / 2) + x - 1) / x, (((d_img_.rows + 1) / 2) + y - 1) / y, 1);
+		block_size_ = dim3(x, y, 1);
+
+		BLOCKSIZE_KERNEL(InitLabeling, grid_size_, block_size_, 0, d_img_labels_)
+
+		BLOCKSIZE_KERNEL(Merge, grid_size_, block_size_, 0, d_img_, d_img_labels_)
+
+		BLOCKSIZE_KERNEL(Compression, grid_size_, block_size_, 0, d_img_labels_)
+
+		BLOCKSIZE_KERNEL(FinalLabeling, grid_size_, block_size_, 0, d_img_, d_img_labels_)
+	}
+
 
 private:
 	void Alloc() {
@@ -360,3 +376,5 @@ public:
 };
 
 REGISTER_LABELING(C_DRAG);
+
+REGISTER_KERNELS(C_DRAG, InitLabeling, Merge, Compression, FinalLabeling)
