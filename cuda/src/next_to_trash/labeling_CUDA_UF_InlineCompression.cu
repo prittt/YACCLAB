@@ -1,3 +1,9 @@
+// Copyright (c) 2020, the YACCLAB contributors, as 
+// shown by the AUTHORS file. All rights reserved.
+//
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 #include <opencv2/cudafeatures2d.hpp>
 
 #include "cuda_runtime.h"
@@ -6,9 +12,9 @@
 #include "labeling_algorithms.h"
 #include "register.h"
 
-// Questo algoritmo è una modifica dell' Union Find (BUF) che esegue usa la FindAndCompress al posto della 
+// Questo algoritmo ï¿½ una modifica dell' Union Find (BUF) che esegue usa la FindAndCompress al posto della 
 // find usata dall'UF. La FindAndCompress aggiorna la label del pixel di partenza ad ogni iterazione della 
-// procedura di ricerca della label root. Ovvert se l'albero di equivalenza è così costruito: 
+// procedura di ricerca della label root. Ovvert se l'albero di equivalenza ï¿½ cosï¿½ costruito: 
 
 //       A
 //     /
@@ -17,10 +23,10 @@
 //  C
 
 // allora all prima iterazione aggiorno la label di C sostituendola con B e all'iterazione successiva con A.
-// In questo modo se un altro thread legge il mio valore a metà trova già B ed evita un passaggio. Funziona meglio 
+// In questo modo se un altro thread legge il mio valore a metï¿½ trova giï¿½ B ed evita un passaggio. Funziona meglio 
 // dell'UF. 
 
-// Il minimo per entrambi è 4
+// Il minimo per entrambi ï¿½ 4
 #define BLOCK_ROWS 16
 #define BLOCK_COLS 16
 
@@ -162,7 +168,7 @@ namespace {
                 unsigned f_row = f / BLOCK_COLS;
                 unsigned f_col = f % BLOCK_COLS;
                 unsigned global_f = (blockIdx.y * BLOCK_ROWS + f_row) * (labels.step / labels.elem_size) + (blockIdx.x * BLOCK_COLS + f_col);
-                labels.data[global_row * labels.step / sizeof(int) + global_col] = global_f + 1;		// C'è distinzione tra background e foreground
+                labels.data[global_row * labels.step / sizeof(int) + global_col] = global_f + 1;		// C'ï¿½ distinzione tra background e foreground
             }
 
             else {

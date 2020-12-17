@@ -1,3 +1,9 @@
+// Copyright (c) 2020, the YACCLAB contributors, as 
+// shown by the AUTHORS file. All rights reserved.
+//
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 #include <opencv2/core.hpp>
 
 #include "labeling_algorithms.h"
@@ -18,11 +24,11 @@
 #include <opencv2/cudafeatures2d.hpp>
 #include <map>
 
-// Questo algoritmo è una modifica del Block Union Find (BUF) che esegue le operazioni in due livelli (stage). 
+// Questo algoritmo ï¿½ una modifica del Block Union Find (BUF) che esegue le operazioni in due livelli (stage). 
 // Inizialmente esegue le operazioni nel blocco usando la shared memory e poi merga le etichette sui bordi dei 
 // blocchi. Varie prove hanno mostrato che sulla quadro va peggio della versione BUF.
 
-// Il minimo per entrambi è 4
+// Il minimo per entrambi ï¿½ 4
 #define BLOCK_ROWS 32
 #define BLOCK_COLS 32
 
