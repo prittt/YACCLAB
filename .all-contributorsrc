@@ -71,6 +71,15 @@
         "code",
         "platform"
       ]
+    },
+    {
+      "login": "msoechting",
+      "name": "Maximilian Söchting",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/6423697?v=4",
+      "profile": "http://msoechting.de",
+      "contributions": [
+        "code"
+      ]
     }
   ]
 }
