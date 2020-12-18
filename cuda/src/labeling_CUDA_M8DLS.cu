@@ -1,3 +1,9 @@
+// Copyright (c) 2020, the YACCLAB contributors, as 
+// shown by the AUTHORS file. All rights reserved.
+//
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 #include <opencv2/cudafeatures2d.hpp>
 
 #include "cuda_runtime.h"
@@ -12,7 +18,7 @@
 // We e-mailed the authors, but they wouldn't answer.
 
 
-// Modifica dell' 8DLS (8 Directional Label equivalence Solution). La modifica proposta rispetto a DLS non è chiara, da quello che 
+// Modifica dell' 8DLS (8 Directional Label equivalence Solution). La modifica proposta rispetto a DLS non ï¿½ chiara, da quello che 
 // abbiamo capito dal paper non sempre porta alla soluzione corretta. Abbiamo scritto una mail agli autori, attendiamo risposta.
 
 
