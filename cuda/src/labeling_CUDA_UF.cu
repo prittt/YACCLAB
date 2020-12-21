@@ -1,3 +1,9 @@
+// Copyright (c) 2020, the YACCLAB contributors, as 
+// shown by the AUTHORS file. All rights reserved.
+//
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 #include <opencv2/cudafeatures2d.hpp>
 
 #include "cuda_runtime.h"
@@ -127,7 +133,7 @@ namespace {
 				unsigned f_row = f / blockDim.x;
 				unsigned f_col = f % blockDim.x;
 				unsigned global_f = (blockIdx.y * BLOCK_ROWS + f_row) * (labels.step / labels.elem_size) + (blockIdx.x * blockDim.x + f_col);
-				labels.data[global_row * labels.step / sizeof(int) + global_col] = global_f + 1;		// C'è distinzione tra background e foreground
+				labels.data[global_row * labels.step / sizeof(int) + global_col] = global_f + 1;		// C'ï¿½ distinzione tra background e foreground
 			}
 
 			else {
@@ -203,7 +209,7 @@ namespace {
 				unsigned f_row = f / blockDim.x;
 				unsigned f_col = f % blockDim.x;
 				unsigned global_f = (blockIdx.y * blockDim.y + f_row) * (labels.step / labels.elem_size) + (blockIdx.x * blockDim.x + f_col);
-				labels.data[global_row * labels.step / sizeof(int) + global_col] = global_f + 1;		// C'è distinzione tra background e foreground
+				labels.data[global_row * labels.step / sizeof(int) + global_col] = global_f + 1;		// C'Ã¨ distinzione tra background e foreground
 			}
 
 			else {

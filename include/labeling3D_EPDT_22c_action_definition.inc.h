@@ -1,3 +1,15 @@
+// Copyright (c) 2020, the YACCLAB contributors, as 
+// shown by the AUTHORS file, plus additional authors
+// listed below. All rights reserved.
+//
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+//
+// Additional Authors:
+// Maximilian Soechting
+// Hasso Plattner Institute
+// University of Potsdam, Germany
+
 // Action 0: nothing
 #define ACTION_0 img_labels_slice00_row00[c] = 0;continue;
 // Action 1: x<-newlabel

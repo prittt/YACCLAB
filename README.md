@@ -1,7 +1,7 @@
 # Yet Another Connected Components Labeling Benchmark
 [![release](https://img.shields.io/github/v/release/prittt/YACCLAB)](https://github.com/prittt/YACCLAB/releases/latest/)
 [![license](https://img.shields.io/github/license/prittt/YACCLAB)](https://github.com/prittt/YACCLAB/blob/master/LICENSE)<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![contributors](https://img.shields.io/badge/all_contributors-5-orange.svg?style=flat)](#contributors)
+[![contributors](https://img.shields.io/badge/all_contributors-6-orange.svg?style=flat)](#contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 
@@ -794,6 +794,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://github.com/CostantinoGrana"><img src="https://avatars2.githubusercontent.com/u/18437151?v=1" width="100px;" alt=""/><br /><sub><b>Costantino Grana</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/commits?author=CostantinoGrana" title="Code">💻</a> <a href="#projectManagement-CostantinoGrana" title="Project Management">📆</a> <a href="#ideas-CostantinoGrana" title="Ideas, Planning, & Feedback">🤔</a> <a href="#infra-CostantinoGrana" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
     <td align="center"><a href="https://michelecancilla.github.io"><img src="https://avatars1.githubusercontent.com/u/22983812?v=4" width="100px;" alt=""/><br /><sub><b>Michele Cancilla</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/commits?author=MicheleCancilla" title="Code">💻</a> <a href="#platform-MicheleCancilla" title="Packaging/porting to new platform">📦</a> <a href="#maintenance-MicheleCancilla" title="Maintenance">🚧</a></td>
     <td align="center"><a href="http://www.lorenzobaraldi.com"><img src="https://avatars3.githubusercontent.com/u/8173533?v=4" width="100px;" alt=""/><br /><sub><b>Lorenzo Baraldi</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/commits?author=baraldilorenzo" title="Code">💻</a> <a href="#platform-baraldilorenzo" title="Packaging/porting to new platform">📦</a></td>
+    <td align="center"><a href="http://msoechting.de"><img src="https://avatars1.githubusercontent.com/u/6423697?v=4" width="100px;" alt=""/><br /><sub><b>Maximilian Söchting</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/commits?author=msoechting" title="Code">💻</a></td>
   </tr>
 </table>
 

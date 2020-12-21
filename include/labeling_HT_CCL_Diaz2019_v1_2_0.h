@@ -1,36 +1,18 @@
-// Copyright(c) 2019 
-/*\author{ Fernando Diaz - del - Rio, Pablo Sanchez - Cuevas }
-\address{ Department of Computer Architecture and Technology.
-University  of Seville.Spain. }
-\author{ Helena Molina - Abril, Pedro Real }
-\address{ Department of Applied Mathematics I.University  of Seville.Spain. }
-*/
-// All rights reserved.
+// Copyright (c) 2020, the YACCLAB contributors, as 
+// shown by the AUTHORS file, plus additional authors
+// listed below. All rights reserved.
 //
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are met :
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
 //
-// *Redistributions of source code must retain the above copyright notice, this
-// list of conditions and the following disclaimer.
-//
-// * Redistributions in binary form must reproduce the above copyright notice,
-// this list of conditions and the following disclaimer in the documentation
-// and / or other materials provided with the distribution.
-//
-// * Neither the name of YACCLAB nor the names of its
-// contributors may be used to endorse or promote products derived from
-// this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-// DISCLAIMED.IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-// FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-// DAMAGES(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-// OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// Additional Authors:
+// Fernando Diaz-del-Rio, Pablo Sanchez-Cuevas
+// Department of Computer Architecture and Technology
+// University of Seville, Spain
+// 
+// Helena Molina-Abril, Pedro Real
+// Department of Applied Mathematics I
+// University of Seville, Spain.
 
 #ifndef YACCLAB_LABELING_CCLHSF_H_
 #define YACCLAB_LABELING_CCLHSF_H_
@@ -302,9 +284,9 @@ void init_2LookUpTables_and_infection_process(const cv::Mat1b &I, cv::Mat1i &J, 
 				RowColType U = img_row_pre[c];
 
 				JumpType *pjump_rc = &(imgJump_row[c]); //@ it is faster than pjump_rc++ ?
-				JumpType jump_rc = BG_lookup_table_2neighb(Le, U); //  priority: : +1 for FG;  -1 for BG  // 1º load  
+				JumpType jump_rc = BG_lookup_table_2neighb(Le, U); //  priority: : +1 for FG;  -1 for BG  // 1ï¿½ load  
 				if (jump_rc != 0) {
-					JumpType other_jump = *(pjump_rc + jump_rc); // 2º load  
+					JumpType other_jump = *(pjump_rc + jump_rc); // 2ï¿½ load  
 																 // a little faster using conditional code here
 #ifdef DEBUG_INNER_STATISTICS
 					int cond1 = (other_jump != 0);
@@ -312,7 +294,7 @@ void init_2LookUpTables_and_infection_process(const cv::Mat1b &I, cv::Mat1i &J, 
 #endif
 					JumpType total_jump = jump_rc + (other_jump);  // NO LOAD   
 												
-					*pjump_rc = total_jump;  // 1º store with if  /*	instead of if() version  ... see below 
+					*pjump_rc = total_jump;  // 1ï¿½ store with if  /*	instead of if() version  ... see below 
 				}
 				else {
 					*pjump_rc = 0;
@@ -341,12 +323,12 @@ void init_2LookUpTables_and_infection_process(const cv::Mat1b &I, cv::Mat1i &J, 
 				RowColType D = img_row_fol[c];
 
 				JumpType *pjump_rc = &(imgJump_row[c]); //@ it is faster than pjump_rc-- ?
-				JumpType jump_rc = FG_lookup_table_3neighb(R, RD, D); //  priority: : +1 for FG;  -1 for BG ;  // 1º load  
+				JumpType jump_rc = FG_lookup_table_3neighb(R, RD, D); //  priority: : +1 for FG;  -1 for BG ;  // 1ï¿½ load  
 
 				if (jump_rc != 0) {
-					JumpType other_jump = *(pjump_rc + jump_rc); // 2º load  
+					JumpType other_jump = *(pjump_rc + jump_rc); // 2ï¿½ load  
 					JumpType total_jump = jump_rc + (other_jump);  // NO LOAD   
-					*pjump_rc = total_jump;  // 1º store with if  /*	instead of if() version 
+					*pjump_rc = total_jump;  // 1ï¿½ store with if  /*	instead of if() version 
 				}
 				else {
 					*pjump_rc = 0;
@@ -438,8 +420,8 @@ void J_computation(cv::Mat1i &J, struct listaPadres* lista, int id, int trozo) {
    // forward travelling  or run promotes BG pixel jumps in a sequential fashion !
 		for (int c = 0; c < N_COLS; c++) {
 			JumpType *pjump_rc = &(imgJump_row[c]); //@ it is faster than pjump_rc++ ?
-			JumpType jump_rc = *pjump_rc;  // 1º load  
-			JumpType other_jump = *(pjump_rc + jump_rc); // 2º load  
+			JumpType jump_rc = *pjump_rc;  // 1ï¿½ load  
+			JumpType other_jump = *(pjump_rc + jump_rc); // 2ï¿½ load  
 			  // a little faster using conditional code here
 			int cond1 = (other_jump != 0);
 
@@ -448,7 +430,7 @@ void J_computation(cv::Mat1i &J, struct listaPadres* lista, int id, int trozo) {
 #endif
 
 			JumpType total_jump = jump_rc + (other_jump);  // NO LOAD   
-			*pjump_rc = total_jump;  // 1º store with if 
+			*pjump_rc = total_jump;  // 1ï¿½ store with if 
 		}
 	} // endof   for (int r = 0; r < N_ROWS; r++)  
 
@@ -459,8 +441,8 @@ void J_computation(cv::Mat1i &J, struct listaPadres* lista, int id, int trozo) {
 													   // reverse travelling  or run promotes FG pixel jumps in a sequential fashion !
 		for (int c = N_COLS - 1; c >= 0; c--) {
 			JumpType *pjump_rc = &(imgJump_row[c]); //@ it is faster than pjump_rc-- ?
-			JumpType jump_rc = *pjump_rc;  // 1º load  
-			JumpType other_jump = *(pjump_rc + jump_rc); // 2º load  
+			JumpType jump_rc = *pjump_rc;  // 1ï¿½ load  
+			JumpType other_jump = *(pjump_rc + jump_rc); // 2ï¿½ load  
 
     // a little faster using conditional code here
 			int cond1 = (other_jump != 0);
@@ -468,7 +450,7 @@ void J_computation(cv::Mat1i &J, struct listaPadres* lista, int id, int trozo) {
 			flag_any_change += cond1;
 #endif
 			JumpType total_jump = jump_rc + (other_jump * (cond1));  // NO LOAD  
-			*pjump_rc = total_jump;  // 1º store with if 
+			*pjump_rc = total_jump;  // 1ï¿½ store with if 
 		}
 	} // endof   for (int r = 0; r < N_ROWS; r++)  
 
@@ -503,8 +485,8 @@ void Jonly_infection_process_original(cv::Mat1i &J, struct listaPadres* lista, i
 														   // forward travelling  or run promotes BG pixel jumps in a sequential fashion !
 			for (int c = 0; c < N_COLS; c++) {
 				JumpType *pjump_rc = &(imgJump_row[c]); //@ it is faster than pjump_rc++ ?
-				JumpType jump_rc = *pjump_rc;  // 1º load  
-				JumpType other_jump = *(pjump_rc + jump_rc); // 2º load  
+				JumpType jump_rc = *pjump_rc;  // 1ï¿½ load  
+				JumpType other_jump = *(pjump_rc + jump_rc); // 2ï¿½ load  
 
 															 // a little faster using conditional code here
 				int cond1 = (other_jump != 0);
@@ -516,14 +498,14 @@ void Jonly_infection_process_original(cv::Mat1i &J, struct listaPadres* lista, i
 				JumpType total_jump = jump_rc + (other_jump);  // NO LOAD   
 				numCambios = (total_jump != jump_rc) ? (numCambios + 1) : (numCambios);
 				//JumpType total_jump = jump_rc + (other_jump * (cond1));  // note that it is not necessary the product
-				*pjump_rc = total_jump;  // 1º store with if 
+				*pjump_rc = total_jump;  // 1ï¿½ store with if 
 
 			}
 			// reverse travelling  or run promotes FG pixel jumps in a sequential fashion !
 			for (int c = N_COLS - 1; c >= 0; c--) {
 				JumpType *pjump_rc = &(imgJump_row[c]); //@ it is faster than pjump_rc-- ?
-				JumpType jump_rc = *pjump_rc;  // 1º load  
-				JumpType other_jump = *(pjump_rc + jump_rc); // 2º load  
+				JumpType jump_rc = *pjump_rc;  // 1ï¿½ load  
+				JumpType other_jump = *(pjump_rc + jump_rc); // 2ï¿½ load  
 
 															 // a little faster using conditional code here
 				int cond1 = (other_jump != 0);
@@ -532,7 +514,7 @@ void Jonly_infection_process_original(cv::Mat1i &J, struct listaPadres* lista, i
 #endif
 				JumpType total_jump = jump_rc + (other_jump * (cond1));  // NO LOAD  
 				numCambios = (total_jump != jump_rc) ? (numCambios + 1) : (numCambios);
-				*pjump_rc = total_jump;  // 1º store with if 
+				*pjump_rc = total_jump;  // 1ï¿½ store with if 
 			}
 		} // endof   for (int r = 0; r < N_ROWS; r++)  
 
@@ -667,11 +649,11 @@ unsigned Labelling_only(const cv::Mat1b* I, cv::Mat1i* J, cv::Mat1i* L, int id, 
 			int *pLabels_rc = &(imgLabels_row[c]); //@ it is faster than pjump_rc++ ?
 
 
-			JumpType jump_rc = *pjump_rc;  // 1º load  
+			JumpType jump_rc = *pjump_rc;  // 1ï¿½ load  
 
 			total_nof_FG_labels += (jump_rc == 0 && *pI_rc == FG);
 
-			{  // 2º load  // Labels L for possible critical cells were written at the init()
+			{  // 2ï¿½ load  // Labels L for possible critical cells were written at the init()
 #ifdef DEBUG_INNER_STATISTICS
 				nof_non_critical_FG_pixels++;
 #endif
@@ -679,7 +661,7 @@ unsigned Labelling_only(const cv::Mat1b* I, cv::Mat1i* J, cv::Mat1i* L, int id, 
 				JumpType *pprevious_jump = pjump_rc + jump_rc; //&
 
 				JumpType previous_jump = jump_rc;//&
-				JumpType new_jump = *(pnew_jump); //  3º load  //&
+				JumpType new_jump = *(pnew_jump); //  3ï¿½ load  //&
 
 				JumpType sum_jumps_rc = new_jump + previous_jump; //& total sum to do the final label assignment after the while loop
 
@@ -706,8 +688,8 @@ unsigned Labelling_only(const cv::Mat1b* I, cv::Mat1i* J, cv::Mat1i* L, int id, 
 #endif
 				}
 
-				*pLabels_rc = label_rc_00 + sum_jumps_rc; //& //1º store @ this must be recomputed according to the nof threads 
-														  // also sth like: L[r][c] = (pjump_rc - &J[0][0] ) + jump_rc; //1º store @ this must be recomputed according to the nof threads 
+				*pLabels_rc = label_rc_00 + sum_jumps_rc; //& //1ï¿½ store @ this must be recomputed according to the nof threads 
+														  // also sth like: L[r][c] = (pjump_rc - &J[0][0] ) + jump_rc; //1ï¿½ store @ this must be recomputed according to the nof threads 
 
 			}  //end of if (jump_rc != 0 && I[r][c] == FG) {  
 			label_rc_00++;  // @ this must be recomputed according to the nof threads
@@ -1052,10 +1034,10 @@ int Jonly_transports_lots_of_searches(int R_SHIFT_SEARCH, int C_SHIFT_SEARCH, in
 			JumpType *pjump_rc = &(imgJump_row[c]);
 			JumpType jump_rc = lista->saltos[k];
 
-			if (jump_rc == 0) {  // 2º load  if it were a FG critical cell
+			if (jump_rc == 0) {  // 2ï¿½ load  if it were a FG critical cell
 
 				if (((c + C_SHIFT_SEARCH) < N_COLS) && ((r + R_SHIFT_SEARCH) < N_ROWS)) {   //(( @ NO BORDERS //%CHECK 1
-					JumpType other_color_jump = *(pjump_rc + C_SHIFT_SEARCH + N_COLS * R_SHIFT_SEARCH); // 3º load  
+					JumpType other_color_jump = *(pjump_rc + C_SHIFT_SEARCH + N_COLS * R_SHIFT_SEARCH); // 3ï¿½ load  
 					JumpType *pother_color_crit_cell = (pjump_rc + C_SHIFT_SEARCH + N_COLS * R_SHIFT_SEARCH) + other_color_jump;
 					//now the *pother_color_crit_cell may not be zero , that is the BG area may fall into a previously deleted critical cells. Thus, inner jumps until a zero were found are necessary:
 					JumpType jump_other_color_crit_cell = *pother_color_crit_cell;
@@ -1099,7 +1081,7 @@ int Jonly_transports_lots_of_searches(int R_SHIFT_SEARCH, int C_SHIFT_SEARCH, in
 						{ //(((@ NO_BORDERS_ADDITIONAL 
 
 						  // normal case: not in   borders:
-							other_color_jump_backwards = *(pnew_other_color_crit_cell - C_SHIFT_SEARCH - N_COLS * R_SHIFT_SEARCH); // 4º load  
+							other_color_jump_backwards = *(pnew_other_color_crit_cell - C_SHIFT_SEARCH - N_COLS * R_SHIFT_SEARCH); // 4ï¿½ load  
 							pother_color_jump_backwards = (pnew_other_color_crit_cell - C_SHIFT_SEARCH - N_COLS * R_SHIFT_SEARCH) + other_color_jump_backwards;
 
 							//now the *pother_color_jump_backwards may not be zero , that is the FG area may fall into a previously deleted critical cells. 
@@ -1127,13 +1109,13 @@ int Jonly_transports_lots_of_searches(int R_SHIFT_SEARCH, int C_SHIFT_SEARCH, in
 																				// checking the BG crit. cell that is "below" the FG crit. cell  :   //(((@ NO_BORDERS_ADDITIONAL
 								if (((c - C_SHIFT_NEW_ROOT) < N_COLS) && ((r - R_SHIFT_NEW_ROOT) < N_ROWS)) { //(((@ NO BORDERS  //%CHECK 4a
 																											  // the deleted BG crit. cell is written with:
-									JumpType * pother_color_new_root_origin = (pjump_rc - C_SHIFT_NEW_ROOT - N_COLS * R_SHIFT_NEW_ROOT); // 5º load  
+									JumpType * pother_color_new_root_origin = (pjump_rc - C_SHIFT_NEW_ROOT - N_COLS * R_SHIFT_NEW_ROOT); // 5ï¿½ load  
 									JumpType sum_jump_other_color_new_root;
 									JumpType * pnew_other_color_crit_cell_destin = travel_inside_J(pother_color_new_root_origin, *pother_color_new_root_origin, &sum_jump_other_color_new_root);
 
-									JumpType new_value = static_cast<JumpType>(sum_jump_other_color_new_root + (pother_color_new_root_origin - pnew_other_color_crit_cell));	// 2º store with if 
+									JumpType new_value = static_cast<JumpType>(sum_jump_other_color_new_root + (pother_color_new_root_origin - pnew_other_color_crit_cell));	// 2ï¿½ store with if 
 
-									*pnew_other_color_crit_cell = new_value; // 2º store with if 
+									*pnew_other_color_crit_cell = new_value; // 2ï¿½ store with if 
 																			 // there can be considered transport only when the new value to be written in this crit. cell is not zero 
 									nof_BG_transports += (new_value != 0);
 								}
@@ -1149,12 +1131,12 @@ int Jonly_transports_lots_of_searches(int R_SHIFT_SEARCH, int C_SHIFT_SEARCH, in
 									)
 								{ //(((@ NO BORDERS //%CHECK 4b
 								  //the deleted FG crit. cell is written with
-									JumpType * pnew_root_origin = (pnew_other_color_crit_cell + C_SHIFT_NEW_ROOT + N_COLS * R_SHIFT_NEW_ROOT); // 5º load  
+									JumpType * pnew_root_origin = (pnew_other_color_crit_cell + C_SHIFT_NEW_ROOT + N_COLS * R_SHIFT_NEW_ROOT); // 5ï¿½ load  
 									JumpType sum_jump_new_root;
 									JumpType * pnew_crit_cell_destin = travel_inside_J(pnew_root_origin, *pnew_root_origin, &sum_jump_new_root);
 									JumpType new_value = static_cast<JumpType>(sum_jump_new_root - (pjump_rc - pnew_root_origin));
 
-									*pjump_rc = new_value; //// 1º store with if ç
+									*pjump_rc = new_value; //// 1ï¿½ store with if ï¿½
 									lista->saltos[k] = new_value;
 									// there can be considered transport only when the new value to be written in this crit. cell is not zero 
 									nof_FG_transports += (new_value != 0);
@@ -1167,7 +1149,7 @@ int Jonly_transports_lots_of_searches(int R_SHIFT_SEARCH, int C_SHIFT_SEARCH, in
 
 					}   //endof if (((c + C_SHIFT_SEARCH) < N_COLS) && ((r + R_SHIFT_SEARCH) < N_ROWS)) 
 
-				} // endof if (jump_rc == 0 && I[r][c] == FG) {  // 2º load  if it were a FG critical cell
+				} // endof if (jump_rc == 0 && I[r][c] == FG) {  // 2ï¿½ load  if it were a FG critical cell
 			}
 		} // endof   for (int r = 0; r < N_ROWS; r++)  
 	}

@@ -1,3 +1,9 @@
+// Copyright (c) 2020, the YACCLAB contributors, as 
+// shown by the AUTHORS file. All rights reserved.
+//
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 tree_0: if ((c+=2) >= w - 2) { if (c > w - 2) { goto break_0_0; } else { goto break_1_0; } } 
 		if (CONDITION_O) {
 			NODE_1:
