@@ -759,7 +759,7 @@ This project follows the [all-contributors](https://github.com/all-contributors/
       <a name="PRED">[9]</a>
     </td>
     <td>
-      <p align="justify">C. Grana, L. Baraldi, and F. Bolelli, "Optimized Connected Components Labeling  with  Pixel  Prediction," in Advanced  Concepts  for  Intelligent Vision Systems, 2016.</p>
+      <p align="justify">C. Grana, L. Baraldi, and F. Bolelli, "Optimized Connected Components Labeling with Pixel Prediction," in Advanced  Concepts  for  Intelligent Vision Systems, 2016, pp. 431-440.</p>
     </td>
 </tr>
 <tr>
@@ -871,7 +871,7 @@ This project follows the [all-contributors](https://github.com/all-contributors/
       <a name="DRAG">[23]</a>
     </td>
     <td>
-      <p align="justify">F. Bolelli, L. Baraldi, M. Cancilla, C. Grana, "Connected Components Labeling on DRAGs," in International Conference on Pattern Recognition, 2018.</p>
+      <p align="justify">F. Bolelli, L. Baraldi, M. Cancilla, C. Grana, "Connected Components Labeling on DRAGs," in International Conference on Pattern Recognition, 2018, pp. 121-126.</p>
     </td>
 </tr>
 <tr>
@@ -887,7 +887,7 @@ This project follows the [all-contributors](https://github.com/all-contributors/
       <a name="SPAGHETTI">[26]</a>
     </td>
     <td>
-      <p align="justify">F. Bolelli, S. Allegretti, L. Baraldi, C. Grana, "Spaghetti Labeling: Directed Acyclic Graphs for Block-Based Connected Components Labeling," IEEE Transactions on Image Processing, 2019.</p>
+      <p align="justify">F. Bolelli, S. Allegretti, L. Baraldi, and C. Grana, "Spaghetti Labeling: Directed Acyclic Graphs for Block-Based Bonnected Components Labeling," IEEE Transactions on Image Processing, vol. 29, no. 1, pp. 1999-2012, 2019.</p>
     </td>
 </tr>
 <tr>
