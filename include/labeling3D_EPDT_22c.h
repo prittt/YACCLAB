@@ -47,7 +47,7 @@
 #include "labeling3D_EPDT_22c_action_definition.inc.h"
 
 template <typename LabelsSolver>
-class EPDT_3D_22c : public Labeling3D<CONN_26> {
+class EPDT_3D_22c : public Labeling3D<Connectivity3D::CONN_26> {
 public:
 	EPDT_3D_22c() {}
 
