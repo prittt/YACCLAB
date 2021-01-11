@@ -3,7 +3,7 @@
 <p align="justify">
 This README is intended to describe how to configure <a href="https://github.com/prittt/YACCLAB/releases/tag/v3.1">YACCLAB v3.1</a> to reproduce the experimental results reportod in the paper <a href="https://prittt.github.io/pub_files/2021icpr_labeling.pdf">A Heuristic-Based Decision Tree for Connected Components Labeling of 3D Volumes</a>
 presented @ <a href="https://www.micc.unifi.it/icpr2020/">ICPR2020</a>.
-</p><img src="doc/RRLPR.png"/>
+</p><img src="RRLPR.png"/>
 
 <p align="justify">
 Results that can be reproduced are the ones reported in TABLE II, TABLE III, and Fig. 6 of the paper. Experimental results reported in TABLE II and Fig. 6 can be affected by the environment employed for testing the algorithms. In particular, cache size and RAM speed can change absolute results while preserving relative performance. Operative System and compiler are likely to heavily influence the outcome. Numbers reported in TABLE III, instead, should be totally independent from the chosen environment.
