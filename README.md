@@ -250,7 +250,7 @@ Notes for gnuplot:
     <td align="center">NO</td>
   </tr>
 <tr>
-    <td align="center">Entropy Partitioning Decision Tree</td>
+    <td align="center">Entropy Partitioning Decision Tree - <a href="https://github.com/prittt/YACCLAB/tree/master/doc/EPDT">RLPR</a></td>
     <td align="center">M. Söchting,</br>S. Allegretti,</br>F. Bolelli,</br>C. Grana <a href="#EPDT">[31]</a></td>
     <td align="center">2021</td>
     <td align="center">EPDT_19c and EPDT_22c<a href="#VI"><sup>VI</sup></a></td>
