@@ -77,6 +77,10 @@ YACCLAB is an open source <i>C++</i> project that enables researchers to test CC
 Notice that 8-connectivity is always used in the project.
 </p>
 
+## Reproducible Research
+
+<p align="justify">This project follows the Reproducible Research paradigms and received the <a href="https://github.com/RLPR">Reproducible Label in Pattern Recognition (RLPR)</a>.</p><img style="float: right;" src="/doc/EPDT/RRLPR.png">
+
 ## Requirements
 
 <p align="justify">
