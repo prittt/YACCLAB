@@ -281,7 +281,7 @@ Notes for gnuplot:
     <td align="center">V. Oliveira,</br>R. Lotufo <a href="#UF">[18]</a></td>
     <td align="center">2010</td>
     <td align="center">UF</td>
-    <td align="center"><i>labeling_CUDA_UF.cu</i></td>
+    <td align="center"><i>labeling_oliveira_2010.cu</i></td>
     <td align="center">NO</td>
   </tr>
   <tr>
@@ -289,7 +289,15 @@ Notes for gnuplot:
     <td align="center">O. Kalentev,</br>A. Rai,</br>S. Kemnitz,</br>R. Schneider <a href="#OLE">[19]</a></td>
     <td align="center">2011</td>
     <td align="center">OLE</td>
-    <td align="center"><i>labeling_CUDA_OLE.cu</i></td>
+    <td align="center"><i>labeling_kalentev_2011.cu</i></td>
+    <td align="center">NO</td>
+  </tr>
+    <tr>
+    <td align="center">Block-run-based</td>
+    <td align="center">P. Chen,</br>H.L. Zhao,</br>C. Tao,</br>H.S. Sang<a href="#BRB">[32]</a></td>
+    <td align="center">2011</td>
+    <td align="center">BRB</td>
+    <td align="center"><i>labeling_chen_2011.cu</i></td>
     <td align="center">NO</td>
   </tr>
   <tr>
@@ -297,7 +305,7 @@ Notes for gnuplot:
     <td align="center">S. Zavalishin,</br>I. Safonov,</br>Y. Bekhtin,</br>I. Kurilin <a href="#BE">[20]</a></td>
     <td align="center">2016</td>
     <td align="center">BE</td>
-    <td align="center"><i>labeling_CUDA_BE.cu</i></td>
+    <td align="center"><i>labeling_zavalishin_2016.cu</i></td>
     <td align="center">NO</td>
   </tr>
   <tr>
@@ -305,31 +313,31 @@ Notes for gnuplot:
     <td align="center">L. Cabaret,</br>L. Lacassagne,</br>D. Etiemble <a href="#DLP">[21]</a></td>
     <td align="center">2017</td>
     <td align="center">DLP</td>
-    <td align="center"><i>labeling_CUDA_DLP.cu</i></td>
+    <td align="center"><i>labeling_cabaret_2017.cu</i></td>
     <td align="center">NO</td>
   </tr>
   <tr>
     <td align="center">CUDA SAUF</td>
     <td align="center">S. Allegretti,</br>F. Bolelli,</br>M. Cancilla,</br>C. Grana <a href="#CAIP">[29]</a></td>
-    <td align="center">-</td>
+    <td align="center">2019</td>
     <td align="center">C-SAUF</td>
-    <td align="center"><i>labeling_CUDA_SAUF.cu</i>,</br><i>labeling_wu_2009_tree.inc</i></td>
+    <td align="center"><i>labeling_allegretti_2019_SAUF.cu</i>,</br><i>labeling_wu_2009_tree.inc</i></td>
     <td align="center">NO</td>
   </tr>
   <tr>
     <td align="center">CUDA BBDT</td>
     <td align="center">S. Allegretti,</br>F. Bolelli,</br>M. Cancilla,</br>C. Grana <a href="#CAIP">[29]</a></td>
-    <td align="center">-</td>
+    <td align="center">2019</td>
     <td align="center">C-BBDT</td>
-    <td align="center"><i>labeling_CUDA_BBDT.cu</i>, <i>labeling_grana_2010_tree.inc</i></td>
+    <td align="center"><i>labeling_allegretti_2019_BBDT.cu</i>, <i>labeling_grana_2010_tree.inc</i></td>
     <td align="center">NO</td>
   </tr>
     <tr>
     <td align="center">CUDA DRAG</td>
     <td align="center">S. Allegretti,</br>F. Bolelli,</br>M. Cancilla,</br>C. Grana <a href="#CAIP">[29]</a></td>
-    <td align="center">-</td>
+    <td align="center">2019</td>
     <td align="center">C-DRAG</td>
-    <td align="center"><i>labeling_CUDA_DRAG.cu</i></td>
+    <td align="center"><i>labeling_allegretti_2019_DRAG.cu</i></td>
     <td align="center">NO</td>
   </tr>
   <tr>
@@ -337,7 +345,7 @@ Notes for gnuplot:
     <td align="center">S. Allegretti,</br>F. Bolelli,</br>C. Grana <a href="#BUF_BKE">[24]</a></td>
     <td align="center">2019</td>
     <td align="center">BUF</td>
-    <td align="center"><i>labeling_CUDA_BUF.cu</i></td>
+    <td align="center"><i>labeling_allegretti_2019_BUF.cu</i></td>
     <td align="center">NO</td>
   </tr>
     <tr>
@@ -345,7 +353,7 @@ Notes for gnuplot:
     <td align="center">S. Allegretti,</br>F. Bolelli,</br>C. Grana <a href="#BUF_BKE">[24]</a></td>
     <td align="center">2019</td>
     <td align="center">BKE</td>
-    <td align="center"><i>labeling_CUDA_BKE.cu</i></td>
+    <td align="center"><i>labeling_allegretti_2019_BKE.cu</i></td>
     <td align="center">NO</td>
   </tr>
 </table>
@@ -1049,6 +1057,15 @@ This project follows the [all-contributors](https://github.com/all-contributors/
     <td>
       <p align="justify">
 	M. Söchting, S. Allegretti, F. Bolelli, C. Grana. "A Heuristic-Based Decision Tree for Connected Components Labeling of 3D Volumes." 25th International Conference on Pattern Recognition, 2021</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="BRB">[32]</a>
+    </td>
+    <td>
+      <p align="justify">
+P. Chen, H. Zhao, C. Tao, H. Sang, "Block-run-based connected component labelling algorithm for gpgpu using shared memory." Electronics Letters, 2011</p>
     </td>
 </tr>	
 </table>
