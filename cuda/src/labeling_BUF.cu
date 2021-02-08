@@ -91,7 +91,7 @@ namespace {
 
 
     __global__ void InitLabeling(cuda::PtrStepSzi labels) {
-        unsigned row = (blockIdx.y * blockDim.z + threadIdx.y) * 2;
+        unsigned row = (blockIdx.y * blockDim.y + threadIdx.y) * 2;
         unsigned col = (blockIdx.x * blockDim.x + threadIdx.x) * 2;
         unsigned labels_index = row * (labels.step / labels.elem_size) + col;
 
@@ -102,7 +102,7 @@ namespace {
 
     __global__ void Merge(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels) {
 
-        unsigned row = (blockIdx.y * blockDim.z + threadIdx.y) * 2;
+        unsigned row = (blockIdx.y * blockDim.y + threadIdx.y) * 2;
         unsigned col = (blockIdx.x * blockDim.x + threadIdx.x) * 2;
         unsigned img_index = row * img.step + col;
         unsigned labels_index = row * (labels.step / labels.elem_size) + col;
@@ -186,7 +186,7 @@ namespace {
 
     __global__ void Compression(cuda::PtrStepSzi labels) {
 
-        unsigned row = (blockIdx.y * blockDim.z + threadIdx.y) * 2;
+        unsigned row = (blockIdx.y * blockDim.y + threadIdx.y) * 2;
         unsigned col = (blockIdx.x * blockDim.x + threadIdx.x) * 2;
         unsigned labels_index = row * (labels.step / labels.elem_size) + col;
 
@@ -198,7 +198,7 @@ namespace {
 
     __global__ void FinalLabeling(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels) {
 
-        unsigned row = (blockIdx.y * blockDim.z + threadIdx.y) * 2;
+        unsigned row = (blockIdx.y * blockDim.y + threadIdx.y) * 2;
         unsigned col = (blockIdx.x * blockDim.x + threadIdx.x) * 2;
         unsigned labels_index = row * (labels.step / labels.elem_size) + col;
         unsigned img_index = row * (img.step / img.elem_size) + col;
