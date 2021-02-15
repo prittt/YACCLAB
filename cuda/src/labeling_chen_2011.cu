@@ -3,6 +3,20 @@
 //
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
+//
+// Additional Authors:
+// P. Chen, H.L. Zhao, C. Tao and H.S. Sang
+// National Key Laboratory of Science and Technology on Multi-spectral Information Processing
+// Institute for Pattern Recognition and Artificial Intelligence, Huazhong
+// University of Science and Technology, Luoyu Road 1037, Wuhan, China
+//
+// This algorithm is described in "Block-run-based connected component labelling algorithm for GPGPU using shared memory", Chen et al., 2011
+// The algorithm imposes limits on the image size; therefore, it can only be performed on certain datasets, listed below.
+// This is the original implementation provided by the authors, and it is not optimized for YACCLAB tasks.
+//
+// WARNING: datasets available restricted to the following:
+// ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr"], except for medical/00094.png
+
 
 #include <opencv2/cudafeatures2d.hpp>
 
@@ -11,14 +25,6 @@
 
 #include "labeling_algorithms.h"
 #include "register.h"
-
-// This algorithm is described in "Block-run-based connected component labelling algorithm for GPGPU using shared memory", Chen et al., 2011
-// TODO scrivere la citazione per bene
-// The algorithm imposes limits on the image size; therefore, it can only be performed on certain datasets, listed below.
-// This is the original implementation provided by the authors, and it is not optimized for YACCLAB tasks.
-
-// WARNING: datasets available restricted to the following:
-// ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr"], except for medical/00094.png
 
 #define BLOCK_ROWS 16
 #define BLOCK_COLS 16

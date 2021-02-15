@@ -40,6 +40,8 @@ GPU 2D 8-way connectivity:
     - LBUF
     - KE
     - DLP
+    - BRB
+    - ACCL
 
   
   # Datasets to use for each test

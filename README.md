@@ -292,12 +292,20 @@ Notes for gnuplot:
     <td align="center"><i>labeling_kalentev_2011.cu</i></td>
     <td align="center">NO</td>
   </tr>
-    <tr>
+  <tr>
     <td align="center">Block-run-based</td>
     <td align="center">P. Chen,</br>H.L. Zhao,</br>C. Tao,</br>H.S. Sang<a href="#BRB">[32]</a></td>
     <td align="center">2011</td>
     <td align="center">BRB</td>
     <td align="center"><i>labeling_chen_2011.cu</i></td>
+    <td align="center">NO</td>
+  </tr>
+  <tr>
+    <td align="center">Accelerated CCL</td>
+    <td align="center">F. N. Paravecino,</br>D. Kaeli<a href="#ACCL">[33]</a></td>
+    <td align="center">2014</td>
+    <td align="center">ACCL</td>
+    <td align="center"><i>labeling_paravecino_2014.cu</i></td>
     <td align="center">NO</td>
   </tr>
   <tr>
@@ -1066,6 +1074,15 @@ This project follows the [all-contributors](https://github.com/all-contributors/
     <td>
       <p align="justify">
 P. Chen, H. Zhao, C. Tao, H. Sang, "Block-run-based connected component labelling algorithm for gpgpu using shared memory." Electronics Letters, 2011</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="ACCL">[33]</a>
+    </td>
+    <td>
+      <p align="justify">
+F. N. Paravecino, D. Kaeli, "Accelerated Connected Component Labeling Using CUDA Framework." International Conference on Computer Vision and Graphics, ICCVG, 2014</p>
     </td>
 </tr>	
 </table>

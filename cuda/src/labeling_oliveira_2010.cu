@@ -3,6 +3,11 @@
 //
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
+//
+// Additional Authors:
+// Victor M. A. Oliveira, Roberto A. Lotufo
+// Department of Computer Engineering and Industrial Automation
+// School of Electrical and Computer Engineering - UNICAMP, Campinas, Brazil
 
 #include <opencv2/cudafeatures2d.hpp>
 
