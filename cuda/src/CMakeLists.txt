@@ -32,6 +32,7 @@ target_sources(YACCLAB  PRIVATE
     labeling_UF_naive.cu
     labeling_zavalishin_2016.cu
     labeling_paravecino_2014.cu
+    labeling_hennequin_2018.cu
 
 )
 

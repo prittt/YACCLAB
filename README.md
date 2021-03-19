@@ -324,6 +324,14 @@ Notes for gnuplot:
     <td align="center"><i>labeling_cabaret_2017.cu</i></td>
     <td align="center">NO</td>
   </tr>
+    <tr>
+    <td align="center">Hardware Accelerated</br>4-connected</td>
+    <td align="center">A. Hennequin,</br>L. Lacassagne,</br>L. Cabaret,</br>Q. Meunier<a href="#HA4">[34]</a></td>
+    <td align="center">2018</td>
+    <td align="center">HA4</td>
+    <td align="center"><i>labeling_hennequin_2018.cu</i></td>
+    <td align="center">NO</td>
+  </tr>
   <tr>
     <td align="center">CUDA SAUF</td>
     <td align="center">S. Allegretti,</br>F. Bolelli,</br>M. Cancilla,</br>C. Grana <a href="#CAIP">[29]</a></td>
@@ -1083,6 +1091,15 @@ P. Chen, H. Zhao, C. Tao, H. Sang, "Block-run-based connected component labellin
     <td>
       <p align="justify">
 F. N. Paravecino, D. Kaeli, "Accelerated Connected Component Labeling Using CUDA Framework." International Conference on Computer Vision and Graphics, ICCVG, 2014</p>
+    </td>
+</tr>	
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="HA4">[34]</a>
+    </td>
+    <td>
+      <p align="justify">
+A. Hennequin, L. Lacassagne, L. Cabaret, Q. Meunier, "A new Direct Connected Component Labeling and Analysis Algorithms for GPUs", DASIP, 2018</p>
     </td>
 </tr>	
 </table>
