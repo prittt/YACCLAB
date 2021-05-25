@@ -25,6 +25,8 @@ target_sources(YACCLAB
         yacclab_tensor.cc
         labeling_sauf_4c.cc
         labeling_sauf_background.cc
+		labeling_brts.cc
+		labeling_bmrs.cc
 )
 
 
