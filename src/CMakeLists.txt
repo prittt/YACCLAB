@@ -11,6 +11,7 @@ target_sources(YACCLAB
         labeling_grana_2010.cc
         labeling_grana_2016.cc
         labeling_he_2014.cc
+        labeling_he_2008.cc
         labeling_lacassagne_2016.cc
         labeling_null.cc
         labeling_wu_2009.cc

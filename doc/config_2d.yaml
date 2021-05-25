@@ -57,6 +57,10 @@ CPU 2D 8-way connectivity:
   #  - Spaghetti_TTA
     - Spaghetti_UFPC
   #  - Spaghetti_UF
+  #  - RBTS_RemSP
+  #  - RBTS_TTA
+    - RBTS_UFPC
+  #  - RBTS_UF
   #  - LSL_STD_TTA
   #  - LSL_STD_UF
   #  - LSL_STDZ_TTA
