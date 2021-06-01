@@ -43,6 +43,8 @@ target_sources(YACCLAB
         yacclab_tensor.h        
         labeling_sauf_4c.h
         labeling_sauf_background.h
+        labeling_brts.h
+        labeling_bmrs.h
 )
 
 

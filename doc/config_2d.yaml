@@ -9,9 +9,9 @@ CPU 2D 8-way connectivity:
   perform: 
     correctness:        true
     average:            true
-    average_with_steps: false
+    average_with_steps: true
     density:            false
-    granularity:        true
+    granularity:        false
     memory:             false
     
   correctness_tests: 
@@ -29,9 +29,13 @@ CPU 2D 8-way connectivity:
   # -------------------------------------
   
   algorithms: 
+  #  - RBTS_RemSP
+  #  - RBTS_TTA
+    - RBTS_UFPC
+  #  - RBTS_UF
   #  - SAUF_RemSP
   #  - SAUF_TTA
-    - SAUF_UFPC
+  #  - SAUF_UFPC
   #  - SAUF_UF
   #  - BBDT_RemSP
   #  - BBDT_TTA
@@ -57,10 +61,6 @@ CPU 2D 8-way connectivity:
   #  - Spaghetti_TTA
     - Spaghetti_UFPC
   #  - Spaghetti_UF
-  #  - RBTS_RemSP
-  #  - RBTS_TTA
-    - RBTS_UFPC
-  #  - RBTS_UF
   #  - LSL_STD_TTA
   #  - LSL_STD_UF
   #  - LSL_STDZ_TTA
@@ -73,6 +73,15 @@ CPU 2D 8-way connectivity:
   #  - CT
   #  - SBLA
   #  - labeling_NULL
+  #  - BRTS_RemSP
+  #  - BRTS_TTA
+    - BRTS_UFPC
+  #  - BRTS_UF
+  #  - BMRS_RemSP
+  #  - BMRS_TTA
+    - BMRS_UFPC
+  #  - BMRS_UF
+  
   
   # Algorithms which require to specify a labels solver are: SAUF, BBDT, CCIT, LSL, CTB, PRED, DRAG and Spaghetti
   # Possible labels solvers are: UF, UFPC, RemSP, TTA
