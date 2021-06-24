@@ -18,8 +18,8 @@ target_sources(YACCLAB
         labeling_grana_2016.h
         labeling_grana_2016_forest.inc.h
         labeling_grana_2016_forest_0.inc.h
-        labeling_he_2008.h
         labeling_he_2014.h
+        labeling_he_2008.h
         labeling_he_2014_graph.inc.h
         labeling_lacassagne_2016.h
         labeling_lacassagne_2016_code.inc.h        
@@ -43,8 +43,8 @@ target_sources(YACCLAB
         yacclab_tensor.h        
         labeling_sauf_4c.h
         labeling_sauf_background.h
-		labeling_brts.h
-		labeling_bmrs.h
+        labeling_brts.h
+        labeling_bmrs.h
 )
 
 

@@ -27,7 +27,7 @@ target_sources(YACCLAB
         labeling_sauf_4c.cc
         labeling_sauf_background.cc
 		labeling_brts.cc
-		labeling_bmrs.cc
+        labeling_bmrs.cc
 )
 
 
