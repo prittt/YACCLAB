@@ -1,3 +1,16 @@
+// Copyright (c) 2021, the YACCLAB contributors, as 
+// shown by the AUTHORS file, plus additional authors
+// listed below. All rights reserved.
+//
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+//
+// Additional Authors:
+// Wonsang Lee
+// Department of Physics
+// Konkuk University, Korea
+
+
 #ifndef YACCLAB_LABELING_BMRS
 #define YACCLAB_LABELING_BMRS
 #include <vector>
@@ -6,7 +19,8 @@
 #include "labeling_algorithms.h"
 #include "labels_solver.h"
 #include "memory_tester.h"
-#include <intrin0.h>
+#include "bit_scan_forward.h"
+
 
 template <typename LabelsSolver>
 class BMRS : public Labeling2D<Connectivity2D::CONN_8>
@@ -457,7 +471,7 @@ private:
         unsigned long basepos = 0, bitpos = 0;
         for (;; runs++) {
             //find starting position
-            while (!_BitScanForward64(&bitpos, working_bits)) {
+            while (!YacclabBitScanForward64(&bitpos, working_bits)) {
                 bits++, basepos += 64;
                 if (bits == bit_final) {
                     runs->start_pos = (short)0xFFFF;
@@ -471,7 +485,7 @@ private:
 
             //find ending position
             working_bits = (~working_bits) & (0xFFFFFFFFFFFFFFFF << bitpos);
-            while (!_BitScanForward64(&bitpos, working_bits)) {
+            while (!YacclabBitScanForward64(&bitpos, working_bits)) {
                 bits++, basepos += 64;
                 working_bits = ~(*bits);
             }
@@ -492,7 +506,7 @@ private:
 
             for (;; runs++) {
                 //find starting position
-                while (!_BitScanForward64(&bitpos, working_bits)) {
+                while (!YacclabBitScanForward64(&bitpos, working_bits)) {
                     bits++, basepos += 64;
                     if (bits == bit_final) {
                         runs->start_pos = (short)0xFFFF;
@@ -506,7 +520,7 @@ private:
 
                 //find ending position
                 working_bits = (~working_bits) & (0xFFFFFFFFFFFFFFFF << bitpos);
-                while (!_BitScanForward64(&bitpos, working_bits)) {
+                while (!YacclabBitScanForward64(&bitpos, working_bits)) {
                     bits++, basepos += 64;
                     working_bits = ~(*bits);
                 }
@@ -580,7 +594,7 @@ private:
         unsigned long basepos = 0, bitpos = 0;
         for (;; runs++) {
             //find starting position
-            while (!_BitScanForward64(&bitpos, working_bits)) {
+            while (!YacclabBitScanForward64(&bitpos, working_bits)) {
                 bits++, basepos += 64;
                 if (bits == bit_final) {
                     runs->start_pos = (short)0xFFFF;
@@ -594,7 +608,7 @@ private:
 
             //find ending position
             working_bits = (~working_bits) & (0xFFFFFFFFFFFFFFFF << bitpos);
-            while (!_BitScanForward64(&bitpos, working_bits)) {
+            while (!YacclabBitScanForward64(&bitpos, working_bits)) {
                 bits++, basepos += 64;
                 working_bits = ~(*bits);
             }
@@ -615,7 +629,7 @@ private:
 
             for (;; runs++) {
                 //find starting position
-                while (!_BitScanForward64(&bitpos, working_bits)) {
+                while (!YacclabBitScanForward64(&bitpos, working_bits)) {
                     bits++, basepos += 64;
                     if (bits == bit_final) {
                         runs->start_pos = (short)0xFFFF;
@@ -629,7 +643,7 @@ private:
 
                 //find ending position
                 working_bits = (~working_bits) & (0xFFFFFFFFFFFFFFFF << bitpos);
-                while (!_BitScanForward64(&bitpos, working_bits)) {
+                while (!YacclabBitScanForward64(&bitpos, working_bits)) {
                     bits++, basepos += 64;
                     working_bits = ~(*bits);
                 }

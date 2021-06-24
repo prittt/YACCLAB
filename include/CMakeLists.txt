@@ -45,6 +45,7 @@ target_sources(YACCLAB
         labeling_sauf_background.h
         labeling_brts.h
         labeling_bmrs.h
+        bit_scan_forward.h
 )
 
 
