@@ -65,6 +65,18 @@ CPU 2D 8-way connectivity:
   #  - LSL_RLE_UF
   #  - LSL_RLEZ_TTA
   #  - LSL_RLEZ_UF
+  #  - BRTS_RemSP
+  #  - BRTS_TTA
+  #  - BRTS_UFPC
+  #  - BRTS_UF
+  #  - BMRS_RemSP
+  #  - BMRS_TTA
+  #  - BMRS_UFPC
+  #  - BMRS_UF
+  #  - RBTS_RemSP
+  #  - RBTS_TTA
+  #  - RBTS_UFPC
+  #  - RBTS_UF
   #  - DiStefano
   #  - CT
   #  - SBLA

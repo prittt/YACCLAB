@@ -82,7 +82,7 @@ public:
 };
 
 template <typename LabelsSolver>
-class RBTS : public Labeling2D<CONN_8>
+class RBTS : public Labeling2D<Connectivity2D::CONN_8>
 {
 public:
     RBTS() {}
@@ -106,7 +106,7 @@ public:
         int h(img_.rows);
 
         // Circular Buffers
-        int buffer_capacity = w / 2 + 1;
+        int buffer_capacity = w / 2 + 2;
         CircularBuffer<int> s_queue(buffer_capacity);
         CircularBuffer<int> e_queue(buffer_capacity);
 
