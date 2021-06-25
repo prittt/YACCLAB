@@ -10,7 +10,7 @@
 // Department of Physics
 // Konkuk University, Korea
 
-#include "labeling_brts.h"
+#include "labeling_lee_2021_brts.h"
 #include "labels_solver.h"
 
 REGISTER_LABELING_WITH_EQUIVALENCES_SOLVERS(BRTS);
