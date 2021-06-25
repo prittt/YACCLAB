@@ -11,7 +11,8 @@
 #include <intrin.h>
 #define YacclabBitScanForward64 _BitScanForward64
 #else
-extern unsigned char YacclabBitScanForward64(unsigned long* Index, unsigned __int64 Mask);
+#include <cstdint>
+extern unsigned char YacclabBitScanForward64(unsigned long* Index, uint64_t Mask);
 #endif
 
 #endif // !YACCLAB_BIT_SCAN_FORWARD_H_

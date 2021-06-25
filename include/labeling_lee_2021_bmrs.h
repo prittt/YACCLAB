@@ -26,17 +26,17 @@ template <typename LabelsSolver>
 class BMRS : public Labeling2D<Connectivity2D::CONN_8>
 {
     struct Data_Compressed {
-        unsigned __int64* bits;
+        uint64_t* bits;
         int height;
         int width;
         int data_width;
-        unsigned __int64* operator [](unsigned __int64 row) {
+        uint64_t* operator [](uint64_t row) {
             return bits + data_width * row;
         }
         void Alloc(int _height, int _width) {
             height = _height, width = _width;
             data_width = _width / 64 + 1;
-            bits = new unsigned __int64[height * data_width];
+            bits = new uint64_t[height * data_width];
         }
         void Dealloc() {
             delete[] bits;
@@ -79,32 +79,32 @@ public:
         int data_width = data_compressed.data_width;
         data_merged.Alloc(h_merge, w);
         for (int i = 0; i < h / 2; i++) {
-            unsigned __int64* pdata_source1 = data_compressed[2 * i];
-            unsigned __int64* pdata_source2 = data_compressed[2 * i + 1];
-            unsigned __int64* pdata_merged = data_merged[i];
+            uint64_t* pdata_source1 = data_compressed[2 * i];
+            uint64_t* pdata_source2 = data_compressed[2 * i + 1];
+            uint64_t* pdata_merged = data_merged[i];
             for (int j = 0; j < data_width; j++) pdata_merged[j] = pdata_source1[j] | pdata_source2[j];
         }
         if (h % 2) {
-            unsigned __int64* pdata_source = data_compressed[h - 1];
-            unsigned __int64* pdata_merged = data_merged[h / 2];
+            uint64_t* pdata_source = data_compressed[h - 1];
+            uint64_t* pdata_merged = data_merged[h / 2];
             for (int j = 0; j < data_width; j++) pdata_merged[j] = pdata_source[j];
         }
 
         //generate flag bits
         data_flags.Alloc(h_merge - 1, w);
         for (int i = 0; i < data_flags.height; i++) {
-            unsigned __int64* bits_u = data_compressed[2 * i + 1];
-            unsigned __int64* bits_d = data_compressed[2 * i + 2];
-            unsigned __int64* bits_dest = data_flags[i];
+            uint64_t* bits_u = data_compressed[2 * i + 1];
+            uint64_t* bits_d = data_compressed[2 * i + 2];
+            uint64_t* bits_dest = data_flags[i];
 
-            unsigned __int64 u0 = bits_u[0];
-            unsigned __int64 d0 = bits_d[0];
+            uint64_t u0 = bits_u[0];
+            uint64_t d0 = bits_d[0];
             bits_dest[0] = (u0 | (u0 << 1)) & (d0 | (d0 << 1));
             for (int j = 1; j < data_width; j++) {
-                unsigned __int64 u = bits_u[j];
-                unsigned __int64 u_shl = u << 1;
-                unsigned __int64 d = bits_d[j];
-                unsigned __int64 d_shl = d << 1;
+                uint64_t u = bits_u[j];
+                uint64_t u_shl = u << 1;
+                uint64_t d = bits_d[j];
+                uint64_t d_shl = d << 1;
                 if (bits_u[j - 1] & 0x8000000000000000) u_shl |= 1;
                 if (bits_d[j - 1] & 0x8000000000000000) d_shl |= 1;
                 bits_dest[j] = (u | u_shl) & (d | d_shl);
@@ -200,32 +200,32 @@ public:
         int data_width = data_compressed.data_width;
         data_merged.Alloc(h_merge, w);
         for (int i = 0; i < h / 2; i++) {
-            unsigned __int64* pdata_source1 = data_compressed[2 * i];
-            unsigned __int64* pdata_source2 = data_compressed[2 * i + 1];
-            unsigned __int64* pdata_merged = data_merged[i];
+            uint64_t* pdata_source1 = data_compressed[2 * i];
+            uint64_t* pdata_source2 = data_compressed[2 * i + 1];
+            uint64_t* pdata_merged = data_merged[i];
             for (int j = 0; j < data_width; j++) pdata_merged[j] = pdata_source1[j] | pdata_source2[j];
         }
         if (h % 2) {
-            unsigned __int64* pdata_source = data_compressed[h - 1];
-            unsigned __int64* pdata_merged = data_merged[h / 2];
+            uint64_t* pdata_source = data_compressed[h - 1];
+            uint64_t* pdata_merged = data_merged[h / 2];
             for (int j = 0; j < data_width; j++) pdata_merged[j] = pdata_source[j];
         }
 
         //generate flag bits
         data_flags.Alloc(h_merge - 1, w);
         for (int i = 0; i < data_flags.height; i++) {
-            unsigned __int64* bits_u = data_compressed[2 * i + 1];
-            unsigned __int64* bits_d = data_compressed[2 * i + 2];
-            unsigned __int64* bits_dest = data_flags[i];
+            uint64_t* bits_u = data_compressed[2 * i + 1];
+            uint64_t* bits_d = data_compressed[2 * i + 2];
+            uint64_t* bits_dest = data_flags[i];
 
-            unsigned __int64 u0 = bits_u[0];
-            unsigned __int64 d0 = bits_d[0];
+            uint64_t u0 = bits_u[0];
+            uint64_t d0 = bits_d[0];
             bits_dest[0] = (u0 | (u0 << 1)) & (d0 | (d0 << 1));
             for (int j = 1; j < data_width; j++) {
-                unsigned __int64 u = bits_u[j];
-                unsigned __int64 u_shl = u << 1;
-                unsigned __int64 d = bits_d[j];
-                unsigned __int64 d_shl = d << 1;
+                uint64_t u = bits_u[j];
+                uint64_t u_shl = u << 1;
+                uint64_t d = bits_d[j];
+                uint64_t d_shl = d << 1;
                 if (bits_u[j - 1] & 0x8000000000000000) u_shl |= 1;
                 if (bits_d[j - 1] & 0x8000000000000000) d_shl |= 1;
                 bits_dest[j] = (u | u_shl) & (d | d_shl);
@@ -298,11 +298,11 @@ private:
         int h(img_.rows);
 
         for (int i = 0; i < h; i++) {
-            unsigned __int64* mbits = data_compressed[i];
+            uint64_t* mbits = data_compressed[i];
             uchar* source = img_.ptr<uchar>(i);
             for (int j = 0; j < w >> 6; j++) {
                 uchar* base = source + (j << 6);
-                unsigned __int64 obits = 0;
+                uint64_t obits = 0;
                 if (base[0]) obits |= 0x0000000000000001;
                 if (base[1]) obits |= 0x0000000000000002;
                 if (base[2]) obits |= 0x0000000000000004;
@@ -369,10 +369,10 @@ private:
                 if (base[63]) obits |= 0x8000000000000000;
                 *mbits = obits, mbits++;
             }
-            unsigned __int64 obits_final = 0;
+            uint64_t obits_final = 0;
             int jbase = w - (w % 64);
             for (int j = 0; j < w % 64; j++) {
-                if (source[jbase + j]) obits_final |= ((__int64)1 << j);
+                if (source[jbase + j]) obits_final |= ((uint64_t)1 << j);
             }
             *mbits = obits_final;
         }
@@ -382,11 +382,11 @@ private:
         int h(img_.rows);
 
         for (int i = 0; i < h; i++) {
-            unsigned __int64* mbits = data_compressed[i];
+            uint64_t* mbits = data_compressed[i];
             uchar* source = img_.ptr<uchar>(i);
             for (int j = 0; j < w >> 6; j++) {
                 int j_base = (j << 6);
-                unsigned __int64 obits = 0;
+                uint64_t obits = 0;
                 if (img(i, j_base + 0)) obits |= 0x0000000000000001;
                 if (img(i, j_base + 1)) obits |= 0x0000000000000002;
                 if (img(i, j_base + 2)) obits |= 0x0000000000000004;
@@ -453,21 +453,21 @@ private:
                 if (img(i, j_base + 63)) obits |= 0x8000000000000000;
                 *mbits = obits, mbits++;
             }
-            unsigned __int64 obits_final = 0;
+            uint64_t obits_final = 0;
             int jbase = w - (w % 64);
             for (int j = 0; j < w % 64; j++) {
-                if (img(i, jbase + j)) obits_final |= ((__int64)1 << j);
+                if (img(i, jbase + j)) obits_final |= ((uint64_t)1 << j);
             }
             *mbits = obits_final;
         }
     }
-    void FindRuns(const unsigned __int64* bits_start, const unsigned __int64* bits_flag, int height, int data_width, Run* runs) {
+    void FindRuns(const uint64_t* bits_start, const uint64_t* bits_flag, int height, int data_width, Run* runs) {
         Run* runs_up = runs;
 
         //process runs in the first merged row
-        const unsigned __int64* bits = bits_start;
-        const unsigned __int64* bit_final = bits + data_width;
-        unsigned __int64 working_bits = *bits;
+        const uint64_t* bits = bits_start;
+        const uint64_t* bit_final = bits + data_width;
+        uint64_t working_bits = *bits;
         unsigned long basepos = 0, bitpos = 0;
         for (;; runs++) {
             //find starting position
@@ -498,10 +498,10 @@ private:
         //process runs in the rests
         for (int row = 1; row < height; row++) {
             Run* runs_save = runs;
-            const unsigned __int64* bits_f = bits_flag + data_width * (row - 1);
-            const unsigned __int64* bits = bits_start + data_width * row;
-            const unsigned __int64* bit_final = bits + data_width;
-            unsigned __int64 working_bits = *bits;
+            const uint64_t* bits_f = bits_flag + data_width * (row - 1);
+            const uint64_t* bits = bits_start + data_width * row;
+            const uint64_t* bit_final = bits + data_width;
+            uint64_t working_bits = *bits;
             unsigned long basepos = 0, bitpos = 0;
 
             for (;; runs++) {
@@ -584,13 +584,13 @@ private:
         }
         n_labels_ = LabelsSolver::Flatten();
     }
-    void FindRunsMem(const unsigned __int64* bits_start, const unsigned __int64* bits_flag, int height, int data_width, Run* runs) {
+    void FindRunsMem(const uint64_t* bits_start, const uint64_t* bits_flag, int height, int data_width, Run* runs) {
         Run* runs_up = runs;
 
         //process runs in the first merged row
-        const unsigned __int64* bits = bits_start;
-        const unsigned __int64* bit_final = bits + data_width;
-        unsigned __int64 working_bits = *bits;
+        const uint64_t* bits = bits_start;
+        const uint64_t* bit_final = bits + data_width;
+        uint64_t working_bits = *bits;
         unsigned long basepos = 0, bitpos = 0;
         for (;; runs++) {
             //find starting position
@@ -621,10 +621,10 @@ private:
         //process runs in the rests
         for (int row = 1; row < height; row++) {
             Run* runs_save = runs;
-            const unsigned __int64* bits_f = bits_flag + data_width * (row - 1);
-            const unsigned __int64* bits = bits_start + data_width * row;
-            const unsigned __int64* bit_final = bits + data_width;
-            unsigned __int64 working_bits = *bits;
+            const uint64_t* bits_f = bits_flag + data_width * (row - 1);
+            const uint64_t* bits = bits_start + data_width * row;
+            const uint64_t* bit_final = bits + data_width;
+            uint64_t working_bits = *bits;
             unsigned long basepos = 0, bitpos = 0;
 
             for (;; runs++) {
@@ -707,23 +707,23 @@ private:
         }
         n_labels_ = LabelsSolver::MemFlatten();
     }
-    unsigned __int64 is_connected(const unsigned __int64* flag_bits, unsigned start, unsigned end) {
-        if (start == end) return flag_bits[start >> 6] & ((unsigned __int64)1 << (start & 0x0000003F));
+    uint64_t is_connected(const uint64_t* flag_bits, unsigned start, unsigned end) {
+        if (start == end) return flag_bits[start >> 6] & ((uint64_t)1 << (start & 0x0000003F));
 
         unsigned st_base = start >> 6;
         unsigned st_bits = start & 0x0000003F;
         unsigned ed_base = (end + 1) >> 6;
         unsigned ed_bits = (end + 1) & 0x0000003F;
         if (st_base == ed_base) {
-            unsigned __int64 cutter = (0xFFFFFFFFFFFFFFFF << st_bits) ^ (0xFFFFFFFFFFFFFFFF << ed_bits);
+            uint64_t cutter = (0xFFFFFFFFFFFFFFFF << st_bits) ^ (0xFFFFFFFFFFFFFFFF << ed_bits);
             return flag_bits[st_base] & cutter;
         }
 
         for (unsigned i = st_base + 1; i < ed_base; i++) {
             if (flag_bits[i]) return true;
         }
-        unsigned __int64 cutter_st = 0xFFFFFFFFFFFFFFFF << st_bits;
-        unsigned __int64 cutter_ed = ~(0xFFFFFFFFFFFFFFFF << ed_bits);
+        uint64_t cutter_st = 0xFFFFFFFFFFFFFFFF << st_bits;
+        uint64_t cutter_ed = ~(0xFFFFFFFFFFFFFFFF << ed_bits);
         if (flag_bits[st_base] & cutter_st) return true;
         if (flag_bits[ed_base] & cutter_ed) return true;
         return false;
@@ -745,9 +745,9 @@ private:
         data_merged.Alloc(h_merge, w);
         data_flags.Alloc(h_merge - 1, w);
         memset(img_labels_.data, 0, img_labels_.dataend - img_labels_.datastart);
-        memset(data_compressed.bits, 0, data_compressed.height * data_compressed.data_width * sizeof(unsigned __int64));
-        memset(data_merged.bits, 0, data_merged.height * data_merged.data_width * sizeof(unsigned __int64));
-        memset(data_flags.bits, 0, data_flags.height * data_flags.data_width * sizeof(unsigned __int64));
+        memset(data_compressed.bits, 0, data_compressed.height * data_compressed.data_width * sizeof(uint64_t));
+        memset(data_merged.bits, 0, data_merged.height * data_merged.data_width * sizeof(uint64_t));
+        memset(data_flags.bits, 0, data_flags.height * data_flags.data_width * sizeof(uint64_t));
         perf_.stop();
         double t = perf_.last();
 
@@ -756,9 +756,9 @@ private:
 
         perf_.start();
         memset(img_labels_.data, 0, img_labels_.dataend - img_labels_.datastart);
-        memset(data_compressed.bits, 0, data_compressed.height * data_compressed.data_width * sizeof(unsigned __int64));
-        memset(data_merged.bits, 0, data_merged.height * data_merged.data_width * sizeof(unsigned __int64));
-        memset(data_flags.bits, 0, data_flags.height * data_flags.data_width * sizeof(unsigned __int64));
+        memset(data_compressed.bits, 0, data_compressed.height * data_compressed.data_width * sizeof(uint64_t));
+        memset(data_merged.bits, 0, data_merged.height * data_merged.data_width * sizeof(uint64_t));
+        memset(data_flags.bits, 0, data_flags.height * data_flags.data_width * sizeof(uint64_t));
         perf_.stop();
         double ma_t = t - perf_.last();
 
@@ -807,31 +807,31 @@ private:
         int h_merge = h / 2 + h % 2;
         int data_width = data_compressed.data_width;
         for (int i = 0; i < h / 2; i++) {
-            unsigned __int64* pdata_source1 = data_compressed[2 * i];
-            unsigned __int64* pdata_source2 = data_compressed[2 * i + 1];
-            unsigned __int64* pdata_merged = data_merged[i];
+            uint64_t* pdata_source1 = data_compressed[2 * i];
+            uint64_t* pdata_source2 = data_compressed[2 * i + 1];
+            uint64_t* pdata_merged = data_merged[i];
             for (int j = 0; j < data_width; j++) pdata_merged[j] = pdata_source1[j] | pdata_source2[j];
         }
         if (h % 2) {
-            unsigned __int64* pdata_source = data_compressed[h - 1];
-            unsigned __int64* pdata_merged = data_merged[h / 2];
+            uint64_t* pdata_source = data_compressed[h - 1];
+            uint64_t* pdata_merged = data_merged[h / 2];
             for (int j = 0; j < data_width; j++) pdata_merged[j] = pdata_source[j];
         }
 
         //generate flag bits
         for (int i = 0; i < data_flags.height; i++) {
-            unsigned __int64* bits_u = data_compressed[2 * i + 1];
-            unsigned __int64* bits_d = data_compressed[2 * i + 2];
-            unsigned __int64* bits_dest = data_flags[i];
+            uint64_t* bits_u = data_compressed[2 * i + 1];
+            uint64_t* bits_d = data_compressed[2 * i + 2];
+            uint64_t* bits_dest = data_flags[i];
 
-            unsigned __int64 u0 = bits_u[0];
-            unsigned __int64 d0 = bits_d[0];
+            uint64_t u0 = bits_u[0];
+            uint64_t d0 = bits_d[0];
             bits_dest[0] = (u0 | (u0 << 1)) & (d0 | (d0 << 1));
             for (int j = 1; j < data_width; j++) {
-                unsigned __int64 u = bits_u[j];
-                unsigned __int64 u_shl = u << 1;
-                unsigned __int64 d = bits_d[j];
-                unsigned __int64 d_shl = d << 1;
+                uint64_t u = bits_u[j];
+                uint64_t u_shl = u << 1;
+                uint64_t d = bits_d[j];
+                uint64_t d_shl = d << 1;
                 if (bits_u[j - 1] & 0x8000000000000000) u_shl |= 1;
                 if (bits_d[j - 1] & 0x8000000000000000) d_shl |= 1;
                 bits_dest[j] = (u | u_shl) & (d | d_shl);

@@ -26,17 +26,17 @@ template <typename LabelsSolver>
 class BRTS : public Labeling2D<Connectivity2D::CONN_8>
 {
     struct Data_Compressed {
-        unsigned __int64* bits;
+        uint64_t* bits;
         int height;
         int width;
         int data_width;
-        unsigned __int64* operator [](unsigned __int64 row) {
+        uint64_t* operator [](uint64_t row) {
             return bits + data_width * row;
         }
         void Alloc(int _height, int _width) {
             height = _height, width = _width;
             data_width = _width / 64 + 1;
-            bits = new unsigned __int64[height * data_width];
+            bits = new uint64_t[height * data_width];
         }
         void Dealloc() {
             delete[] bits;
@@ -172,11 +172,11 @@ private:
         int h(img_.rows);
 
         for (int i = 0; i < h; i++) {
-            unsigned __int64* mbits = data_compressed[i];
+            uint64_t* mbits = data_compressed[i];
             uchar* source = img_.ptr<uchar>(i);
             for (int j = 0; j < w >> 6; j++) {
                 uchar* base = source + (j << 6);
-                unsigned __int64 obits = 0;
+                uint64_t obits = 0;
                 if (base[0]) obits |= 0x0000000000000001;
                 if (base[1]) obits |= 0x0000000000000002;
                 if (base[2]) obits |= 0x0000000000000004;
@@ -243,10 +243,10 @@ private:
                 if (base[63]) obits |= 0x8000000000000000;
                 *mbits = obits, mbits++;
             }
-            unsigned __int64 obits_final = 0;
+            uint64_t obits_final = 0;
             int jbase = w - (w % 64);
             for (int j = 0; j < w % 64; j++) {
-                if (source[jbase + j]) obits_final |= ((__int64)1 << j);
+                if (source[jbase + j]) obits_final |= ((uint64_t)1 << j);
             }
             *mbits = obits_final;
         }
@@ -256,11 +256,11 @@ private:
         int h(img_.rows);
 
         for (int i = 0; i < h; i++) {
-            unsigned __int64* mbits = data_compressed[i];
+            uint64_t* mbits = data_compressed[i];
             uchar* source = img_.ptr<uchar>(i);
             for (int j = 0; j < w >> 6; j++) {
                 int j_base = (j << 6);
-                unsigned __int64 obits = 0;
+                uint64_t obits = 0;
                 if (img(i, j_base + 0)) obits |= 0x0000000000000001;
                 if (img(i, j_base + 1)) obits |= 0x0000000000000002;
                 if (img(i, j_base + 2)) obits |= 0x0000000000000004;
@@ -327,21 +327,21 @@ private:
                 if (img(i, j_base + 63)) obits |= 0x8000000000000000;
                 *mbits = obits, mbits++;
             }
-            unsigned __int64 obits_final = 0;
+            uint64_t obits_final = 0;
             int jbase = w - (w % 64);
             for (int j = 0; j < w % 64; j++) {
-                if (img(i, jbase + j)) obits_final |= ((__int64)1 << j);
+                if (img(i, jbase + j)) obits_final |= ((uint64_t)1 << j);
             }
             *mbits = obits_final;
         }
     }
-    void FindRuns(const unsigned __int64* bits_start, int height, int data_width, Run* runs) {
+    void FindRuns(const uint64_t* bits_start, int height, int data_width, Run* runs) {
         Run* runs_up = runs;
 
         //process runs in the first row
-        const unsigned __int64* bits = bits_start;
-        const unsigned __int64* bit_final = bits + data_width;
-        unsigned __int64 working_bits = *bits;
+        const uint64_t* bits = bits_start;
+        const uint64_t* bit_final = bits + data_width;
+        uint64_t working_bits = *bits;
         unsigned long basepos = 0, bitpos = 0;
         for (;; runs++) {
             //find starting position
@@ -373,9 +373,9 @@ private:
         //process runs in the rests
         for (int row = 1; row < height; row++) {
             Run* runs_save = runs;
-            const unsigned __int64* bits = bits_start + data_width * row;
-            const unsigned __int64* bit_final = bits + data_width;
-            unsigned __int64 working_bits = *bits;
+            const uint64_t* bits = bits_start + data_width * row;
+            const uint64_t* bit_final = bits + data_width;
+            uint64_t working_bits = *bits;
             unsigned long basepos = 0, bitpos = 0;
             for (;; runs++) {
                 //find starting position
@@ -438,13 +438,13 @@ private:
         }
         n_labels_ = LabelsSolver::Flatten();
     }
-    void FindRunsMem(const unsigned __int64* bits_start, int height, int data_width, Run* runs) {
+    void FindRunsMem(const uint64_t* bits_start, int height, int data_width, Run* runs) {
         Run* runs_up = runs;
 
         //process runs in the first row
-        const unsigned __int64* bits = bits_start;
-        const unsigned __int64* bit_final = bits + data_width;
-        unsigned __int64 working_bits = *bits;
+        const uint64_t* bits = bits_start;
+        const uint64_t* bit_final = bits + data_width;
+        uint64_t working_bits = *bits;
         unsigned long basepos = 0, bitpos = 0;
         for (;; runs++) {
             //find starting position
@@ -475,9 +475,9 @@ private:
         //process runs in the rests
         for (int row = 1; row < height; row++) {
             Run* runs_save = runs;
-            const unsigned __int64* bits = bits_start + data_width * row;
-            const unsigned __int64* bit_final = bits + data_width;
-            unsigned __int64 working_bits = *bits;
+            const uint64_t* bits = bits_start + data_width * row;
+            const uint64_t* bit_final = bits + data_width;
+            uint64_t working_bits = *bits;
             unsigned long basepos = 0, bitpos = 0;
             for (;; runs++) {
                 //find starting position
@@ -551,7 +551,7 @@ private:
         img_labels_ = cv::Mat1i(img_.size());
         data_compressed.Alloc(img_.rows, img_.cols);
         memset(img_labels_.data, 0, img_labels_.dataend - img_labels_.datastart);
-        memset(data_compressed.bits, 0, data_compressed.height * data_compressed.data_width * sizeof(unsigned __int64));
+        memset(data_compressed.bits, 0, data_compressed.height * data_compressed.data_width * sizeof(uint64_t));
         perf_.stop();
         double t = perf_.last();
 
@@ -560,7 +560,7 @@ private:
 
         perf_.start();
         memset(img_labels_.data, 0, img_labels_.dataend - img_labels_.datastart);
-        memset(data_compressed.bits, 0, data_compressed.height * data_compressed.data_width * sizeof(unsigned __int64));
+        memset(data_compressed.bits, 0, data_compressed.height * data_compressed.data_width * sizeof(uint64_t));
         perf_.stop();
         double ma_t = t - perf_.last();
 

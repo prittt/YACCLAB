@@ -17,7 +17,8 @@
 // Don't forget to open a pull request! :)
 #elif defined __cpp_lib_bitops
 #include <bit>
-unsigned char YacclabBitScanForward64(unsigned long* Index, unsigned __int64 Mask) {
+#include <cstdint>
+unsigned char YacclabBitScanForward64(unsigned long* Index, uint64_t Mask) {
     int count = std::countr_zero(Mask);
     if (count == 64)
         return 0;
@@ -27,7 +28,8 @@ unsigned char YacclabBitScanForward64(unsigned long* Index, unsigned __int64 Mas
 }
 #else
 #include <stdexcept>
-unsigned char YacclabBitScanForward64(unsigned long* Index, unsigned __int64 Mask) {
+#include <cstdint>
+unsigned char YacclabBitScanForward64(unsigned long* Index, uint64_t Mask) {
     throw std::runtime_error("YacclabBitScanForward64 undefined."
         " Define it for your platform in \"bit_scan_forward.cc\","
         " or enable C++20 for the generic version.");
