@@ -261,6 +261,22 @@ Notes for gnuplot:
     <td align="center"><i>labeling3D_BBDT_2019.h</i>, <i>labeling_bolelli_2019_forest.inc</i>, <i>labeling_bolelli_2019_forest_firstline.inc</i>, <i>labeling_bolelli_2019_forest_lastline.inc</i>, <i>labeling_bolelli_2019_forest_singleline.inc</i></td>
     <td align="center">YES</td>
   </tr>
+  <tr>
+    <td align="center">Bit-Run Two Scan</td>
+    <td align="center">W. Lee,</br>F. Bolelli,</br>S. Allegretti,</br>C. Grana <a href="#BRTS">[32]</a></td>
+    <td align="center">2021</td>
+    <td align="center">BRTS<a href="#VII"><sup>VII</sup></a></td>
+    <td align="center"><i>labeling_lee_2021_brts.h</i></td>
+    <td align="center">YES</td>
+  </tr>
+  <tr>
+    <td align="center">Bit-Merge-Run Scan</td>
+    <td align="center">W. Lee,</br>F. Bolelli,</br>S. Allegretti,</br>C. Grana <a href="#BRTS">[32]</a></td>
+    <td align="center">2021</td>
+    <td align="center">BMRS<a href="#VII"><sup>VII</sup></a></td>
+    <td align="center"><i>labeling_lee_2021_bmrs.h</i></td>
+    <td align="center">YES</td>
+  </tr>
 </table>
 
 <a name="I"><sup>I</sup></a> standard version. </br>
@@ -268,7 +284,8 @@ Notes for gnuplot:
 <a name="III"><sup>III</sup></a> with RLE compression. </br>
 <a name="IV"><sup>IV</sup></a> only on TTA and UF. </br>
 <a name="V"><sup>V</sup></a> it only copies the pixels from the input image to the output one simply defining a lower bound limit for the execution time of CCL algorithms on a given machine and dataset.</br>
-<a name="VI"><sup>VI</sup></a> EPDT_19c and EPDT_22c algorithms are based on very big decision trees that translate in many lines of C++ code. They may thus noticeably increase the build time. For this reason, a special flag (`YACCLAB_ENABLE_EPDT_ALGOS`) to enable/disable such algorithms is provided in the CMake file. By default the flag is OFF.
+<a name="VI"><sup>VI</sup></a> EPDT_19c and EPDT_22c algorithms are based on very big decision trees that translate in many lines of C++ code. They may thus noticeably increase the build time. For this reason, a special flag (`YACCLAB_ENABLE_EPDT_ALGOS`) to enable/disable such algorithms is provided in the CMake file. By default the flag is OFF.</br>
+<a name="VII"><sup>VII</sup></a> CCL algorithm for images in bitonal (1 bit per pixel) format.
 
 ### GPU Algorithms
  <table>
@@ -934,6 +951,15 @@ This project follows the [all-contributors](https://github.com/all-contributors/
     <td>
       <p align="justify">
 	M. Söchting, S. Allegretti, F. Bolelli, C. Grana. "A Heuristic-Based Decision Tree for Connected Components Labeling of 3D Volumes." 25th International Conference on Pattern Recognition, 2021</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="BRTS">[32]</a>
+    </td>
+    <td>
+      <p align="justify">
+	W. Lee, F. Bolelli, S. Allegretti, C. Grana. "Fast Run-Based Connected Components Labeling for Bitonal Images." 5th International Conference on Imaging, Vision & Pattern Recognition, 2021</p>
     </td>
 </tr>	
 </table>
