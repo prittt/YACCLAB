@@ -11,8 +11,8 @@
 // Konkuk University, Korea
 
 
-#ifndef YACCLAB_LABELING_BMRS
-#define YACCLAB_LABELING_BMRS
+#ifndef YACCLAB_LABELING_BMRS_OLD
+#define YACCLAB_LABELING_BMRS_OLD
 #include <vector>
 #include <opencv2/core.hpp>
 
@@ -23,7 +23,7 @@
 
 
 template <typename LabelsSolver>
-class BMRS : public Labeling2D<Connectivity2D::CONN_8>
+class BMRS_OLD : public Labeling2D<Connectivity2D::CONN_8>
 {
     struct Data_Compressed {
         uint64_t* bits;
@@ -65,11 +65,11 @@ class BMRS : public Labeling2D<Connectivity2D::CONN_8>
     Runs data_runs;
 
 public:
-    BMRS() {}
+    BMRS_OLD() {}
     void PerformLabeling()
     {
-        int w(img_.cols);
-        int h(img_.rows);
+		int w(img_.cols);
+		int h(img_.rows);
 
         data_compressed.Alloc(h, w);
         InitCompressedData(data_compressed);
@@ -117,54 +117,31 @@ public:
         LabelsSolver::Setup();
         FindRuns(data_merged.bits, data_flags.bits, h_merge, data_width, data_runs.runs);
 
-        img_labels_ = cv::Mat1i(img_.size(), 0);    // New version (0-init)
+        img_labels_ = cv::Mat1i(img_.size());
 
-        // New version (only uses bitonal input)
+        // Old version (uses 1-byte per pixel input)
         Run* runs = data_runs.runs;
-        for (int r = 0; r < h / 2; r++) {
-            const uint64_t* const data_u = data_compressed.bits + data_compressed.data_width * 2 * r;
-            const uint64_t* const data_d = data_u + data_compressed.data_width;
-            unsigned* const labels_u = img_labels_.ptr<unsigned>(2 * r);
-            unsigned* const labels_d = img_labels_.ptr<unsigned>(2 * r + 1);
-
-            uint64_t curr_word_u;
-            uint64_t curr_word_d;
-            unsigned short curr_word_ind = -1;
+        for (int i = 0; i < h / 2; i++) {
+            const uchar* const data_u = img_.ptr<uchar>(2 * i);
+            const uchar* const data_d = img_.ptr<uchar>(2 * i + 1);
+            unsigned* const labels_u = img_labels_.ptr<unsigned>(2 * i);
+            unsigned* const labels_d = img_labels_.ptr<unsigned>(2 * i + 1);
 
             for (int j = 0;; runs++) {
                 unsigned short start_pos = runs->start_pos;
                 if (start_pos == 0xFFFF) {
+                    for (int k = j; k < w; k++) labels_u[k] = 0;
+                    for (int k = j; k < w; k++) labels_d[k] = 0;
                     runs++;
                     break;
                 }
                 unsigned short end_pos = runs->end_pos;
                 int label = LabelsSolver::GetLabel(runs->label);
 
-                if (label) {
-
-                    for (unsigned short c = start_pos; c < end_pos; ++c) {
-
-                        unsigned short needed_word_ind = c / 64;
-                        if (needed_word_ind != curr_word_ind) {
-                            curr_word_u = data_u[needed_word_ind];
-                            curr_word_d = data_d[needed_word_ind];
-                            curr_word_ind = needed_word_ind;
-                        }
-
-                        uint8_t bit_pos = c % 64;
-                        uint64_t mask = 1ull << bit_pos;
-                        uint64_t bit_u = curr_word_u & mask;
-                        uint64_t bit_d = curr_word_d & mask;
-
-                        if (bit_u) {
-                            labels_u[c] = label;
-                        }
-                        if (bit_d) {
-                            labels_d[c] = label;
-                        }
-                        
-                    }
-
+                for (; j < start_pos; j++) labels_u[j] = 0, labels_d[j] = 0;
+                for (; j < end_pos; j++) {
+                    labels_u[j] = (data_u[j]) ? label : 0;
+                    labels_d[j] = (data_d[j]) ? label : 0;
                 }
             }
         }
@@ -173,16 +150,15 @@ public:
             for (int j = 0;; runs++) {
                 unsigned short start_pos = runs->start_pos;
                 if (start_pos == 0xFFFF) {
+                    for (int k = j; k < w; k++) labels[k] = 0;
                     break;
                 }
                 unsigned short end_pos = runs->end_pos;
                 int label = LabelsSolver::GetLabel(runs->label);
-                for (j = start_pos; j < end_pos; j++) {
-                    labels[j] = label;
-                }
+                for (; j < start_pos; j++) labels[j] = 0;
+                for (j = start_pos; j < end_pos; j++) labels[j] = label;
             }
         }
-
 
         LabelsSolver::Dealloc();
         data_runs.Dealloc();
@@ -518,7 +494,7 @@ private:
             runs->end_pos = short(basepos + bitpos);
             runs->label = LabelsSolver::NewLabel();
         }
-    out:
+        out:
 
         //process runs in the rests
         for (int row = 1; row < height; row++) {
@@ -870,53 +846,28 @@ private:
         int w(img_.cols);
         int h(img_.rows);
 
-        memset(img_labels_.data, 0, img_labels_.dataend - img_labels_.datastart);
-
         Run* runs = data_runs.runs;
-        for (int r = 0; r < h / 2; r++) {
-            const uint64_t* const data_u = data_compressed.bits + data_compressed.data_width * 2 * r;
-            const uint64_t* const data_d = data_u + data_compressed.data_width;
-            unsigned* const labels_u = img_labels_.ptr<unsigned>(2 * r);
-            unsigned* const labels_d = img_labels_.ptr<unsigned>(2 * r + 1);
-
-            uint64_t curr_word_u;
-            uint64_t curr_word_d;
-            unsigned short curr_word_ind = -1;
+        for (int i = 0; i < h / 2; i++) {
+            const uchar* const data_u = img_.ptr<uchar>(2 * i);
+            const uchar* const data_d = img_.ptr<uchar>(2 * i + 1);
+            unsigned* const labels_u = img_labels_.ptr<unsigned>(2 * i);
+            unsigned* const labels_d = img_labels_.ptr<unsigned>(2 * i + 1);
 
             for (int j = 0;; runs++) {
                 unsigned short start_pos = runs->start_pos;
                 if (start_pos == 0xFFFF) {
+                    for (int k = j; k < w; k++) labels_u[k] = 0;
+                    for (int k = j; k < w; k++) labels_d[k] = 0;
                     runs++;
                     break;
                 }
                 unsigned short end_pos = runs->end_pos;
                 int label = LabelsSolver::GetLabel(runs->label);
 
-                if (label) {
-
-                    for (unsigned short c = start_pos; c < end_pos; ++c) {
-
-                        unsigned short needed_word_ind = c / 64;
-                        if (needed_word_ind != curr_word_ind) {
-                            curr_word_u = data_u[needed_word_ind];
-                            curr_word_d = data_d[needed_word_ind];
-                            curr_word_ind = needed_word_ind;
-                        }
-
-                        uint8_t bit_pos = c % 64;
-                        uint64_t mask = 1ull << bit_pos;
-                        uint64_t bit_u = curr_word_u & mask;
-                        uint64_t bit_d = curr_word_d & mask;
-
-                        if (bit_u) {
-                            labels_u[c] = label;
-                        }
-                        if (bit_d) {
-                            labels_d[c] = label;
-                        }
-
-                    }
-
+                for (; j < start_pos; j++) labels_u[j] = 0, labels_d[j] = 0;
+                for (; j < end_pos; j++) {
+                    labels_u[j] = (data_u[j]) ? label : 0;
+                    labels_d[j] = (data_d[j]) ? label : 0;
                 }
             }
         }
@@ -925,13 +876,13 @@ private:
             for (int j = 0;; runs++) {
                 unsigned short start_pos = runs->start_pos;
                 if (start_pos == 0xFFFF) {
+                    for (int k = j; k < w; k++) labels[k] = 0;
                     break;
                 }
                 unsigned short end_pos = runs->end_pos;
                 int label = LabelsSolver::GetLabel(runs->label);
-                for (j = start_pos; j < end_pos; j++) {
-                    labels[j] = label;
-                }
+                for (; j < start_pos; j++) labels[j] = 0;
+                for (j = start_pos; j < end_pos; j++) labels[j] = label;
             }
         }
     }
