@@ -20,6 +20,7 @@
 </tr>
 <thead>
 <tbody>
+<!--
 <tr>
     <td align="center">Ubuntu<br/>16.04 LTS</td>
     <td align="center">x32</td>
@@ -30,6 +31,7 @@
     <td align="center"><a href="https://github.com/prittt/YACCLAB/actions"><img src="https://github.com/prittt/YACCLAB/workflows/linux32/badge.svg?branch=master" alt="Build Status"/></a></td>
     <td align="center">N/A</td>
 </tr>
+-->
 <tr>
     <td align="center">Ubuntu<br/>18.04 LTS</td>
     <td align="center">x64</td>
@@ -58,7 +60,17 @@
     <td align="center">3.10.3</td>
     <td align="center">2080Ti, CUDA 9.2</td>
     <td align="center">N/A</td>
-    <td align="center"><a href="https://jenkins-master-deephealth-unix01.ing.unimore.it/job/YACCLAB/job/master/"><img src="https://jenkins-master-deephealth-unix01.ing.unimore.it/badge/job/YACCLAB/job/master/linux_gpu_end?" alt="Action Status"/></a></td>
+    <td align="center"><a href="https://jenkins-master-deephealth-unix01.ing.unimore.it/job/YACCLAB/job/master/"><img src="https://jenkins-master-deephealth-unix01.ing.unimore.it/badge/job/YACCLAB/job/master/ubuntu16_gpu_end?" alt="Action Status"/></a></td>
+</tr>
+<tr>
+    <td align="center">Ubuntu<br/>20.04.02 LTS</td>
+    <td align="center">x64</td>
+    <td align="center">gcc 9.3.0</td>
+    <td align="center">4.4</td>
+    <td align="center">3.10.3</td>
+    <td align="center">2080Ti, CUDA 11.4</td>
+    <td align="center">N/A</td>
+    <td align="center"><a href="https://jenkins-master-deephealth-unix01.ing.unimore.it/job/YACCLAB/job/master/"><img src="https://jenkins-master-deephealth-unix01.ing.unimore.it/badge/job/YACCLAB/job/master/ubuntu20_gpu_end?" alt="Action Status"/></a></td>
 </tr>
 </tbody>
 </table>
