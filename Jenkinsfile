@@ -7,7 +7,7 @@ pipeline {
                     agent {
                         docker { 
                             label 'docker && gpu'
-                            image 'stal12/opencv4.4-cuda9.2-ubuntu16.04'
+                            image 'aimagelab/opencv4.4-cuda9.2-ubuntu16.04'
                             args '--gpus 1'
                         }
                     }
@@ -45,7 +45,7 @@ pipeline {
                     agent {
                         docker { 
                             label 'docker && gpu'
-                            image 'stal12/opencv4.4-cuda11.4.1-ubuntu20.04'
+                            image 'aimagelab/opencv4.4-cuda11.4.1-ubuntu20.04'
                             args '--gpus 1'
                         }
                     }
