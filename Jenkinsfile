@@ -65,7 +65,6 @@ pipeline {
                             steps {
                                 timeout(120) {
                                     echo 'Building..'
-                                    sh 'apt install -y unzip' 
                                     sh 'chmod +x tools/jenkins-scripts/run-script.sh'
                                     sh 'export BUILD_TARGET=linux && tools/jenkins-scripts/run-script.sh'
                                 }
