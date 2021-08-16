@@ -89,10 +89,10 @@ if [ -d input -a "$(ls -A input/)" ]; then
 else
     echo -e "    Yacclab dataset not cached, downloading it..."
     wget https://imagelab.ing.unimore.it/files/YACCLAB_dataset3D_reduced.zip -O dataset.zip 
-    unzip -qq dataset.zip 
+    unzip -o -qq dataset.zip -d input
     rm dataset.zip  
     wget imagelab.ing.unimore.it/files/YACCLAB_dataset_reduced.zip -O dataset.zip
-    unzip -qq dataset.zip
+    unzip -o -qq dataset.zip -d input
     rm dataset.zip  
     echo -e "------------------------------------------> DONE!"
 fi
