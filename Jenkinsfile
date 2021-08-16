@@ -31,6 +31,7 @@ pipeline {
                         }
                         stage('Run') {
                             steps {
+                                echo 'Running..'
                                 sh 'cd bin && ./YACCLAB'
                             }
                         }
@@ -62,6 +63,7 @@ pipeline {
                             steps {
                                 timeout(120) {
                                     echo 'Building..'
+                                    sh 'sudo apt install -y unzip' 
                                     sh 'chmod +x tools/jenkins-scripts/run-script.sh'
                                     sh 'export BUILD_TARGET=linux && tools/jenkins-scripts/run-script.sh'
                                 }
@@ -69,6 +71,7 @@ pipeline {
                         }
                         stage('Run') {
                             steps {
+                                echo 'Running..'
                                 sh 'cd bin && ./YACCLAB'
                             }
                         }
