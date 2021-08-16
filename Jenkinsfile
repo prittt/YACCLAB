@@ -16,7 +16,7 @@ pipeline {
                             steps {
                                 timeout(15) {
                                     echo 'Cleaning..'
-                                    sh 'rm -r bin'
+                                    sh 'rm -rf bin || true'
                                 }
                             }
                         }
@@ -54,7 +54,7 @@ pipeline {
                             steps {
                                 timeout(15) {
                                     echo 'Cleaning..'
-                                    sh 'rm -r bin'
+                                    sh 'rm -rf bin || true'
                                 }
                             }
                         }
