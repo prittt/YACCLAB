@@ -36,7 +36,7 @@ function build_linux(){
    echo -e "\n\n------------------------------------------> YACCLAB configuration" 
    mkdir bin
    # The download of the complete YACCLAB dataset is disable in order to reduce the cmake configure time in travis-ci virtual machine
-   cmake -D CMAKE_C_FLAGS=-m64 -D CMAKE_CXX_FLAGS=-m64 -D CMAKE_BUILD_TYPE=Release -D OpenCV_DIR=/home/opencv/opencv-4.4.0/gcc_static_bin_cuda/ -D YACCLAB_ENABLE_CUDA=ON -D YACCLAB_ENABLE_3D=ON -D YACCLAB_DOWNLOAD_DATASET=OFF -D YACCLAB_IS_JENKINS=ON -G Unix\ Makefiles -Bbin -Hbin/.. 
+   cmake -D CUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda -D CMAKE_C_FLAGS=-m64 -D CMAKE_CXX_FLAGS=-m64 -D CMAKE_BUILD_TYPE=Release -D OpenCV_DIR=/home/opencv/opencv-4.4.0/gcc_static_bin_cuda/ -D YACCLAB_ENABLE_CUDA=ON -D YACCLAB_ENABLE_3D=ON -D YACCLAB_DOWNLOAD_DATASET=OFF -D YACCLAB_IS_JENKINS=ON -G Unix\ Makefiles -Bbin -Hbin/.. 
 
    cd bin
    
