@@ -31,9 +31,11 @@ pipeline {
                         }
                         stage('Run') {
                             steps {
-                                echo 'Running..'
-                                sh 'cd bin && ./YACCLAB'
-                            }
+                                timeout(600) {
+                                    echo 'Running..'
+                                    sh 'cd bin && ./YACCLAB'
+                                }
+                             }
                         }
                         stage('ubuntu16_gpu_end') {
                             steps {
@@ -63,7 +65,7 @@ pipeline {
                             steps {
                                 timeout(120) {
                                     echo 'Building..'
-                                    sh 'sudo apt install -y unzip' 
+                                    sh 'apt install -y unzip' 
                                     sh 'chmod +x tools/jenkins-scripts/run-script.sh'
                                     sh 'export BUILD_TARGET=linux && tools/jenkins-scripts/run-script.sh'
                                 }
@@ -71,8 +73,10 @@ pipeline {
                         }
                         stage('Run') {
                             steps {
-                                echo 'Running..'
-                                sh 'cd bin && ./YACCLAB'
+                                timeout(600) {
+                                    echo 'Running..'
+                                    sh 'cd bin && ./YACCLAB'
+                                }
                             }
                         }
                         stage('ubuntu20_gpu_end') {
