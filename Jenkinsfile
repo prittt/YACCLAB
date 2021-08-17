@@ -66,7 +66,7 @@ pipeline {
                                 timeout(120) {
                                     echo 'Building..'
                                     sh 'chmod +x tools/jenkins-scripts/run-script.sh'
-                                    sh 'export BUILD_TARGET=linux && tools/jenkins-scripts/run-script.sh'
+                                    sh 'export BUILD_TARGET=linux && export CUDACXX=/usr/local/cuda/bin/nvcc && tools/jenkins-scripts/run-script.sh'
                                 }
                             }
                         }
