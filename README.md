@@ -327,7 +327,7 @@ Notes for gnuplot:
   <tr>
     <td align="center">CUDA SAUF</td>
     <td align="center">S. Allegretti,</br>F. Bolelli,</br>M. Cancilla,</br>C. Grana <a href="#CAIP">[29]</a></td>
-    <td align="center">-</td>
+    <td align="center">2019</td>
     <td align="center">C-SAUF</td>
     <td align="center"><i>labeling_CUDA_SAUF.cu</i>,</br><i>labeling_wu_2009_tree.inc</i></td>
     <td align="center">NO</td>
@@ -335,7 +335,7 @@ Notes for gnuplot:
   <tr>
     <td align="center">CUDA BBDT</td>
     <td align="center">S. Allegretti,</br>F. Bolelli,</br>M. Cancilla,</br>C. Grana <a href="#CAIP">[29]</a></td>
-    <td align="center">-</td>
+    <td align="center">2019</td>
     <td align="center">C-BBDT</td>
     <td align="center"><i>labeling_CUDA_BBDT.cu</i>, <i>labeling_grana_2010_tree.inc</i></td>
     <td align="center">NO</td>
@@ -343,7 +343,7 @@ Notes for gnuplot:
     <tr>
     <td align="center">CUDA DRAG</td>
     <td align="center">S. Allegretti,</br>F. Bolelli,</br>M. Cancilla,</br>C. Grana <a href="#CAIP">[29]</a></td>
-    <td align="center">-</td>
+    <td align="center">2019</td>
     <td align="center">C-DRAG</td>
     <td align="center"><i>labeling_CUDA_DRAG.cu</i></td>
     <td align="center">NO</td>
