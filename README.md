@@ -104,7 +104,7 @@ To correctly install and run YACCLAB following packages, libraries and utilities
 - One of your favourite IDE/compiler with C++14 support.
 
 GPU algorithms also require:
-- CUDA Toolkit 9.2 or higher (https://developer.nvidia.com/cuda-toolkit) and OpenCV `cudafeatures2d` package.
+- CUDA Toolkit 9.2 or higher (https://developer.nvidia.com/cuda-toolkit) and OpenCV `cudafeatures2d` package (as of OpenCV 4.5.3, package dependencies entail that required packages for CUDA algorithms are `core`, `cudafeatures2d`, `cudafilters`, `cudaimgproc`, `cudawarping`, `cudev`, `features2d`, `imgcodecs`, `imgproc`).
 
 Notes for gnuplot:
 - on Windows system: be sure add gnuplot to system path if you want YACCLAB automatically generates charts.
