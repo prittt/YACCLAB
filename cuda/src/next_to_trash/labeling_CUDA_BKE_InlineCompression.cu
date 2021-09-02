@@ -12,7 +12,9 @@
 #include "labeling_algorithms.h"
 #include "register.h"
 
-// Il minimo per entrambi � 4
+// This old version of BKE_IC does not save abcd pixel values in the info byte
+
+
 #define BLOCK_ROWS 16
 #define BLOCK_COLS 16
 
@@ -30,7 +32,7 @@ namespace {
         bitmap |= (1 << pos);
     }
 
-    // Risale alla radice dell'albero a partire da un suo nodo n
+    // Returns the root index of the UFTree
     __device__ unsigned Find(const int *s_buf, unsigned n) {
         while (s_buf[n] != n) {
             n = s_buf[n];
@@ -48,7 +50,7 @@ namespace {
     }
 
 
-    // Unisce gli alberi contenenti i nodi a e b, collegandone le radici
+    // Merges the UFTrees of a and b, linking one root to the other
     __device__ void Union(int *s_buf, unsigned a, unsigned b) {
 
         bool done;
@@ -87,7 +89,7 @@ namespace {
 
             unsigned P = 0;
 
-            char buffer[4];
+            char alignas(int) buffer[4];
             *(reinterpret_cast<int*>(buffer)) = 0;
 
             if (col + 1 < img.cols) {
@@ -279,7 +281,7 @@ namespace {
 
 }
 
-class CUDA_BKE_InlineCompression : public GpuLabeling2D<CONN_8> {
+class BKE_InlineCompression : public GpuLabeling2D<Connectivity2D::CONN_8> {
 private:
     dim3 grid_size_;
     dim3 block_size_;
@@ -287,7 +289,7 @@ private:
     bool last_pixel_allocated_;
 
 public:
-    CUDA_BKE_InlineCompression() {}
+    BKE_InlineCompression() {}
 
     void PerformLabeling() {
 
@@ -444,4 +446,4 @@ public:
 
 };
 
-REGISTER_LABELING(CUDA_BKE_InlineCompression);
+REGISTER_LABELING(BKE_InlineCompression);

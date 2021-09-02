@@ -10,7 +10,6 @@ target_sources(YACCLAB
         labeling_CUDA_BE_big.cu
         labeling_CUDA_BE_big_tex.cu
         labeling_CUDA_BKE.cu
-        labeling_CUDA_BKE_InlineCompression.cu
         labeling_CUDA_BKE_NoInlineCompression.cu
         labeling_CUDA_BUF.cu
         labeling_CUDA_BUF_2S.cu

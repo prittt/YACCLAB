@@ -111,7 +111,7 @@ namespace {
 
             unsigned P = 0;
 
-            char buffer[4];
+            char alignas(int) buffer[4];
             *(reinterpret_cast<int*>(buffer)) = 0;
 
             if (col + 1 < img.cols) {

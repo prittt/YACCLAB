@@ -115,7 +115,7 @@ namespace {
             // Bits 4, 5, 6, 7 are set if block P, Q, R, S need to be merged to X in Merge phase
             unsigned char info = 0;
 
-            char buffer[4];
+            char alignas(int) buffer[4];
             *(reinterpret_cast<int*>(buffer)) = 0;
 
             // Read pairs of consecutive values in memory at once
@@ -260,7 +260,7 @@ namespace {
         }
     }
 
-    __global__ void FinalLabeling(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels, unsigned char *last_pixel) {
+    __global__ void FinalLabeling(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels) {
 
         unsigned row = (blockIdx.y * BLOCK_ROWS + threadIdx.y) * 2;
         unsigned col = (blockIdx.x * BLOCK_COLS + threadIdx.x) * 2;
@@ -283,7 +283,9 @@ namespace {
                     info = labels[labels_index + labels.step / labels.elem_size];
                 }
                 else {
-                    info = *last_pixel;
+                    // Read from the input image
+                    // "a" is already in position 0
+                    info = img[row * img.step + col];
                 }
             }
 
@@ -381,7 +383,7 @@ public:
         //Mat1i final_blocks;
         //d_img_labels_.download(final_blocks);
 
-        FinalLabeling << <grid_size_, block_size_ >> > (d_img_, d_img_labels_, last_pixel_);
+        FinalLabeling << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
 
         //d_img_labels_.download(img_labels_);
         if (last_pixel_allocated_) {
@@ -445,7 +447,7 @@ private:
 
         Compression << <grid_size_, block_size_ >> > (d_img_labels_);
 
-        FinalLabeling << <grid_size_, block_size_ >> > (d_img_, d_img_labels_, last_pixel_);
+        FinalLabeling << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
 
         cudaDeviceSynchronize();
     }
