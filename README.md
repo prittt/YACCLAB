@@ -1,7 +1,7 @@
 # Yet Another Connected Components Labeling Benchmark
 [![release](https://img.shields.io/github/v/release/prittt/YACCLAB)](https://github.com/prittt/YACCLAB/releases/latest/)
 [![license](https://img.shields.io/github/license/prittt/YACCLAB)](https://github.com/prittt/YACCLAB/blob/master/LICENSE)<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![contributors](https://img.shields.io/badge/all_contributors-6-orange.svg?style=flat)](#contributors)
+[![contributors](https://img.shields.io/badge/all_contributors-7-orange.svg?style=flat)](#contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 
@@ -686,17 +686,21 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- markdownlint-disable -->
 <table>
   <tr>
-    <td align="center"><a href="http://www.federicobolelli.it"><img src="https://avatars3.githubusercontent.com/u/6863130?v=4" width="100px;" alt=""/><br /><sub><b>Federico Bolelli</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/commits?author=prittt" title="Code">💻</a> <a href="#projectManagement-prittt" title="Project Management">📆</a> <a href="#maintenance-prittt" title="Maintenance">🚧</a> <a href="#infra-prittt" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#ideas-prittt" title="Ideas, Planning, & Feedback">🤔</a></td>
-    <td align="center"><a href="https://github.com/stal12"><img src="https://avatars2.githubusercontent.com/u/34423515?v=1" width="100px;" alt=""/><br /><sub><b>Stefano Allegretti</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/commits?author=stal12" title="Code">💻</a> <a href="#maintenance-stal12" title="Maintenance">🚧</a> <a href="https://github.com/prittt/YACCLAB/issues?q=author%3Astal12" title="Bug reports">🐛</a> <a href="#ideas-stal12" title="Ideas, Planning, & Feedback">🤔</a> <a href="#infra-stal12" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
-    <td align="center"><a href="https://github.com/CostantinoGrana"><img src="https://avatars2.githubusercontent.com/u/18437151?v=1" width="100px;" alt=""/><br /><sub><b>Costantino Grana</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/commits?author=CostantinoGrana" title="Code">💻</a> <a href="#projectManagement-CostantinoGrana" title="Project Management">📆</a> <a href="#ideas-CostantinoGrana" title="Ideas, Planning, & Feedback">🤔</a> <a href="#infra-CostantinoGrana" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
-    <td align="center"><a href="https://michelecancilla.github.io"><img src="https://avatars1.githubusercontent.com/u/22983812?v=4" width="100px;" alt=""/><br /><sub><b>Michele Cancilla</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/commits?author=MicheleCancilla" title="Code">💻</a> <a href="#platform-MicheleCancilla" title="Packaging/porting to new platform">📦</a> <a href="#maintenance-MicheleCancilla" title="Maintenance">🚧</a></td>
-    <td align="center"><a href="http://www.lorenzobaraldi.com"><img src="https://avatars3.githubusercontent.com/u/8173533?v=4" width="100px;" alt=""/><br /><sub><b>Lorenzo Baraldi</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/commits?author=baraldilorenzo" title="Code">💻</a> <a href="#platform-baraldilorenzo" title="Packaging/porting to new platform">📦</a></td>
-    <td align="center"><a href="http://msoechting.de"><img src="https://avatars1.githubusercontent.com/u/6423697?v=4" width="100px;" alt=""/><br /><sub><b>Maximilian Söchting</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/commits?author=msoechting" title="Code">💻</a></td>
+    <td align="center"><a href="http://www.federicobolelli.it"><img src="https://avatars3.githubusercontent.com/u/6863130?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Federico Bolelli</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/commits?author=prittt" title="Code">💻</a> <a href="#projectManagement-prittt" title="Project Management">📆</a> <a href="#maintenance-prittt" title="Maintenance">🚧</a> <a href="#infra-prittt" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#ideas-prittt" title="Ideas, Planning, & Feedback">🤔</a></td>
+    <td align="center"><a href="https://github.com/stal12"><img src="https://avatars2.githubusercontent.com/u/34423515?v=1?s=100" width="100px;" alt=""/><br /><sub><b>Stefano Allegretti</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/commits?author=stal12" title="Code">💻</a> <a href="#maintenance-stal12" title="Maintenance">🚧</a> <a href="https://github.com/prittt/YACCLAB/issues?q=author%3Astal12" title="Bug reports">🐛</a> <a href="#ideas-stal12" title="Ideas, Planning, & Feedback">🤔</a> <a href="#infra-stal12" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
+    <td align="center"><a href="https://github.com/CostantinoGrana"><img src="https://avatars2.githubusercontent.com/u/18437151?v=1?s=100" width="100px;" alt=""/><br /><sub><b>Costantino Grana</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/commits?author=CostantinoGrana" title="Code">💻</a> <a href="#projectManagement-CostantinoGrana" title="Project Management">📆</a> <a href="#ideas-CostantinoGrana" title="Ideas, Planning, & Feedback">🤔</a> <a href="#infra-CostantinoGrana" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
+    <td align="center"><a href="https://michelecancilla.github.io"><img src="https://avatars1.githubusercontent.com/u/22983812?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Michele Cancilla</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/commits?author=MicheleCancilla" title="Code">💻</a> <a href="#platform-MicheleCancilla" title="Packaging/porting to new platform">📦</a> <a href="#maintenance-MicheleCancilla" title="Maintenance">🚧</a></td>
+    <td align="center"><a href="http://www.lorenzobaraldi.com"><img src="https://avatars3.githubusercontent.com/u/8173533?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Lorenzo Baraldi</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/commits?author=baraldilorenzo" title="Code">💻</a> <a href="#platform-baraldilorenzo" title="Packaging/porting to new platform">📦</a></td>
+    <td align="center"><a href="http://msoechting.de"><img src="https://avatars1.githubusercontent.com/u/6423697?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Maximilian Söchting</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/commits?author=msoechting" title="Code">💻</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/patrickhwood"><img src="https://avatars.githubusercontent.com/u/2100827?v=4?s=100" width="100px;" alt=""/><br /><sub><b>patrickhwood</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/issues?q=author%3Apatrickhwood" title="Bug reports">🐛</a></td>
   </tr>
 </table>
 
-<!-- markdownlint-enable -->
+<!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
+
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome.
