@@ -115,7 +115,7 @@ namespace {
             // Bits 4, 5, 6, 7 are set if block P, Q, R, S need to be merged to X in Merge phase
             unsigned char info = 0;
 
-            char alignas(int) buffer[4];
+            char buffer alignas(int) [4];
             *(reinterpret_cast<int*>(buffer)) = 0;
 
             // Read pairs of consecutive values in memory at once

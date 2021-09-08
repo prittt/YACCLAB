@@ -107,7 +107,7 @@ __global__ void InitLabeling(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels
         // Bits 4, 5, 6, 7 are set if block P, Q, R, S need to be merged to X in Merge phase
         unsigned char info = 0;
 
-        char alignas(int32_t) buffer[4] = { 0, 0, 0, 0 };
+        char buffer alignas(int32_t) [4] = { 0, 0, 0, 0 };
         //*(reinterpret_cast<int32_t*>(buffer)) = 0;
 
         // Read pairs of consecutive values in memory at once
