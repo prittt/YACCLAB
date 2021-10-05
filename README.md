@@ -310,18 +310,58 @@ Notes for gnuplot:
   </tr>
   <tr>
     <td align="center">Block-run-based</td>
-    <td align="center">P. Chen,</br>H.L. Zhao,</br>C. Tao,</br>H.S. Sang<a href="#BRB">[32]</a></td>
+    <td align="center">P. Chen,</br>H.L. Zhao,</br>C. Tao,</br>H.S. Sang <a href="#BRB">[32]</a></td>
     <td align="center">2011</td>
     <td align="center">BRB</td>
     <td align="center"><i>labeling_chen_2011.cu</i></td>
     <td align="center">NO</td>
   </tr>
   <tr>
+    <td align="center">Stava</td>
+    <td align="center">O. Stava,</br>B. Benes <a href="#STAVA">[37]</a></td>
+    <td align="center">2011</td>
+    <td align="center">STAVA</td>
+    <td align="center"><i>labeling_stava_2011.cu</i></td>
+    <td align="center">NO</td>
+  </tr>
+  <tr>
+    <td align="center">Rasmusson</td>
+    <td align="center">A. Rasmusson,</br>T.S. Sørensen,</br>G. Ziegler <a href="#RASMUSSON">[36]</a></td>
+    <td align="center">2013</td>
+    <td align="center">RASMUSSON</td>
+    <td align="center"><i>labeling_rasmusson_2013.cu</i></td>
+    <td align="center">NO</td>
+  </tr>
+  <tr>
     <td align="center">Accelerated CCL</td>
-    <td align="center">F. N. Paravecino,</br>D. Kaeli<a href="#ACCL">[33]</a></td>
+    <td align="center">F. N. Paravecino,</br>D. Kaeli <a href="#ACCL">[33]</a></td>
     <td align="center">2014</td>
     <td align="center">ACCL</td>
     <td align="center"><i>labeling_paravecino_2014.cu</i></td>
+    <td align="center">NO</td>
+  </tr>
+  <tr>
+    <td align="center">8-Directional Label Selection</td>
+    <td align="center">Y. Soh,</br>H. Ashraf,</br>Y. Hae,</br>I. Kim <a href="#8DLS">[35]</a></td>
+    <td align="center">2014</td>
+    <td align="center">DLS</td>
+    <td align="center"><i>labeling_soh_2014_8DLS.cu</i></td>
+    <td align="center">NO</td>
+  </tr>
+  <tr>
+    <td align="center">Modified 8-Directional Label Selection</td>
+    <td align="center">Y. Soh,</br>H. Ashraf,</br>Y. Hae,</br>I. Kim <a href="#8DLS">[35]</a></td>
+    <td align="center">2014</td>
+    <td align="center">M8DLS</td>
+    <td align="center"><i>labeling_soh_2014_M8DLS.cu</i></td>
+    <td align="center">NO</td>
+  </tr>
+  <tr>
+    <td align="center">LBUF</td>
+    <td align="center">K. Yonehara,</br>K. Aizawa <a href="#LBUF">[38]</a></td>
+    <td align="center">2015</td>
+    <td align="center">LBUF</td>
+    <td align="center"><i>labeling_yonehara_2015.cu</i></td>
     <td align="center">NO</td>
   </tr>
   <tr>
@@ -340,9 +380,17 @@ Notes for gnuplot:
     <td align="center"><i>labeling_cabaret_2017.cu</i></td>
     <td align="center">NO</td>
   </tr>
-    <tr>
+  <tr>
+    <td align="center">Komura Equivalence (8-conn)</td>
+    <td align="center">S. Allegretti,</br>F. Bolelli,</br>M. Cancilla,</br>C. Grana <a href="#KE">[22]</a></td>
+    <td align="center">2018</td>
+    <td align="center">KE</td>
+    <td align="center"><i>labeling_allegretti_2018.cu</i></td>
+    <td align="center">NO</td>
+  </tr>
+  <tr>
     <td align="center">Hardware Accelerated</br>4-connected</td>
-    <td align="center">A. Hennequin,</br>L. Lacassagne,</br>L. Cabaret,</br>Q. Meunier<a href="#HA4">[34]</a></td>
+    <td align="center">A. Hennequin,</br>L. Lacassagne,</br>L. Cabaret,</br>Q. Meunier <a href="#HA4">[34]</a></td>
     <td align="center">2018</td>
     <td align="center">HA4</td>
     <td align="center"><i>labeling_hennequin_2018.cu</i></td>
@@ -352,7 +400,7 @@ Notes for gnuplot:
     <td align="center">CUDA SAUF</td>
     <td align="center">S. Allegretti,</br>F. Bolelli,</br>M. Cancilla,</br>C. Grana <a href="#CAIP">[29]</a></td>
     <td align="center">2019</td>
-    <td align="center">C-SAUF</td>
+    <td align="center">C_SAUF</td>
     <td align="center"><i>labeling_allegretti_2019_SAUF.cu</i>,</br><i>labeling_wu_2009_tree.inc</i></td>
     <td align="center">NO</td>
   </tr>
@@ -360,15 +408,15 @@ Notes for gnuplot:
     <td align="center">CUDA BBDT</td>
     <td align="center">S. Allegretti,</br>F. Bolelli,</br>M. Cancilla,</br>C. Grana <a href="#CAIP">[29]</a></td>
     <td align="center">2019</td>
-    <td align="center">C-BBDT</td>
+    <td align="center">C_BBDT</td>
     <td align="center"><i>labeling_allegretti_2019_BBDT.cu</i>, <i>labeling_grana_2010_tree.inc</i></td>
     <td align="center">NO</td>
   </tr>
-    <tr>
+  <tr>
     <td align="center">CUDA DRAG</td>
     <td align="center">S. Allegretti,</br>F. Bolelli,</br>M. Cancilla,</br>C. Grana <a href="#CAIP">[29]</a></td>
     <td align="center">2019</td>
-    <td align="center">C-DRAG</td>
+    <td align="center">C_DRAG</td>
     <td align="center"><i>labeling_allegretti_2019_DRAG.cu</i></td>
     <td align="center">NO</td>
   </tr>
@@ -1120,6 +1168,42 @@ F. N. Paravecino, D. Kaeli, "Accelerated Connected Component Labeling Using CUDA
     <td>
       <p align="justify">
 A. Hennequin, L. Lacassagne, L. Cabaret, Q. Meunier, "A new Direct Connected Component Labeling and Analysis Algorithms for GPUs", DASIP, 2018</p>
+    </td>
+</tr>	
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="8DLS">[35]</a>
+    </td>
+    <td>
+      <p align="justify">
+Y. So, H. Ashraf, Y. Hae, I. Kim, "Fast Parallel Connected Component Labeling Algorithm Using CUDA Based On 8-Directional Label Selection", International Journal of Latest Research in Science and Technology, 2014</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="RASMUSSON">[36]</a>
+    </td>
+    <td>
+      <p align="justify">
+A. Rasmusson, T.S. Sørensen, G. Ziegler, "Connected Components Labeling on the GPU with Generalization to Voronoi Diagrams and Signed Distance Fields", International Symposium on Visual Computing, 2013</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="STAVA">[37]</a>
+    </td>
+    <td>
+      <p align="justify">
+O. Stava, B. Benes, "Connected Components Labeling in CUDA", GPU Computing Gems, 2011</p>
+    </td>
+</tr>	
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="LBUF">[37]</a>
+    </td>
+    <td>
+      <p align="justify">
+K. Yonehara, K. Aizawa, "A Line-Based Connected Component Labeling Algorithm Using GPUs", Third International Symposium on Computing and Networking, 2015</p>
     </td>
 </tr>	
 </table>
