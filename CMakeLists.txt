@@ -111,7 +111,8 @@ if(YACCLAB_ENABLE_CUDA)
         #message(STATUS ${ARCH_FLAGS})
         #SET(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} ${ARCH_FLAGS}")
         
-        add_compile_options($<$<AND:$<COMPILE_LANGUAGE:CUDA>,$<CONFIG:Debug>>:-G>)
+        # This flag causes some kernel do not run, for some unknown reason
+        #add_compile_options($<$<AND:$<COMPILE_LANGUAGE:CUDA>,$<CONFIG:Debug>>:-G>)
                 
 	else()
 		message(WARNING "No CUDA support")
