@@ -55,9 +55,14 @@ public:
 		std::vector<uint64_t> unused;
 		CheckAlgorithms(title, mode_cfg_.ccl_mem_algorithms, &Labeling::PerformLabelingMem, unused);
 	}
+	void CheckPerformLabelingBlocksize() {
+		std::string title = "Checking Correctness of 'PerformLabelingBlocksize()'";
+		CheckAlgorithms(title, mode_cfg_.ccl_blocksize_algorithms, &Labeling::PerformLabelingBlocksize, 16, 16, 1);
+	}
 
     void InitialOperations();
-
+	
+	void BlockSizeTest();
 	void AverageTest();
 	void AverageTestWithSteps();
 	void DensityTest();
@@ -75,6 +80,10 @@ private:
     void CheckMethodsExistence();
     void CheckDatasets();
     void CreateDirectories();
+
+#if defined YACCLAB_WITH_CUDA
+	void CheckBlocksizeParameters();
+#endif
 
 	bool LoadFileList(std::vector<std::pair<std::string, bool>>& filenames, const path& files_path);
 	bool CheckFileList(const path& base_path, std::vector<std::pair<std::string, bool>>& filenames);

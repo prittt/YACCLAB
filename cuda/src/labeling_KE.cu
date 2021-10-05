@@ -92,8 +92,8 @@ namespace {
 	// Labels start at value 1, to differentiate them from background, that has value 0.
 	__global__ void Init(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels) {
 
-		unsigned row = blockIdx.y * BLOCK_ROWS + threadIdx.y;
-		unsigned col = blockIdx.x * BLOCK_COLS + threadIdx.x;
+		unsigned row = blockIdx.y * blockDim.y + threadIdx.y;
+		unsigned col = blockIdx.x * blockDim.x + threadIdx.x;
 		unsigned img_index = row * img.step + col;
 		unsigned labels_index = row * (labels.step / labels.elem_size) + col;
 
@@ -156,8 +156,8 @@ namespace {
 
 	__global__ void Compression(cuda::PtrStepSzi labels) {
 
-		unsigned row = blockIdx.y * BLOCK_ROWS + threadIdx.y;
-		unsigned col = blockIdx.x * BLOCK_COLS + threadIdx.x;
+		unsigned row = blockIdx.y * blockDim.y + threadIdx.y;
+		unsigned col = blockIdx.x * blockDim.x + threadIdx.x;
 		unsigned labels_index = row * (labels.step / labels.elem_size) + col;
 
 		if (row < labels.rows && col < labels.cols) {
@@ -170,8 +170,8 @@ namespace {
 
 	__global__ void Reduce(const cuda::PtrStepb img, cuda::PtrStepSzi labels) {
 
-		unsigned row = blockIdx.y * BLOCK_ROWS + threadIdx.y;
-		unsigned col = blockIdx.x * BLOCK_COLS + threadIdx.x;
+		unsigned row = blockIdx.y * blockDim.y + threadIdx.y;
+		unsigned col = blockIdx.x * blockDim.x + threadIdx.x;
 		unsigned img_index = row * img.step + col;
 		unsigned labels_index = row * (labels.step / labels.elem_size) + col;
 
@@ -233,6 +233,27 @@ public:
 
 		cudaDeviceSynchronize();
 	}
+
+
+	void PerformLabelingBlocksize(int x, int y, int z) override {
+
+		const int block_cols = x;
+		const int block_rows = y;
+
+		d_img_labels_.create(d_img_.size(), CV_32SC1);
+		grid_size_ = dim3((d_img_.cols + block_cols - 1) / block_cols, (d_img_.rows + block_rows - 1) / block_rows, 1);
+		block_size_ = dim3(block_cols, block_rows, 1);
+
+		BLOCKSIZE_KERNEL(Init, grid_size_, block_size_, 0, d_img_, d_img_labels_)
+
+		BLOCKSIZE_KERNEL(Compression, grid_size_, block_size_, 0, d_img_labels_)
+
+		BLOCKSIZE_KERNEL(Reduce, grid_size_, block_size_, 0, d_img_, d_img_labels_)
+
+		BLOCKSIZE_KERNEL(Compression, grid_size_, block_size_, 0, d_img_labels_)
+
+	}
+
 
 
 private:
@@ -309,3 +330,5 @@ public:
 
 REGISTER_LABELING(KE);
 
+
+REGISTER_KERNELS(KE, Init, Compression, Reduce)

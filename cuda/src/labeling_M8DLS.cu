@@ -13,9 +13,9 @@
 #include "register.h"
 
 
-// Modification of 8DLS (8 Directional Label equivalence Solution). Le change with respect to 8DLS is not clear.
+// Modification of 8DLS (8 Directional Label equivalence Solution). The change with respect to 8DLS is not clear.
 // Apparently, the result is not always correct.
-// We e-mailed the authors, but they wouldn't answer.
+// We e-mailed the authors, but they won't answer.
 
 
 // Modifica dell' 8DLS (8 Directional Label equivalence Solution). La modifica proposta rispetto a DLS non � chiara, da quello che 

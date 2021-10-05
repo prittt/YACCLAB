@@ -159,6 +159,32 @@ public:
 		cudaDeviceSynchronize();		
 	}
 
+	void PerformLabelingBlocksize(int x, int y, int z) override {
+
+		d_img_labels_.create(d_img_.size(), CV_32SC1);
+		cudaMalloc(&d_changes, sizeof(char));
+
+		grid_size_ = dim3((d_img_.cols + x - 1) / x, (d_img_.rows + y - 1) / y, 1);
+		block_size_ = dim3(x, y, 1);
+
+		BLOCKSIZE_KERNEL(Init, grid_size_, block_size_, 0, d_img_, d_img_labels_)
+
+		while (true) {
+			changes = 0;
+			cudaMemcpy(d_changes, &changes, sizeof(char), cudaMemcpyHostToDevice);
+
+			BLOCKSIZE_KERNEL(Scan, grid_size_, block_size_, 0, d_img_labels_, d_changes)
+
+			cudaMemcpy(&changes, d_changes, sizeof(char), cudaMemcpyDeviceToHost);
+
+			if (!changes)
+				break;
+
+			BLOCKSIZE_KERNEL(Analyze, grid_size_, block_size_, 0, d_img_labels_)
+		}
+		cudaFree(d_changes);
+	}
+
 
 private:
 	double Alloc() {
@@ -229,3 +255,4 @@ public:
 
 REGISTER_LABELING(OLE);
 
+REGISTER_KERNELS(OLE, Init, Scan, Analyze)

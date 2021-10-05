@@ -297,7 +297,7 @@ Notes for gnuplot:
     <td align="center">V. Oliveira,</br>R. Lotufo <a href="#UF">[18]</a></td>
     <td align="center">2010</td>
     <td align="center">UF</td>
-    <td align="center"><i>labeling_CUDA_UF.cu</i></td>
+    <td align="center"><i>labeling_oliveira_2010.cu</i></td>
     <td align="center">NO</td>
   </tr>
   <tr>
@@ -305,7 +305,23 @@ Notes for gnuplot:
     <td align="center">O. Kalentev,</br>A. Rai,</br>S. Kemnitz,</br>R. Schneider <a href="#OLE">[19]</a></td>
     <td align="center">2011</td>
     <td align="center">OLE</td>
-    <td align="center"><i>labeling_CUDA_OLE.cu</i></td>
+    <td align="center"><i>labeling_kalentev_2011.cu</i></td>
+    <td align="center">NO</td>
+  </tr>
+  <tr>
+    <td align="center">Block-run-based</td>
+    <td align="center">P. Chen,</br>H.L. Zhao,</br>C. Tao,</br>H.S. Sang<a href="#BRB">[32]</a></td>
+    <td align="center">2011</td>
+    <td align="center">BRB</td>
+    <td align="center"><i>labeling_chen_2011.cu</i></td>
+    <td align="center">NO</td>
+  </tr>
+  <tr>
+    <td align="center">Accelerated CCL</td>
+    <td align="center">F. N. Paravecino,</br>D. Kaeli<a href="#ACCL">[33]</a></td>
+    <td align="center">2014</td>
+    <td align="center">ACCL</td>
+    <td align="center"><i>labeling_paravecino_2014.cu</i></td>
     <td align="center">NO</td>
   </tr>
   <tr>
@@ -313,7 +329,7 @@ Notes for gnuplot:
     <td align="center">S. Zavalishin,</br>I. Safonov,</br>Y. Bekhtin,</br>I. Kurilin <a href="#BE">[20]</a></td>
     <td align="center">2016</td>
     <td align="center">BE</td>
-    <td align="center"><i>labeling_CUDA_BE.cu</i></td>
+    <td align="center"><i>labeling_zavalishin_2016.cu</i></td>
     <td align="center">NO</td>
   </tr>
   <tr>
@@ -321,7 +337,15 @@ Notes for gnuplot:
     <td align="center">L. Cabaret,</br>L. Lacassagne,</br>D. Etiemble <a href="#DLP">[21]</a></td>
     <td align="center">2017</td>
     <td align="center">DLP</td>
-    <td align="center"><i>labeling_CUDA_DLP.cu</i></td>
+    <td align="center"><i>labeling_cabaret_2017.cu</i></td>
+    <td align="center">NO</td>
+  </tr>
+    <tr>
+    <td align="center">Hardware Accelerated</br>4-connected</td>
+    <td align="center">A. Hennequin,</br>L. Lacassagne,</br>L. Cabaret,</br>Q. Meunier<a href="#HA4">[34]</a></td>
+    <td align="center">2018</td>
+    <td align="center">HA4</td>
+    <td align="center"><i>labeling_hennequin_2018.cu</i></td>
     <td align="center">NO</td>
   </tr>
   <tr>
@@ -329,7 +353,7 @@ Notes for gnuplot:
     <td align="center">S. Allegretti,</br>F. Bolelli,</br>M. Cancilla,</br>C. Grana <a href="#CAIP">[29]</a></td>
     <td align="center">2019</td>
     <td align="center">C-SAUF</td>
-    <td align="center"><i>labeling_CUDA_SAUF.cu</i>,</br><i>labeling_wu_2009_tree.inc</i></td>
+    <td align="center"><i>labeling_allegretti_2019_SAUF.cu</i>,</br><i>labeling_wu_2009_tree.inc</i></td>
     <td align="center">NO</td>
   </tr>
   <tr>
@@ -337,7 +361,7 @@ Notes for gnuplot:
     <td align="center">S. Allegretti,</br>F. Bolelli,</br>M. Cancilla,</br>C. Grana <a href="#CAIP">[29]</a></td>
     <td align="center">2019</td>
     <td align="center">C-BBDT</td>
-    <td align="center"><i>labeling_CUDA_BBDT.cu</i>, <i>labeling_grana_2010_tree.inc</i></td>
+    <td align="center"><i>labeling_allegretti_2019_BBDT.cu</i>, <i>labeling_grana_2010_tree.inc</i></td>
     <td align="center">NO</td>
   </tr>
     <tr>
@@ -345,7 +369,7 @@ Notes for gnuplot:
     <td align="center">S. Allegretti,</br>F. Bolelli,</br>M. Cancilla,</br>C. Grana <a href="#CAIP">[29]</a></td>
     <td align="center">2019</td>
     <td align="center">C-DRAG</td>
-    <td align="center"><i>labeling_CUDA_DRAG.cu</i></td>
+    <td align="center"><i>labeling_allegretti_2019_DRAG.cu</i></td>
     <td align="center">NO</td>
   </tr>
   <tr>
@@ -353,7 +377,7 @@ Notes for gnuplot:
     <td align="center">S. Allegretti,</br>F. Bolelli,</br>C. Grana <a href="#BUF_BKE">[24]</a></td>
     <td align="center">2019</td>
     <td align="center">BUF</td>
-    <td align="center"><i>labeling_CUDA_BUF.cu</i></td>
+    <td align="center"><i>labeling_allegretti_2019_BUF.cu</i></td>
     <td align="center">NO</td>
   </tr>
     <tr>
@@ -361,7 +385,7 @@ Notes for gnuplot:
     <td align="center">S. Allegretti,</br>F. Bolelli,</br>C. Grana <a href="#BUF_BKE">[24]</a></td>
     <td align="center">2019</td>
     <td align="center">BKE</td>
-    <td align="center"><i>labeling_CUDA_BKE.cu</i></td>
+    <td align="center"><i>labeling_allegretti_2019_BKE.cu</i></td>
     <td align="center">NO</td>
   </tr>
 </table>
@@ -419,14 +443,16 @@ perform:
   density:            false
   granularity:        false
   memory:             false
+  blocksize:          false 
 ```
 
 - <i>correctness_tests</i> - dictionary indicating the kind of correctness tests to perform:
 ```yaml
 correctness_tests:
-  eight_connectivity_standard: true
-  eight_connectivity_steps:    true
-  eight_connectivity_memory:   true
+  eight_connectivity_standard:  true
+  eight_connectivity_steps:     true
+  eight_connectivity_memory:    true
+  eight_connectivity_blocksize: true      
 ```
 
 - <i>tests_number</i> - dictionary which sets the number of runs for each test available:
@@ -435,7 +461,8 @@ tests_number:
   average:            10
   average_with_steps: 10
   density:            10
-  granularity:        10
+  granularity:        10        
+  blocksize:          10                
 ```
 
 - <i>algorithms</i> - list of algorithms on which apply the chosen tests:
@@ -449,7 +476,7 @@ algorithms:
   - labeling_NULL
 ```
 
-- <i>check_datasets</i>, <i>average_datasets</i>, <i>average_ws_datasets</i> and <i>memory_datasets</i> - lists of <a href="#conf">datasets</a> on which, respectively, correctness, average, average_ws and memory tests should be run:
+- <i>check_datasets</i>, <i>average_datasets</i>, <i>average_ws_datasets</i>, <i>memory_datasets</i> and <i>blocksize_datasets</i>- lists of <a href="#conf">datasets</a> on which, respectively, correctness, average, average_ws, memory and blocksize tests should be run:
 <!--
 - <i>check_datasets:</i> list of datasets on which CCL algorithms should be checked.
 - <i>average_datasets:</i> list of datasets on which average test should be run.
@@ -460,6 +487,14 @@ algorithms:
 ...
 average_datasets: ["3dpes", "fingerprints", "hamlet", "medical", "mirflickr", "tobacco800", "xdocs"]
 ...
+```
+
+- <i>blocksize</i> - only for the 2D GPU and 3D GPU categories, this dictionary configures <a href=#blocksize_test>blocksize test</a> parameters. For each axis, a list of three values specifies [\<first\>, \<last\>, \<step\>]:
+```yaml
+blocksize:
+  x: [2, 64, 2]
+  y: [2, 64, 2]
+  z: [2, 64, 2]
 ```
 
 <p style=text-align: justify;>Finally, the following configuration parameters are common to all categories.</p>
@@ -503,7 +538,7 @@ The header file should follows the structure below (see <tt>include/labeling_bol
 
 template <typename LabelsSolver> // Remove this line if the algorithm is not template 
                                  // on the equivalence solver algorithm
-class <algorithm_bame> : public Labeling2D<CONN_8> { // the class must extend one of the labeling
+class <algorithm_name> : public Labeling2D<Connectivity2D::CONN_8> { // the class must extend one of the labeling
                                                      // classes Labeling2D, Labeling3D, .. that
                                                      // are template on the connectivity type
                                                     
@@ -551,13 +586,13 @@ public:
       // If the algorithm does not have a distinct firs and second scan replace the lines
       // above with the following ones:
       // perf_.start();
-      // AllScans(); // AllScans() shiuld be a member function which implements the entire
+      // AllScans(); // AllScans() should be a member function which implements the entire
                      // algorithm but the allocation/deallocation 
       // perf_.stop();
       // perf_.store(Step(StepType::ALL_SCANS), perf_.last());
 
       perf_.start();
-      Dealloc(); // Dealloc() shiuld be a member function responsible for memory
+      Dealloc(); // Dealloc() should be a member function responsible for memory
                  // deallocation.
       perf_.stop();
       perf_.store(Step(StepType::ALLOC_DEALLOC), perf_.last() + alloc_timing);
@@ -574,7 +609,112 @@ public:
 }
 ```
 
-When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The file should be placed in the <tt>cuda/src</tt> folder.
+When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The file should be placed in the <tt>cuda/src</tt> folder. The general structure of a GPU algorithm is the following:
+```c++
+
+// [...]
+
+// Kernel definitions:
+
+__global__ void <kernel_name_1>(...)
+{
+  ...
+}
+
+__global__ void <kernel_name_2>(...)
+{
+  ...
+}
+                                 
+class <algorithm_name> : public GpuLabeling2D<Connectivity2D::CONN_8> { // the class must extend one of the labeling
+                                                     // classes GpuLabeling2D, GpuLabeling3D, .. that
+                                                     // are template on the connectivity type
+                                                    
+public:
+    <algorithm_name>() {}
+
+    // This member function should implement the labeling procedure reading data from the
+    // input image "d_img_" (OpenCV cuda::GpuMat) and storing labels into the output one "d_img_labels_"
+    // (OpenCV cuda::GpuMat)
+    void PerformLabeling()
+    {
+      // Create the output image
+      d_img_labels_.create(d_img_.size(), CV_32SC1);
+
+      // [...]
+
+      // Call necessary kernels
+      <kernel_name_1> <<<...>>> (...);
+
+      <kernel_name_2> <<<...>>> (...);
+
+      // [...]
+      
+      // Wait for the end of the last kernel
+      cudaDeviceSynchronize();
+    }
+
+    // This member function should implement the with step version of the labeling procedure.
+    // This is required to perform tests with steps.
+    void PerformLabelingWithSteps()
+    {
+
+      double alloc_timing = Alloc(); // Alloc() should be a member function responsible
+                                     // for memory allocation of the required data structures
+
+      perf_.start();
+      FirstScan(); // FirsScan should be a member function that implements the 
+                   // first scan step of the algorithm (if it has one)
+      perf_.stop();
+      perf_.store(Step(StepType::FIRST_SCAN), perf_.last());
+
+      perf_.start();
+      SecondScan(); // SecondScan should be a member function that implements the 
+                    // second scan step of the algorithm (if it has one)
+      perf_.stop();
+      perf_.store(Step(StepType::SECOND_SCAN), perf_.last());
+
+      // If the algorithm does not have a distinct first and second scan replace the lines
+      // above with the following ones:
+      // perf_.start();
+      // AllScans(); // AllScans() should be a member function which implements the entire
+                     // algorithm but the allocation/deallocation 
+      // perf_.stop();
+      // perf_.store(Step(StepType::ALL_SCANS), perf_.last());
+
+      perf_.start();
+      Dealloc(); // Dealloc() should be a member function responsible for memory
+                 // deallocation.
+      perf_.stop();
+      perf_.store(Step(StepType::ALLOC_DEALLOC), perf_.last() + alloc_timing);
+
+      // [...]
+    }
+
+    void PerformLabelingBlocksize(int x, int y, int z)
+    {
+      // Create the output image
+      d_img_labels_.create(d_img_.size(), CV_32SC1);
+
+      // [...]
+
+      // Call necessary kernels through a macro that measures times separately
+      BLOCKSIZE_KERNEL(<kernel_name_1>, <grid_size>, <block_size>, <dynamic_shared_mem>, <arguments>...);
+
+      BLOCKSIZE_KERNEL(<kernel_name_2>, <grid_size>, <block_size>, <dynamic_shared_mem>, <arguments>...);
+
+      // [...]
+    }
+
+}
+
+REGISTER_LABELING(<algorithm_name>);
+
+// Only necessary for blocksize test
+REGISTER_KERNELS(<algorithm_name>, <kernel_name_1>, <kernel_name_2>, ...);
+
+```
+
 
 <p align="justify">Once an algorithm has been added to YACCLAB, it is ready to be tested and compared to the others. Don't forget to update the configuration file! We look at YACCLAB as a growing effort towards better reproducibility of CCL algorithms, so implementations of new and existing labeling methods are very welcome.</p>
 
@@ -664,6 +804,9 @@ When implementing a GPU algorithm only the <tt>.cu</tt> file is required. The fi
 - <b>Memory tests:</b> <p align="justify"> are useful to understand the reason for the good performances of an algorithm or in general to explain its behavior. Memory tests compute the average number of accesses to the label image (i.e the image used to store the provisional and then the final labels for the connected components), the average number of accesses to the binary image to be labeled, and, finally, the average number of accesses to data structures used to solve the equivalences between label classes. Moreover, if an algorithm requires extra data, memory tests summarize them as ``other'' accesses and return the average. Furthermore, all average contributions of an algorithm and dataset are summed together in order to show the total amount of memory accesses. Since counting the number of memory accesses imposes additional computations, functions implementing memory access tests are different from those implementing run-time and density tests, to keep run-time tests as objective as possible.</p>
 
 - <b>Granularity tests:</b> <p align="justify"> evaluates an algorithm varying density (from 1% to 100%, using a 1% step) and pixels granularity, but not images resolution. The output results display the average execution time over images with the same density and granularity.</p>
+
+<a name="blocksize_test"></a>
+- <b>Blocksize tests:</b> <p align="justify"> this test, which only makes sense for CUDA algorithms, is aimed at finding the best block size for each kernel with grid search parameter optimization. The range of values for each block axis can be specified in the configuration file. Given a set of CUDA algorithms, the blocksize test reports execution times of each kernel on one or multiple datasets, repeating the measurement for every different block size. Results are presented in a csv file. For every kernel, dataset and block size, the total execution time in ms is reported.</p>
 
 ## Examples of YACCLAB Output Results
 
@@ -950,6 +1093,33 @@ This project follows the [all-contributors](https://github.com/all-contributors/
     <td>
       <p align="justify">
 	M. Söchting, S. Allegretti, F. Bolelli, C. Grana. "A Heuristic-Based Decision Tree for Connected Components Labeling of 3D Volumes." 25th International Conference on Pattern Recognition, 2021</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="BRB">[32]</a>
+    </td>
+    <td>
+      <p align="justify">
+P. Chen, H. Zhao, C. Tao, H. Sang, "Block-run-based connected component labelling algorithm for gpgpu using shared memory." Electronics Letters, 2011</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="ACCL">[33]</a>
+    </td>
+    <td>
+      <p align="justify">
+F. N. Paravecino, D. Kaeli, "Accelerated Connected Component Labeling Using CUDA Framework." International Conference on Computer Vision and Graphics, ICCVG, 2014</p>
+    </td>
+</tr>	
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="HA4">[34]</a>
+    </td>
+    <td>
+      <p align="justify">
+A. Hennequin, L. Lacassagne, L. Cabaret, Q. Meunier, "A new Direct Connected Component Labeling and Analysis Algorithms for GPUs", DASIP, 2018</p>
     </td>
 </tr>	
 </table>

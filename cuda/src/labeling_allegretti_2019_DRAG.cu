@@ -38,6 +38,7 @@ namespace {
 		return n;
 	}
 
+
 	// Merges the UFTrees of a and b, linking one root to the other
 	__device__ void Union(int *s_buf, unsigned a, unsigned b) {
 
@@ -86,78 +87,111 @@ namespace {
 
 		if (row < labels.rows && col < labels.cols) {
 
-			unsigned P = 0;
+#define CONDITION_B col>0 && row>1 && img.data[img_index - 2 * img.step - 1]
+#define CONDITION_C row>1 && img.data[img_index - 2 * img.step]
+#define CONDITION_D col+1<img.cols && row>1 && img.data[img_index - 2 * img.step + 1]
+#define CONDITION_E col+2<img.cols && row>1 && img.data[img_index - 2 * img.step + 2]
 
-			char buffer alignas(int) [4];
-			*(reinterpret_cast<int*>(buffer)) = 0;
+#define CONDITION_G col>1 && row>0 && img.data[img_index - img.step - 2]
+#define CONDITION_H col>0 && row>0 && img.data[img_index - img.step - 1]
+#define CONDITION_I row>0 && img.data[img_index - img.step]
+#define CONDITION_J col+1<img.step && row>0 && img.data[img_index - img.step + 1]
+#define CONDITION_K col+2<img.step && row>0 && img.data[img_index - img.step + 2]
 
-			if (col + 1 < img.cols) {
-				// This does not depend on endianness
-				*(reinterpret_cast<int16_t*>(buffer)) = *(reinterpret_cast<int16_t*>(img.data + img_index));
+#define CONDITION_M col>1 && img.data[img_index - 2]
+#define CONDITION_N col>0 && img.data[img_index - 1]
+#define CONDITION_O img.data[img_index]
+#define CONDITION_P col+1<img.step && img.data[img_index + 1]
 
-				if (row + 1 < img.rows) {
-					*(reinterpret_cast<int16_t*>(buffer + 2)) = *(reinterpret_cast<int16_t*>(img.data + img_index + img.step));
-				}
-			}
-			else {
-				buffer[0] = img.data[img_index];
+#define CONDITION_R col>0 && row+1<img.rows && img.data[img_index + img.step - 1]
+#define CONDITION_S row+1<img.rows && img.data[img_index + img.step]
+#define CONDITION_T col+1<img.cols && row+1<img.rows && img.data[img_index + img.step + 1]
 
-				if (row + 1 < img.rows) {
-					buffer[2] = img.data[img_index + img.step];
-				}
-			}
+			// Action 1: No action
+#define ACTION_1  
+//			// Action 2: New label (the block has foreground pixels and is not connected to anything else)
+#define ACTION_2  
+			//Action P: Merge with block P
+#define ACTION_3 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2); 
+			// Action Q: Merge with block Q
+#define ACTION_4 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size));	
+			// Action R: Merge with block R
+#define ACTION_5 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2); 
+			// Action S: Merge with block S
+#define ACTION_6 Union(labels.data, labels_index, labels_index - 2);  
+			// Action 7: Merge labels of block P and Q
+#define ACTION_7 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2); \
+			Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size));			
+			//Action 8: Merge labels of block P and R
+#define ACTION_8 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2); \
+			Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2);			
+			// Action 9 Merge labels of block P and S
+#define ACTION_9 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2); \
+			Union(labels.data, labels_index, labels_index - 2);			
+			// Action 10 Merge labels of block Q and R
+#define ACTION_10 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size)); \
+			Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2);			
+			// Action 11: Merge labels of block Q and S
+#define ACTION_11 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size)); \
+			Union(labels.data, labels_index, labels_index - 2);			
+			// Action 12: Merge labels of block R and S
+#define ACTION_12 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2); \
+			Union(labels.data, labels_index, labels_index - 2);			
+			// Action 13: not used
+#define ACTION_13 
+			// Action 14: Merge labels of block P, Q and S
+#define ACTION_14 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2); \
+			Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size)); \
+			Union(labels.data, labels_index, labels_index - 2);		
+			//Action 15: Merge labels of block P, R and S
+#define ACTION_15 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2); \
+			Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2); \
+            Union(labels.data, labels_index, labels_index - 2);			
+			//Action 16: labels of block Q, R and S
+#define ACTION_16 Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size)); \
+			Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2); \
+			Union(labels.data, labels_index, labels_index - 2);			
 
-			if (buffer[0]) {
-				P |= 0x777;
-			}
-			if (buffer[1]) {
-				P |= (0x777 << 1);
-			}
-			if (buffer[2]) {
-				P |= (0x777 << 4);
-			}
+#include "labeling_bolelli_2018_drag.inc.h"
 
-			if (col == 0) {
-				P &= 0xEEEE;
-			}
-			if (col + 1 >= img.cols) {
-				P &= 0x3333;
-			}
-			else if (col + 2 >= img.cols) {
-				P &= 0x7777;
-			}
+#undef ACTION_0
+#undef ACTION_2
+#undef ACTION_P
+#undef ACTION_Q
+#undef ACTION_R
+#undef ACTION_S
+#undef ACTION_7
+#undef ACTION_8
+#undef ACTION_9
+#undef ACTION_10
+#undef ACTION_11
+#undef ACTION_12
+#undef ACTION_13
+#undef ACTION_14
+#undef ACTION_15
+#undef ACTION_16
 
-			if (row == 0) {
-				P &= 0xFFF0;
-			}
-			if (row + 1 >= img.rows) {
-				P &= 0xFF;
-			}
-			//else if (row + 2 >= img.rows) {
-			//	P &= 0xFFF;
-			//}
 
-			// P is now ready to be used to find neighbour blocks (or it should be)
-			// P value avoids range errors
+#undef CONDITION_B
+#undef CONDITION_C
+#undef CONDITION_D
+#undef CONDITION_E
 
-			if (P > 0) {
+#undef CONDITION_G
+#undef CONDITION_H
+#undef CONDITION_I
+#undef CONDITION_J
+#undef CONDITION_K
 
-				if (HasBit(P, 0) && img.data[img_index - img.step - 1]) {
-					Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) - 2);
-				}
+#undef CONDITION_M
+#undef CONDITION_N
+#undef CONDITION_O
+#undef CONDITION_P
 
-				if ((HasBit(P, 1) && img.data[img_index - img.step]) || (HasBit(P, 2) && img.data[img_index + 1 - img.step])) {
-					Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size));
-				}
+#undef CONDITION_R
+#undef CONDITION_S
+#undef CONDITION_T
 
-				if (HasBit(P, 3) && img.data[img_index + 2 - img.step]) {
-					Union(labels.data, labels_index, labels_index - 2 * (labels.step / labels.elem_size) + 2);
-				}
-
-				if ((HasBit(P, 4) && img.data[img_index - 1]) || (HasBit(P, 8) && img.data[img_index + img.step - 1])) {
-					Union(labels.data, labels_index, labels_index - 2);
-				}
-			}
 		}
 	}
 
@@ -168,14 +202,11 @@ namespace {
 		unsigned labels_index = row * (labels.step / labels.elem_size) + col;
 
 		if (row < labels.rows && col < labels.cols) {
-			unsigned label = labels.data[labels_index];
-			if (label < labels_index) {
-				labels[labels_index] = Find(labels.data, label);
-			}
+			labels[labels_index] = Find(labels.data, labels_index);
 		}
 	}
 
-     
+
 	__global__ void FinalLabeling(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels) {
 
 		unsigned row = (blockIdx.y * BLOCK_ROWS + threadIdx.y) * 2;
@@ -223,13 +254,13 @@ namespace {
 
 }
 
-class BUF : public GpuLabeling2D<Connectivity2D::CONN_8> {
+class C_DRAG : public GpuLabeling2D<Connectivity2D::CONN_8> {
 private:
 	dim3 grid_size_;
 	dim3 block_size_;
 
 public:
-    BUF() {}
+	C_DRAG() {}
 
 	void PerformLabeling() {
 
@@ -263,6 +294,22 @@ public:
 		cudaDeviceSynchronize();
 	}
 
+	void PerformLabelingBlocksize(int x, int y, int z) override {
+
+		d_img_labels_.create(d_img_.size(), CV_32SC1);
+
+		grid_size_ = dim3((((d_img_.cols + 1) / 2) + x - 1) / x, (((d_img_.rows + 1) / 2) + y - 1) / y, 1);
+		block_size_ = dim3(x, y, 1);
+
+		BLOCKSIZE_KERNEL(InitLabeling, grid_size_, block_size_, 0, d_img_labels_)
+
+		BLOCKSIZE_KERNEL(Merge, grid_size_, block_size_, 0, d_img_, d_img_labels_)
+
+		BLOCKSIZE_KERNEL(Compression, grid_size_, block_size_, 0, d_img_labels_)
+
+		BLOCKSIZE_KERNEL(FinalLabeling, grid_size_, block_size_, 0, d_img_, d_img_labels_)
+	}
+
 
 private:
 	void Alloc() {
@@ -286,7 +333,6 @@ private:
 	void AllScans() {
 		grid_size_ = dim3((((d_img_.cols + 1) / 2) + BLOCK_COLS - 1) / BLOCK_COLS, (((d_img_.rows + 1) / 2) + BLOCK_ROWS - 1) / BLOCK_ROWS, 1);
 		block_size_ = dim3(BLOCK_COLS, BLOCK_ROWS, 1);
-
 
 		InitLabeling << <grid_size_, block_size_ >> > (d_img_labels_);
 
@@ -335,4 +381,6 @@ public:
 
 };
 
-REGISTER_LABELING(BUF);
+REGISTER_LABELING(C_DRAG);
+
+REGISTER_KERNELS(C_DRAG, InitLabeling, Merge, Compression, FinalLabeling)

@@ -3,6 +3,11 @@
 //
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
+//
+// Additional Authors:
+// Victor M. A. Oliveira, Roberto A. Lotufo
+// Department of Computer Engineering and Industrial Automation
+// School of Electrical and Computer Engineering - UNICAMP, Campinas, Brazil
 
 #include <opencv2/cudafeatures2d.hpp>
 
@@ -74,10 +79,10 @@ namespace {
 
 		unsigned local_row = threadIdx.y;
 		unsigned local_col = threadIdx.x;
-		unsigned local_index = local_row * BLOCK_COLS + local_col;
+		unsigned local_index = local_row * blockDim.x + local_col;
 
 		unsigned global_row = blockIdx.y * BLOCK_ROWS + local_row;
-		unsigned global_col = blockIdx.x * BLOCK_COLS + local_col;
+		unsigned global_col = blockIdx.x * blockDim.x + local_col;
 		unsigned img_index = global_row * img.step + global_col;
 
 		__shared__ int s_buf[BLOCK_ROWS * BLOCK_COLS];
@@ -101,22 +106,22 @@ namespace {
 				}
 
 
-				if (local_row > 0 && s_img[local_index - BLOCK_COLS]) {
-					Union(s_buf, local_index, local_index - BLOCK_COLS);
+				if (local_row > 0 && s_img[local_index - blockDim.x]) {
+					Union(s_buf, local_index, local_index - blockDim.x);
 				}
 
 			}
 
 			else {
-				if (local_row > 0 && s_img[local_index - BLOCK_COLS]) {
+				if (local_row > 0 && s_img[local_index - blockDim.x]) {
 
 					if (local_col > 0 && s_img[local_index - 1]) {
-						Union(s_buf, local_index - 1, local_index - BLOCK_COLS);
+						Union(s_buf, local_index - 1, local_index - blockDim.x);
 					}
 
 
-					if (local_col < BLOCK_COLS - 1 && s_img[local_index + 1]) {
-						Union(s_buf, local_index + 1, local_index - BLOCK_COLS);
+					if (local_col < blockDim.x - 1 && s_img[local_index + 1]) {
+						Union(s_buf, local_index + 1, local_index - blockDim.x);
 					}
 				}
 
@@ -130,9 +135,9 @@ namespace {
 
 			if (v) {
 				unsigned f = Find(s_buf, local_index);
-				unsigned f_row = f / BLOCK_COLS;
-				unsigned f_col = f % BLOCK_COLS;
-				unsigned global_f = (blockIdx.y * BLOCK_ROWS + f_row) * (labels.step / labels.elem_size) + (blockIdx.x * BLOCK_COLS + f_col);
+				unsigned f_row = f / blockDim.x;
+				unsigned f_col = f % blockDim.x;
+				unsigned global_f = (blockIdx.y * BLOCK_ROWS + f_row) * (labels.step / labels.elem_size) + (blockIdx.x * blockDim.x + f_col);
 				labels.data[global_row * labels.step / sizeof(int) + global_col] = global_f + 1;		// C'� distinzione tra background e foreground
 			}
 
@@ -144,13 +149,90 @@ namespace {
 	}
 
 
+	__global__ void LocalMergeSize(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels) {
+
+		unsigned local_row = threadIdx.y;
+		unsigned local_col = threadIdx.x;
+		unsigned local_index = local_row * blockDim.x + local_col;
+
+		unsigned global_row = blockIdx.y * blockDim.y + local_row;
+		unsigned global_col = blockIdx.x * blockDim.x + local_col;
+		unsigned img_index = global_row * img.step + global_col;
+
+		extern __shared__ unsigned char shared_memory[];
+
+		int* s_buf = reinterpret_cast<int*>(shared_memory);
+		unsigned char* s_img = reinterpret_cast<unsigned char*>(shared_memory + blockDim.y * blockDim.x * sizeof(int));
+
+		bool in_limits = (global_row < img.rows&& global_col < img.cols);
+
+		s_buf[local_index] = local_index + 1;
+		s_img[local_index] = in_limits ? img[img_index] : 0xFF;
+
+		__syncthreads();
+
+		unsigned char v = s_img[local_index];
+
+		if (in_limits) {
+
+			if (v) {
+
+				if (local_col > 0 && s_img[local_index - 1]) {
+					Union(s_buf, local_index, local_index - 1);
+				}
+
+
+				if (local_row > 0 && s_img[local_index - blockDim.x]) {
+					Union(s_buf, local_index, local_index - blockDim.x);
+				}
+
+			}
+
+			else {
+				if (local_row > 0 && s_img[local_index - blockDim.x]) {
+
+					if (local_col > 0 && s_img[local_index - 1]) {
+						Union(s_buf, local_index - 1, local_index - blockDim.x);
+					}
+
+
+					if (local_col < blockDim.x - 1 && s_img[local_index + 1]) {
+						Union(s_buf, local_index + 1, local_index - blockDim.x);
+					}
+				}
+
+			}
+
+		}
+
+		__syncthreads();
+
+		if (in_limits) {
+
+			if (v) {
+				unsigned f = Find(s_buf, local_index);
+				unsigned f_row = f / blockDim.x;
+				unsigned f_col = f % blockDim.x;
+				unsigned global_f = (blockIdx.y * blockDim.y + f_row) * (labels.step / labels.elem_size) + (blockIdx.x * blockDim.x + f_col);
+				labels.data[global_row * labels.step / sizeof(int) + global_col] = global_f + 1;		// C'è distinzione tra background e foreground
+			}
+
+			else {
+				labels.data[global_row * labels.step / sizeof(int) + global_col] = 0;
+			}
+
+		}
+	}
+
+
+
 	__global__ void GlobalMerge(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels) {
 
 		unsigned local_row = threadIdx.y;
 		unsigned local_col = threadIdx.x;
 
-		unsigned global_row = blockIdx.y * BLOCK_ROWS + local_row;
-		unsigned global_col = blockIdx.x * BLOCK_COLS + local_col;
+		unsigned global_row = blockIdx.y * blockDim.y + local_row;
+		unsigned global_col = blockIdx.x * blockDim.x + local_col;
 		unsigned img_index = global_row * img.step + global_col;
 		unsigned labels_index = global_row * (labels.step / labels.elem_size) + global_col;
 
@@ -180,7 +262,7 @@ namespace {
 						Union(labels.data, labels_index - 1, labels_index - labels.step / sizeof(int));
 					}
 
-					if ((global_col < img.cols - 1) && (local_row == 0 || local_col == BLOCK_COLS - 1) && img[img_index + 1]) {
+					if ((global_col < img.cols - 1) && (local_row == 0 || local_col == blockDim.x - 1) && img[img_index + 1]) {
 						Union(labels.data, labels_index + 1, labels_index - labels.step / sizeof(int));
 					}
 				}
@@ -192,8 +274,8 @@ namespace {
 
 	__global__ void PathCompression(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels) {
 
-		unsigned global_row = blockIdx.y * BLOCK_ROWS + threadIdx.y;
-		unsigned global_col = blockIdx.x * BLOCK_COLS + threadIdx.x;
+		unsigned global_row = blockIdx.y * blockDim.y + threadIdx.y;
+		unsigned global_col = blockIdx.x * blockDim.x + threadIdx.x;
 		unsigned labels_index = global_row * (labels.step / labels.elem_size) + global_col;
 
 		if (global_row < labels.rows && global_col < labels.cols) {
@@ -249,6 +331,24 @@ public:
 		PathCompression << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
 
 		cudaDeviceSynchronize();
+	}
+
+
+	void PerformLabelingBlocksize(int x, int y, int z) override {
+
+		const int block_cols = x;
+		const int block_rows = y;
+
+		d_img_labels_.create(d_img_.size(), CV_32SC1);
+		grid_size_ = dim3((d_img_.cols + block_cols - 1) / block_cols, (d_img_.rows + block_rows - 1) / block_rows, 1);
+		block_size_ = dim3(block_cols, block_rows, 1);
+		int shared_size = block_rows * block_cols * (sizeof(int) + sizeof(unsigned char));
+
+		BLOCKSIZE_KERNEL(LocalMergeSize, grid_size_, block_size_, shared_size, d_img_, d_img_labels_)
+
+		BLOCKSIZE_KERNEL(GlobalMerge, grid_size_, block_size_, 0, d_img_, d_img_labels_)
+
+		BLOCKSIZE_KERNEL(PathCompression, grid_size_, block_size_, 0, d_img_, d_img_labels_)
 	}
 
 
@@ -315,3 +415,4 @@ public:
 
 REGISTER_LABELING(UF);
 
+REGISTER_KERNELS(UF, LocalMergeSize, GlobalMerge, PathCompression)

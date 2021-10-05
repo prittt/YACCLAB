@@ -81,9 +81,9 @@ namespace {
 
 
 	__global__ void InitLabeling(const cuda::PtrStepSz3b img, cuda::PtrStepSz3i labels, unsigned int *last_voxel_conn) {
-		unsigned x = (blockIdx.x * BLOCK_X + threadIdx.x) * 2;
-		unsigned y = (blockIdx.y * BLOCK_Y + threadIdx.y) * 2;
-		unsigned z = (blockIdx.z * BLOCK_Z + threadIdx.z) * 2;
+		unsigned x = (blockIdx.x * blockDim.x + threadIdx.x) * 2;
+		unsigned y = (blockIdx.y * blockDim.y + threadIdx.y) * 2;
+		unsigned z = (blockIdx.z * blockDim.z + threadIdx.z) * 2;
 		unsigned img_index = z * (img.stepz / img.elem_size) + y * (img.stepy / img.elem_size) + x;
 		unsigned labels_index = z * (labels.stepz / labels.elem_size) + y * (labels.stepy / labels.elem_size) + x;
 
@@ -346,9 +346,9 @@ namespace {
 
 	__global__ void Merge(cuda::PtrStepSz3i labels, unsigned int *last_voxel_conn) {
 
-		unsigned x = (blockIdx.x * BLOCK_X + threadIdx.x) * 2;
-		unsigned y = (blockIdx.y * BLOCK_Y + threadIdx.y) * 2;
-		unsigned z = (blockIdx.z * BLOCK_Z + threadIdx.z) * 2;
+		unsigned x = (blockIdx.x * blockDim.x + threadIdx.x) * 2;
+		unsigned y = (blockIdx.y * blockDim.y + threadIdx.y) * 2;
+		unsigned z = (blockIdx.z * blockDim.z + threadIdx.z) * 2;
 		unsigned labels_index = z * (labels.stepz / labels.elem_size) + y * (labels.stepy / labels.elem_size) + x;
 
 		if (x < labels.x && y < labels.y && z < labels.z) {
@@ -429,9 +429,9 @@ namespace {
 
     __global__ void PathCompression(cuda::PtrStepSz3i labels) {
 
-        unsigned x = 2 * (blockIdx.x * BLOCK_X + threadIdx.x);
-        unsigned y = 2 * (blockIdx.y * BLOCK_Y + threadIdx.y);
-        unsigned z = 2 * (blockIdx.z * BLOCK_Z + threadIdx.z);
+        unsigned x = 2 * (blockIdx.x * blockDim.x + threadIdx.x);
+        unsigned y = 2 * (blockIdx.y * blockDim.y + threadIdx.y);
+        unsigned z = 2 * (blockIdx.z * blockDim.z + threadIdx.z);
         unsigned labels_index = z * (labels.stepz / labels.elem_size) + y * (labels.stepy / labels.elem_size) + x;
 
         if (x < labels.x && y < labels.y && z < labels.z) {
@@ -442,9 +442,9 @@ namespace {
 
 	__global__ void FinalLabeling(const cuda::PtrStepSz3b img, cuda::PtrStepSz3i labels) {
 
-		unsigned x = 2 * (blockIdx.x * BLOCK_X + threadIdx.x);
-		unsigned y = 2 * (blockIdx.y * BLOCK_Y + threadIdx.y);
-		unsigned z = 2 * (blockIdx.z * BLOCK_Z + threadIdx.z);
+		unsigned x = 2 * (blockIdx.x * blockDim.x + threadIdx.x);
+		unsigned y = 2 * (blockIdx.y * blockDim.y + threadIdx.y);
+		unsigned z = 2 * (blockIdx.z * blockDim.z + threadIdx.z);
 		unsigned labels_index = z * (labels.stepz / labels.elem_size) + y * (labels.stepy / labels.elem_size) + x;
 		unsigned img_index = z * (img.stepz / img.elem_size) + y * (img.stepy / img.elem_size) + x;
 
@@ -594,6 +594,49 @@ public:
 	}
 
 
+	void PerformLabelingBlocksize(int x, int y, int z) override {
+
+		d_img_labels_.create(d_img_.x, d_img_.y, d_img_.z, CV_32SC1);
+
+		// Decide whether last_pixel_ needs specific allocation or not
+		// It only needs it in the case that input volume has 2 or more dimensions equals to 1
+		allocated_last_conn_ = false;
+		if ((d_img_.x % 2 == 1) && (d_img_.y % 2 == 1) && (d_img_.z % 2 == 1)) {
+			if (d_img_.x > 1 && d_img_.y > 1) {
+				last_voxel_conn_ = reinterpret_cast<unsigned int*>(d_img_labels_.data + (d_img_labels_.z - 1) * d_img_labels_.stepz + (d_img_labels_.y - 2) * d_img_labels_.stepy) + d_img_labels_.x - 2;
+			}
+			else if (d_img_.x > 1 && d_img_.z > 1) {
+				last_voxel_conn_ = reinterpret_cast<unsigned int*>(d_img_labels_.data + (d_img_labels_.z - 2) * d_img_labels_.stepz + (d_img_labels_.y - 1) * d_img_labels_.stepy) + d_img_labels_.x - 2;
+			}
+			else if (d_img_.y > 1 && d_img_.z > 1) {
+				last_voxel_conn_ = reinterpret_cast<unsigned int*>(d_img_labels_.data + (d_img_labels_.z - 2) * d_img_labels_.stepz + (d_img_labels_.y - 2) * d_img_labels_.stepy) + d_img_labels_.x - 1;
+			}
+			else {
+				cudaMalloc(&last_voxel_conn_, sizeof(unsigned int));
+				allocated_last_conn_ = true;
+			}
+		}
+
+		grid_size_ = dim3((d_img_.x + x - 1) / x, (d_img_.y + y - 1) / y, (d_img_.z + z - 1) / z);
+		block_size_ = dim3(x, y, z);
+
+		BLOCKSIZE_KERNEL(InitLabeling, grid_size_, block_size_, 0, d_img_, d_img_labels_, last_voxel_conn_)
+
+		BLOCKSIZE_KERNEL(PathCompression, grid_size_, block_size_, 0, d_img_labels_)
+
+		BLOCKSIZE_KERNEL(Merge, grid_size_, block_size_, 0, d_img_labels_, last_voxel_conn_)
+
+		BLOCKSIZE_KERNEL(PathCompression, grid_size_, block_size_, 0, d_img_labels_)
+
+		BLOCKSIZE_KERNEL(FinalLabeling, grid_size_, block_size_, 0, d_img_, d_img_labels_)
+
+		if (allocated_last_conn_) {
+			cudaFree(last_voxel_conn_);
+		}
+
+	}
+
+
 private:
 	void Alloc() {
 		d_img_labels_.create(d_img_.x, d_img_.y, d_img_.z, CV_32SC1);
@@ -690,3 +733,5 @@ public:
 };
 
 REGISTER_LABELING(BKE_3D);
+
+REGISTER_KERNELS(BKE_3D, InitLabeling, Merge, PathCompression, FinalLabeling)

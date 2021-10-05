@@ -113,6 +113,7 @@ if(YACCLAB_ENABLE_CUDA)
         
         # This flag causes some kernel do not run, for some unknown reason
         #add_compile_options($<$<AND:$<COMPILE_LANGUAGE:CUDA>,$<CONFIG:Debug>>:-G>)
+        add_link_options($<DEVICE_LINK:-dlink>)
                 
 	else()
 		message(WARNING "No CUDA support")
@@ -254,6 +255,7 @@ target_link_libraries (${ProjectName}  ${OpenCV_LIBS})
 if(OpenMP_CXX_FOUND)
     target_link_libraries(${ProjectName} OpenMP::OpenMP_CXX)
 endif()
+set_property(TARGET ${ProjectName} PROPERTY CUDA_SEPARABLE_COMPILATION ON)
 
 # ----------------------------------------------------------------------------
 # Output and datasests
@@ -270,6 +272,7 @@ if(YACCLAB_ENABLE_CUDA AND CMAKE_CUDA_COMPILER)
     add_subdirectory(cuda/src)
     add_subdirectory(cuda/include)
     include_directories("${CUDA_INCLUDE_DIRS}")
+    set_property(TARGET ${ProjectName} PROPERTY CUDA_SEPARABLE_COMPILATION ON)
 endif()
 
 source_group("Header Files" REGULAR_EXPRESSION "h$|hpp$")

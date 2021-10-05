@@ -185,6 +185,20 @@ public:
 		cudaDeviceSynchronize();
 	}
 
+	void PerformLabelingBlocksize(int x, int y, int z) {
+
+		d_img_labels_.create(d_img_.size(), CV_32SC1);
+		grid_size_ = dim3((d_img_.cols + x - 1) / x, (d_img_.rows + y - 1) / y, 1);
+		block_size_ = dim3(x, y, 1);
+
+		BLOCKSIZE_KERNEL(Initialization, grid_size_, block_size_, 0, d_img_, d_img_labels_)
+
+		BLOCKSIZE_KERNEL(Merge, grid_size_, block_size_, 0, d_img_, d_img_labels_)
+
+		BLOCKSIZE_KERNEL(Compression, grid_size_, block_size_, 0, d_img_labels_)
+
+	}
+
 
 private:
 	double Alloc() {
@@ -241,3 +255,4 @@ public:
 
 REGISTER_LABELING(C_SAUF);
 
+REGISTER_KERNELS(C_SAUF, Initialization, Merge, Compression)
