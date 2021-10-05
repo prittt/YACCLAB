@@ -294,7 +294,7 @@ private:
         Relabeling << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
 
         cudaDeviceSynchronize();
-    }    
+    }
 
 public:
     void PerformLabelingWithSteps()

@@ -32,10 +32,10 @@ GPU 3D 26-way connectivity:
   # -------------------------------------
   
   algorithms:
+    - UF_3D
+    - BE_3D
     - BUF_3D
     - BKE_3D
-    - BE_3D
-    - UF_3D
   
   # Datasets to use for each test
   # -----------------------------

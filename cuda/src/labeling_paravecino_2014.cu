@@ -37,143 +37,143 @@ using namespace cv;
 
 namespace {
 
-    static void cudaAssert(cudaError_t code, const char* file, int line, bool abort = true)
+static void cudaAssert(cudaError_t code, const char* file, int line, bool abort = true)
+{
+    if (code != cudaSuccess)
     {
-        if (code != cudaSuccess)
-        {
-            fprintf(stderr, "GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
-            if (abort) exit(code);
-        }
+        fprintf(stderr, "GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
+        if (abort) exit(code);
     }
+}
 
-    // CUDA kernels
-    __global__ void findSpansKernel(int* out, int* components, const uchar* in,
-        const int rows, const int cols, const int step)
+// CUDA kernels
+__global__ void findSpansKernel(int* out, int* components, const uchar* in,
+    const int rows, const int cols, const int step)
+{
+    uint i = (blockIdx.x * blockDim.x) + threadIdx.x;
+    uint colsSpans = ((cols + 2 - 1) / 2) * 2;
+    int current;
+    int colsComponents = colsSpans / 2;
+    bool flagFirst = true;
+    int indexOut = 0;
+    int indexComp = 0;
+    int comp = i * colsComponents;
+    if (i < rows)
     {
-        uint i = (blockIdx.x * blockDim.x) + threadIdx.x;
-        uint colsSpans = ((cols + 2 - 1) / 2) * 2;
-        int current;
-        int colsComponents = colsSpans / 2;
-        bool flagFirst = true;
-        int indexOut = 0;
-        int indexComp = 0;
-        int comp = i * colsComponents;
-        if (i < rows)
+        for (int j = 0; j < cols; j++)
         {
-            for (int j = 0; j < cols; j++)
+            if (flagFirst && in[i * step + j] > 0)
             {
-                if (flagFirst && in[i * step + j] > 0)
-                {
-                    current = in[i * step + j];
-                    out[i * colsSpans + indexOut] = j;
-                    indexOut++;
-                    flagFirst = false;
-                }
-                if (!flagFirst && in[i * step + j] != current)
-                {
-                    out[i * colsSpans + indexOut] = j - 1;
-                    indexOut++;
-                    flagFirst = true;
-                    /*add the respective label*/
-                    components[i * colsComponents + indexComp] = comp;
-                    indexComp++;
-                    comp++;
-                }
+                current = in[i * step + j];
+                out[i * colsSpans + indexOut] = j;
+                indexOut++;
+                flagFirst = false;
             }
-            if (!flagFirst)
+            if (!flagFirst && in[i * step + j] != current)
             {
-                out[i * colsSpans + indexOut] = cols - 1;
+                out[i * colsSpans + indexOut] = j - 1;
+                indexOut++;
+                flagFirst = true;
                 /*add the respective label*/
                 components[i * colsComponents + indexComp] = comp;
+                indexComp++;
+                comp++;
             }
         }
-    }
-
-    __global__ void relabelUnrollKernel(int* components, int previousLabel, int newLabel, const int colsComponents, const int idx, const int rows, const int factor)
-    {
-        uint id_i_child = (blockIdx.x * blockDim.x) + threadIdx.x;
-        id_i_child = id_i_child + (rows * idx);
-        uint id_j_child = (blockIdx.y * blockDim.y) + threadIdx.y;
-        id_j_child = (colsComponents / factor) * id_j_child;
-        uint i = id_i_child;
-        //for (int j = id_j_child; j < (colsComponents / factor); j++)    // SA shouldn't it be j < (colsComponents / factor) * (id_j_child + 1)?
-        if (i < rows) {
-            for (int j = id_j_child; (j < (colsComponents / factor) * (id_j_child + 1)) && (j < colsComponents); j++)
-            {
-                if (components[i * colsComponents + j] == previousLabel)
-                {
-                    components[i * colsComponents + j] = newLabel;
-                }
-            }
-        }
-    }
-
-    __global__ void mergeSpansKernel(int* components, int* spans, const int rows, const int cols)
-    {
-        //uint idx = (blockIdx.x * blockDim.x) + threadIdx.x;
-        uint idx = 0;
-        uint colsSpans = ((cols + 2 - 1) / 2) * 2;
-        uint colsComponents = colsSpans / 2;
-        /*Merge Spans*/
-        int startX, endX, newStartX, newEndX;
-        int label = -1;
-        /*threads and blocks need to relabel the components labels*/
-        int threads = 16;
-        const int factor = 4;
-
-        /*--------For 256, 512--------*/
-        dim3 threadsPerBlockUnrollRelabel(threads * threads);
-        dim3 numBlocksUnrollRelabel((rows + threads * threads - 1) / (threads * threads), factor);
-        /*-----------------*/
-        for (int i = 0; i < rows - 1; i++) //compute until penultimate row, since we need the below row to compare
+        if (!flagFirst)
         {
-            for (int j = 0; j < colsSpans - 1 && spans[i * colsSpans + j] >= 0; j = j + 2) //verify if there is a Span available
+            out[i * colsSpans + indexOut] = cols - 1;
+            /*add the respective label*/
+            components[i * colsComponents + indexComp] = comp;
+        }
+    }
+}
+
+__global__ void relabelUnrollKernel(int* components, int previousLabel, int newLabel, const int colsComponents, const int idx, const int rows, const int factor)
+{
+    uint id_i_child = (blockIdx.x * blockDim.x) + threadIdx.x;
+    id_i_child = id_i_child + (rows * idx);
+    uint id_j_child = (blockIdx.y * blockDim.y) + threadIdx.y;
+    id_j_child = (colsComponents / factor) * id_j_child;
+    uint i = id_i_child;
+    //for (int j = id_j_child; j < (colsComponents / factor); j++)    // SA shouldn't it be j < (colsComponents / factor) * (id_j_child + 1)?
+    if (i < rows) {
+        for (int j = id_j_child; (j < (colsComponents / factor) * (id_j_child + 1)) && (j < colsComponents); j++)
+        {
+            if (components[i * colsComponents + j] == previousLabel)
             {
-                startX = spans[i * colsSpans + j];
-                endX = spans[i * colsSpans + j + 1];
-                int newI = i + 1; //line below
-                for (int k = 0; k < colsSpans - 1 && spans[newI * colsSpans + k] >= 0; k = k + 2) //verify if there is a New Span available
+                components[i * colsComponents + j] = newLabel;
+            }
+        }
+    }
+}
+
+__global__ void mergeSpansKernel(int* components, int* spans, const int rows, const int cols)
+{
+    //uint idx = (blockIdx.x * blockDim.x) + threadIdx.x;
+    uint idx = 0;
+    uint colsSpans = ((cols + 2 - 1) / 2) * 2;
+    uint colsComponents = colsSpans / 2;
+    /*Merge Spans*/
+    int startX, endX, newStartX, newEndX;
+    int label = -1;
+    /*threads and blocks need to relabel the components labels*/
+    int threads = 16;
+    const int factor = 4;
+
+    /*--------For 256, 512--------*/
+    dim3 threadsPerBlockUnrollRelabel(threads * threads);
+    dim3 numBlocksUnrollRelabel((rows + threads * threads - 1) / (threads * threads), factor);
+    /*-----------------*/
+    for (int i = 0; i < rows - 1; i++) //compute until penultimate row, since we need the below row to compare
+    {
+        for (int j = 0; j < colsSpans - 1 && spans[i * colsSpans + j] >= 0; j = j + 2) //verify if there is a Span available
+        {
+            startX = spans[i * colsSpans + j];
+            endX = spans[i * colsSpans + j + 1];
+            int newI = i + 1; //line below
+            for (int k = 0; k < colsSpans - 1 && spans[newI * colsSpans + k] >= 0; k = k + 2) //verify if there is a New Span available
+            {
+                newStartX = spans[newI * colsSpans + k];
+                newEndX = spans[newI * colsSpans + k + 1];
+                if (startX <= newEndX + 1 && endX >= newStartX - 1)//Merge components
                 {
-                    newStartX = spans[newI * colsSpans + k];
-                    newEndX = spans[newI * colsSpans + k + 1];
-                    if (startX <= newEndX + 1 && endX >= newStartX - 1)//Merge components
-                    {
-                        label = components[i * (colsSpans / 2) + (j / 2)];          //choose the startSpan label
+                    label = components[i * (colsSpans / 2) + (j / 2)];          //choose the startSpan label
 
-                        relabelUnrollKernel << <numBlocksUnrollRelabel, threadsPerBlockUnrollRelabel >> > (components, components[newI * (colsSpans / 2) + (k / 2)], label, colsComponents, idx, rows, factor);
+                    relabelUnrollKernel << <numBlocksUnrollRelabel, threadsPerBlockUnrollRelabel >> > (components, components[newI * (colsSpans / 2) + (k / 2)], label, colsComponents, idx, rows, factor);
 
-                        cudaDeviceSynchronize();
-                        //cudaError_t err = cudaGetLastError();
-                        //if (err != cudaSuccess)
-                        //    printf("\tError:%s \n", (char)err);
-                    }
-                    //__syncthreads();
+                    cudaDeviceSynchronize();
+                    //cudaError_t err = cudaGetLastError();
+                    //if (err != cudaSuccess)
+                    //    printf("\tError:%s \n", (char)err);
                 }
+                //__syncthreads();
             }
         }
     }
+}
 
-    __global__ void makeOutput(const int* components, const int* spans, const int rows, const int cols, int* labels, const int labelsStep) {
+__global__ void makeOutput(const int* components, const int* spans, const int rows, const int cols, int* labels, const int labelsStep) {
 
-        const int r = blockIdx.y * blockDim.y + threadIdx.y;
-        const int j = blockIdx.x * blockDim.x + threadIdx.x;
+    const int r = blockIdx.y * blockDim.y + threadIdx.y;
+    const int j = blockIdx.x * blockDim.x + threadIdx.x;
 
-        const uint colsSpans = ((cols + 2 - 1) / 2) * 2;
-        const uint colsComponents = colsSpans / 2;
+    const uint colsSpans = ((cols + 2 - 1) / 2) * 2;
+    const uint colsComponents = colsSpans / 2;
 
-        if (r < rows && j < colsComponents) {
+    if (r < rows && j < colsComponents) {
 
-            const int label = components[r * colsComponents + j];
-            if (components[r * colsComponents + j] >= 0) {
+        const int label = components[r * colsComponents + j];
+        if (components[r * colsComponents + j] >= 0) {
 
-                const int cStart = spans[r * colsSpans + 2 * j];
-                const int cEnd = spans[r * colsSpans + 2 * j + 1];
-                for (int c = cStart; c <= cEnd; c++) {
-                    labels[r * labelsStep + c] = label + 1;
-                }
+            const int cStart = spans[r * colsSpans + 2 * j];
+            const int cEnd = spans[r * colsSpans + 2 * j + 1];
+            for (int c = cStart; c <= cEnd; c++) {
+                labels[r * labelsStep + c] = label + 1;
             }
         }
     }
+}
 }
 
 class ACCL : public GpuLabeling2D<Connectivity2D::CONN_8> {
@@ -229,13 +229,13 @@ public:
 
         findSpansKernel << <gridSize, blockSize >> > (devOut,
             devComponents, d_img_.data,
-            rows, cols, (const int) d_img_.step);
+            rows, cols, (const int)d_img_.step);
 
         mergeSpansKernel << <1, 1 >> > (devComponents, devOut, rows, cols);
 
         makeOutput << < makeOutputGridSize, makeOutputBlockSize >> > (
-            devComponents, devOut, rows, cols, 
-            (int*) d_img_labels_.data, (const int) d_img_labels_.step / 4);
+            devComponents, devOut, rows, cols,
+            (int*)d_img_labels_.data, (const int)d_img_labels_.step / 4);
 
         /*Free*/
         cudaFree(devOut);
@@ -309,7 +309,7 @@ private:
         /* Round up according to array size */
         blockSize = 512;
         gridSize = (rows + blockSize - 1) / blockSize;
-        
+
         //int* out = new int[sizeOut];
         //int* components = new int[sizeComponents];
 

@@ -23,265 +23,201 @@ using namespace cv;
 
 namespace {
 
-    // Returns the root index of the UFTree
-    __device__ unsigned Find(const int* s_buf, unsigned n) {
-        // Warning: do not call Find on a background pixel
+// Returns the root index of the UFTree
+__device__ unsigned Find(const int* s_buf, unsigned n) {
+    // Warning: do not call Find on a background pixel
 
-        unsigned label = s_buf[n];
+    unsigned label = s_buf[n];
+
+    assert(label > 0);
+
+    while (label - 1 != n) {
+        n = label - 1;
+        label = s_buf[n];
 
         assert(label > 0);
-
-        while (label - 1 != n) {
-            n = label - 1;
-            label = s_buf[n];
-
-            assert(label > 0);
-        }
-
-        return n;
-
     }
 
-    __device__ void Union(int* s_buf, unsigned index_a, unsigned index_b, char* changed) {
+    return n;
 
-        unsigned a = s_buf[index_a];
-        if (!a) return;
-        unsigned b = s_buf[index_b];
-        if (!b) return;
-        --a;
-        --b;
+}
 
-        a = Find(s_buf, a);
-        b = Find(s_buf, b);
+__device__ void Union(int* s_buf, unsigned index_a, unsigned index_b, char* changed) {
 
-        if (a != b) {
-            *changed = 1;
-        }
+    unsigned a = s_buf[index_a];
+    if (!a) return;
+    unsigned b = s_buf[index_b];
+    if (!b) return;
+    --a;
+    --b;
 
-        if (a < b) {
-            atomicMin(s_buf + b, a + 1);
-        }
-        else if (b < a) {
-            atomicMin(s_buf + a, b + 1);
-        }
+    a = Find(s_buf, a);
+    b = Find(s_buf, b);
+
+    if (a != b) {
+        *changed = 1;
     }
 
-    
-    // Perform local CCL on 16x16 tiles
-    __global__ void LocalMerge(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels) {
+    if (a < b) {
+        atomicMin(s_buf + b, a + 1);
+    }
+    else if (b < a) {
+        atomicMin(s_buf + a, b + 1);
+    }
+}
 
-        const unsigned r = threadIdx.y;
-        const unsigned c = threadIdx.x;
-        const unsigned local_index = r * blockDim.x + c;
 
-        const unsigned global_row = blockIdx.y * blockDim.y + r;
-        const unsigned global_col = blockIdx.x * blockDim.x + c;
-        const unsigned img_index = global_row * img.step + global_col;
+// Perform local CCL on 16x16 tiles
+__global__ void LocalMerge(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels) {
 
-        __shared__ int s_buf[TILE_SIZE * TILE_SIZE];
-        __shared__ unsigned char s_img[TILE_SIZE * TILE_SIZE];
+    const unsigned r = threadIdx.y;
+    const unsigned c = threadIdx.x;
+    const unsigned local_index = r * blockDim.x + c;
 
-        __shared__ char changed[1];
+    const unsigned global_row = blockIdx.y * blockDim.y + r;
+    const unsigned global_col = blockIdx.x * blockDim.x + c;
+    const unsigned img_index = global_row * img.step + global_col;
 
-        bool in_limits = (global_row < img.rows&& global_col < img.cols);
+    __shared__ int s_buf[TILE_SIZE * TILE_SIZE];
+    __shared__ unsigned char s_img[TILE_SIZE * TILE_SIZE];
 
-        s_img[local_index] = in_limits ? img[img_index] : 0;
-        unsigned char v = s_img[local_index];
+    __shared__ char changed[1];
 
-        int label = v ? local_index + 1 : 0;
+    bool in_limits = (global_row < img.rows&& global_col < img.cols);
+
+    s_img[local_index] = in_limits ? img[img_index] : 0;
+    unsigned char v = s_img[local_index];
+
+    int label = v ? local_index + 1 : 0;
+
+    __syncthreads();
+
+    while (1) {
+
+        // Pass 1 of the CCL algorithm
+        s_buf[local_index] = label;
+
+        if (threadIdx.x == 0 && threadIdx.y == 0) {
+            changed[0] = 0;
+        }
+
+        int new_label = label;
 
         __syncthreads();
 
-        while (1) {
+        // Find the minimal label from the neighboring elements
 
-            // Pass 1 of the CCL algorithm
-            s_buf[local_index] = label;
+        if (label) {
 
-            if (threadIdx.x == 0 && threadIdx.y == 0) {
-                changed[0] = 0;
+            if (r > 0 && c > 0 && s_img[local_index - TILE_SIZE - 1]) {
+                new_label = min(new_label, s_buf[local_index - TILE_SIZE - 1]);
             }
-
-            int new_label = label;
-
-            __syncthreads();
-
-            // Find the minimal label from the neighboring elements
-
-            if (label) {
-
-                if (r > 0 && c > 0 && s_img[local_index - TILE_SIZE - 1]) {
-                    new_label = min(new_label, s_buf[local_index - TILE_SIZE - 1]);
-                }
-                if (r > 0 && s_img[local_index - TILE_SIZE]) {
-                    new_label = min(new_label, s_buf[local_index - TILE_SIZE]);
-                }
-                if (r > 0 && c < TILE_SIZE - 1 && s_img[local_index - TILE_SIZE + 1]) {
-                    new_label = min(new_label, s_buf[local_index - TILE_SIZE + 1]);
-                }
-                if (c > 0 && s_img[local_index - 1]) {
-                    new_label = min(new_label, s_buf[local_index - 1]);
-                }
-                if (c < TILE_SIZE - 1 && s_img[local_index + 1]) {
-                    new_label = min(new_label, s_buf[local_index + 1]);
-                }
-                if (r < TILE_SIZE - 1 && c > 0 && s_img[local_index + TILE_SIZE - 1]) {
-                    new_label = min(new_label, s_buf[local_index + TILE_SIZE - 1]);
-                }
-                if (r < TILE_SIZE - 1 && s_img[local_index + TILE_SIZE]) {
-                    new_label = min(new_label, s_buf[local_index + TILE_SIZE]);
-                }
-                if (r < TILE_SIZE - 1 && c < TILE_SIZE - 1 && s_img[local_index + TILE_SIZE + 1]) {
-                    new_label = min(new_label, s_buf[local_index + TILE_SIZE + 1]);
-                }
-
+            if (r > 0 && s_img[local_index - TILE_SIZE]) {
+                new_label = min(new_label, s_buf[local_index - TILE_SIZE]);
             }
-
-            __syncthreads();
-
-            // If the new label is smaller than the old one merge the equivalence trees
-
-            if (new_label < label) {
-
-                atomicMin(s_buf + label - 1, new_label);
-                changed[0] = 1;
-
+            if (r > 0 && c < TILE_SIZE - 1 && s_img[local_index - TILE_SIZE + 1]) {
+                new_label = min(new_label, s_buf[local_index - TILE_SIZE + 1]);
             }
-
-            __syncthreads();
-
-
-            if (changed[0] == 0)
-                break;
-
-            if (label) {
-
-                // Pass 2 of the CCL algorithm
-
-                label = Find(s_buf, label - 1) + 1;
-
+            if (c > 0 && s_img[local_index - 1]) {
+                new_label = min(new_label, s_buf[local_index - 1]);
             }
-
-            __syncthreads();
+            if (c < TILE_SIZE - 1 && s_img[local_index + 1]) {
+                new_label = min(new_label, s_buf[local_index + 1]);
+            }
+            if (r < TILE_SIZE - 1 && c > 0 && s_img[local_index + TILE_SIZE - 1]) {
+                new_label = min(new_label, s_buf[local_index + TILE_SIZE - 1]);
+            }
+            if (r < TILE_SIZE - 1 && s_img[local_index + TILE_SIZE]) {
+                new_label = min(new_label, s_buf[local_index + TILE_SIZE]);
+            }
+            if (r < TILE_SIZE - 1 && c < TILE_SIZE - 1 && s_img[local_index + TILE_SIZE + 1]) {
+                new_label = min(new_label, s_buf[local_index + TILE_SIZE + 1]);
+            }
 
         }
 
-        if (in_limits) {
-            // Store the result to the device memory
-            int global_label = 0;
+        __syncthreads();
 
-            if (v) {
-                unsigned f_row = (label - 1) / TILE_SIZE;
-                unsigned f_col = (label - 1) % TILE_SIZE;
-                global_label = (blockIdx.y * TILE_SIZE + f_row) * (labels.step / labels.elem_size) + (blockIdx.x * TILE_SIZE + f_col) + 1;
-            }
-            labels.data[global_row * labels.step / sizeof(int) + global_col] = global_label;
+        // If the new label is smaller than the old one merge the equivalence trees
+
+        if (new_label < label) {
+
+            atomicMin(s_buf + label - 1, new_label);
+            changed[0] = 1;
+
         }
+
+        __syncthreads();
+
+
+        if (changed[0] == 0)
+            break;
+
+        if (label) {
+
+            // Pass 2 of the CCL algorithm
+
+            label = Find(s_buf, label - 1) + 1;
+
+        }
+
+        __syncthreads();
 
     }
 
+    if (in_limits) {
+        // Store the result to the device memory
+        int global_label = 0;
 
-    __global__ void GlobalMerge(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels, uint32_t subBlockDim) {
-
-        // Coordinates of the top-left pixel of the current block of tiles
-        unsigned block_row = blockIdx.y * blockDim.y * subBlockDim;
-        unsigned block_col = blockIdx.x * blockDim.x * subBlockDim;
-
-        // Coordinates of the top-left pixel of the current tile
-        unsigned tile_row = block_row + threadIdx.y * subBlockDim;
-        unsigned tile_col = block_col + threadIdx.x * subBlockDim;
-
-        unsigned repetitions = (subBlockDim + blockDim.z - 1) / blockDim.z;
-
-        __shared__ char changed[1];
-
-        while (1) {
-
-            if (threadIdx.x == 0 && threadIdx.y == 0 && threadIdx.z == 0) {
-                changed[0] = 0;
-            }
-
-            __syncthreads();
-
-            // Process the bottom horizontal border
-            for (unsigned i = 0; i < repetitions; i++) {
-
-                unsigned r = tile_row + subBlockDim - 1;
-                unsigned c = tile_col + i * blockDim.z + threadIdx.z;
-
-                if (threadIdx.y < blockDim.y - 1 && r < img.rows - 1 && c < img.cols && c < tile_col + subBlockDim) {
-
-                    if (c > block_col) {
-                        Union(labels.data, r * labels.step / sizeof(int) + c, (r + 1) * labels.step / sizeof(int) + c - 1, changed);
-                    }
-
-                    Union(labels.data, r * labels.step / sizeof(int) + c, (r + 1) * labels.step / sizeof(int) + c, changed);
-
-                    if (c < img.cols - 1 && c < block_col + blockDim.x * subBlockDim - 1) {
-                        Union(labels.data, r * labels.step / sizeof(int) + c, (r + 1) * labels.step / sizeof(int) + c + 1, changed);
-                    }
-
-                }
-
-            }
-
-            // Process the right vertical border
-            for (unsigned i = 0; i < repetitions; i++) {
-
-                unsigned c = tile_col + subBlockDim - 1;
-                unsigned r = tile_row + i * blockDim.z + threadIdx.z;
-
-                if (threadIdx.x < blockDim.x - 1 && c < img.cols - 1 && r < img.rows && r < tile_row + subBlockDim) {
-
-                    if (r > block_row) {
-                        Union(labels.data, r * labels.step / sizeof(int) + c, (r - 1) * labels.step / sizeof(int) + c + 1, changed);
-                    }
-
-                    Union(labels.data, r * labels.step / sizeof(int) + c, r * labels.step / sizeof(int) + c + 1, changed);
-
-                    if (r < img.rows - 1 && r < block_row + blockDim.y * subBlockDim - 1) {
-                        Union(labels.data, r * labels.step / sizeof(int) + c, (r + 1) * labels.step / sizeof(int) + c + 1, changed);
-                    }
-
-                }
-
-            }
-
-            __syncthreads();
-
-            if (changed[0] == 0) {
-                break;  // the tiles are merged
-            }
-
-            __syncthreads();
-
+        if (v) {
+            unsigned f_row = (label - 1) / TILE_SIZE;
+            unsigned f_col = (label - 1) % TILE_SIZE;
+            global_label = (blockIdx.y * TILE_SIZE + f_row) * (labels.step / labels.elem_size) + (blockIdx.x * TILE_SIZE + f_col) + 1;
         }
-
+        labels.data[global_row * labels.step / sizeof(int) + global_col] = global_label;
     }
 
+}
 
-    __global__ void BorderCompression(cuda::PtrStepSzi labels, uint32_t subBlockDim) {
 
-        // Coordinates of the top-left pixel of the current block of tiles
-        const unsigned block_row = blockIdx.y * blockDim.y * subBlockDim;
-        const unsigned block_col = blockIdx.x * blockDim.x * subBlockDim;
+__global__ void GlobalMerge(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels, uint32_t subBlockDim) {
 
-        // Coordinates of the top-left pixel of the current tile
-        const unsigned tile_row = block_row + threadIdx.y * subBlockDim;
-        const unsigned tile_col = block_col + threadIdx.x * subBlockDim;
+    // Coordinates of the top-left pixel of the current block of tiles
+    unsigned block_row = blockIdx.y * blockDim.y * subBlockDim;
+    unsigned block_col = blockIdx.x * blockDim.x * subBlockDim;
 
-        const unsigned repetitions = (subBlockDim + blockDim.z - 1) / blockDim.z;
+    // Coordinates of the top-left pixel of the current tile
+    unsigned tile_row = block_row + threadIdx.y * subBlockDim;
+    unsigned tile_col = block_col + threadIdx.x * subBlockDim;
+
+    unsigned repetitions = (subBlockDim + blockDim.z - 1) / blockDim.z;
+
+    __shared__ char changed[1];
+
+    while (1) {
+
+        if (threadIdx.x == 0 && threadIdx.y == 0 && threadIdx.z == 0) {
+            changed[0] = 0;
+        }
+
+        __syncthreads();
 
         // Process the bottom horizontal border
         for (unsigned i = 0; i < repetitions; i++) {
 
-            const unsigned r = tile_row + subBlockDim - 1;
-            const unsigned c = tile_col + i * blockDim.z + threadIdx.z;
+            unsigned r = tile_row + subBlockDim - 1;
+            unsigned c = tile_col + i * blockDim.z + threadIdx.z;
 
-            if (threadIdx.y < blockDim.y - 1 && r < labels.rows - 1 && c < labels.cols && c < tile_col + subBlockDim) {
+            if (threadIdx.y < blockDim.y - 1 && r < img.rows - 1 && c < img.cols && c < tile_col + subBlockDim) {
 
-                int label = labels[r * labels.step / sizeof(int) + c];
-                if (label) {
-                    labels[r * labels.step / sizeof(int) + c] = Find(labels, label - 1) + 1;
+                if (c > block_col) {
+                    Union(labels.data, r * labels.step / sizeof(int) + c, (r + 1) * labels.step / sizeof(int) + c - 1, changed);
+                }
+
+                Union(labels.data, r * labels.step / sizeof(int) + c, (r + 1) * labels.step / sizeof(int) + c, changed);
+
+                if (c < img.cols - 1 && c < block_col + blockDim.x * subBlockDim - 1) {
+                    Union(labels.data, r * labels.step / sizeof(int) + c, (r + 1) * labels.step / sizeof(int) + c + 1, changed);
                 }
 
             }
@@ -291,36 +227,100 @@ namespace {
         // Process the right vertical border
         for (unsigned i = 0; i < repetitions; i++) {
 
-            const unsigned c = tile_col + subBlockDim - 1;
-            const unsigned r = tile_row + i * blockDim.z + threadIdx.z;
+            unsigned c = tile_col + subBlockDim - 1;
+            unsigned r = tile_row + i * blockDim.z + threadIdx.z;
 
-            if (threadIdx.x < blockDim.x - 1 && c < labels.cols - 1 && r < labels.rows && r < tile_row + subBlockDim) {
+            if (threadIdx.x < blockDim.x - 1 && c < img.cols - 1 && r < img.rows && r < tile_row + subBlockDim) {
 
-                int label = labels[r * labels.step / sizeof(int) + c];
-                if (label) {
-                    labels[r * labels.step / sizeof(int) + c] = Find(labels, label - 1) + 1;
+                if (r > block_row) {
+                    Union(labels.data, r * labels.step / sizeof(int) + c, (r - 1) * labels.step / sizeof(int) + c + 1, changed);
+                }
+
+                Union(labels.data, r * labels.step / sizeof(int) + c, r * labels.step / sizeof(int) + c + 1, changed);
+
+                if (r < img.rows - 1 && r < block_row + blockDim.y * subBlockDim - 1) {
+                    Union(labels.data, r * labels.step / sizeof(int) + c, (r + 1) * labels.step / sizeof(int) + c + 1, changed);
                 }
 
             }
 
         }
 
+        __syncthreads();
+
+        if (changed[0] == 0) {
+            break;  // the tiles are merged
+        }
+
+        __syncthreads();
+
     }
 
+}
 
-    __global__ void PathCompression(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels) {
 
-        unsigned global_row = blockIdx.y * blockDim.y + threadIdx.y;
-        unsigned global_col = blockIdx.x * blockDim.x + threadIdx.x;
-        unsigned labels_index = global_row * (labels.step / labels.elem_size) + global_col;
+__global__ void BorderCompression(cuda::PtrStepSzi labels, uint32_t subBlockDim) {
 
-        if (global_row < labels.rows && global_col < labels.cols) {
-            unsigned char val = img[global_row * img.step + global_col];
-            if (val) {
-                labels[labels_index] = Find(labels.data, labels_index) + 1;
+    // Coordinates of the top-left pixel of the current block of tiles
+    const unsigned block_row = blockIdx.y * blockDim.y * subBlockDim;
+    const unsigned block_col = blockIdx.x * blockDim.x * subBlockDim;
+
+    // Coordinates of the top-left pixel of the current tile
+    const unsigned tile_row = block_row + threadIdx.y * subBlockDim;
+    const unsigned tile_col = block_col + threadIdx.x * subBlockDim;
+
+    const unsigned repetitions = (subBlockDim + blockDim.z - 1) / blockDim.z;
+
+    // Process the bottom horizontal border
+    for (unsigned i = 0; i < repetitions; i++) {
+
+        const unsigned r = tile_row + subBlockDim - 1;
+        const unsigned c = tile_col + i * blockDim.z + threadIdx.z;
+
+        if (threadIdx.y < blockDim.y - 1 && r < labels.rows - 1 && c < labels.cols && c < tile_col + subBlockDim) {
+
+            int label = labels[r * labels.step / sizeof(int) + c];
+            if (label) {
+                labels[r * labels.step / sizeof(int) + c] = Find(labels, label - 1) + 1;
             }
+
+        }
+
+    }
+
+    // Process the right vertical border
+    for (unsigned i = 0; i < repetitions; i++) {
+
+        const unsigned c = tile_col + subBlockDim - 1;
+        const unsigned r = tile_row + i * blockDim.z + threadIdx.z;
+
+        if (threadIdx.x < blockDim.x - 1 && c < labels.cols - 1 && r < labels.rows && r < tile_row + subBlockDim) {
+
+            int label = labels[r * labels.step / sizeof(int) + c];
+            if (label) {
+                labels[r * labels.step / sizeof(int) + c] = Find(labels, label - 1) + 1;
+            }
+
+        }
+
+    }
+
+}
+
+
+__global__ void PathCompression(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels) {
+
+    unsigned global_row = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned global_col = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned labels_index = global_row * (labels.step / labels.elem_size) + global_col;
+
+    if (global_row < labels.rows && global_col < labels.cols) {
+        unsigned char val = img[global_row * img.step + global_col];
+        if (val) {
+            labels[labels_index] = Find(labels.data, labels_index) + 1;
         }
     }
+}
 
 }
 
@@ -360,9 +360,9 @@ public:
 
         while (sub_block_dim < max_img_dim) {
             grid_size_merge = dim3((d_img_.cols + block_pixels - 1) / block_pixels, (d_img_.rows + block_pixels - 1) / block_pixels, 1);
-            
+
             GlobalMerge << <grid_size_merge, block_size_merge >> > (d_img_, d_img_labels_, sub_block_dim);
-            
+
             BorderCompression << <grid_size_merge, block_size_merge >> > (d_img_labels_, sub_block_dim);
 
             sub_block_dim = block_pixels;
