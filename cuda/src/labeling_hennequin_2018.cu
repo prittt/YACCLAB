@@ -85,8 +85,9 @@ __global__ void StripLabeling(const cuda::PtrStepSzb img, cuda::PtrStepSzi label
             if (x < labels.cols) {
 
                 unsigned int mask = 0xFFFFFFFF;
-                if (img.cols - i < 32) {
-                    mask = mask >> (32 - (img.cols - i));
+                const unsigned int involved_cols = img.cols - i;
+                if (involved_cols < 32) {
+                    mask = mask >> (32 - involved_cols);
                 }
 
                 const unsigned img_index = img_line_base + i;
@@ -100,6 +101,10 @@ __global__ void StripLabeling(const cuda::PtrStepSzb img, cuda::PtrStepSzi label
                 if (p_y && s_dist_y == 0) {
                     labels.data[labels_index] = labels_index - ((threadIdx.x == 0) ? distance_y : 0) + 1;
                 }
+
+#if __CUDA_ARCH__ < 700
+                __syncthreads();
+#endif
 
                 if (threadIdx.x == 0) {
                     shared_pixels[threadIdx.y] = pixels_y;
