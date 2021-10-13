@@ -35,9 +35,6 @@ namespace {
 
 __device__ void merge(int* L, int label_1, int label_2) {
 
-    int label_1_orig = label_1;
-    int label_2_orig = label_2;
-
     while (label_1 != label_2 && (label_1 != L[label_1] - 1)) {
         assert(label_1 >= 0);
         label_1 = L[label_1] - 1;
@@ -47,18 +44,6 @@ __device__ void merge(int* L, int label_1, int label_2) {
         label_2 = L[label_2] - 1;
     }
     while (label_1 != label_2) {
-        if (label_1 < 0) {
-            printf("label_1: %d\n", label_1_orig);
-            L[label_1_orig] = INT_MIN;
-            L[label_2_orig] = INT_MIN;
-            return;
-        }
-        if (label_2 < 0) {
-            printf("label_2: %d\n", label_2_orig);
-            L[label_1_orig] = INT_MIN;
-            L[label_2_orig] = INT_MIN;
-            return;
-        }
         assert(label_1 >= 0 && label_2 >= 0);
         if (label_1 < label_2) {
             unsigned int tmp = label_1;
@@ -155,21 +140,16 @@ __global__ void StripLabeling(const cuda::PtrStepSzb img, cuda::PtrStepSzi label
                 }
                 // Added for 8-connectivity
                 else if (p_y && s_dist_y == 0 && ((pixels_y_1_shifted >> threadIdx.x) & 1u)) {
-                    //printf("r: %d c: %d - merge up-left\n", y, x);
                     unsigned int s_dist_y_1_prev = (threadIdx.x == 0) ? (distance_y_1 - 1) : start_distance(pixels_y_1, threadIdx.x - 1);
                     int label_1 = labels_index;
                     int label_2 = labels_index - (labels.step / labels.elem_size) - 1 - s_dist_y_1_prev;
                     merge(labels.data, label_1, label_2);
-                    //printf("r: %d c: %d - fatto.\n", y, x);
                 }
                 else if (p_y_1 && s_dist_y_1 == 0 && ((pixels_y_shifted >> threadIdx.x) & 1u)) {
                     unsigned int s_dist_y_prev = (threadIdx.x == 0) ? (distance_y - 1) : (start_distance(pixels_y, threadIdx.x - 1));
                     int label_1 = labels_index - 1 - s_dist_y_prev;
                     int label_2 = labels_index - (labels.step / labels.elem_size);
-                    //printf("x: %u\ty: %u\tlabel_1: %d\tlabel_2: %d\tstep: %u\n", x, y, label_1, label_2, labels.step / labels.elem_size);
-                    //printf("label_1: %u\tlabel_2: %u\n", label_1, label_2);
                     merge(labels.data, label_1, label_2);
-                    //printf("Merge down-left r: %d c: %d\n", y, x);
                 }
 
                 int d = start_distance(pixels_y_1, 32);
@@ -191,7 +171,7 @@ __global__ void StripMerge(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels) 
     __shared__ unsigned last_dist_vec[32];  // Magic number could be removed
     __shared__ unsigned last_dist_up_vec[32];
 
-    if (y < labels.rows && x < labels.cols && y > 0) {
+    if (y < labels.rows && x < labels.cols) {
 
         unsigned int mask = 0xFFFFFFFF;
         if (img.cols - warp_starting_x < 32) {
@@ -221,10 +201,6 @@ __global__ void StripMerge(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels) 
         __syncthreads();
 
         if (blockIdx.x == 0 || threadIdx.z > 0) {    // There is a 32-pixel overlapping between 1024-long lines
-
-            //if (x > 1023) {
-            //    printf("x: %d\ty: %u\n", x, y);
-            //}
 
             const unsigned int last_dist = threadIdx.z > 0 ? last_dist_vec[threadIdx.z - 1] : 0;
             const unsigned int last_dist_up = threadIdx.z > 0 ? last_dist_up_vec[threadIdx.z - 1] : 0;
@@ -313,7 +289,7 @@ public:
         const unsigned int horizontal_warps = std::min((d_img_.cols + WARP_SIZE - 1) / WARP_SIZE, 32);
         block_size_ = dim3(WARP_SIZE, 1, horizontal_warps);
         grid_size_ = dim3(
-            std::max((d_img_.cols + WARP_SIZE * 30 - 1) / (WARP_SIZE * 31), 1),  // TODO check this weird value
+            std::max((d_img_.cols + WARP_SIZE * 30 - 1) / (WARP_SIZE * 31), 1),
             (d_img_.rows - 1) / BLOCK_H,
             1);
 
@@ -362,10 +338,11 @@ private:
 
         StripLabeling << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
 
-        block_size_ = dim3(WARP_SIZE, BLOCK_H, 1);
+        const unsigned int horizontal_warps = std::min((d_img_.cols + WARP_SIZE - 1) / WARP_SIZE, 32);
+        block_size_ = dim3(WARP_SIZE, 1, horizontal_warps);
         grid_size_ = dim3(
-            (d_img_.cols + block_size_.x - 1) / block_size_.x,
-            ((d_img_.rows + BLOCK_H - 1) / BLOCK_H + block_size_.y - 1) / block_size_.y,
+            std::max((d_img_.cols + WARP_SIZE * 30 - 1) / (WARP_SIZE * 31), 1),
+            (d_img_.rows - 1) / BLOCK_H,
             1);
 
         StripMerge << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
