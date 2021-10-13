@@ -7,6 +7,9 @@
 // Additional Authors:
 // Fanny Nina Paravecino and David Kaeli
 // Northeastern University, Boston MA 02115, USA
+//
+// Kernels tend to be very slow on most datasets, 
+// with the exception of "check" and "fingerprints"
 
 #include <opencv2/cudafeatures2d.hpp>
 

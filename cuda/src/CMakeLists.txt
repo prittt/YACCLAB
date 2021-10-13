@@ -15,7 +15,8 @@ target_sources(YACCLAB  PRIVATE
     labeling_zavalishin_2016.cu
     labeling_cabaret_2017.cu
     labeling_allegretti_2018.cu
-    labeling_hennequin_2018.cu
+    labeling_hennequin_2018_HA4.cu
+    labeling_hennequin_2018_HA8.cu
     labeling_allegretti_2019_BBDT.cu
     labeling_allegretti_2019_BKE.cu
     labeling_allegretti_2019_BUF.cu

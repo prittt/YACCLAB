@@ -34,17 +34,17 @@ GPU 2D 8-way connectivity:
   algorithms:
     - UF
     - OLE
-    - BRB
+    #- BRB
     - STAVA
     - RASMUSSON
-    - ACCL
+    #- ACCL
     - DLS
     - M8DLS
     - LBUF
     - BE
     - DLP
     - KE
-    - HA4
+    - HA8
     - C_SAUF
     - C_BBDT
     - C_DRAG
