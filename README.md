@@ -285,7 +285,7 @@ Notes for gnuplot:
 <a name="IV"><sup>IV</sup></a> only on TTA and UF. </br>
 <a name="V"><sup>V</sup></a> it only copies the pixels from the input image to the output one simply defining a lower bound limit for the execution time of CCL algorithms on a given machine and dataset.</br>
 <a name="VI"><sup>VI</sup></a> EPDT_19c and EPDT_22c algorithms are based on very big decision trees that translate in many lines of C++ code. They may thus noticeably increase the build time. For this reason, a special flag (`YACCLAB_ENABLE_EPDT_ALGOS`) to enable/disable such algorithms is provided in the CMake file. By default the flag is OFF.</br>
-<a name="VII"><sup>VII</sup></a> CCL algorithm for images in bitonal (1 bit per pixel) format.
+<a name="VII"><sup>VII</sup></a> CCL algorithm for images in bitonal (1 bit per pixel) format. When applied to these algorithms, the <i>average</i> tests also consider the time for 1 byte to 1 bit per pixel conversion. On the other hand, when performing <i>average with steps</i> tests conversion time is ignored.
 
 ### GPU Algorithms
  <table>
