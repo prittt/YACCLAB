@@ -27,10 +27,16 @@
 //#include "opencv/highgui.h"
 #include <iostream>
 #include <fstream>
+#include <omp.h>
+#include "opencv2/opencv.hpp"
+#include <opencv2/core.hpp>
+
+#include "labeling_algorithms.h"
+#include "labels_solver.h"
+#include "memory_tester.h"
 
 using namespace std;
 
-#include <omp.h>
 
 ////////////////////
 // for testing and debugging purposes. 
@@ -45,8 +51,6 @@ using namespace std;
 #define _OMP_SCHEDULING  dynamic 
 #define CHUNK_SIZE 16
 
-#pragma once
-#include "opencv2/opencv.hpp"
 
 ////////////////////////////////  typedef_constants.h
 typedef unsigned char Bool;
@@ -99,11 +103,6 @@ struct listaPadres listaGeneral[MAX_NUM_THREADS];
 
 
 ///%%%%%%%%%%%%%%%%%%%%%%///////////////////%%%%%%%%%%%%%%%%%%%%%%%%
-#include <opencv2/core.hpp>
-
-#include "labeling_algorithms.h"
-#include "labels_solver.h"
-#include "memory_tester.h"
 
 class labeling_CCLHSF : public Labeling2D<Connectivity2D::CONN_8, true> {
 public:

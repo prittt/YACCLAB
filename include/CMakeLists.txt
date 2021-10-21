@@ -43,6 +43,10 @@ target_sources(YACCLAB
         yacclab_tensor.h        
         labeling_sauf_4c.h
         labeling_sauf_background.h
+        labeling_lee_2021_brts.h
+        labeling_lee_2021_bmrs.h
+        labeling_lee_2021_bmrs_old.h
+        bit_scan_forward.h
 )
 
 
@@ -58,7 +62,6 @@ if(YACCLAB_ENABLE_3D)
     target_sources(YACCLAB PRIVATE    
         labeling3D_naive.h        
         labeling3D_he_2011.h
-        labeling3D_he_2011_run.h
     )
     if(YACCLAB_ENABLE_EPDT_19C)
         target_sources(YACCLAB PRIVATE        

@@ -17,14 +17,14 @@
 
 using namespace std;
 
-const char filesystem::path::separator_ =
+const char ::filesystem::path::separator_ =
 #ifdef YACCLAB_WINDOWS
 '\\';
 #else
 '/';
 #endif
 
-bool filesystem::exists(const path& p)
+bool ::filesystem::exists(const path& p)
 {
 	struct stat info;
 	string s = p.string();
@@ -42,7 +42,7 @@ bool filesystem::exists(const path& p)
 	return true; // is file
 }
 
-bool filesystem::exists(const path& p, bool &is_dir)
+bool ::filesystem::exists(const path& p, bool &is_dir)
 {
 	struct stat info;
     string s = p.string();
@@ -62,17 +62,17 @@ bool filesystem::exists(const path& p, bool &is_dir)
     return true; // is file
 }
 
-bool filesystem::exists(const path& p, error_code& ec)
+bool ::filesystem::exists(const path& p, error_code& ec)
 {
-    return filesystem::exists(p);
+    return ::filesystem::exists(p);
 }
 
-bool filesystem::exists(const path& p, error_code& ec, bool& is_dir)
+bool ::filesystem::exists(const path& p, error_code& ec, bool& is_dir)
 {
-	return filesystem::exists(p, is_dir);
+	return ::filesystem::exists(p, is_dir);
 }
 
-bool filesystem::create_directories(const path& p)
+bool ::filesystem::create_directories(const path& p)
 {
     string s(p.string());
     string parameters = "";
@@ -90,12 +90,12 @@ bool filesystem::create_directories(const path& p)
     return true;
 }
 
-bool filesystem::create_directories(const path& p, error_code& ec)
+bool ::filesystem::create_directories(const path& p, error_code& ec)
 {
-    return filesystem::create_directories(p);
+    return ::filesystem::create_directories(p);
 }
 
-void filesystem::path::NormalizePath()
+void ::filesystem::path::NormalizePath()
 {
 #if defined(YACCLAB_UNIX) || defined(YACCLAB_LINUX) || defined(YACCLAB_APPLE)
     std::replace(path_.begin(), path_.end(), '\\', '/');
@@ -106,14 +106,14 @@ void filesystem::path::NormalizePath()
     return;
 }
 
-void filesystem::copy(const path& from, const path& to)
+void ::filesystem::copy(const path& from, const path& to)
 {
-    if (!filesystem::exists(from)) {
+    if (!::filesystem::exists(from)) {
         return;
     }
 
-    if (!filesystem::exists(to)) {
-        if (filesystem::create_directories(to.parent_path())) {
+    if (!::filesystem::exists(to)) {
+        if (::filesystem::create_directories(to.parent_path())) {
             ifstream src(from.string());
             ofstream dst(to.string());
 
@@ -122,7 +122,7 @@ void filesystem::copy(const path& from, const path& to)
     }
 }
 
-void filesystem::copy(const path& from, const path& to, error_code& ec)
+void ::filesystem::copy(const path& from, const path& to, error_code& ec)
 {
-    filesystem::copy(from, to);
+    ::filesystem::copy(from, to);
 }
