@@ -192,6 +192,7 @@ public:
     }
     void PerformLabelingWithSteps() {
         double alloc_timing = Alloc();
+        InitCompressedData(data_compressed);
 
         perf_.start();
         FirstScan();
@@ -824,9 +825,6 @@ private:
     void FirstScan() {
         int w(img_.cols);
         int h(img_.rows);
-
-        //compress data
-        InitCompressedData(data_compressed);
 
         //generate merged data
         int h_merge = h / 2 + h % 2;
