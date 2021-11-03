@@ -102,6 +102,7 @@ public:
     }
     void PerformLabelingWithSteps() {
         double alloc_timing = Alloc();
+        InitCompressedData(data_compressed);
 
         perf_.start();
         FirstScan();
@@ -597,7 +598,6 @@ private:
         // No free for img_labels_ because it is required at the end of the algorithm 
     }
     void FirstScan() {
-        InitCompressedData(data_compressed);
         LabelsSolver::Setup();
         FindRuns(data_compressed.bits, img_.rows, data_compressed.data_width, data_runs.runs);
     }
