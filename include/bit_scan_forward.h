@@ -52,7 +52,7 @@ inline unsigned char YacclabBitScanForward64(unsigned long* Index, uint64_t Mask
 #include <cstdint>
 inline unsigned char YacclabBitScanForward64(unsigned long* Index, uint64_t Mask) {
     throw std::runtime_error("YacclabBitScanForward64 undefined."
-        " Define it for your platform in \"bit_scan_forward.cc\","
+        " Define it for your platform in \"bit_scan_forward.h\","
         " or enable C++20 for the generic version.");
 }
 #endif
