@@ -28,7 +28,6 @@ target_sources(YACCLAB
         labeling_sauf_background.cc
         labeling_lee_2021_brts.cc
         labeling_lee_2021_bmrs.cc
-        bit_scan_forward.cc
 )
 
 
