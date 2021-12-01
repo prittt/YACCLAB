@@ -11,8 +11,12 @@
 // Konkuk University, Korea
 
 #include "labeling_lee_2021_bmrs.h"
+#include "labeling_lee_2021_bmrs_no_zeroinit.h"
 #include "labeling_lee_2021_bmrs_old.h"
+#include "labeling_lee_2021_bmrs_old_no_zeroinit.h"
 #include "labels_solver.h"
 
 REGISTER_LABELING_WITH_EQUIVALENCES_SOLVERS(BMRS);
+REGISTER_LABELING_WITH_EQUIVALENCES_SOLVERS(BMRS_XZ);
 REGISTER_LABELING_WITH_EQUIVALENCES_SOLVERS(BMRS_OLD);
+REGISTER_LABELING_WITH_EQUIVALENCES_SOLVERS(BMRS_OLD_XZ);

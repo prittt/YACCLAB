@@ -68,8 +68,8 @@ public:
     BMRS_OLD() {}
     void PerformLabeling()
     {
-		int w(img_.cols);
-		int h(img_.rows);
+        int w(img_.cols);
+        int h(img_.rows);
 
         data_compressed.Alloc(h, w);
         InitCompressedData(data_compressed);
@@ -117,7 +117,7 @@ public:
         LabelsSolver::Setup();
         FindRuns(data_merged.bits, data_flags.bits, h_merge, data_width, data_runs.runs);
 
-        img_labels_ = cv::Mat1i(img_.size());
+        img_labels_ = cv::Mat1i(img_.size(), 0);    // (0-init)
 
         // Old version (uses 1-byte per pixel input)
         Run* runs = data_runs.runs;
@@ -127,38 +127,36 @@ public:
             unsigned* const labels_u = img_labels_.ptr<unsigned>(2 * i);
             unsigned* const labels_d = img_labels_.ptr<unsigned>(2 * i + 1);
 
-            for (int j = 0;; runs++) {
+            for (;; runs++) {
                 unsigned short start_pos = runs->start_pos;
                 if (start_pos == 0xFFFF) {
-                    for (int k = j; k < w; k++) labels_u[k] = 0;
-                    for (int k = j; k < w; k++) labels_d[k] = 0;
                     runs++;
                     break;
                 }
                 unsigned short end_pos = runs->end_pos;
                 int label = LabelsSolver::GetLabel(runs->label);
 
-                for (; j < start_pos; j++) labels_u[j] = 0, labels_d[j] = 0;
-                for (; j < end_pos; j++) {
-                    labels_u[j] = (data_u[j]) ? label : 0;
-                    labels_d[j] = (data_d[j]) ? label : 0;
+                for (int j = start_pos; j < end_pos; j++) {
+                    if (data_u[j]) labels_u[j] = label;
+                    if (data_d[j]) labels_d[j] = label;
                 }
             }
         }
         if (h % 2) {
             unsigned* const labels = img_labels_.ptr<unsigned>(h - 1);
-            for (int j = 0;; runs++) {
+            for (;; runs++) {
                 unsigned short start_pos = runs->start_pos;
                 if (start_pos == 0xFFFF) {
-                    for (int k = j; k < w; k++) labels[k] = 0;
                     break;
                 }
                 unsigned short end_pos = runs->end_pos;
                 int label = LabelsSolver::GetLabel(runs->label);
-                for (; j < start_pos; j++) labels[j] = 0;
-                for (j = start_pos; j < end_pos; j++) labels[j] = label;
+                for (int j = start_pos; j < end_pos; j++) {
+                    labels[j] = label;
+                }
             }
         }
+
 
         LabelsSolver::Dealloc();
         data_runs.Dealloc();
@@ -495,7 +493,7 @@ private:
             runs->end_pos = short(basepos + bitpos);
             runs->label = LabelsSolver::NewLabel();
         }
-        out:
+    out:
 
         //process runs in the rests
         for (int row = 1; row < height; row++) {
@@ -844,6 +842,8 @@ private:
         int w(img_.cols);
         int h(img_.rows);
 
+        memset(img_labels_.data, 0, img_labels_.dataend - img_labels_.datastart);
+
         Run* runs = data_runs.runs;
         for (int i = 0; i < h / 2; i++) {
             const uchar* const data_u = img_.ptr<uchar>(2 * i);
@@ -851,36 +851,33 @@ private:
             unsigned* const labels_u = img_labels_.ptr<unsigned>(2 * i);
             unsigned* const labels_d = img_labels_.ptr<unsigned>(2 * i + 1);
 
-            for (int j = 0;; runs++) {
+            for (;; runs++) {
                 unsigned short start_pos = runs->start_pos;
                 if (start_pos == 0xFFFF) {
-                    for (int k = j; k < w; k++) labels_u[k] = 0;
-                    for (int k = j; k < w; k++) labels_d[k] = 0;
                     runs++;
                     break;
                 }
                 unsigned short end_pos = runs->end_pos;
                 int label = LabelsSolver::GetLabel(runs->label);
 
-                for (; j < start_pos; j++) labels_u[j] = 0, labels_d[j] = 0;
-                for (; j < end_pos; j++) {
-                    labels_u[j] = (data_u[j]) ? label : 0;
-                    labels_d[j] = (data_d[j]) ? label : 0;
+                for (int j = start_pos; j < end_pos; j++) {
+                    if (data_u[j]) labels_u[j] = label;
+                    if (data_d[j]) labels_d[j] = label;
                 }
             }
         }
         if (h % 2) {
             unsigned* const labels = img_labels_.ptr<unsigned>(h - 1);
-            for (int j = 0;; runs++) {
+            for (;; runs++) {
                 unsigned short start_pos = runs->start_pos;
                 if (start_pos == 0xFFFF) {
-                    for (int k = j; k < w; k++) labels[k] = 0;
                     break;
                 }
                 unsigned short end_pos = runs->end_pos;
                 int label = LabelsSolver::GetLabel(runs->label);
-                for (; j < start_pos; j++) labels[j] = 0;
-                for (j = start_pos; j < end_pos; j++) labels[j] = label;
+                for (int j = start_pos; j < end_pos; j++) {
+                    labels[j] = label;
+                }
             }
         }
     }
