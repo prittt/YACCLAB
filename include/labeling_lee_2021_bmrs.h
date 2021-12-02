@@ -119,7 +119,7 @@ public:
 
         img_labels_ = cv::Mat1i(img_.size(), 0);    // (0-init)
 
-        // Old version (uses 1-byte per pixel input)
+        // New version (uses 1-byte per pixel input)
         Run* runs = data_runs.runs;
         for (int i = 0; i < h / 2; i++) {
             const uint64_t* const data_u = data_compressed.bits + data_compressed.data_width * 2 * i;
