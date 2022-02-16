@@ -47,6 +47,14 @@ target_sources(YACCLAB
         labeling_lee_2021_bmrs.h
         labeling_lee_2021_bmrs_old.h
         bit_scan_forward.h
+        labeling_PREDpp_2021.h
+        labeling_PREDpp_2021_first_line_forest_code.inc.h
+        labeling_PREDpp_2021_center_line_forest_code.inc.h
+        labeling_tagliatelle_2021.h
+        labeling_tagliatelle_2021_center_line_forest_code.inc.h
+        labeling_tagliatelle_2021_first_line_forest_code.inc.h
+        labeling_tagliatelle_2021_last_line_forest_code.inc.h
+        labeling_tagliatelle_2021_single_line_forest_code.inc.h
 )
 
 
@@ -62,6 +70,20 @@ if(YACCLAB_ENABLE_3D)
     target_sources(YACCLAB PRIVATE    
         labeling3D_naive.h        
         labeling3D_he_2011.h
+        labeling3D_SAUF_2021.h
+        labeling3D_SAUF_2021_tree_code.inc.h
+        labeling3D_SAUFpp_2021.h
+        labeling3D_SAUFpp_2021_tree_code.inc.h
+        labeling3D_PRED_2021.h
+        labeling3D_PRED_2021_center_line_forest_code.inc.h
+        labeling3D_PRED_2021_first_line_forest_code.inc.h
+        labeling3D_PRED_2021_last_line_forest_code.inc.h
+        labeling3D_PRED_2021_single_line_forest_code.inc.h
+        labeling3D_PREDpp_2021.h
+        labeling3D_PREDpp_2021_center_line_forest_code.inc.h
+        labeling3D_PREDpp_2021_first_line_forest_code.inc.h
+        labeling3D_PREDpp_2021_last_line_forest_code.inc.h
+        labeling3D_PREDpp_2021_single_line_forest_code.inc.h        
     )
     if(YACCLAB_ENABLE_EPDT_19C)
         target_sources(YACCLAB PRIVATE        
