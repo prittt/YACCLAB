@@ -122,7 +122,7 @@ public:
             const unsigned char* const img_row = img_.ptr<unsigned char>(0);
             unsigned* const img_labels_row = img_labels_.ptr<unsigned>(0);
             int c = -2;
-#include "labeling_tagliatelle_2021_single_line_forest_code.inc.h"
+#include "labeling_tagliatelle_2021_sl_forest.inc.h"
         }
         else {
             // More than one line
@@ -135,7 +135,7 @@ public:
                 unsigned* const img_labels_row = img_labels_.ptr<unsigned>(0);
                 int c = -2;
 
-#include "labeling_tagliatelle_2021_first_line_forest_code.inc.h"
+#include "labeling_tagliatelle_2021_fl_forest.inc.h"
             }
 
             // Every other line but the last one if image has an odd number of rows
@@ -151,7 +151,7 @@ public:
                 int c = -2;
                 goto cl_tree_0;
 
-#include "labeling_tagliatelle_2021_center_line_forest_code.inc.h"
+#include "labeling_tagliatelle_2021_cl_forest.inc.h"
             }
 
             // Last line (in case the rows are odd)
@@ -164,7 +164,7 @@ public:
                 unsigned* const img_labels_row = img_labels_.ptr<unsigned>(r);
                 unsigned* const img_labels_row_prev_prev = (unsigned*)(((char*)img_labels_row) - img_labels_.step.p[0] - img_labels_.step.p[0]);
                 int c = -2;
-#include "labeling_tagliatelle_2021_last_line_forest_code.inc.h"
+#include "labeling_tagliatelle_2021_ll_forest.inc.h"
             }
         }
 
@@ -429,7 +429,7 @@ public:
             const unsigned char* const img_row = img_.ptr<unsigned char>(0);
             unsigned* const img_labels_row = img_labels_.ptr<unsigned>(0);
             int c = -2;
-#include "labeling_tagliatelle_2021_single_line_forest_code.inc.h"
+#include "labeling_tagliatelle_2021_sl_forest.inc.h"
         }
         else {
             // More than one line
@@ -442,7 +442,7 @@ public:
                 unsigned* const img_labels_row = img_labels_.ptr<unsigned>(0);
                 int c = -2;
 
-#include "labeling_tagliatelle_2021_first_line_forest_code.inc.h"
+#include "labeling_tagliatelle_2021_fl_forest.inc.h"
             }
 
             // Every other line but the last one if image has an odd number of rows
@@ -458,7 +458,7 @@ public:
                 int c = -2;
                 goto cl_tree_0;
 
-#include "labeling_tagliatelle_2021_center_line_forest_code.inc.h"
+#include "labeling_tagliatelle_2021_cl_forest.inc.h"
             }
 
             // Last line (in case the rows are odd)
@@ -471,7 +471,7 @@ public:
                 unsigned* const img_labels_row = img_labels_.ptr<unsigned>(r);
                 unsigned* const img_labels_row_prev_prev = (unsigned*)(((char*)img_labels_row) - img_labels_.step.p[0] - img_labels_.step.p[0]);
                 int c = -2;
-#include "labeling_tagliatelle_2021_last_line_forest_code.inc.h"
+#include "labeling_tagliatelle_2021_ll_forest.inc.h"
             }
         }
 
@@ -706,7 +706,7 @@ private:
             const unsigned char* const img_row = img_.ptr<unsigned char>(0);
             unsigned* const img_labels_row = img_labels_.ptr<unsigned>(0);
             int c = -2;
-#include "labeling_tagliatelle_2021_single_line_forest_code.inc.h"
+#include "labeling_tagliatelle_2021_sl_forest.inc.h"
         }
         else {
             // More than one line
@@ -719,7 +719,7 @@ private:
                 unsigned* const img_labels_row = img_labels_.ptr<unsigned>(0);
                 int c = -2;
 
-#include "labeling_tagliatelle_2021_first_line_forest_code.inc.h"
+#include "labeling_tagliatelle_2021_fl_forest.inc.h"
             }
 
             // Every other line but the last one if image has an odd number of rows
@@ -735,7 +735,7 @@ private:
                 int c = -2;
                 goto cl_tree_0;
 
-#include "labeling_tagliatelle_2021_center_line_forest_code.inc.h"
+#include "labeling_tagliatelle_2021_cl_forest.inc.h"
             }
 
             // Last line (in case the rows are odd)
@@ -748,7 +748,7 @@ private:
                 unsigned* const img_labels_row = img_labels_.ptr<unsigned>(r);
                 unsigned* const img_labels_row_prev_prev = (unsigned*)(((char*)img_labels_row) - img_labels_.step.p[0] - img_labels_.step.p[0]);
                 int c = -2;
-#include "labeling_tagliatelle_2021_last_line_forest_code.inc.h"
+#include "labeling_tagliatelle_2021_ll_forest.inc.h"
             }
         }
 

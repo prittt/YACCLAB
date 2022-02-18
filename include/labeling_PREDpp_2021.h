@@ -75,7 +75,7 @@ public:
             // Row pointers for the output image 
             unsigned* const img_labels_row00 = img_labels_.ptr<unsigned>(0);
             goto fl_tree_0;
-#include "labeling_PREDpp_2021_first_line_forest_code.inc.h"
+#include "labeling_PREDpp_2021_fl_forest.inc.h"
         }
 
         for (int r = 1; r < h; ++r) {
@@ -89,7 +89,7 @@ public:
             unsigned* const img_labels_row00 = img_labels_.ptr<unsigned>(r);
             unsigned* const img_labels_row11 = (unsigned *)(((char *)img_labels_row00) + img_labels_.step.p[0] * -1);
             goto cl_tree_0;
-#include "labeling_PREDpp_2021_center_line_forest_code.inc.h"
+#include "labeling_PREDpp_2021_cl_forest.inc.h"
 
         }//End rows's for
 
@@ -212,7 +212,7 @@ private:
             // Row pointers for the output image 
             unsigned* const img_labels_row00 = img_labels_.ptr<unsigned>(0);
             goto fl_tree_0;
-#include "labeling_PREDpp_2021_first_line_forest_code.inc.h"
+#include "labeling_PREDpp_2021_fl_forest.inc.h"
         }
 
         for (int r = 1; r < h; ++r) {
@@ -225,7 +225,7 @@ private:
             unsigned* const img_labels_row11 = (unsigned *)(((char *)img_labels_row00) + img_labels_.step.p[0] * -1);
             int c = -1;
             goto cl_tree_0;
-#include "labeling_PREDpp_2021_center_line_forest_code.inc.h"
+#include "labeling_PREDpp_2021_cl_forest.inc.h"
 
         }//End rows's for
 

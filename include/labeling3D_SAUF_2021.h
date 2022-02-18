@@ -214,7 +214,7 @@ public:
 
             for (unsigned int c = 0; c < w; c++) {
 
-#include "labeling3D_SAUF_2021_tree_code.inc.h"
+#include "labeling3D_SAUF_2021_tree.inc.h"
 
             }
         } // Rows cycle end
@@ -305,7 +305,7 @@ public:
                 unsigned* const img_labels_slice11_row01 = (unsigned *)(((char *)img_labels_slice00_row00) - img_labels_.step.p[0] + img_labels_.step.p[1] * 1);
 
                 for (unsigned int c = 0; c < w; c++) {
-#include "labeling3D_SAUF_2021_tree_code.inc.h"
+#include "labeling3D_SAUF_2021_tree.inc.h"
 				}
             } // Rows cycle end
         } // Planes cycle end
@@ -432,7 +432,7 @@ private:
 
                 for (unsigned int c = 0; c < w; c++) {
 
-#include "labeling3D_SAUF_2021_tree_code.inc.h"
+#include "labeling3D_SAUF_2021_tree.inc.h"
 
                 }
             } // Rows cycle end

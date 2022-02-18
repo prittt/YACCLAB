@@ -8,9 +8,9 @@ target_sources(YACCLAB
         labeling_bolelli_2018_drag.inc.h
         labeling_bolelli_2019.h
         labeling_bolelli_2019_forest.inc.h
-        labeling_bolelli_2019_forest_firstline.inc.h
-        labeling_bolelli_2019_forest_lastline.inc.h
-        labeling_bolelli_2019_forest_singleline.inc.h
+        labeling_bolelli_2019_forest_fl.inc.h
+        labeling_bolelli_2019_forest_ll.inc.h
+        labeling_bolelli_2019_forest_sl.inc.h
         labeling_distefano_1999.h
         labeling_fchang_2003.h
         labeling_grana_2010.h
@@ -48,13 +48,13 @@ target_sources(YACCLAB
         labeling_lee_2021_bmrs_old.h
         bit_scan_forward.h
         labeling_PREDpp_2021.h
-        labeling_PREDpp_2021_first_line_forest_code.inc.h
-        labeling_PREDpp_2021_center_line_forest_code.inc.h
+        labeling_PREDpp_2021_fl_forest.inc.h
+        labeling_PREDpp_2021_cl_forest.inc.h
         labeling_tagliatelle_2021.h
-        labeling_tagliatelle_2021_center_line_forest_code.inc.h
-        labeling_tagliatelle_2021_first_line_forest_code.inc.h
-        labeling_tagliatelle_2021_last_line_forest_code.inc.h
-        labeling_tagliatelle_2021_single_line_forest_code.inc.h
+        labeling_tagliatelle_2021_cl_forest.inc.h
+        labeling_tagliatelle_2021_fl_forest.inc.h
+        labeling_tagliatelle_2021_ll_forest.inc.h
+        labeling_tagliatelle_2021_sl_forest.inc.h
 )
 
 
@@ -71,45 +71,45 @@ if(YACCLAB_ENABLE_3D)
         labeling3D_naive.h        
         labeling3D_he_2011.h
         labeling3D_SAUF_2021.h
-        labeling3D_SAUF_2021_tree_code.inc.h
+        labeling3D_SAUF_2021_tree.inc.h
         labeling3D_SAUFpp_2021.h
-        labeling3D_SAUFpp_2021_tree_code.inc.h
+        labeling3D_SAUFpp_2021_tree.inc.h
         labeling3D_PRED_2021.h
-        labeling3D_PRED_2021_center_line_forest_code.inc.h
-        labeling3D_PRED_2021_first_line_forest_code.inc.h
-        labeling3D_PRED_2021_last_line_forest_code.inc.h
-        labeling3D_PRED_2021_single_line_forest_code.inc.h
+        labeling3D_PRED_2021_cl_forest.inc.h
+        labeling3D_PRED_2021_fl_forest.inc.h
+        labeling3D_PRED_2021_ll_forest.inc.h
+        labeling3D_PRED_2021_sl_forest.inc.h
         labeling3D_PREDpp_2021.h
-        labeling3D_PREDpp_2021_center_line_forest_code.inc.h
-        labeling3D_PREDpp_2021_first_line_forest_code.inc.h
-        labeling3D_PREDpp_2021_last_line_forest_code.inc.h
-        labeling3D_PREDpp_2021_single_line_forest_code.inc.h        
+        labeling3D_PREDpp_2021_cl_forest.inc.h
+        labeling3D_PREDpp_2021_fl_forest.inc.h
+        labeling3D_PREDpp_2021_ll_forest.inc.h
+        labeling3D_PREDpp_2021_sl_forest.inc.h        
     )
     if(YACCLAB_ENABLE_EPDT_19C)
         target_sources(YACCLAB PRIVATE        
             labeling3D_EPDT_19c.h
-            labeling3D_EPDT_19c_action_definition.inc.h
-            labeling3D_EPDT_19c_action_definition_memory.inc.h
+            labeling3D_EPDT_19c_action_def.inc.h
+            labeling3D_EPDT_19c_action_def_memory.inc.h
             labeling3D_EPDT_19c_tree.inc.h
-            labeling3D_EPDT_2829_action_undefinition.inc.h            
-        )
+            labeling3D_EPDT_2829_action_undef.inc.h            
+            )
     endif()
     if(YACCLAB_ENABLE_EPDT_22C)
         target_sources(YACCLAB PRIVATE        
             labeling3D_EPDT_22c.h
-            labeling3D_EPDT_22c_action_definition.inc.h
-            labeling3D_EPDT_22c_action_definition_memory.inc.h
+            labeling3D_EPDT_22c_action_def.inc.h
+            labeling3D_EPDT_22c_action_def_memory.inc.h
             labeling3D_EPDT_22c_tree.inc.h
-            labeling3D_EPDT_2829_action_undefinition.inc.h            
+            labeling3D_EPDT_2829_action_undef.inc.h            
         )
     endif()
     if(YACCLAB_ENABLE_EPDT_26C)
         target_sources(YACCLAB PRIVATE                               
             labeling3D_EPDT_26c.h
-            labeling3D_EPDT_26c_action_definition.inc.h
-            labeling3D_EPDT_26c_action_definition_memory.inc.h
+            labeling3D_EPDT_26c_action_def.inc.h
+            labeling3D_EPDT_26c_action_def_memory.inc.h
             labeling3D_EPDT_26c_tree.inc.h
-            labeling3D_EPDT_2829_action_undefinition.inc.h 
+            labeling3D_EPDT_2829_action_undef.inc.h 
         )
     endif()
 endif()
