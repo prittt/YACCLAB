@@ -41,6 +41,22 @@ CPU 3D 26-way connectivity:
   #  - RBTS_3D_UFPC
     - RBTS_3D_TTA
   #  - RBTS_3D_RemSP
+  #  - SAUF_3D_UF
+    - SAUF_3D_UFPC
+  #  - SAUF_3D_TTA
+  #  - SAUF_3D_RemSP
+  #  - SAUFpp_3D_UF
+    - SAUFpp_3D_UFPC
+  #  - SAUFpp_3D_TTA
+  #  - SAUFpp_3D_RemSP
+  #  - PRED_3D_UF
+    - PRED_3D_UFPC
+  #  - PRED_3D_TTA
+  #  - PRED_3D_RemSP
+  #  - PREDpp_3D_UF
+    - PREDpp_3D_UFPC
+  #  - PREDpp_3D_TTA
+  #  - PREDpp_3D_RemSP
 ${YACCLAB_CONFIG_EPDT_ALGORITHMS}  
     
   # Datasets to use for each test

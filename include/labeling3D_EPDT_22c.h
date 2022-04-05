@@ -44,7 +44,7 @@
 #define CONDITION_WA c > 1 && img_slice00_row00[c - 2] > 0
 
 //Actions:
-#include "labeling3D_EPDT_22c_action_definition.inc.h"
+#include "labeling3D_EPDT_22c_action_def.inc.h"
 
 template <typename LabelsSolver>
 class EPDT_3D_22c : public Labeling3D<Connectivity3D::CONN_26> {
@@ -230,7 +230,7 @@ public:
 #undef CONDITION_XA 
 #undef CONDITION_XB 
 
-#include "labeling3D_EPDT_2829_action_undefinition.inc.h"
+#include "labeling3D_EPDT_2829_action_undef.inc.h"
 
 			//Conditions:
 #define CONDITION_KB c > 0 && r > 0 && s > 0 && img(s - 1, r - 1, c - 1) > 0
@@ -256,7 +256,7 @@ public:
 #define CONDITION_XA img(s, r, c) > 0
 #define CONDITION_XB c < w - 1 && img(s, r, c + 1) > 0
 
-#include "labeling3D_EPDT_22c_action_definition_memory.inc.h"
+#include "labeling3D_EPDT_22c_action_def_mem.inc.h"
 		}
 
 		LabelsSolver::MemAlloc(UPPER_BOUND_26_CONNECTIVITY); // Equivalence solver
@@ -364,7 +364,7 @@ public:
 #undef CONDITION_XA 
 #undef CONDITION_XB
 
-#include "labeling3D_EPDT_2829_action_undefinition.inc.h"
+#include "labeling3D_EPDT_2829_action_undef.inc.h"
 
 			//Conditions:
 #define CONDITION_KB c > 0 && r > 0 && s > 0 && img_slice11_row11[c - 1] > 0
@@ -391,7 +391,7 @@ public:
 #define CONDITION_WA c > 1 && img_slice00_row00[c - 2] > 0
 
 //Actions:
-#include "labeling3D_EPDT_22c_action_definition.inc.h"
+#include "labeling3D_EPDT_22c_action_def.inc.h"
 		}
 	}
 
@@ -543,6 +543,6 @@ private:
 #undef CONDITION_XB 
 
 //Actions:
-#include "labeling3D_EPDT_2829_action_undefinition.inc.h"
+#include "labeling3D_EPDT_2829_action_undef.inc.h"
 
 #endif // YACCLAB_LABELING3D_EPDT_22c_H_

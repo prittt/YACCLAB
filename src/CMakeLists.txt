@@ -28,6 +28,8 @@ target_sources(YACCLAB
         labeling_sauf_background.cc
         labeling_lee_2021_brts.cc
         labeling_lee_2021_bmrs.cc
+        labeling_PREDpp_2021.cc
+        labeling_tagliatelle_2021.cc
 )
 
 
@@ -43,6 +45,10 @@ if(YACCLAB_ENABLE_3D)
         labeling3D_naive.cc
         labeling3D_he_2011.cc
         labeling3D_he_2011_run.cc
+        labeling3D_PRED_2021.cc
+        labeling3D_PREDpp_2021.cc
+        labeling3D_SAUF_2021.cc
+        labeling3D_SAUFpp_2021.cc
     )
     if(YACCLAB_ENABLE_EPDT_19C)
         target_sources(YACCLAB PRIVATE
