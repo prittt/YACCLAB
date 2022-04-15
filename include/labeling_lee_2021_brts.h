@@ -79,20 +79,20 @@ public:
         FindRuns(data_compressed.bits, h, data_compressed.data_width, data_runs.runs);
 
         Run* runs = data_runs.runs;
-        img_labels_ = cv::Mat1i(img_.size());
+        img_labels_ = cv::Mat1i(img_.size(), 0); // (0-init)
         for (int i = 0; i < h; i++) {
             unsigned* const labels = img_labels_.ptr<unsigned>(i);
-            for (int j = 0;; runs++) {
+            for (;; runs++) {
                 unsigned short start_pos = runs->start_pos;
                 if (start_pos == 0xFFFF) {
-                    for (; j < w; j++) labels[j] = 0;
                     runs++;
                     break;
                 }
                 unsigned short end_pos = runs->end_pos;
                 int label = LabelsSolver::GetLabel(runs->label);
-                for (; j < start_pos; j++) labels[j] = 0;
-                for (; j < end_pos; j++) labels[j] = label;
+                for (int j = start_pos; j < end_pos; j++) {
+                    labels[j] = label;
+                }
             }
         }
 
@@ -605,20 +605,20 @@ private:
         int w(img_.cols);
         int h(img_.rows);
 
+        memset(img_labels_.data, 0, img_labels_.dataend - img_labels_.datastart);
+
         Run* runs = data_runs.runs;
         for (int i = 0; i < h; i++) {
             unsigned* const labels = img_labels_.ptr<unsigned>(i);
-            for (int j = 0;; runs++) {
+            for (;; runs++) {
                 unsigned short start_pos = runs->start_pos;
                 if (start_pos == 0xFFFF) {
-                    for (; j < w; j++) labels[j] = 0;
                     runs++;
                     break;
                 }
                 unsigned short end_pos = runs->end_pos;
                 int label = LabelsSolver::GetLabel(runs->label);
-                for (; j < start_pos; j++) labels[j] = 0;
-                for (; j < end_pos; j++) labels[j] = label;
+                for (int j = start_pos; j < end_pos; j++) labels[j] = label;
             }
         }
     }

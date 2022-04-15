@@ -11,8 +11,8 @@
 // Konkuk University, Korea
 
 
-#ifndef YACCLAB_LABELING_BMRS_OLD
-#define YACCLAB_LABELING_BMRS_OLD
+#ifndef YACCLAB_LABELING_BMRS_NO_ZEROINIT
+#define YACCLAB_LABELING_BMRS_NO_ZEROINIT
 #include <vector>
 #include <opencv2/core.hpp>
 
@@ -23,7 +23,7 @@
 
 
 template <typename LabelsSolver>
-class BMRS_OLD : public Labeling2D<Connectivity2D::CONN_8>
+class BMRS_XZ : public Labeling2D<Connectivity2D::CONN_8>
 {
     struct Data_Compressed {
         uint64_t* bits;
@@ -65,7 +65,7 @@ class BMRS_OLD : public Labeling2D<Connectivity2D::CONN_8>
     Runs data_runs;
 
 public:
-    BMRS_OLD() {}
+    BMRS_XZ() {}
     void PerformLabeling()
     {
 		int w(img_.cols);
@@ -119,11 +119,11 @@ public:
 
         img_labels_ = cv::Mat1i(img_.size());
 
-        // Old version (uses 1-byte per pixel input)
+        // New version (uses 1-byte per pixel input)
         Run* runs = data_runs.runs;
         for (int i = 0; i < h / 2; i++) {
-            const uchar* const data_u = img_.ptr<uchar>(2 * i);
-            const uchar* const data_d = img_.ptr<uchar>(2 * i + 1);
+            const uint64_t* const data_u = data_compressed.bits + data_compressed.data_width * 2 * i;
+            const uint64_t* const data_d = data_u + data_compressed.data_width;
             unsigned* const labels_u = img_labels_.ptr<unsigned>(2 * i);
             unsigned* const labels_d = img_labels_.ptr<unsigned>(2 * i + 1);
 
@@ -140,8 +140,8 @@ public:
 
                 for (; j < start_pos; j++) labels_u[j] = 0, labels_d[j] = 0;
                 for (; j < end_pos; j++) {
-                    labels_u[j] = (data_u[j]) ? label : 0;
-                    labels_d[j] = (data_d[j]) ? label : 0;
+                    labels_u[j] = (data_u[j >> 6] & (1ull << (j & 0x3F))) ? label : 0;
+                    labels_d[j] = (data_d[j >> 6] & (1ull << (j & 0x3F))) ? label : 0;
                 }
             }
         }
@@ -846,8 +846,8 @@ private:
 
         Run* runs = data_runs.runs;
         for (int i = 0; i < h / 2; i++) {
-            const uchar* const data_u = img_.ptr<uchar>(2 * i);
-            const uchar* const data_d = img_.ptr<uchar>(2 * i + 1);
+            const uint64_t* const data_u = data_compressed.bits + data_compressed.data_width * 2 * i;
+            const uint64_t* const data_d = data_u + data_compressed.data_width;
             unsigned* const labels_u = img_labels_.ptr<unsigned>(2 * i);
             unsigned* const labels_d = img_labels_.ptr<unsigned>(2 * i + 1);
 
@@ -864,8 +864,8 @@ private:
 
                 for (; j < start_pos; j++) labels_u[j] = 0, labels_d[j] = 0;
                 for (; j < end_pos; j++) {
-                    labels_u[j] = (data_u[j]) ? label : 0;
-                    labels_d[j] = (data_d[j]) ? label : 0;
+                    labels_u[j] = (data_u[j >> 6] & (1ull << (j & 0x3F))) ? label : 0;
+                    labels_d[j] = (data_d[j >> 6] & (1ull << (j & 0x3F))) ? label : 0;
                 }
             }
         }

@@ -44,8 +44,9 @@ target_sources(YACCLAB
         labeling_sauf_4c.h
         labeling_sauf_background.h
         labeling_lee_2021_brts.h
+        labeling_lee_2021_brts_no_zeroinit.h
         labeling_lee_2021_bmrs.h
-        labeling_lee_2021_bmrs_old.h
+        labeling_lee_2021_bmrs_no_zeroinit.h
         bit_scan_forward.h
         labeling_PREDpp_2021.h
         labeling_PREDpp_2021_fl_forest.inc.h

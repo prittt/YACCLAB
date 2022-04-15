@@ -11,6 +11,8 @@
 // Konkuk University, Korea
 
 #include "labeling_lee_2021_brts.h"
+#include "labeling_lee_2021_brts_no_zeroinit.h"
 #include "labels_solver.h"
 
 REGISTER_LABELING_WITH_EQUIVALENCES_SOLVERS(BRTS);
+REGISTER_LABELING_WITH_EQUIVALENCES_SOLVERS(BRTS_XZ);
