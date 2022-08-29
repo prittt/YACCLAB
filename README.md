@@ -1,7 +1,7 @@
 # Yet Another Connected Components Labeling Benchmark
 [![release](https://img.shields.io/github/v/release/prittt/YACCLAB)](https://github.com/prittt/YACCLAB/releases/latest/)
 [![license](https://img.shields.io/github/license/prittt/YACCLAB)](https://github.com/prittt/YACCLAB/blob/master/LICENSE)<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![contributors](https://img.shields.io/badge/all_contributors-7-orange.svg?style=flat)](#contributors)
+[![contributors](https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat)](#contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 
@@ -760,6 +760,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
   </tr>
   <tr>
     <td align="center"><a href="https://github.com/patrickhwood"><img src="https://avatars.githubusercontent.com/u/2100827?v=4?s=100" width="100px;" alt=""/><br /><sub><b>patrickhwood</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/issues?q=author%3Apatrickhwood" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/fengweichangzi"><img src="https://avatars.githubusercontent.com/u/87119815?v=4?s=100" width="100px;" alt=""/><br /><sub><b>WalnutVision</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/issues?q=author%3Afengweichangzi" title="Bug reports">🐛</a></td>
   </tr>
 </table>
 
