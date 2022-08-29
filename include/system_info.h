@@ -10,7 +10,7 @@
 #include <iostream>
 #include <string>
 
-#include <config_data.h>
+#include "config_data.h"
 
 #if defined YACCLAB_WITH_CUDA
 #include "cuda_runtime.h"
