@@ -141,12 +141,13 @@ Notes for gnuplot:
 
 ## How to include a YACCLAB algorithm into your own project?
 
-<p align="justify">If your project requires a Connected Components Labeling algorithm and you are not interested in the whole YACCLAB benchmark you can use the <i>connectedComponent</i> function of the OpenCV library which implements the BBDT and SAUF algorithms since version 3.2.</p>
+<p align="justify">If your project requires a Connected Components Labeling algorithm and you are not interested in the whole YACCLAB benchmark you can use the <i>connectedComponent</i> function of the OpenCV library which implements the BBDT and SAUF algorithms since version 3.2., Spaghetti Labeling algorithm and BKE (for GPU only) since version 4.6.</p>
 <p align="justify">Anyway, when the <i>connectedComponents</i> function is called, a lot of additional code will be executed together with the core function. If your project requires the best performance you can include an algorithm implemented in YACCLAB adding the following files to your project:</p>
 <ol>
   <li><i>labeling_algorithms.h</i> and <i>labeling_algorithms.cc</i> which define the base class from which every algorithm derives from;</li>
+  <li><i>yacclab_tensor.h</i>, <i>yacclab_tensor.cc</i> which define input and output data tensors;</li>
   <li><i>label_solver.h</i> and <i>label_solver.cc</i> which cointain the implementation of labels solving algorithms;</li>
-  <li><i>memory_tester.h</i> and <i>performance_evaluator.h</i> just to make things work without changing the code;</li>
+  <li><i>memory_tester.h</i>, <i>performance_evaluator.h</i>, <i>volume_util.h</i>, <i>volume_util.cc</i>, <i>utilities.h<i>, <i>utilities.cc</i>, <i>system_info.h<i>, <i>system_info.cc</i>, <i>check_labeling.h<i>, <i>check_labeling.cc</i>, <i>file_manager.h<i>, <i>file_manager.cc</i>, <i>stream_demultiplexer.h<i>, <i>config_data.h</i>, <i>register.h</i>, <i>yacclab_test.h</i>, <i>progress_bar.h</i>, <i>cuda_mat3.hpp</i>, <i>cuda_types3.hpp</i>, and <i>cuda_mat3.inl.hpp</i> just to make things work without changing the code;</li>
   <li><i>headers</i> and <i>sources</i> files of the required algorithm/s. The association between algorithms and headers/sources files is reported in the tables below.</li>
 </ol>  
 
