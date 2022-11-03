@@ -147,7 +147,7 @@ Notes for gnuplot:
   <li><i>labeling_algorithms.h</i> and <i>labeling_algorithms.cc</i> which define the base class from which every algorithm derives from;</li>
   <li><i>yacclab_tensor.h</i>, <i>yacclab_tensor.cc</i> which define input and output data tensors;</li>
   <li><i>label_solver.h</i> and <i>label_solver.cc</i> which cointain the implementation of labels solving algorithms;</li>
-  <li><i>memory_tester.h</i>, <i>performance_evaluator.h</i>, <i>volume_util.h</i>, <i>volume_util.cc</i>, <i>utilities.h<i>, <i>utilities.cc</i>, <i>system_info.h<i>, <i>system_info.cc</i>, <i>check_labeling.h<i>, <i>check_labeling.cc</i>, <i>file_manager.h<i>, <i>file_manager.cc</i>, <i>stream_demultiplexer.h<i>, <i>config_data.h</i>, <i>register.h</i>, <i>yacclab_test.h</i>, <i>progress_bar.h</i>, <i>cuda_mat3.hpp</i>, <i>cuda_types3.hpp</i>, and <i>cuda_mat3.inl.hpp</i> just to make things work without changing the code;</li>
+  <li><i>memory_tester.h</i>, <i>performance_evaluator.h</i>, <i>volume_util.h</i>, <i>volume_util.cc</i>, <i>utilities.h</i>, <i>utilities.cc</i>, <i>system_info.h</i>, <i>system_info.cc</i>, <i>check_labeling.h</i>, <i>check_labeling.cc</i>, <i>file_manager.h</i>, <i>file_manager.cc</i>, <i>stream_demultiplexer.h</i>, <i>config_data.h</i>, <i>register.h</i>, <i>yacclab_test.h</i>, <i>progress_bar.h</i>, <i>cuda_mat3.hpp</i>, <i>cuda_types3.hpp</i>, and <i>cuda_mat3.inl.hpp</i> just to make things work without changing the code;</li>
   <li><i>headers</i> and <i>sources</i> files of the required algorithm/s. The association between algorithms and headers/sources files is reported in the tables below.</li>
 </ol>  
 
