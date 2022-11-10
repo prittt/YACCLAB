@@ -153,8 +153,7 @@ class DLS : public GpuLabeling2D<Connectivity2D::CONN_8> {
 private:
     dim3 grid_size_;
     dim3 block_size_;
-    char changes;
-    char* d_changes;
+    char* d_changes_;
 
 public:
     DLS() {}
@@ -162,6 +161,8 @@ public:
     void PerformLabeling() {
 
         d_img_labels_.create(d_img_.size(), CV_32SC1);
+        
+        char* d_changes;
         cudaMalloc(&d_changes, sizeof(char));
 
         grid_size_ = dim3((d_img_.cols + BLOCK_COLS - 1) / BLOCK_COLS, (d_img_.rows + BLOCK_ROWS - 1) / BLOCK_ROWS, 1);
@@ -170,7 +171,7 @@ public:
         Init << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
 
         while (true) {
-            changes = 0;
+            char changes = 0;
             cudaMemcpy(d_changes, &changes, sizeof(char), cudaMemcpyHostToDevice);
 
             Scan << <grid_size_, block_size_ >> > (d_img_labels_, d_changes);
@@ -189,14 +190,14 @@ private:
     double Alloc() {
         perf_.start();
         d_img_labels_.create(d_img_.size(), CV_32SC1);
-        cudaMalloc(&d_changes, sizeof(char));
+        cudaMalloc(&d_changes_, sizeof(char));
         perf_.stop();
         return perf_.last();
     }
 
     double Dealloc() {
         perf_.start();
-        cudaFree(d_changes);
+        cudaFree(d_changes_);
         perf_.stop();
         return perf_.last();
     }
@@ -215,21 +216,16 @@ private:
     void AllScans() {
         grid_size_ = dim3((d_img_.cols + BLOCK_COLS - 1) / BLOCK_COLS, (d_img_.rows + BLOCK_ROWS - 1) / BLOCK_ROWS, 1);
         block_size_ = dim3(BLOCK_COLS, BLOCK_ROWS, 1);
-
-        char changes = 1;
-        char* d_changes;
-        cudaMalloc(&d_changes, sizeof(char));
-        // cudaMemcpy(d_changes, &changes, sizeof(char), cudaMemcpyHostToDevice);
-
+                        
         Init << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
 
         while (true) {
-            changes = 0;
-            cudaMemcpy(d_changes, &changes, sizeof(char), cudaMemcpyHostToDevice);
+            char changes = 0;
+            cudaMemcpy(d_changes_, &changes, sizeof(char), cudaMemcpyHostToDevice);
 
-            Scan << <grid_size_, block_size_ >> > (d_img_labels_, d_changes);
+            Scan << <grid_size_, block_size_ >> > (d_img_labels_, d_changes_);
 
-            cudaMemcpy(&changes, d_changes, sizeof(char), cudaMemcpyDeviceToHost);
+            cudaMemcpy(&changes, d_changes_, sizeof(char), cudaMemcpyDeviceToHost);
             if (!changes)
                 break;
         }

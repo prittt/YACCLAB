@@ -514,7 +514,8 @@ public:
         }
 
         End << <grid_size_, block_size_ >> > (d_img_labels_);
-
+        
+        cudaFree(d_changed_ptr);
         cudaDeviceSynchronize();
     }
 
@@ -523,10 +524,8 @@ private:
     double Alloc() {
         perf_.start();
         d_img_labels_.create(d_img_.size(), CV_32SC1);
-
         grid_size_ = dim3((d_img_.cols + BLOCK_SIZE - 1) / BLOCK_SIZE, (d_img_.rows + BLOCK_SIZE - 1) / BLOCK_SIZE, 1);
         block_size_ = dim3(BLOCK_SIZE, BLOCK_SIZE, 1);
-
         cudaMalloc(&d_changed_ptr_, 1);
         perf_.stop();
         return perf_.last();
@@ -534,6 +533,7 @@ private:
 
     double Dealloc() {
         perf_.start();
+        cudaFree(d_changed_ptr_);
         perf_.stop();
         return perf_.last();
     }
@@ -549,14 +549,24 @@ private:
         d_img_labels_.download(img_labels_);
     }
 
-    void LocalScan() {
+    void AllScans() {
+        Init << <grid_size_, block_size_ >> > (d_img_, d_img_labels_);
 
-    }
+        char changed = 1;
+        while (changed) {
+            changed = 0;
 
-    void GlobalScan() {
+            cudaMemset(d_changed_ptr_, 0, 1);
 
+            Propagate << <grid_size_, block_size_ >> > (d_img_labels_, d_changed_ptr_);
+
+            cudaMemcpy(&changed, d_changed_ptr_, 1, cudaMemcpyDeviceToHost);
+        }
+
+        End << <grid_size_, block_size_ >> > (d_img_labels_);
         cudaDeviceSynchronize();
     }
+
 
 public:
     void PerformLabelingWithSteps()
@@ -566,15 +576,10 @@ public:
         double alloc_timing = Alloc();
 
         perf_.start();
-        LocalScan();
+        AllScans();
         perf_.stop();
-        perf_.store(Step(StepType::FIRST_SCAN), perf_.last());
-
-        perf_.start();
-        GlobalScan();
-        perf_.stop();
-        perf_.store(Step(StepType::SECOND_SCAN), perf_.last());
-
+        perf_.store(Step(StepType::ALL_SCANS), perf_.last());
+                
         double dealloc_timing = Dealloc();
 
         perf_.store(Step(StepType::ALLOC_DEALLOC), alloc_timing + dealloc_timing);

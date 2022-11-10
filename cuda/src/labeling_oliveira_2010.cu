@@ -139,7 +139,7 @@ __global__ void LocalMerge(const cuda::PtrStepSzb img, cuda::PtrStepSzi labels) 
             unsigned f_row = f / blockDim.x;
             unsigned f_col = f % blockDim.x;
             unsigned global_f = (blockIdx.y * BLOCK_ROWS + f_row) * (labels.step / labels.elem_size) + (blockIdx.x * blockDim.x + f_col);
-            labels.data[global_row * labels.step / sizeof(int) + global_col] = global_f + 1;		// C'� distinzione tra background e foreground
+            labels.data[global_row * labels.step / sizeof(int) + global_col] = global_f + 1;
         }
 
         else {
