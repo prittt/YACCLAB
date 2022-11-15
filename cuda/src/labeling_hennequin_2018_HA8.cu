@@ -11,7 +11,7 @@
 //
 // This is a modification of the algorithm, to work with
 // 8-connectivity. The original 4-conn algorithm is in
-// labeling_hennequin_2018_HA8.cu
+// labeling_hennequin_2018_HA4.cu
 
 
 #include <opencv2/cudafeatures2d.hpp>

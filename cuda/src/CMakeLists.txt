@@ -42,7 +42,7 @@ if(YACCLAB_ENABLE_3D)
         labeling_zavalishin_2016_3D.cu
         labeling_allegretti_2019_BKE_3D.cu
         labeling_allegretti_2019_BUF_3D.cu
-        #labeling_UF_3D.cu
+        labeling_allegretti_2019_UF_3D.cu
         #labeling_BUF_3D_NoInlineCompression.cu
         #labeling_BE_3D_light.cu
         #labeling_BE_3D_light_shared.cu
