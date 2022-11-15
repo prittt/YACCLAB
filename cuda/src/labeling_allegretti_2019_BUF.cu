@@ -12,7 +12,7 @@
 #include "labeling_algorithms.h"
 #include "register.h"
 
-// This algorithm is a variation of Block Union Find (BUF) that calls FindAndCompress instead of simple Find used by BUF. 
+// This algorithm calls FindAndCompress instead of simple Find. 
 // FindAndCompress updates the label of the starting pixel at each iteration of the loop.
 // This means that, if the equivalence tree is like this:
 
@@ -24,7 +24,7 @@
 
 // then the first iteration updates the label of C, assigning it value B, and the second iteration assigns A.
 // This way, another thread reading C during the process will find an updated value and will avoid a step.
-// This algorithm performs better than BUF only sometimes (rarely?). 
+// FindCompresso performs better than Find only sometimes (rarely?). 
 
 
 #define BLOCK_ROWS 16
