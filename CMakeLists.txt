@@ -84,11 +84,6 @@ set(CMAKE_CXX_EXTENSIONS NO)
 #	message(STATUS "We are not able to check if ${CMAKE_CXX_COMPILER} compiler has C++14 support. YACCLAB may not work properly.")
 #endif()
 
-# To be able to use __cplusplus macro to check C++ version
-if(MSVC)
-	add_compile_options("/Zc:__cplusplus")
-endif()
-
 # ----------------------------------------------------------------------------
 #  Check for CUDA support
 # ----------------------------------------------------------------------------
@@ -261,10 +256,17 @@ target_link_libraries (${ProjectName}  ${OpenCV_LIBS})
 if(OpenMP_CXX_FOUND)
     target_link_libraries(${ProjectName} OpenMP::OpenMP_CXX)
 endif()
+
+# To be able to use __cplusplus macro to check C++ version
+if(MSVC)
+	target_compile_options(${ProjectName} PUBLIC $<$<COMPILE_LANGUAGE:CXX>:/Zc:__cplusplus>)
+    #target_compile_options(${ProjectName} PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-Xcompiler=/Zc:__cplusplus>)
+endif()
+
 set_property(TARGET ${ProjectName} PROPERTY CUDA_SEPARABLE_COMPILATION ON)
 
 # ----------------------------------------------------------------------------
-# Output and datasests
+# Output and datasets
 # ----------------------------------------------------------------------------
 
 # Set YACCLAB as startup group instead of ALL_BUILD
