@@ -32,6 +32,8 @@ set(YACCLAB_OUTPUT_RESULTS_PATH "${CMAKE_INSTALL_PREFIX}/output" CACHE PATH "'ou
 set(YACCLAB_OS "${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_VERSION}" CACHE INTERNAL STRING)
 set(YACCLAB_CI_CPU2D OFF CACHE INTERNAL "This variable is used to handle travis-ci parameters, do not change its value")
 set(YACCLAB_IS_JENKINS OFF CACHE INTERNAL "This variable is used to handle jenkins parameters, do not change its value")
+#set(YACCLAB_CXX_STANDARD 14 CACHE STRING "Version of the C++ standard (must be >= 14)") 
+#set_property(CACHE YACCLAB_CXX_STANDARD PROPERTY STRINGS 14 17 20 23)
 
 if(MSVC)
   set(CMAKE_USE_RELATIVE_PATHS ON CACHE INTERNAL "" FORCE)
@@ -82,6 +84,10 @@ set(CMAKE_CXX_EXTENSIONS NO)
 #	message(STATUS "We are not able to check if ${CMAKE_CXX_COMPILER} compiler has C++14 support. YACCLAB may not work properly.")
 #endif()
 
+# To be able to use __cplusplus macro to check C++ version
+if(MSVC)
+	add_compile_options("/Zc:__cplusplus")
+endif()
 
 # ----------------------------------------------------------------------------
 #  Check for CUDA support

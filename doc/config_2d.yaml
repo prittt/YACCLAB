@@ -53,14 +53,18 @@ CPU 2D 8-way connectivity:
   #  - DRAG_TTA
     - DRAG_UFPC
   #  - DRAG_UF
+  #  - PREDpp_RemSP
+  #  - PREDpp_TTA
+  #  - PREDpp_UFPC
+  #  - PREDpp_UF
   #  - Spaghetti_RemSP
   #  - Spaghetti_TTA
     - Spaghetti_UFPC
   #  - Spaghetti_UF
-  #  - RBTS_RemSP
-  #  - RBTS_TTA
-    - RBTS_UFPC
-  #  - RBTS_UF
+  #  - Tagliatelle_RemSP
+  #  - Tagliatelle_TTA
+  #  - Tagliatelle_UFPC
+  #  - Tagliatelle_UF
   #  - LSL_STD_TTA
   #  - LSL_STD_UF
   #  - LSL_STDZ_TTA
@@ -69,6 +73,18 @@ CPU 2D 8-way connectivity:
   #  - LSL_RLE_UF
   #  - LSL_RLEZ_TTA
   #  - LSL_RLEZ_UF
+  #  - BRTS_RemSP
+  #  - BRTS_TTA
+  #  - BRTS_UFPC
+  #  - BRTS_UF
+  #  - BMRS_RemSP
+  #  - BMRS_TTA
+  #  - BMRS_UFPC
+  #  - BMRS_UF
+  #  - RBTS_RemSP
+  #  - RBTS_TTA
+  #  - RBTS_UFPC
+  #  - RBTS_UF
   #  - DiStefano
   #  - CT
   #  - SBLA

@@ -1,7 +1,7 @@
 # Yet Another Connected Components Labeling Benchmark
 [![release](https://img.shields.io/github/v/release/prittt/YACCLAB)](https://github.com/prittt/YACCLAB/releases/latest/)
 [![license](https://img.shields.io/github/license/prittt/YACCLAB)](https://github.com/prittt/YACCLAB/blob/master/LICENSE)<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![contributors](https://img.shields.io/badge/all_contributors-7-orange.svg?style=flat)](#contributors)
+[![contributors](https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat)](#contributors)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 
@@ -141,16 +141,17 @@ Notes for gnuplot:
 
 ## How to include a YACCLAB algorithm into your own project?
 
-<p align="justify">If your project requires a Connected Components Labeling algorithm and you are not interested in the whole YACCLAB benchmark you can use the <i>connectedComponent</i> function of the OpenCV library which implements the BBDT and SAUF algorithms since version 3.2.</p>
+<p align="justify">If your project requires a Connected Components Labeling algorithm and you are not interested in the whole YACCLAB benchmark you can use the <i>connectedComponent</i> function of the OpenCV library which implements the BBDT and SAUF algorithms since version 3.2., Spaghetti Labeling algorithm and BKE (for GPU only) since version 4.6.</p>
 <p align="justify">Anyway, when the <i>connectedComponents</i> function is called, a lot of additional code will be executed together with the core function. If your project requires the best performance you can include an algorithm implemented in YACCLAB adding the following files to your project:</p>
 <ol>
   <li><i>labeling_algorithms.h</i> and <i>labeling_algorithms.cc</i> which define the base class from which every algorithm derives from;</li>
+  <li><i>yacclab_tensor.h</i>, <i>yacclab_tensor.cc</i> which define input and output data tensors;</li>
   <li><i>label_solver.h</i> and <i>label_solver.cc</i> which cointain the implementation of labels solving algorithms;</li>
-  <li><i>memory_tester.h</i> and <i>performance_evaluator.h</i> just to make things work without changing the code;</li>
+  <li><i>memory_tester.h</i>, <i>performance_evaluator.h</i>, <i>volume_util.h</i>, <i>volume_util.cc</i>, <i>utilities.h</i>, <i>utilities.cc</i>, <i>system_info.h</i>, <i>system_info.cc</i>, <i>check_labeling.h</i>, <i>check_labeling.cc</i>, <i>file_manager.h</i>, <i>file_manager.cc</i>, <i>stream_demultiplexer.h</i>, <i>config_data.h</i>, <i>register.h</i>, <i>yacclab_test.h</i>, <i>progress_bar.h</i>, <i>cuda_mat3.hpp</i>, <i>cuda_types3.hpp</i>, and <i>cuda_mat3.inl.hpp</i> just to make things work without changing the code;</li>
   <li><i>headers</i> and <i>sources</i> files of the required algorithm/s. The association between algorithms and headers/sources files is reported in the tables below.</li>
 </ol>  
 
-### CPU Algorithms
+### 2D/3D CPU Algorithms
 
  <table>
   <tr>
@@ -167,7 +168,7 @@ Notes for gnuplot:
     <td align="center">1999</td>
     <td align="center">DiStefano</td>
     <td align="center"><i>labeling_distefano_1999.h</i></td>
-    <td align="center">NO</td>
+    <td align="center">❌</td>
   </tr>
   <tr>
     <td align="center">Contour Tracing</td>
@@ -175,7 +176,7 @@ Notes for gnuplot:
     <td align="center">1999</td>
     <td align="center">CT</td>
     <td align="center"><i>labeling_fchang_2003.h</i></td>
-    <td align="center">NO</td>
+    <td align="center">❌</td>
   </tr>
   <tr>
     <td align="center">Run-Based Two-Scan</td>
@@ -183,7 +184,7 @@ Notes for gnuplot:
     <td align="center">2008</td>
     <td align="center">RBTS</td>
     <td align="center"><i>labeling_he_2008.h</i></td>
-    <td align="center">YES</td>
+    <td align="center">	✔</td>
   </tr>
   <tr>
     <td align="center">Scan Array-based with Union Find</td>
@@ -191,7 +192,7 @@ Notes for gnuplot:
     <td align="center">2009</td>
     <td align="center">SAUF</td>
     <td align="center"><i>labeling_wu_2009.h</i>, <i>labeling_wu_2009_tree.inc</i></td>
-    <td align="center">YES</td>
+    <td align="center">	✔</td>
   </tr>
     <tr>
     <td align="center">Stripe-Based Labeling Algorithm</td>
@@ -199,7 +200,7 @@ Notes for gnuplot:
     <td align="center">2010</td>
     <td align="center">SBLA</td>
     <td align="center"><i>labeling_zhao_2010.h</i></td>
-    <td align="center">NO</td>
+    <td align="center">❌</td>
   </tr>
   <tr>
     <td align="center">Block-Based with Decision Tree</td>
@@ -207,7 +208,7 @@ Notes for gnuplot:
     <td align="center">2010</td>
     <td align="center">BBDT</td>
     <td align="center"><i>labeling_grana_2010.h</i>, <i>labeling_grana_2010_tree.inc</i></td>
-    <td align="center">YES</td>
+    <td align="center">✔</td>
   </tr>
   <tr>
     <td align="center">Configuration Transition Based</td>
@@ -215,7 +216,7 @@ Notes for gnuplot:
     <td align="center">2014</td>
     <td align="center">CTB</td>
     <td align="center"><i>labeling_he_2014.h</i>, <i>labeling_he_2014_graph.inc</i>
-    <td align="center">YES</td>
+    <td align="center">✔</td>
   </tr>
   <tr>
     <td align="center">Block-Based with Binary Decision Trees</td>
@@ -223,7 +224,7 @@ Notes for gnuplot:
     <td align="center">2015</td>
     <td align="center">CCIT</td>
     <td align="center"><i>labeling_wychang_2015.h</i>, <i>labeling_wychang_2015_tree.inc</i>, <i>labeling_wychang_2015_tree_0.inc</i></td>
-    <td align="center">YES</td>
+    <td align="center">✔</td>
   </tr>
   <tr>
     <td align="center">Light Speed Labeling</td>
@@ -231,7 +232,7 @@ Notes for gnuplot:
     <td align="center">2016</td>
     <td align="center">LSL_STD<a href="#I"><sup>I</sup></a></br>LSL_STDZ<a href="#II"><sup>II</sup></a></br>LSL_RLE<a href="#III"><sup>III</sup></a></td>
     <td align="center"><i>labeling_lacassagne_2016.h</i>, <i>labeling_lacassagne_2016_code.inc</i></td>
-    <td align="center">YES<a href="#IV"><sup>IV</sup></a></td>
+    <td align="center">✔<a href="#IV"><sup>IV</sup></a></td>
   </tr>
   <tr>
     <td align="center">Pixel Prediction</td>
@@ -239,7 +240,7 @@ Notes for gnuplot:
     <td align="center">2016</td>
     <td align="center">PRED</td>
     <td align="center"><i>labeling_grana_2016.h</i>, <i>labeling_grana_2016_forest.inc</i>, <i>labeling_grana_2016_forest_0.inc</i>
-    <td align="center">YES</td>
+    <td align="center">✔</td>
   </tr>
   <tr>
     <td align="center">Directed Rooted Acyclic Graph</td>
@@ -247,7 +248,7 @@ Notes for gnuplot:
     <td align="center">2018</td>
     <td align="center">DRAG</td>
     <td align="center"><i>labeling_bolelli_2018.h</i>, <i>labeling_grana_2018_drag.inc</i></td>
-    <td align="center">YES</td>
+    <td align="center">✔</td>
   </tr>
   <tr>
     <td align="center">Spaghetti Labeling</td>
@@ -255,15 +256,79 @@ Notes for gnuplot:
     <td align="center">2019</td>
     <td align="center">Spaghetti</td>
     <td align="center"><i>labeling_bolelli_2019.h</i>, <i>labeling_bolelli_2019_forest.inc</i>, <i>labeling_bolelli_2019_forest_firstline.inc</i>, <i>labeling_bolelli_2019_forest_lastline.inc</i>, <i>labeling_bolelli_2019_forest_singleline.inc</i></td>
-    <td align="center">YES</td>
+    <td align="center">✔</td>
   </tr>
   <tr>
+    <td align="center">PRED++</td>
+    <td align="center">F. Bolelli,</br>S. Allegretti,</br>C. Grana <a href="#DAG">[33]</a></td>
+    <td align="center">2021</td>
+    <td align="center">PREDpp</td>
+    <td align="center"><i>labeling_PREDpp_2021.h</i>, <i>labeling_PREDpp_2021_center_line_forest_code.inc.h</i>, <i>labeling_PREDpp_2021_first_line_forest_code.inc.h</i></td>
+    <td align="center">✔</td>
+  </tr>
+  <tr>
+    <td align="center">Tagliatelle Labeling</td>
+    <td align="center">F. Bolelli,</br>S. Allegretti,</br>C. Grana <a href="#DAG">[33]</a></td>
+    <td align="center">2021</td>
+    <td align="center">Tagliatelle</td>
+    <td align="center"><i>labeling_tagliatelle_2021.h</i>, <i>labeling_tagliatelle_2021_center_line_forest_code.inc.h</i>, <i>labeling_tagliatelle_2021_first_line_forest_code.inc.h</i>, <i>labeling_tagliatelle_2021_last_line_forest_code.inc.h</i>, <i>labeling_tagliatelle_2021_single_line_forest_code.inc.h</i></td>
+    <td align="center">✔</td>
+  </tr>
+  <tr>
+    <td align="center">Bit-Run Two Scan</td>
+    <td align="center">W. Lee,</br>F. Bolelli,</br>S. Allegretti,</br>C. Grana <a href="#BRTS">[32]</a></td>
+    <td align="center">2021</td>
+    <td align="center">BRTS<a href="#VII"><sup>VII</sup></a></td>
+    <td align="center"><i>labeling_lee_2021_brts.h</i></td>
+    <td align="center">✔</td>
+  </tr>
+  <tr>
+    <td align="center">Bit-Merge-Run Scan</td>
+    <td align="center">W. Lee,</br>F. Bolelli,</br>S. Allegretti,</br>C. Grana <a href="#BRTS">[32]</a></td>
+    <td align="center">2021</td>
+    <td align="center">BMRS<a href="#VII"><sup>VII</sup></a></td>
+    <td align="center"><i>labeling_lee_2021_bmrs.h</i></td>
+    <td align="center">✔</td>
+  </tr>
+    <tr>
     <td align="center">Null Labeling</td>
     <td align="center">F. Bolelli,</br>M. Cancilla,</br>L. Baraldi,</br>C. Grana <a href="#YACCLAB_JRTIP">[13]</a></td> 
     <td align="center">-</td>
     <td align="center">NULL<a href="#V"><sup>V</sup></a></td>
     <td align="center"><i>labeling_null.h</i></td>
-    <td align="center">NO</td>
+    <td align="center">❌</td>
+  </tr>
+  <tr style="border-top:5px solid black; !important">
+    <td align="center">SAUF 3D</td>
+    <td align="center">F. Bolelli,</br>S. Allegretti,</br>C. Grana <a href="#DAG">[33]</a></td>
+    <td align="center">2021</td>
+    <td align="center">SAUF_3D</td>
+    <td align="center"><i>labeling3D_SAUF_2021.h</i>, <i>labeling3D_SAUF_2021_tree_code.inc.h</i></td>
+    <td align="center">✔</td>
+  </tr>
+  <tr>
+    <td align="center">SAUF++ 3D</td>
+    <td align="center">F. Bolelli,</br>S. Allegretti,</br>C. Grana <a href="#DAG">[33]</a></td>
+    <td align="center">2021</td>
+    <td align="center">SAUFpp_3D</td>
+    <td align="center"><i>labeling3D_SAUFpp_2021.h</i>, <i>labeling3D_SAUFpp_2021_tree_code.inc.h</i></td>
+    <td align="center">✔</td>
+  </tr>
+  <tr>
+    <td align="center">PRED 3D</td>
+    <td align="center">F. Bolelli,</br>S. Allegretti,</br>C. Grana <a href="#DAG">[33]</a></td>
+    <td align="center">2021</td>
+    <td align="center">PRED_3D</td>
+    <td align="center"><i>labeling3D_PRED_2021.h</i>, <i>labeling3D_PRED_2021_center_line_forest_code.inc.h</i>, <i>labeling3D_PRED_2021_first_line_forest_code.inc.h</i>, <i>labeling3D_PRED_2021_last_line_forest_code.inc.h</i>, <i>labeling3D_PRED_2021_single_line_forest_code.inc.h</i></td>
+    <td align="center">✔</td>
+  </tr>
+  <tr>
+    <td align="center">PRED++ 3D</td>
+    <td align="center">F. Bolelli,</br>S. Allegretti,</br>C. Grana <a href="#DAG">[33]</a></td>
+    <td align="center">2021</td>
+    <td align="center">PREDpp_3D</td>
+    <td align="center"><i>labeling3D_PREDpp_2021.h</i>, <i>labeling3D_PREDpp_2021_center_line_forest_code.inc.h</i>, <i>labeling3D_PREDpp_2021_first_line_forest_code.inc.h</i>, <i>labeling3D_PREDpp_2021_last_line_forest_code.inc.h</i>, <i>labeling3D_PREDpp_2021_single_line_forest_code.inc.h</i></td>
+    <td align="center">✔</td>
   </tr>
 <tr>
     <td align="center">Entropy Partitioning Decision Tree <a href="https://github.com/prittt/YACCLAB/tree/master/doc/EPDT">RLPR</a></td>
@@ -271,7 +336,7 @@ Notes for gnuplot:
     <td align="center">2021</td>
     <td align="center">EPDT_19c and EPDT_22c<a href="#VI"><sup>VI</sup></a></td>
     <td align="center"><i>labeling3D_BBDT_2019.h</i>, <i>labeling_bolelli_2019_forest.inc</i>, <i>labeling_bolelli_2019_forest_firstline.inc</i>, <i>labeling_bolelli_2019_forest_lastline.inc</i>, <i>labeling_bolelli_2019_forest_singleline.inc</i></td>
-    <td align="center">YES</td>
+    <td align="center">✔</td>
   </tr>
 </table>
 
@@ -280,9 +345,10 @@ Notes for gnuplot:
 <a name="III"><sup>III</sup></a> with RLE compression. </br>
 <a name="IV"><sup>IV</sup></a> only on TTA and UF. </br>
 <a name="V"><sup>V</sup></a> it only copies the pixels from the input image to the output one simply defining a lower bound limit for the execution time of CCL algorithms on a given machine and dataset.</br>
-<a name="VI"><sup>VI</sup></a> EPDT_19c and EPDT_22c algorithms are based on very big decision trees that translate in many lines of C++ code. They may thus noticeably increase the build time. For this reason, a special flag (`YACCLAB_ENABLE_EPDT_ALGOS`) to enable/disable such algorithms is provided in the CMake file. By default the flag is OFF.
+<a name="VI"><sup>VI</sup></a> EPDT_19c and EPDT_22c algorithms are based on very big decision trees that translate to many lines of C++ code. They may thus noticeably increase the build time. For this reason, a special flag (`YACCLAB_ENABLE_EPDT_ALGOS`) to enable/disable such algorithms is provided in the CMake file. By default the flag is OFF.</br>
+<a name="VII"><sup>VII</sup></a> CCL algorithm for images in bitonal (1 bit per pixel) format. When applied to these algorithms, the <i>average</i> tests also consider the time for 1 byte to 1 bit per pixel conversion. On the other hand, when performing <i>average with steps</i> tests conversion time is ignored.
 
-### GPU Algorithms
+### 2D/3D GPU Algorithms
  <table>
   <tr>
     <th>Algorithm Name</th>
@@ -290,7 +356,7 @@ Notes for gnuplot:
     <th>Year</th>
     <th>Acronym</th>
     <th>Required Files</th>
-    <th>Templated on Labels Solver</th>
+    <th>2D/3D</th>
   </tr>	
   <tr>
     <td align="center">Union Find</td>
@@ -298,7 +364,7 @@ Notes for gnuplot:
     <td align="center">2010</td>
     <td align="center">UF</td>
     <td align="center"><i>labeling_oliveira_2010.cu</i></td>
-    <td align="center">NO</td>
+    <td align="center">2D and 3D</td>
   </tr>
   <tr>
     <td align="center">Optimized</br>Label Equivalence</td>
@@ -306,63 +372,63 @@ Notes for gnuplot:
     <td align="center">2011</td>
     <td align="center">OLE</td>
     <td align="center"><i>labeling_kalentev_2011.cu</i></td>
-    <td align="center">NO</td>
+    <td align="center">2D</td>
   </tr>
-  <tr>
+    <tr>
     <td align="center">Block-run-based</td>
-    <td align="center">P. Chen,</br>H.L. Zhao,</br>C. Tao,</br>H.S. Sang <a href="#BRB">[32]</a></td>
+    <td align="center">P. Chen,</br>H.L. Zhao,</br>C. Tao,</br>H.S. Sang <a href="#BRB">[25]</a></td>
     <td align="center">2011</td>
     <td align="center">BRB</td>
     <td align="center"><i>labeling_chen_2011.cu</i></td>
-    <td align="center">NO</td>
+    <td align="center">2D</td>
   </tr>
   <tr>
     <td align="center">Stava</td>
-    <td align="center">O. Stava,</br>B. Benes <a href="#STAVA">[37]</a></td>
+    <td align="center">O. Stava,</br>B. Benes <a href="#STAVA">[38]</a></td>
     <td align="center">2011</td>
     <td align="center">STAVA</td>
     <td align="center"><i>labeling_stava_2011.cu</i></td>
-    <td align="center">NO</td>
+    <td align="center">2D</td>
   </tr>
   <tr>
     <td align="center">Rasmusson</td>
-    <td align="center">A. Rasmusson,</br>T.S. Sørensen,</br>G. Ziegler <a href="#RASMUSSON">[36]</a></td>
+    <td align="center">A. Rasmusson,</br>T.S. Sørensen,</br>G. Ziegler <a href="#RASMUSSON">[37]</a></td>
     <td align="center">2013</td>
     <td align="center">RASMUSSON</td>
     <td align="center"><i>labeling_rasmusson_2013.cu</i></td>
-    <td align="center">NO</td>
+    <td align="center">2D</td>
   </tr>
   <tr>
     <td align="center">Accelerated CCL</td>
-    <td align="center">F. N. Paravecino,</br>D. Kaeli <a href="#ACCL">[33]</a></td>
+    <td align="center">F. N. Paravecino,</br>D. Kaeli <a href="#ACCL">[34]</a></td>
     <td align="center">2014</td>
     <td align="center">ACCL</td>
     <td align="center"><i>labeling_paravecino_2014.cu</i></td>
-    <td align="center">NO</td>
+    <td align="center">2D</td>
   </tr>
   <tr>
     <td align="center">8-Directional Label Selection</td>
-    <td align="center">Y. Soh,</br>H. Ashraf,</br>Y. Hae,</br>I. Kim <a href="#8DLS">[35]</a></td>
+    <td align="center">Y. Soh,</br>H. Ashraf,</br>Y. Hae,</br>I. Kim <a href="#8DLS">[36]</a></td>
     <td align="center">2014</td>
     <td align="center">DLS</td>
     <td align="center"><i>labeling_soh_2014_8DLS.cu</i></td>
-    <td align="center">NO</td>
+    <td align="center">2D</td>
   </tr>
   <tr>
     <td align="center">Modified 8-Directional Label Selection</td>
-    <td align="center">Y. Soh,</br>H. Ashraf,</br>Y. Hae,</br>I. Kim <a href="#8DLS">[35]</a></td>
+    <td align="center">Y. Soh,</br>H. Ashraf,</br>Y. Hae,</br>I. Kim <a href="#8DLS">[36]</a></td>
     <td align="center">2014</td>
     <td align="center">M8DLS</td>
     <td align="center"><i>labeling_soh_2014_M8DLS.cu</i></td>
-    <td align="center">NO</td>
+    <td align="center">2D</td>
   </tr>
   <tr>
-    <td align="center">LBUF</td>
-    <td align="center">K. Yonehara,</br>K. Aizawa <a href="#LBUF">[38]</a></td>
+    <td align="center">Line-based Union-Find</td>
+    <td align="center">K. Yonehara,</br>K. Aizawa <a href="#LBUF">[39]</a></td>
     <td align="center">2015</td>
     <td align="center">LBUF</td>
     <td align="center"><i>labeling_yonehara_2015.cu</i></td>
-    <td align="center">NO</td>
+    <td align="center">2D</td>
   </tr>
   <tr>
     <td align="center">Block Equivalence</td>
@@ -370,7 +436,7 @@ Notes for gnuplot:
     <td align="center">2016</td>
     <td align="center">BE</td>
     <td align="center"><i>labeling_zavalishin_2016.cu</i></td>
-    <td align="center">NO</td>
+    <td align="center">2D and 3D</td>
   </tr>
   <tr>
     <td align="center">Distanceless</br>Label Propagation</td>
@@ -378,7 +444,7 @@ Notes for gnuplot:
     <td align="center">2017</td>
     <td align="center">DLP</td>
     <td align="center"><i>labeling_cabaret_2017.cu</i></td>
-    <td align="center">NO</td>
+    <td align="center">2D</td>
   </tr>
   <tr>
     <td align="center">Komura Equivalence (8-conn)</td>
@@ -386,39 +452,47 @@ Notes for gnuplot:
     <td align="center">2018</td>
     <td align="center">KE</td>
     <td align="center"><i>labeling_allegretti_2018.cu</i></td>
-    <td align="center">NO</td>
+    <td align="center">2D</td>
   </tr>
   <tr>
     <td align="center">Hardware Accelerated</br>4-connected</td>
-    <td align="center">A. Hennequin,</br>L. Lacassagne,</br>L. Cabaret,</br>Q. Meunier <a href="#HA4">[34]</a></td>
+    <td align="center">A. Hennequin,</br>L. Lacassagne,</br>L. Cabaret,</br>Q. Meunier <a href="#HA4">[35]</a></td>
     <td align="center">2018</td>
     <td align="center">HA4</td>
-    <td align="center"><i>labeling_hennequin_2018.cu</i></td>
-    <td align="center">NO</td>
+    <td align="center"><i>labeling_hennequin_2018_HA4.cu</i></td>
+    <td align="center">2D</td>
+  </tr>
+  <tr>
+    <td align="center">Hardware Accelerated</br>8-connected</td>
+    <td align="center">A. Hennequin,</br>L. Lacassagne,</br>L. Cabaret,</br>Q. Meunier <a href="#HA4">[35]</a></td>
+    <td align="center">2018</td>
+    <td align="center">HA8</td>
+    <td align="center"><i>labeling_hennequin_2018_HA8.cu</i></td>
+    <td align="center">2D</td>
   </tr>
   <tr>
     <td align="center">CUDA SAUF</td>
     <td align="center">S. Allegretti,</br>F. Bolelli,</br>M. Cancilla,</br>C. Grana <a href="#CAIP">[29]</a></td>
     <td align="center">2019</td>
-    <td align="center">C_SAUF</td>
+    <td align="center">C-SAUF</td>
     <td align="center"><i>labeling_allegretti_2019_SAUF.cu</i>,</br><i>labeling_wu_2009_tree.inc</i></td>
-    <td align="center">NO</td>
+    <td align="center">2D</td>
   </tr>
   <tr>
     <td align="center">CUDA BBDT</td>
     <td align="center">S. Allegretti,</br>F. Bolelli,</br>M. Cancilla,</br>C. Grana <a href="#CAIP">[29]</a></td>
     <td align="center">2019</td>
-    <td align="center">C_BBDT</td>
+    <td align="center">C-BBDT</td>
     <td align="center"><i>labeling_allegretti_2019_BBDT.cu</i>, <i>labeling_grana_2010_tree.inc</i></td>
-    <td align="center">NO</td>
+    <td align="center">2D</td>
   </tr>
-  <tr>
+    <tr>
     <td align="center">CUDA DRAG</td>
     <td align="center">S. Allegretti,</br>F. Bolelli,</br>M. Cancilla,</br>C. Grana <a href="#CAIP">[29]</a></td>
     <td align="center">2019</td>
-    <td align="center">C_DRAG</td>
+    <td align="center">C-DRAG</td>
     <td align="center"><i>labeling_allegretti_2019_DRAG.cu</i></td>
-    <td align="center">NO</td>
+    <td align="center">2D</td>
   </tr>
   <tr>
     <td align="center">Block-based Union Find</td>
@@ -426,7 +500,7 @@ Notes for gnuplot:
     <td align="center">2019</td>
     <td align="center">BUF</td>
     <td align="center"><i>labeling_allegretti_2019_BUF.cu</i></td>
-    <td align="center">NO</td>
+    <td align="center">2D and 3D</td>
   </tr>
     <tr>
     <td align="center">Block-based Komura Equivalence</td>
@@ -434,7 +508,7 @@ Notes for gnuplot:
     <td align="center">2019</td>
     <td align="center">BKE</td>
     <td align="center"><i>labeling_allegretti_2019_BKE.cu</i></td>
-    <td align="center">NO</td>
+    <td align="center">2D and 3D</td>
   </tr>
 </table>
 
@@ -509,8 +583,7 @@ tests_number:
   average:            10
   average_with_steps: 10
   density:            10
-  granularity:        10        
-  blocksize:          10                
+  granularity:        10
 ```
 
 - <i>algorithms</i> - list of algorithms on which apply the chosen tests:
@@ -763,7 +836,6 @@ REGISTER_KERNELS(<algorithm_name>, <kernel_name_1>, <kernel_name_2>, ...);
 
 ```
 
-
 <p align="justify">Once an algorithm has been added to YACCLAB, it is ready to be tested and compared to the others. Don't forget to update the configuration file! We look at YACCLAB as a growing effort towards better reproducibility of CCL algorithms, so implementations of new and existing labeling methods are very welcome.</p>
 
 <a name="datasets"></a>
@@ -886,6 +958,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
   </tr>
   <tr>
     <td align="center"><a href="https://github.com/patrickhwood"><img src="https://avatars.githubusercontent.com/u/2100827?v=4?s=100" width="100px;" alt=""/><br /><sub><b>patrickhwood</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/issues?q=author%3Apatrickhwood" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/fengweichangzi"><img src="https://avatars.githubusercontent.com/u/87119815?v=4?s=100" width="100px;" alt=""/><br /><sub><b>WalnutVision</b></sub></a><br /><a href="https://github.com/prittt/YACCLAB/issues?q=author%3Afengweichangzi" title="Bug reports">🐛</a></td>
   </tr>
 </table>
 
@@ -1095,6 +1168,15 @@ This project follows the [all-contributors](https://github.com/all-contributors/
 </tr>
 <tr>
     <td style="vertical-align: top !important;" align="right">
+      <a name="BRB">[25]</a>
+    </td>
+    <td>
+      <p align="justify">
+P. Chen, H. Zhao, C. Tao, H. Sang, "Block-run-based connected component labelling algorithm for gpgpu using shared memory." Electronics Letters, 2011</p>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: top !important;" align="right">
       <a name="SPAGHETTI">[26]</a>
     </td>
     <td>
@@ -1145,16 +1227,25 @@ This project follows the [all-contributors](https://github.com/all-contributors/
 </tr>
 <tr>
     <td style="vertical-align: top !important;" align="right">
-      <a name="BRB">[32]</a>
+      <a name="BRTS">[32]</a>
     </td>
     <td>
       <p align="justify">
-P. Chen, H. Zhao, C. Tao, H. Sang, "Block-run-based connected component labelling algorithm for gpgpu using shared memory." Electronics Letters, 2011</p>
+	W. Lee, F. Bolelli, S. Allegretti, C. Grana. "Fast Run-Based Connected Components Labeling for Bitonal Images." 5th International Conference on Imaging, Vision & Pattern Recognition, 2021</p>
+    </td>
+</tr>	
+<tr>
+    <td style="vertical-align: top !important;" align="right">
+      <a name="DAG">[33]</a>
+    </td>
+    <td>
+      <p align="justify">
+	F. Bolelli, S. Allegretti, C. Grana. "One DAG to Rule Them All." IEEE Transactions on Pattern Analisys and Machine Intelligence, 2021</p>
     </td>
 </tr>
 <tr>
     <td style="vertical-align: top !important;" align="right">
-      <a name="ACCL">[33]</a>
+      <a name="ACCL">[34]</a>
     </td>
     <td>
       <p align="justify">
@@ -1163,7 +1254,7 @@ F. N. Paravecino, D. Kaeli, "Accelerated Connected Component Labeling Using CUDA
 </tr>	
 <tr>
     <td style="vertical-align: top !important;" align="right">
-      <a name="HA4">[34]</a>
+      <a name="HA4">[35]</a>
     </td>
     <td>
       <p align="justify">
@@ -1172,7 +1263,7 @@ A. Hennequin, L. Lacassagne, L. Cabaret, Q. Meunier, "A new Direct Connected Com
 </tr>	
 <tr>
     <td style="vertical-align: top !important;" align="right">
-      <a name="8DLS">[35]</a>
+      <a name="8DLS">[36]</a>
     </td>
     <td>
       <p align="justify">
@@ -1181,7 +1272,7 @@ Y. So, H. Ashraf, Y. Hae, I. Kim, "Fast Parallel Connected Component Labeling Al
 </tr>
 <tr>
     <td style="vertical-align: top !important;" align="right">
-      <a name="RASMUSSON">[36]</a>
+      <a name="RASMUSSON">[37]</a>
     </td>
     <td>
       <p align="justify">
@@ -1190,7 +1281,7 @@ A. Rasmusson, T.S. Sørensen, G. Ziegler, "Connected Components Labeling on the 
 </tr>
 <tr>
     <td style="vertical-align: top !important;" align="right">
-      <a name="STAVA">[37]</a>
+      <a name="STAVA">[38]</a>
     </td>
     <td>
       <p align="justify">
@@ -1199,7 +1290,7 @@ O. Stava, B. Benes, "Connected Components Labeling in CUDA", GPU Computing Gems,
 </tr>	
 <tr>
     <td style="vertical-align: top !important;" align="right">
-      <a name="LBUF">[37]</a>
+      <a name="LBUF">[39]</a>
     </td>
     <td>
       <p align="justify">

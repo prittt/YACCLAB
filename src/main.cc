@@ -29,6 +29,7 @@
 
 using namespace std;
 using namespace cv;
+using namespace ::filesystem;
 
 int main()
 {
@@ -150,7 +151,7 @@ int main()
 
 		// Copy log file into output folder
 		dmux::cout.flush();
-		filesystem::copy(path(logfile), cfg.global_config.glob_output_path / mode_cfg.mode_output_path / path(logfile), ec);
+		copy(path(logfile), cfg.global_config.glob_output_path / mode_cfg.mode_output_path / path(logfile), ec);
 	}
 
     return EXIT_SUCCESS;
