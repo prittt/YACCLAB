@@ -98,7 +98,7 @@ Notice that 8-connectivity is always used in the project.
 <p align="justify">
 To correctly install and run YACCLAB following packages, libraries and utilities are needed:
 
-- CMake 3.13 or higher (https://cmake.org);
+- CMake 3.18 or higher (https://cmake.org);
 - OpenCV 3.0 or higher (http://opencv.org), required packages are `core`, `imgcodecs`, `imgproc`;
 - Gnuplot (http://www.gnuplot.info/);
 - One of your favourite IDE/compiler with C++14 support.
