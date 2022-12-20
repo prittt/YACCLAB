@@ -15,26 +15,26 @@ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/
 #brew upgrade -y > brew_upgrade.log
 echo -e "------------------------------------------> DONE!" 
 
-echo -e "\n\n------------------------------------------> Install cmake-3.13 (only if it wasn't cached):"
-#export DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
-#mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
-echo -e "(CMake cache test):"
-if [ -d cmake-install -a "$(ls -A cmake-install/)" ]; then
-    echo -e "    CMake already installed"
-else
-    echo -e "    CMake not installed yet, downloading it ... "
-    curl -L https://cmake.org/files/v3.13/cmake-3.13.0-Darwin-x86_64.tar.gz > cmake-3.13.tar.gz
-    echo -e "    DONE"
-    tar -xzf cmake-3.13.tar.gz
-    mv cmake-3.13.0-Darwin-x86_64 cmake-install
-    #export PATH=${DEPS_DIR}/cmake-install/CMake.app/Contents/bin:$PATH
-    #cd ${TRAVIS_BUILD_DIR}
-    echo -e "------------------------------------------> DONE!" 
-
-    echo -e "\n\n------------------------------------------> Check CMake version"
-    cmake-install/CMake.app/Contents/bin/cmake --version
-fi
-echo -e "------------------------------------------> DONE!" 
+#echo -e "\n\n------------------------------------------> Install cmake-3.13 (only if it wasn't cached):"
+##export DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
+##mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
+#echo -e "(CMake cache test):"
+#if [ -d cmake-install -a "$(ls -A cmake-install/)" ]; then
+#    echo -e "    CMake already installed"
+#else
+#    echo -e "    CMake not installed yet, downloading it ... "
+#    curl -L https://github.com/Kitware/CMake/releases/download/v3.25.1/cmake-3.25.1.tar.gz > cmake-3.25.1.tar.gz
+#    echo -e "    DONE"
+#    tar -xzf cmake-3.25.1.tar.gz
+#    mv cmake-3.25.1 cmake-install
+#    #export PATH=${DEPS_DIR}/cmake-install/CMake.app/Contents/bin:$PATH
+#    #cd ${TRAVIS_BUILD_DIR}
+#    echo -e "------------------------------------------> DONE!" 
+#
+#    echo -e "\n\n------------------------------------------> Check CMake version"
+#    cmake-install/CMake.app/Contents/bin/cmake --version
+#fi
+#echo -e "------------------------------------------> DONE!" 
 
 echo -e "\n\n------------------------------------------> Install OpenCV-3.1.0 (only if they weren't cached) and dependent packages:"
 
@@ -59,7 +59,7 @@ else
     mkdir install_dir
 
     # Set build instructions for OSX (x64 build).
-    ../../cmake-install/CMake.app/Contents/bin/cmake -D CMAKE_C_FLAGS=-m64 -D CMAKE_CXX_FLAGS=-m64 -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=./install_dir -D WITH_FFMPEG=OFF -D WITH_OPENCL=OFF -D WITH_QT=OFF -D WITH_IPP=OFF -D WITH_MATLAB=OFF -D WITH_OPENGL=OFF -D WITH_TIFF=OFF -D BUILD_EXAMPLES=OFF -D BUILD_TESTS=OFF -D BUILD_PERF_TESTS=OFF -D BUILD_opencv_java=OFF -D BUILD_opencv_python2=OFF -D BUILD_opencv_python3=OFF -D WITH_TBB=OFF -D WITH_CUDA=OFF -D WITH_V4L=OFF -D INSTALL_C_EXAMPLES=OFF -D INSTALL_PYTHON_EXAMPLES=OFF -D BUILD_EXAMPLES=OFF -D BUILD_SHARED_LIBS=OFF -D BUILD_ZLIB=OFF -D BUILD_opencv_core=ON -D BUILD_opencv_imgproc=ON -D BUILD_opencv_imgcodecs=ON -D BUILD_opencv_videoio=OFF -D BUILD_opencv_highgui=OFF -D BUILD_opencv_video=OFF -D BUILD_opencv_calib3d=OFF -D BUILD_opencv_features2d=OFF -D BUILD_opencv_objdetect=OFF -D BUILD_opencv_ml=OFF -D BUILD_opencv_flann=OFF -D BUILD_opencv_photo=ON -D BUILD_opencv_stitching=OFF -D BUILD_opencv_cudaarithm=OFF -D BUILD_opencv_cudabgsegm=OFF -D BUILD_opencv_cudacodec=OFF -D BUILD_opencv_cudafeatures2d=OFF -D BUILD_opencv_cudafilters=OFF -D BUILD_opencv_cudaimgproc=OFF -D BUILD_opencv_cudalegacy=OFF -D BUILD_opencv_cudaobjdetect=OFF -D BUILD_opencv_cudaoptflow=OFF -D BUILD_opencv_cudastereo=OFF -D BUILD_opencv_cudawarping=OFF -D BUILD_opencv_cudev=OFF -D BUILD_opencv_shape=OFF -D BUILD_opencv_superres=OFF -D BUILD_opencv_videostab=OFF -D BUILD_opencv_viz=OFF -D WITH_OPENEXR=OFF ..
+    cmake -D CMAKE_C_FLAGS=-m64 -D CMAKE_CXX_FLAGS=-m64 -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=./install_dir -D WITH_FFMPEG=OFF -D WITH_OPENCL=OFF -D WITH_QT=OFF -D WITH_IPP=OFF -D WITH_MATLAB=OFF -D WITH_OPENGL=OFF -D WITH_TIFF=OFF -D BUILD_EXAMPLES=OFF -D BUILD_TESTS=OFF -D BUILD_PERF_TESTS=OFF -D BUILD_opencv_java=OFF -D BUILD_opencv_python2=OFF -D BUILD_opencv_python3=OFF -D WITH_TBB=OFF -D WITH_CUDA=OFF -D WITH_V4L=OFF -D INSTALL_C_EXAMPLES=OFF -D INSTALL_PYTHON_EXAMPLES=OFF -D BUILD_EXAMPLES=OFF -D BUILD_SHARED_LIBS=OFF -D BUILD_ZLIB=OFF -D BUILD_opencv_core=ON -D BUILD_opencv_imgproc=ON -D BUILD_opencv_imgcodecs=ON -D BUILD_opencv_videoio=OFF -D BUILD_opencv_highgui=OFF -D BUILD_opencv_video=OFF -D BUILD_opencv_calib3d=OFF -D BUILD_opencv_features2d=OFF -D BUILD_opencv_objdetect=OFF -D BUILD_opencv_ml=OFF -D BUILD_opencv_flann=OFF -D BUILD_opencv_photo=ON -D BUILD_opencv_stitching=OFF -D BUILD_opencv_cudaarithm=OFF -D BUILD_opencv_cudabgsegm=OFF -D BUILD_opencv_cudacodec=OFF -D BUILD_opencv_cudafeatures2d=OFF -D BUILD_opencv_cudafilters=OFF -D BUILD_opencv_cudaimgproc=OFF -D BUILD_opencv_cudalegacy=OFF -D BUILD_opencv_cudaobjdetect=OFF -D BUILD_opencv_cudaoptflow=OFF -D BUILD_opencv_cudastereo=OFF -D BUILD_opencv_cudawarping=OFF -D BUILD_opencv_cudev=OFF -D BUILD_opencv_shape=OFF -D BUILD_opencv_superres=OFF -D BUILD_opencv_videostab=OFF -D BUILD_opencv_viz=OFF -D WITH_OPENEXR=OFF ..
 
     # Run 'make' with four threads.
     make -j

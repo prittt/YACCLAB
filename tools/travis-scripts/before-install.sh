@@ -155,13 +155,13 @@ function install_osx_environment()
   #brew upgrade -y > brew_upgrade.log
   echo -e "------------------------------------------> DONE!" 
   
-  echo -e "\n\n------------------------------------------> Install cmake-3.13:"
+  echo -e "\n\n------------------------------------------> Install cmake-3.25.1:"
   export DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
   mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
-  curl -L https://cmake.org/files/v3.13/cmake-3.13.0-Darwin-x86_64.tar.gz > cmake-3.13.tar.gz
+  curl -L https://github.com/Kitware/CMake/releases/download/v3.25.1/cmake-3.25.1.tar.gz > cmake-3.25.1.tar.gz
   echo -e "    DONE"
-  tar -xzf cmake-3.13.tar.gz
-  mv cmake-3.13.0-Darwin-x86_64 cmake-install
+  tar -xzf cmake-3.25.1.tar.gz
+  mv cmake-3.25.1 cmake-install
   export PATH=${DEPS_DIR}/cmake-install/CMake.app/Contents/bin:$PATH
   cd ${TRAVIS_BUILD_DIR}
   echo -e "------------------------------------------> DONE!" 

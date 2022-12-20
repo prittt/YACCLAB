@@ -12,7 +12,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: /Users/runner/work/YACCLAB/YACCLAB/cmake-install
-        key: cmake-3.13.0
+        key: cmake-3.18.0
         
     - name: cache opencv
       uses: actions/cache@v2
@@ -29,7 +29,7 @@ jobs:
     - name: dependencies
       run: chmod +x tools/actions-scripts/macos-before-install.sh && tools/actions-scripts/macos-before-install.sh
     - name: configure
-      run: DATASET_PATH=$(pwd)/input && OPENCV_DIR=$(pwd)/opencv-3.1.0/build/install_dir/share/OpenCV/ && mkdir bin && cd bin && ../cmake-install/CMake.app/Contents/bin/cmake -DCMAKE_CXX_FLAGS="-m64" -DCMAKE_C_FLAGS="-m64" -DYACCLAB_CI_CPU=ON -DYACCLAB_INPUT_DATASET_PATH=$DATASET_PATH -DYACCLAB_ENABLE_3D=ON -DOpenCV_DIR=$OPENCV_DIR -DCMAKE_BUILD_TYPE=Release ..
+      run: DATASET_PATH=$(pwd)/input && OPENCV_DIR=$(pwd)/opencv-3.1.0/build/install_dir/share/OpenCV/ && mkdir bin && cd bin && cmake -DCMAKE_CXX_FLAGS="-m64" -DCMAKE_C_FLAGS="-m64" -DYACCLAB_CI_CPU=ON -DYACCLAB_INPUT_DATASET_PATH=$DATASET_PATH -DYACCLAB_ENABLE_3D=ON -DOpenCV_DIR=$OPENCV_DIR -DCMAKE_BUILD_TYPE=Release ..
     - name: build
       run: cd bin && make -j
     - name: run
