@@ -256,9 +256,19 @@ private:
     double Alloc() {
         perf_.start();
         d_img_labels_.create(d_img_.x, d_img_.y, d_img_.z, CV_32SC1);
-        perf_.stop();
-        return perf_.last();
+        cudaMemset(d_img_labels_.data, 0, d_img_labels_.stepz * d_img_labels_.z);
+
+        cudaDeviceSynchronize();
+        double t = perf_.stop();
+
+        perf_.start();
+        cudaMemset(d_img_labels_.data, 0, d_img_labels_.stepz * d_img_labels_.z);
+ 
+        cudaDeviceSynchronize();
+        t -= perf_.stop();
+        return t;
     }
+
 
     double Dealloc() {
         perf_.start();

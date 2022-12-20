@@ -517,7 +517,8 @@ public:
 
 
 private:
-    void Alloc() {
+    double Alloc() {
+        perf_.start();
         d_img_labels_.create(d_img_.x, d_img_.y, d_img_.z, CV_32SC1);
 
         allocated_last_cude_fg_ = false;
@@ -536,6 +537,22 @@ private:
                 allocated_last_cude_fg_ = true;
             }
         }
+
+        cudaMemset(d_img_labels_.data, 0, d_img_labels_.stepz * d_img_labels_.z);
+        if (allocated_last_cude_fg_) {
+            cudaMemset(last_cube_fg_, 0, 1);
+        }
+        cudaDeviceSynchronize();
+        double t = perf_.stop();
+
+        perf_.start();
+        cudaMemset(d_img_labels_.data, 0, d_img_labels_.stepz * d_img_labels_.z);
+        if (allocated_last_cude_fg_) {
+            cudaMemset(last_cube_fg_, 0, 1);
+        }
+        cudaDeviceSynchronize();
+        t -= perf_.stop();
+        return t;
     }
 
     void Dealloc() {
@@ -586,10 +603,7 @@ private:
 public:
     void PerformLabelingWithSteps()
     {
-        perf_.start();
-        Alloc();
-        perf_.stop();
-        double alloc_timing = perf_.last();
+        double alloc_timing = Alloc();
 
         perf_.start();
         AllScans();

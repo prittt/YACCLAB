@@ -312,8 +312,21 @@ public:
 
 
 private:
-    void Alloc() {
+    double Alloc() {
+
+        perf_.start();
         d_img_labels_.create(d_img_.size(), CV_32SC1);
+        cudaMemset2D(d_img_labels_.data, d_img_labels_.step, 0, d_img_labels_.cols * 4, d_img_labels_.rows);
+        cudaDeviceSynchronize();
+
+        double t = perf_.stop();
+
+        perf_.start();
+        cudaMemset2D(d_img_labels_.data, d_img_labels_.step, 0, d_img_labels_.cols * 4, d_img_labels_.rows);
+        cudaDeviceSynchronize();
+
+        t -= perf_.stop();
+        return t;
     }
 
     void Dealloc() {
@@ -361,10 +374,7 @@ private:
 public:
     void PerformLabelingWithSteps()
     {
-        perf_.start();
-        Alloc();
-        perf_.stop();
-        double alloc_timing = perf_.last();
+        double alloc_timing = Alloc();
 
         perf_.start();
         AllScans();

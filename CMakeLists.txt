@@ -105,6 +105,7 @@ if(YACCLAB_ENABLE_CUDA)
 		string(REPLACE " " ";" INSTALLED_GPU_CCS_3 "${INSTALLED_GPU_CCS_2}")
 		string(REPLACE "." "" CUDA_ARCH_LIST "${INSTALLED_GPU_CCS_3}")
 		SET(CMAKE_CUDA_ARCHITECTURES ${CUDA_ARCH_LIST})
+		#SET(CMAKE_CUDA_ARCHITECTURES native)
 		message(STATUS "CUDA detected architecture: ${CUDA_ARCH_LIST}")
 		
         #find_package(CUDA)

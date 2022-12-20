@@ -469,14 +469,31 @@ public:
 
 
 private:
+
     double Alloc() {
+
         perf_.start();
         d_img_labels_.create(d_img_.size(), CV_32SC1);
         d_connections_.create((d_img_.rows + 1) / 2, (d_img_.cols + 1) / 2, CV_8UC1);
         d_block_labels_.create((d_img_.rows + 1) / 2, (d_img_.cols + 1) / 2, CV_32SC1);
         cudaMalloc(&d_changes, sizeof(char));
-        perf_.stop();
-        return perf_.last();
+        cudaMemset2D(d_img_labels_.data, d_img_labels_.step, 0, d_img_labels_.cols * 4, d_img_labels_.rows);
+        cudaMemset2D(d_connections_.data, d_connections_.step, 0, d_connections_.cols, d_connections_.rows);
+        cudaMemset2D(d_block_labels_.data, d_block_labels_.step, 0, d_block_labels_.cols * 4, d_block_labels_.rows);
+        cudaMemset(d_changes, 0, 1);
+        cudaDeviceSynchronize();
+
+        double t = perf_.stop();
+
+        perf_.start();
+        cudaMemset2D(d_img_labels_.data, d_img_labels_.step, 0, d_img_labels_.cols * 4, d_img_labels_.rows);
+        cudaMemset2D(d_connections_.data, d_connections_.step, 0, d_connections_.cols, d_connections_.rows);
+        cudaMemset2D(d_block_labels_.data, d_block_labels_.step, 0, d_block_labels_.cols * 4, d_block_labels_.rows);
+        cudaMemset(d_changes, 0, 1);
+        cudaDeviceSynchronize();
+
+        t -= perf_.stop();
+        return t;
     }
 
     double Dealloc() {

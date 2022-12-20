@@ -620,8 +620,20 @@ private:
         d_connections_.create((d_img_.x + 1) / 2, (d_img_.y + 1) / 2, (d_img_.z + 1) / 2, CV_32SC1);
         d_block_labels_.create((d_img_.x + 1) / 2, (d_img_.y + 1) / 2, (d_img_.z + 1) / 2, CV_32SC1);
         cudaMalloc(&d_changes, sizeof(char));
-        perf_.stop();
-        return perf_.last();
+        cudaMemset(d_img_labels_.data, 0, d_img_labels_.stepz * d_img_labels_.z);
+        cudaMemset(d_connections_.data, 0, d_connections_.stepz * d_connections_.z);
+        cudaMemset(d_block_labels_.data, 0, d_block_labels_.stepz * d_block_labels_.z);
+        cudaMemset(d_changes, 0, 1);
+        cudaDeviceSynchronize();
+        double t = perf_.stop();
+        perf_.start();
+        cudaMemset(d_img_labels_.data, 0, d_img_labels_.stepz * d_img_labels_.z);
+        cudaMemset(d_connections_.data, 0, d_connections_.stepz * d_connections_.z);
+        cudaMemset(d_block_labels_.data, 0, d_block_labels_.stepz * d_block_labels_.z);
+        cudaMemset(d_changes, 0, 1);
+        cudaDeviceSynchronize();
+        t -= perf_.stop();
+        return t;
     }
 
     double Dealloc() {
