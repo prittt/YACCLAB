@@ -5,6 +5,7 @@
 # license that can be found in the LICENSE file.
 
 cmake_minimum_required(VERSION 3.18)
+cmake_policy(SET CMP0091 NEW)
 
 # ----------------------------------------------------------------------------
 #  Base variables
@@ -104,9 +105,8 @@ if(YACCLAB_ENABLE_CUDA)
 		string(STRIP "${INSTALLED_GPU_CCS_1}" INSTALLED_GPU_CCS_2)
 		string(REPLACE " " ";" INSTALLED_GPU_CCS_3 "${INSTALLED_GPU_CCS_2}")
 		string(REPLACE "." "" CUDA_ARCH_LIST "${INSTALLED_GPU_CCS_3}")
-		#SET(CMAKE_CUDA_ARCHITECTURES ${CUDA_ARCH_LIST})
+		SET(CMAKE_CUDA_ARCHITECTURES ${CUDA_ARCH_LIST})
 		#SET(CMAKE_CUDA_ARCHITECTURES native)
-		SET(CMAKE_CUDA_ARCHITECTURES 50)
 		message(STATUS "CUDA detected architecture: ${CUDA_ARCH_LIST}")
 		
         #find_package(CUDA)
@@ -158,18 +158,9 @@ message(STATUS "OpenCV required packages: ${OpenCV_REQUIRED_PACKAGES}")
 FIND_PACKAGE(OpenCV REQUIRED ${OpenCV_REQUIRED_PACKAGES})
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 
-if(MSVC)
-	if("${OpenCV_STATIC}" STREQUAL "ON" OR "${OpenCV_SHARED}" STREQUAL "OFF")
-		message(STATUS "Setting static runtime for MSVC")
-		foreach(flag_var CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-			string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
-		endforeach(flag_var)
-		if (YACCLAB_ENABLE_CUDA AND CMAKE_CUDA_COMPILER)
-			foreach(flag_var CMAKE_CUDA_FLAGS_DEBUG CMAKE_CUDA_FLAGS_RELEASE CMAKE_CUDA_FLAGS_MINSIZEREL CMAKE_CUDA_FLAGS_RELWITHDEBINFO) 
-				string(REGEX REPLACE "-MD" "-MT" ${flag_var} "${${flag_var}}")
-			endforeach(flag_var)
-		endif()
-	endif()
+if("${OpenCV_STATIC}" STREQUAL "ON" OR "${OpenCV_SHARED}" STREQUAL "OFF")
+    message(STATUS "Setting static runtime for MSVC")
+    set(YACCLAB_MSVC_RUNTIME_STATIC ON)	
 endif()
 
 
@@ -255,6 +246,9 @@ endif()
 add_executable(${ProjectName} "${CMAKE_INSTALL_PREFIX}/config.yaml")
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${ProjectName}) # Set YACCLAB as startup group instead of ALL_BUILD
 target_link_libraries (${ProjectName}  ${OpenCV_LIBS})
+if(YACCLAB_MSVC_RUNTIME_STATIC)
+    set_property(TARGET ${ProjectName} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
 if(OpenMP_CXX_FOUND)
     target_link_libraries(${ProjectName} OpenMP::OpenMP_CXX)
 endif()
