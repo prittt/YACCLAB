@@ -102,9 +102,8 @@ __global__ void StripLabeling(const cuda::PtrStepSzb img, cuda::PtrStepSzi label
                     labels.data[labels_index] = labels_index - ((threadIdx.x == 0) ? distance_y : 0) + 1;
                 }
 
-#if __CUDA_ARCH__ < 700
+                // This synchronize call is not included in the HA4_Strip_Labeling() psuedocode in 10.1109/dasip.2018.8596835 but is necessary
                 __syncthreads();
-#endif
 
                 if (threadIdx.x == 0) {
                     shared_pixels[threadIdx.y] = pixels_y;
