@@ -135,7 +135,7 @@ void KernelMapSingleton::InitializeAlgorithm(const std::string& algorithm, const
             }));
         v.push_back(s);
     }
-    KernelMapSingleton::GetInstance().data_[algorithm] = move(v);
+    KernelMapSingleton::GetInstance().data_[algorithm] = std::move(v);
 }
 
 

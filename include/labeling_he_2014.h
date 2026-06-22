@@ -122,13 +122,10 @@ public:
         n_labels_ = LabelsSolver::Flatten();
 
         // Second scan
-        for (int r_i = 0; r_i < img_labels_.rows; ++r_i) {
-            unsigned int *img_labels_row_start = img_labels_.ptr<unsigned int>(r_i);
-            unsigned int *img_labels_row_end = img_labels_row_start + img_labels_.cols;
-            unsigned int *img_labels_row = img_labels_row_start;
-            for (int c_i = 0; img_labels_row != img_labels_row_end; ++img_labels_row, ++c_i) {
-                *img_labels_row = LabelsSolver::GetLabel(*img_labels_row);
-            }
+        const unsigned int pixels = h * w;
+        unsigned int * img_data = reinterpret_cast<unsigned int*>(img_labels_.data);
+        for (unsigned int i = 0; i < pixels; i++) {
+            img_data[i] = LabelsSolver::GetLabel(img_data[i]);
         }
 
         LabelsSolver::Dealloc();
@@ -242,7 +239,7 @@ public:
                 img_labels(r_i,c_i) = LabelsSolver::MemGetLabel(img_labels(r_i, c_i));
             }
         }
-
+        
         // Store total accesses in the output vector 'accesses'
         accesses = std::vector<uint64_t>((int)MD_SIZE, 0);
 
@@ -363,18 +360,17 @@ private:
 #undef CONDITION_N4
 #undef CONDITION_N5
     }
-    void SecondScan() 
+    void SecondScan()
     {
         n_labels_ = LabelsSolver::Flatten();
 
-        // Second scan
-        for (int r_i = 0; r_i < img_labels_.rows; ++r_i) {
-            unsigned int *img_labels_row_start = img_labels_.ptr<unsigned int>(r_i);
-            unsigned int *img_labels_row_end = img_labels_row_start + img_labels_.cols;
-            unsigned int *img_labels_row = img_labels_row_start;
-            for (int c_i = 0; img_labels_row != img_labels_row_end; ++img_labels_row, ++c_i) {
-                *img_labels_row = LabelsSolver::GetLabel(*img_labels_row);
-            }
+        const unsigned int w(img_.cols);
+        const unsigned int h(img_.rows);
+
+        const unsigned int pixels = h * w;
+        unsigned int * img_data = reinterpret_cast<unsigned int*>(img_labels_.data);
+        for (unsigned int i = 0; i < pixels; i++) {
+            img_data[i] = LabelsSolver::GetLabel(img_data[i]);
         }
     }
 };

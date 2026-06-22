@@ -69,12 +69,10 @@ public:
         // Second scan
         n_labels_ = LabelsSolver::Flatten();
 
-        for (int r = 0; r < img_labels_.rows; ++r) {
-            unsigned* img_row_start = img_labels_.ptr<unsigned>(r);
-            unsigned* const img_row_end = img_row_start + img_labels_.cols;
-            for (; img_row_start != img_row_end; ++img_row_start) {
-                *img_row_start = LabelsSolver::GetLabel(*img_row_start);
-            }
+        const unsigned int pixels = h * w;
+        unsigned int * img_data = reinterpret_cast<unsigned int*>(img_labels_.data);
+        for (unsigned int i = 0; i < pixels; i++) {
+            img_data[i] = LabelsSolver::GetLabel(img_data[i]);
         }
 
         LabelsSolver::Dealloc(); // Memory deallocation of the labels solver
@@ -168,9 +166,9 @@ public:
         // Second scan
         n_labels_ = LabelsSolver::MemFlatten();
 
-        for (int r = 0; r < h; ++r) {
-            for (int c = 0; c < w; ++c) {
-                img_labels(r, c) = LabelsSolver::MemGetLabel(img_labels(r, c));
+        for (int r_i = 0; r_i < img_labels.rows; ++r_i) {
+            for (int c_i = 0; c_i < img_labels.cols; ++c_i) {
+                img_labels(r_i,c_i) = LabelsSolver::MemGetLabel(img_labels(r_i, c_i));
             }
         }
 
@@ -296,12 +294,13 @@ private:
     {
         n_labels_ = LabelsSolver::Flatten();
 
-        for (int r = 0; r < img_labels_.rows; ++r) {
-            unsigned * img_row_start = img_labels_.ptr<unsigned>(r);
-            unsigned * const img_row_end = img_row_start + img_labels_.cols;
-            for (; img_row_start != img_row_end; ++img_row_start) {
-                *img_row_start = LabelsSolver::GetLabel(*img_row_start);
-            }
+        const unsigned int w(img_.cols);
+        const unsigned int h(img_.rows);
+
+        const unsigned int pixels = h * w;
+        unsigned int * img_data = reinterpret_cast<unsigned int*>(img_labels_.data);
+        for (unsigned int i = 0; i < pixels; i++) {
+            img_data[i] = LabelsSolver::GetLabel(img_data[i]);
         }
     }
 };

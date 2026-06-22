@@ -390,16 +390,12 @@ public:
 		// Second scan
 		LabelsSolver::Flatten();
 
+		const unsigned int voxels = h * w * d;
 		int * img_row = reinterpret_cast<int*>(img_labels_.data);
-		for (int s = 0; s < d; s++) {
-			for (int r = 0; r < h; r++) {
-				for (int c = 0; c < w; c++) {
-					img_row[c] = LabelsSolver::GetLabel(img_row[c]);
-				}
-				img_row += img_labels_.step[1] / sizeof(int);
-			}
+		for (unsigned int i = 0; i < voxels; i++) {
+			img_row[i] = LabelsSolver::GetLabel(img_row[i]);
 		}
-
+        
 		LabelsSolver::Dealloc(); // Memory deallocation of the labels solver
 
 	}
@@ -553,14 +549,10 @@ private:
 		unsigned int h = img_.size.p[1];
 		unsigned int w = img_.size.p[2];
 
+		const unsigned int voxels = h * w * d;
 		int * img_row = reinterpret_cast<int*>(img_labels_.data);
-		for (unsigned int s = 0; s < d; s++) {
-			for (unsigned int r = 0; r < h; r++) {
-				for (unsigned int c = 0; c < w; c++) {
-					img_row[c] = LabelsSolver::GetLabel(img_row[c]);
-				}
-				img_row += img_labels_.step.p[1] / sizeof(int);
-			}
+		for (unsigned int i = 0; i < voxels; i++) {
+			img_row[i] = LabelsSolver::GetLabel(img_row[i]);
 		}
 	}
 };

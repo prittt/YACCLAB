@@ -110,12 +110,10 @@ public:
     // Second scan
         n_labels_ = LabelsSolver::Flatten();
 
-        for (int r_i = 0; r_i < img_labels_.rows; ++r_i) {
-            unsigned int *b = img_labels_.ptr<unsigned int>(r_i);
-            unsigned int *e = b + img_labels_.cols;
-            for (; b != e; ++b) {
-                *b = LabelsSolver::GetLabel(*b);
-            }
+        const unsigned int pixels = h * w;
+        unsigned int * img_data = reinterpret_cast<unsigned int*>(img_labels_.data);
+        for (unsigned int i = 0; i < pixels; i++) {
+            img_data[i] = LabelsSolver::GetLabel(img_data[i]);
         }
 
         LabelsSolver::Dealloc();
@@ -248,12 +246,13 @@ private:
         // Second scan
         n_labels_ = LabelsSolver::Flatten();
 
-        for (int r_i = 0; r_i < img_labels_.rows; ++r_i) {
-            unsigned int *b = img_labels_.ptr<unsigned int>(r_i);
-            unsigned int *e = b + img_labels_.cols;
-            for (; b != e; ++b) {
-                *b = LabelsSolver::GetLabel(*b);
-            }
+        const unsigned int w(img_.cols);
+        const unsigned int h(img_.rows);
+
+        const unsigned int pixels = h * w;
+        unsigned int * img_data = reinterpret_cast<unsigned int*>(img_labels_.data);
+        for (unsigned int i = 0; i < pixels; i++) {
+            img_data[i] = LabelsSolver::GetLabel(img_data[i]);
         }
     }
 };
